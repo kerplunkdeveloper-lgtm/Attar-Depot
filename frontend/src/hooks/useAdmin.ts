@@ -1,0 +1,144 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { Order, Product, Category, Review, User } from '@/types';
+
+export const useAdminStats = () => {
+  return useQuery<{
+    stats: {
+      totalRevenue: number;
+      totalOrders: number;
+      totalProducts: number;
+      totalCategories: number;
+      totalUsers: number;
+      pendingOrdersCount: number;
+      deliveredOrdersCount: number;
+    };
+    recentOrders: Order[];
+  }>({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const { data } = await api.get('/admin/stats');
+      return data;
+    },
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useAdminOrders = (status?: string) => {
+  return useQuery<{ orders: Order[]; total: number }>({
+    queryKey: ['admin-orders', status],
+    queryFn: async () => {
+      const url = status && status !== 'All' ? `/orders?status=${status}` : '/orders';
+      const { data } = await api.get(url);
+      return data;
+    },
+  });
+};
+
+export const useUpdateOrderStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      trackingNumber,
+    }: {
+      id: string;
+      status: string;
+      trackingNumber?: string;
+    }) => {
+      const { data } = await api.put(`/orders/${id}/status`, { status, trackingNumber });
+      return data.order;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminCreateProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: FormData | any) => {
+      const { data } = await api.post('/products', formData);
+      return data.product;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminDeleteProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.delete(`/products/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminCreateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (catData: { name: string; description?: string; image?: string }) => {
+      const { data } = await api.post('/categories', catData);
+      return data.category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminUpdateProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await api.put(`/products/${id}`, data);
+      return response.data.product;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminUpdateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name?: string; description?: string; image?: string; featured?: boolean } }) => {
+      const response = await api.put(`/categories/${id}`, data);
+      return response.data.category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.delete(`/categories/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+

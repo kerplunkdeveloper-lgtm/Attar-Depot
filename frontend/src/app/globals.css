@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --emerald-primary: #046A5A;
+  --emerald-dark: #023F36;
+  --emerald-light: #ECFDF5;
+  --gold-accent: #C9A227;
+  --ivory: #FAF8F2;
+}
+
+body {
+  color: var(--foreground);
+  background: #FFFFFF;
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Cormorant Garamond for Headings & Product Titles */
+h1, h2, h3, .font-serif, .font-cormorant, .font-heading {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Inter for Navigation, Buttons, Prices, Reviews & Body */
+button, input, select, textarea, .font-sans, .font-inter {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+}
+
+/* Custom Soft Emerald Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAF9;
+}
+::-webkit-scrollbar-thumb {
+  background: #A7F3D0;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #046A5A;
+}
+
+/* Light Mode Glassmorphism with Emerald Green Overlay */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.16);
+  box-shadow: 0 10px 30px -8px rgba(5, 150, 105, 0.08);
+}
+
+.glass-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(16, 185, 129, 0.14);
+  box-shadow: 0 4px 20px -2px rgba(5, 150, 105, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.36);
+  box-shadow: 0 12px 30px -4px rgba(5, 150, 105, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Text Gradients */
+.text-rose-gradient,
+.text-emerald-gradient {
+  background: linear-gradient(135deg, #046A5A 0%, #035346 50%, #C9A227 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #046A5A 0%, #035346 50%, #B45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Vibrant Luxury Buttons */
+.btn-rose,
+.btn-emerald,
+.btn-gold {
+  background: linear-gradient(135deg, #046A5A 0%, #035346 50%, #023F36 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(4, 106, 90, 0.25);
+}
+
+.btn-rose:hover,
+.btn-emerald:hover,
+.btn-gold:hover {
+  box-shadow: 0 8px 25px rgba(4, 106, 90, 0.40);
+  transform: translateY(-1px);
+}
+
+/* Emergent Emerald Green ambient overlays */
+.pink-overlay-bg,
+.emerald-overlay-bg {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(209, 250, 229, 0.60) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(167, 243, 208, 0.45) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(236, 253, 245, 0.70) 0px, transparent 50%);
+}
+
+.emergent-emerald-glow {
+  background-image: radial-gradient(circle at 50% 0%, rgba(4, 106, 90, 0.08) 0%, transparent 70%);
+}
+
+.emergent-emerald-subtle {
+  background: linear-gradient(180deg, rgba(240, 253, 244, 0.5) 0%, #FFFFFF 100%);
+}
+
+/* Premium Blinking / Pulsing Glowing Border Animation for UI/UX */
+@keyframes borderGlowBlink {
+  0%, 100% {
+    border-color: #059669;
+    box-shadow: 0 0 12px rgba(5, 150, 105, 0.35), 0 2px 8px rgba(5, 150, 105, 0.15);
+  }
+  33% {
+    border-color: #34D399;
+    box-shadow: 0 0 18px rgba(52, 211, 153, 0.55), 0 2px 10px rgba(52, 211, 153, 0.25);
+  }
+  66% {
+    border-color: #E3B95B;
+    box-shadow: 0 0 20px rgba(227, 185, 91, 0.60), 0 2px 10px rgba(227, 185, 91, 0.25);
+  }
+}
+
+.border-glow-blink {
+  animation: borderGlowBlink 2.6s ease-in-out infinite;
+}
+
+@keyframes pulseGlowDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.pulse-glow-dot {
+  animation: pulseGlowDot 1.6s ease-in-out infinite;
+}
+
+/* Luxury Royal Skeleton Shimmer Effect */
+@keyframes royalShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #F3F4F6;
+}
+
+.skeleton-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 30%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: royalShimmer 1.6s infinite;
+  content: '';
+}
+
+.skeleton-emerald {
+  position: relative;
+  overflow: hidden;
+  background: #ECFDF5;
+}
+
+.skeleton-emerald::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(236, 253, 245, 0) 0%,
+    rgba(209, 250, 229, 0.5) 30%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(236, 253, 245, 0) 100%
+  );
+  animation: royalShimmer 1.6s infinite;
+  content: '';
+}
