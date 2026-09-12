@@ -17,10 +17,14 @@ export default function AiProductCard({ product }: AiProductCardProps) {
   const [isAdded, setIsAdded] = useState(false);
   const [isImgLoaded, setIsImgLoaded] = useState(false);
 
-  const defaultSize = product.sizes?.[0]?.size || '6ml';
-  const defaultPrice = product.sizes?.[0]?.price || product.price;
+  const defaultSizeOption = product.sizes?.[0];
+  const defaultSize = defaultSizeOption?.size || '6ml';
+  const defaultPrice = defaultSizeOption?.price || product.price;
+  const defaultOriginalPrice = defaultSizeOption?.originalPrice || product.originalPrice;
+  const defaultStock = defaultSizeOption?.stock ?? product.stock ?? 10;
 
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     dispatch(
       addToCart({
@@ -30,8 +34,9 @@ export default function AiProductCard({ product }: AiProductCardProps) {
         image: product.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600',
         size: defaultSize,
         price: defaultPrice,
-        originalPrice: product.originalPrice,
+        originalPrice: defaultOriginalPrice,
         quantity: 1,
+        stock: defaultStock,
       })
     );
 
@@ -40,8 +45,8 @@ export default function AiProductCard({ product }: AiProductCardProps) {
   };
 
   const discountPercent =
-    product.originalPrice && product.originalPrice > defaultPrice
-      ? Math.round(((product.originalPrice - defaultPrice) / product.originalPrice) * 100)
+    defaultOriginalPrice && defaultOriginalPrice > defaultPrice
+      ? Math.round(((defaultOriginalPrice - defaultPrice) / defaultOriginalPrice) * 100)
       : 0;
 
   return (
@@ -97,9 +102,9 @@ export default function AiProductCard({ product }: AiProductCardProps) {
             <span className="font-sans text-sm font-bold text-neutral-900">
               ₹{defaultPrice.toLocaleString('en-IN')}
             </span>
-            {product.originalPrice && product.originalPrice > defaultPrice && (
+            {defaultOriginalPrice && defaultOriginalPrice > defaultPrice && (
               <span className="text-[11px] text-neutral-400 line-through">
-                ₹{product.originalPrice.toLocaleString('en-IN')}
+                ₹{defaultOriginalPrice.toLocaleString('en-IN')}
               </span>
             )}
             <span className="text-[10px] text-neutral-500 font-medium ml-auto">
