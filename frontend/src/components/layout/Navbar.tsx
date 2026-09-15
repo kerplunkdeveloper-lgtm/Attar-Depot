@@ -153,15 +153,14 @@ export default function Navbar() {
       }`}
     >
       {/* Top Emerald Ribbon: Shop Address, Announcement, and Follow Us Socials (Always Single Line on Mobile) */}
-      <div className="bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/70 to-[#ECFDF5] border-b border-emerald-100/90 py-1.5 px-3 sm:px-6 text-xs text-emerald-950 font-medium">
+      <div className="bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/70 to-[#ECFDF5] border-b border-emerald-100/90 py-1 sm:py-1.5 px-3 sm:px-6 text-xs text-emerald-950 font-medium">
         <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-2">
           {/* 1. Left: Shop Address (Cleanly truncated on narrow screens) */}
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-emerald-900 font-medium min-w-0 flex-1 truncate">
-            <MapPin className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" />
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-900 font-medium min-w-0 flex-1 truncate">
+            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-700 flex-shrink-0" />
             <span className="truncate">
-              <strong className="font-bold text-emerald-950 hidden sm:inline">Shop: </strong>
-              <span className="sm:hidden font-bold text-emerald-950">Shop: </span>
-              14, Royal Perfumers Lane, Kannauj - 209725
+              <strong className="font-bold text-emerald-950">Shop: </strong>
+              14, Royal Perfumers Lane, Kannauj
             </span>
           </div>
 
@@ -171,9 +170,9 @@ export default function Navbar() {
             <span>Complimentary Silk Flacon Pouch & Free Express Shipping on ₹1,999+</span>
           </div>
 
-          {/* 3. Right: Follow Us Social Media Links (Always on Same Line) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] flex-shrink-0">
-            <span className="text-emerald-900/80 font-bold uppercase tracking-wider text-[9px] sm:text-[10px] hidden xs:inline">
+          {/* 3. Right: Follow Us Social Media Links */}
+          <div className="flex items-center gap-1 sm:gap-2 text-[11px] flex-shrink-0">
+            <span className="text-emerald-900/80 font-bold uppercase tracking-wider text-[9px] sm:text-[10px] hidden sm:inline">
               Follow:
             </span>
 
@@ -186,7 +185,7 @@ export default function Navbar() {
               title="Follow Attar Depot on Instagram (Opens in new tab)"
               aria-label="Follow Attar Depot on Instagram"
             >
-              <Instagram className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Instagram className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </a>
 
             {/* Facebook Link */}
@@ -198,24 +197,24 @@ export default function Navbar() {
               title="Follow Attar Depot on Facebook (Opens in new tab)"
               aria-label="Follow Attar Depot on Facebook"
             >
-              <Facebook className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Facebook className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Bar with Perfectly Centered Logo */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      {/* Main Navigation Bar with Perfectly Balanced Mobile Layout */}
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-1 sm:gap-4">
           {/* 1. LEFT SECTION: Desktop Navigation Links / Mobile Menu Trigger */}
-          <div className="flex-1 flex items-center justify-start">
+          <div className="flex items-center justify-start flex-shrink-0 lg:flex-1">
             {/* Mobile menu trigger */}
             <button
               onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              className="p-2 text-emerald-900 hover:text-emerald-700 transition-colors lg:hidden -ml-2"
+              className="p-1.5 sm:p-2 text-emerald-900 hover:text-emerald-700 transition-colors lg:hidden rounded-xl hover:bg-emerald-50"
               aria-label="Toggle menu"
             >
-              {isMobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileNavOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
 
             {/* Desktop Navigation Links */}
@@ -327,24 +326,24 @@ export default function Navbar() {
             </nav>
           </div>
 
-          {/* 2. CENTER SECTION: Brand Logo (Always Centered in Cormorant Garamond) */}
-          <div className="flex-shrink-0 flex items-center justify-center text-center px-4">
-            <Link href="/" className="group flex flex-col items-center">
-              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.22em] text-emerald-gradient uppercase drop-shadow-sm">
+          {/* 2. CENTER SECTION: Brand Logo (Responsive scaling, no overflow/overlap) */}
+          <div className="flex-1 lg:flex-initial flex items-center justify-center text-center px-1 sm:px-4 min-w-0">
+            <Link href="/" className="group flex flex-col items-center max-w-full">
+              <span className="font-serif text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold tracking-[0.12em] xs:tracking-[0.16em] sm:tracking-[0.22em] text-emerald-gradient uppercase drop-shadow-sm truncate">
                 Attar Depot
               </span>
-              <span className="text-[9px] sm:text-[10px] tracking-[0.38em] text-emerald-800/80 font-sans font-medium uppercase -mt-0.5 group-hover:text-emerald-600 transition-colors">
+              <span className="hidden xs:block text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.38em] text-emerald-800/80 font-sans font-medium uppercase -mt-0.5 group-hover:text-emerald-600 transition-colors truncate">
                 Pure Essence of Royalty
               </span>
             </Link>
           </div>
 
           {/* 3. RIGHT SECTION: Search, User Profile, Cart */}
-          <div className="flex-1 flex items-center justify-end space-x-2 sm:space-x-3.5">
+          <div className="flex items-center justify-end flex-shrink-0 lg:flex-1 gap-1 sm:gap-2 lg:gap-3">
             {/* Spotlight Center Search Modal Trigger */}
             <button
               onClick={() => dispatch(toggleSearch(true))}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full text-neutral-600 hover:text-emerald-950 bg-neutral-50/90 hover:bg-emerald-50 border border-neutral-200/90 hover:border-emerald-200 transition-all shadow-2xs group"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full text-neutral-600 hover:text-emerald-950 hover:bg-emerald-50 sm:bg-neutral-50/90 sm:border sm:border-neutral-200/90 sm:hover:border-emerald-200 transition-all shadow-2xs group"
               aria-label="Search Fragrance Vault (Ctrl+K)"
               title="Search pure attars & flacons (Ctrl+K)"
             >
@@ -367,7 +366,7 @@ export default function Navbar() {
                     setIsUserMenuOpen(!isUserMenuOpen);
                   }
                 }}
-                className="flex items-center gap-1.5 p-2 text-neutral-700 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50"
+                className="flex items-center gap-1.5 p-1.5 sm:p-2 text-neutral-700 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50"
                 aria-label="User Account"
                 suppressHydrationWarning
               >
@@ -457,13 +456,13 @@ export default function Navbar() {
             {/* Cart Drawer Trigger */}
             <button
               onClick={() => dispatch(toggleCartDrawer(true))}
-              className="relative p-2 text-neutral-700 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50"
+              className="relative p-1.5 sm:p-2 text-neutral-700 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50"
               aria-label="View Shopping Cart"
               suppressHydrationWarning
             >
               <ShoppingBag className="w-5 h-5" />
               {mounted && itemsCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#046A5A] text-[10px] font-bold text-white shadow-xs">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#046A5A] text-[9px] font-bold text-white shadow-xs">
                   {itemsCount}
                 </span>
               )}
