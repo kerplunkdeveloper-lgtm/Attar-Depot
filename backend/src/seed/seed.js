@@ -28,20 +28,13 @@ const seedData = async () => {
     const adminUser = await User.create({
       name: 'Haja Moideen (Admin)',
       email: 'admin@attardepot.com',
-      password: 'password@123',
+      password: 'Admin@123',
       role: 'admin',
       phone: '+91 99447 57526',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
     });
 
-    const customerUser = await User.create({
-      name: 'Faizan Merchant',
-      email: 'customer@attardepot.com',
-      password: 'User@123',
-      role: 'user',
-      phone: '+91 91234 56789',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-    });
+    
 
     console.log('[Seeder] Created Admin and Customer accounts.');
 

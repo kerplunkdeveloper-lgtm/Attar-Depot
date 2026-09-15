@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Poppins } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/providers/Providers';
 import CartDrawer from '@/components/layout/CartDrawer';
@@ -24,6 +24,13 @@ const inter = Inter({
   display: 'swap',
 });
 
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'Attar Depot | Pure Concentrated Essence of Royalty',
   description:
@@ -40,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`light scroll-smooth ${cormorant.variable} ${inter.variable}`}
+      className={`light scroll-smooth ${cormorant.variable} ${inter.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
       <body

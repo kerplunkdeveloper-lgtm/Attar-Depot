@@ -63,7 +63,7 @@ const config: Config = {
         serif: ['var(--font-cormorant)', 'Cormorant Garamond', 'Georgia', 'serif'],
         cormorant: ['var(--font-cormorant)', 'Cormorant Garamond', 'Georgia', 'serif'],
         heading: ['var(--font-cormorant)', 'Cormorant Garamond', 'Georgia', 'serif'],
-        poppins: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        poppins: ['var(--font-poppins)', 'Poppins', 'sans-serif'],
       },
       boxShadow: {
         'emerald-sm': '0 4px 15px -2px rgba(16, 185, 129, 0.12)',

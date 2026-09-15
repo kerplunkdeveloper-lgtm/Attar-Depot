@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Order, Product, Category, Review, User } from '@/types';
+import { Order, Product, Category, Review, User, Customer } from '@/types';
 
 export const useAdminStats = () => {
   return useQuery<{
@@ -24,7 +24,7 @@ export const useAdminStats = () => {
   });
 };
 
-export const useAdminOrders = (status?: string) => {
+export const useAdminOrders = (status?: string, enabled = true) => {
   return useQuery<{ orders: Order[]; total: number }>({
     queryKey: ['admin-orders', status],
     queryFn: async () => {
@@ -32,6 +32,7 @@ export const useAdminOrders = (status?: string) => {
       const { data } = await api.get(url);
       return data;
     },
+    enabled,
   });
 };
 
@@ -140,5 +141,71 @@ export const useAdminDeleteCategory = () => {
     },
   });
 };
+
+export const useAdminCustomers = () => {
+  return useQuery<{
+    success: boolean;
+    count: number;
+    summary?: {
+      total: number;
+      active: number;
+      new: number;
+      blocked: number;
+    };
+    customers: Customer[];
+  }>({
+    queryKey: ['admin-customers'],
+    queryFn: async () => {
+      const { data } = await api.get('/admin/customers');
+      return data;
+    },
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useAdminCustomerDetails = (customerId?: string | null) => {
+  return useQuery<{
+    success: boolean;
+    customer: Customer;
+    orders: Order[];
+  }>({
+    queryKey: ['admin-customer-details', customerId],
+    queryFn: async () => {
+      if (!customerId) throw new Error('Customer ID required');
+      const { data } = await api.get(`/admin/customers/${customerId}`);
+      return data;
+    },
+    enabled: !!customerId,
+  });
+};
+
+export const useAdminCreateCustomer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (customerData: any) => {
+      const { data } = await api.post('/admin/customers', customerData);
+      return data.customer;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
+  });
+};
+
+export const useAdminUpdateCustomerStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'Active' | 'Inactive' | 'Blocked' }) => {
+      const { data } = await api.put(`/admin/customers/${id}/status`, { status });
+      return data.customer;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-customer-details', variables.id] });
+    },
+  });
+};
+
 
 

@@ -44,21 +44,211 @@ export const getAdminStats = async (req, res, next) => {
   }
 };
 
-// @desc    Get all registered customers
+// @desc    Get all registered customers with rich purchase telemetry
 // @route   GET /api/admin/customers
 // @access  Private/Admin
 export const getCustomers = async (req, res, next) => {
   try {
-    const customers = await User.find({ role: 'user' })
+    const users = await User.find({ role: 'user' })
       .select('-password')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const userIds = users.map((u) => u._id);
+
+    // Fetch orders placed by these users to calculate lifetime value & latest shipping data
+    const orders = await Order.find({ user: { $in: userIds } })
+      .select('user totalPrice orderStatus createdAt orderNumber shippingAddress')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const statsByUser = {};
+    orders.forEach((ord) => {
+      const uId = ord.user.toString();
+      if (!statsByUser[uId]) {
+        statsByUser[uId] = {
+          ordersCount: 0,
+          totalSpent: 0,
+          lastOrderDate: ord.createdAt,
+          lastOrderNumber: ord.orderNumber,
+          latestShippingAddress: ord.shippingAddress || null,
+        };
+      }
+      statsByUser[uId].ordersCount += 1;
+      if (ord.orderStatus !== 'Cancelled') {
+        statsByUser[uId].totalSpent += ord.totalPrice || 0;
+      }
+    });
+
+    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const customers = users.map((u) => {
+      const uStats = statsByUser[u._id.toString()] || {
+        ordersCount: 0,
+        totalSpent: 0,
+        lastOrderDate: null,
+        lastOrderNumber: null,
+        latestShippingAddress: null,
+      };
+
+      const custStatus = u.status || 'Active';
+
+      return {
+        ...u,
+        status: custStatus,
+        ordersCount: uStats.ordersCount,
+        totalSpent: Math.round(uStats.totalSpent),
+        lastOrderDate: uStats.lastOrderDate,
+        lastOrderNumber: uStats.lastOrderNumber,
+        latestShippingAddress: uStats.latestShippingAddress || (u.addresses && u.addresses.length > 0 ? {
+          fullName: u.name,
+          phone: u.phone || '',
+          address: u.addresses[0].street || '',
+          city: u.addresses[0].city || '',
+          state: u.addresses[0].state || '',
+          postalCode: u.addresses[0].postalCode || '',
+          country: u.addresses[0].country || 'India',
+        } : null),
+      };
+    });
+
+    const activeCount = customers.filter((c) => c.status === 'Active').length;
+    const blockedCount = customers.filter((c) => c.status === 'Blocked').length;
+    const newCount = customers.filter((c) => new Date(c.createdAt) >= oneMonthAgo).length;
 
     res.status(200).json({
       success: true,
       count: customers.length,
+      summary: {
+        total: customers.length,
+        active: activeCount,
+        new: newCount,
+        blocked: blockedCount,
+      },
       customers,
     });
   } catch (error) {
     next(error);
   }
 };
+
+// @desc    Create new customer manually
+// @route   POST /api/admin/customers
+// @access  Private/Admin
+export const createCustomer = async (req, res, next) => {
+  try {
+    const { name, email, phone, title, address, city, state, postalCode, country } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Name is required' });
+    }
+
+    // Check if email or phone already exists
+    if (email) {
+      const existing = await User.findOne({ email: email.toLowerCase() });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'A customer with this email already exists' });
+      }
+    }
+    if (phone) {
+      const existing = await User.findOne({ phone });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'A customer with this phone number already exists' });
+      }
+    }
+
+    const newCustomer = await User.create({
+      name,
+      email: email ? email.toLowerCase() : undefined,
+      phone,
+      title: title || '',
+      role: 'user',
+      status: 'Active',
+      addresses: address ? [{
+        street: address,
+        city: city || '',
+        state: state || '',
+        postalCode: postalCode || '',
+        country: country || 'India',
+        isDefault: true,
+      }] : [],
+    });
+
+    res.status(201).json({
+      success: true,
+      customer: newCustomer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update customer status (Active / Blocked / Inactive)
+// @route   PUT /api/admin/customers/:id/status
+// @access  Private/Admin
+export const updateCustomerStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    if (!['Active', 'Inactive', 'Blocked'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
+    }
+
+    const customer = await User.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!customer) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      customer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get single customer dossier with order history
+// @route   GET /api/admin/customers/:id
+// @access  Private/Admin
+export const getCustomerDetails = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password').lean();
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Patron not found' });
+    }
+
+    const orders = await Order.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const totalSpent = orders.reduce(
+      (acc, ord) => (ord.orderStatus !== 'Cancelled' ? acc + (ord.totalPrice || 0) : acc),
+      0
+    );
+
+    const completedOrders = orders.filter((o) => o.orderStatus === 'Delivered').length;
+    const pendingOrders = orders.filter((o) => o.orderStatus === 'Pending' || o.orderStatus === 'Processing').length;
+
+    res.status(200).json({
+      success: true,
+      customer: {
+        ...user,
+        status: user.status || 'Active',
+        ordersCount: orders.length,
+        totalSpent: Math.round(totalSpent),
+        completedOrders,
+        pendingOrders,
+      },
+      orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+

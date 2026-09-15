@@ -1,3 +1,12 @@
+export interface UserAddress {
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  isDefault?: boolean;
+}
+
 export interface User {
   _id: string;
   name: string;
@@ -8,6 +17,20 @@ export interface User {
   country?: string;
   isProfileComplete?: boolean;
   avatar?: string;
+  addresses?: UserAddress[];
+  createdAt?: string;
+}
+
+export interface Customer extends User {
+  status?: 'Active' | 'Inactive' | 'Blocked';
+  ordersCount: number;
+  totalSpent: number;
+  completedOrders?: number;
+  pendingOrders?: number;
+  lastOrderDate?: string | null;
+  lastOrderNumber?: string | null;
+  latestShippingAddress?: ShippingAddress | null;
+  createdAt: string;
 }
 
 export interface Category {

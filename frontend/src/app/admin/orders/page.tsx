@@ -67,34 +67,31 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-100 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E332B] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-widest">
-              Fulfillment Command
-            </span>
+          <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[11px] text-neutral-400 font-medium">
-              {orders.length} Consignments Recorded
+              {orders.length} Order Recorded
             </span>
           </div>
-          <h1 className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900">
-            Consignment Orders & Dispatch
+          <h1 className="font-poppins text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Consignment Orders
           </h1>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-neutral-400 mt-1 max-w-xl">
             Review customer orders, transition fulfillment lifecycle, attach courier airway tracking, and monitor payments.
           </p>
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex flex-wrap gap-1 bg-white p-1 rounded-2xl border border-emerald-200 text-xs shadow-2xs self-start sm:self-auto">
+        <div className="flex flex-wrap gap-1 bg-[#0A1210] p-1 rounded-2xl border border-[#1E332B] text-xs shadow-md self-start sm:self-auto">
           {['All', 'Pending', 'Processing', 'Shipped', 'Delivered'].map((st) => (
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
               className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
                 selectedStatus === st
-                  ? 'bg-emerald-800 text-white font-bold shadow-2xs'
-                  : 'text-neutral-600 hover:text-emerald-800 hover:bg-emerald-50'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                  : 'text-neutral-400 hover:text-white'
               }`}
             >
               {st}
@@ -105,12 +102,12 @@ export default function AdminOrdersPage() {
 
       {/* Feedback Banner */}
       {feedback && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between shadow-2xs animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-[#0E1F1A] border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between shadow-lg animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
             <span className="font-medium">{feedback}</span>
           </div>
-          <button onClick={() => setFeedback('')} className="text-emerald-700 hover:text-emerald-900">
+          <button onClick={() => setFeedback('')} className="text-emerald-400 hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -118,21 +115,21 @@ export default function AdminOrdersPage() {
 
       {/* Search Input */}
       <div className="max-w-md relative">
-        <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           placeholder="Filter by order number, patron name, or phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-emerald-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-neutral-800 font-poppins shadow-2xs"
+          className="w-full pl-9 pr-4 py-2 text-xs bg-[#0A1210] border border-[#1E332B] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-white placeholder-neutral-500 font-poppins shadow-inner"
         />
       </div>
 
       {/* Orders Table */}
-      <div className="rounded-3xl bg-white border border-emerald-100 overflow-hidden shadow-sm">
+      <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#F4FAF6] text-neutral-600 uppercase tracking-wider font-semibold border-b border-emerald-100">
+            <thead className="bg-[#09110F] text-neutral-400 uppercase tracking-wider font-semibold border-b border-[#1E332B]">
               <tr>
                 <th className="p-4">Order Ref</th>
                 <th className="p-4">Patron</th>
@@ -143,39 +140,42 @@ export default function AdminOrdersPage() {
                 <th className="p-4 text-right">Tracking Airway</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 text-neutral-700">
+            <tbody className="divide-y divide-[#162520] text-neutral-300">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-neutral-400">
-                    Retrieving orders database...
+                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                      <span>Retrieving orders database...</span>
+                    </div>
                   </td>
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-neutral-500">
+                  <td colSpan={7} className="p-12 text-center text-neutral-500">
                     No orders matching "{selectedStatus}".
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((ord) => (
-                  <tr key={ord._id} className="hover:bg-emerald-50/30 transition-colors">
+                  <tr key={ord._id} className="hover:bg-[#12211C]/80 transition-colors">
                     <td className="p-4">
-                      <span className="font-mono font-bold text-neutral-900 block text-sm">
-                        #{ord.orderNumber}
+                      <span className="font-mono font-bold text-white block text-sm">
+                        <span className="text-emerald-400">#</span>{ord.orderNumber}
                       </span>
-                      <span className="text-[10px] text-neutral-400">
+                      <span className="text-[10px] text-neutral-500">
                         {formatDate(ord.createdAt)}
                       </span>
                     </td>
 
                     <td className="p-4">
-                      <p className="font-bold text-neutral-900">
+                      <p className="font-bold text-white">
                         {ord.shippingAddress?.fullName || 'Guest'}
                       </p>
-                      <p className="text-[10px] text-neutral-500">
+                      <p className="text-[10px] text-neutral-400">
                         {ord.shippingAddress?.city}, {ord.shippingAddress?.state}
                       </p>
-                      <p className="text-[10px] text-neutral-400 font-mono">
+                      <p className="text-[10px] text-neutral-500 font-mono">
                         {ord.shippingAddress?.phone}
                       </p>
                     </td>
@@ -183,22 +183,22 @@ export default function AdminOrdersPage() {
                     <td className="p-4 max-w-xs">
                       <div className="space-y-1">
                         {ord.orderItems?.map((item, i) => (
-                          <p key={i} className="truncate text-[11px] text-neutral-700 font-medium">
+                          <p key={i} className="truncate text-[11px] text-neutral-300 font-medium">
                             • {item.name} ({item.size}) × {item.quantity}
                           </p>
                         ))}
                       </div>
                     </td>
 
-                    <td className="p-4 font-poppins font-bold text-emerald-800 text-sm">
+                    <td className="p-4 font-poppins font-bold text-emerald-400 text-sm">
                       {formatPrice(ord.totalPrice)}
                     </td>
 
                     <td className="p-4">
-                      <span className="text-neutral-800 font-medium block">{ord.paymentMethod}</span>
+                      <span className="text-neutral-300 font-medium block">{ord.paymentMethod}</span>
                       <span
                         className={`text-[10px] font-bold ${
-                          ord.paymentStatus === 'Completed' ? 'text-emerald-700' : 'text-amber-700'
+                          ord.paymentStatus === 'Completed' ? 'text-emerald-400' : 'text-amber-400'
                         }`}
                       >
                         {ord.paymentStatus}
@@ -209,7 +209,7 @@ export default function AdminOrdersPage() {
                       <select
                         value={ord.orderStatus}
                         onChange={(e) => handleStatusChange(ord._id, e.target.value)}
-                        className="bg-white border border-emerald-200 rounded-xl px-3 py-1.5 text-xs text-neutral-800 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs font-semibold"
+                        className="bg-[#0A1210] border border-[#1E332B] rounded-xl px-3 py-1.5 text-xs text-emerald-300 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-inner font-semibold"
                       >
                         <option value="Pending">Pending</option>
                         <option value="Processing">Processing</option>
@@ -221,8 +221,8 @@ export default function AdminOrdersPage() {
 
                     <td className="p-4 text-right">
                       {ord.trackingNumber ? (
-                        <span className="font-mono text-emerald-800 font-bold text-xs bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg inline-block">
-                          #{ord.trackingNumber}
+                        <span className="font-mono text-xs text-emerald-400 font-bold bg-[#0A1210] px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                          {ord.trackingNumber}
                         </span>
                       ) : (
                         <button
@@ -233,7 +233,7 @@ export default function AdminOrdersPage() {
                               trackingNumber: '',
                             })
                           }
-                          className="text-xs text-emerald-700 hover:text-emerald-950 font-bold bg-white hover:bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition-all shadow-2xs"
+                          className="text-[11px] font-semibold text-neutral-400 hover:text-emerald-300 hover:underline"
                         >
                           + Add Tracking
                         </button>
@@ -249,14 +249,14 @@ export default function AdminOrdersPage() {
 
       {/* Tracking Modal */}
       {trackingModal && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/50 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-white border border-emerald-100 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
-            <h3 className="font-poppins text-sm font-bold uppercase tracking-wider text-neutral-900">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="font-serif text-sm font-bold uppercase tracking-wider text-white">
               Attach Airway Courier Tracking
             </h3>
             <form onSubmit={handleSaveTracking} className="space-y-3 text-xs">
               <div>
-                <label className="block text-neutral-700 mb-1 font-semibold font-poppins">
+                <label className="block text-neutral-300 mb-1 font-semibold font-poppins">
                   Airway Tracking Number
                 </label>
                 <input
@@ -267,7 +267,7 @@ export default function AdminOrdersPage() {
                   onChange={(e) =>
                     setTrackingModal({ ...trackingModal, trackingNumber: e.target.value })
                   }
-                  className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2 text-neutral-800 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
@@ -275,15 +275,16 @@ export default function AdminOrdersPage() {
                 <button
                   type="button"
                   onClick={() => setTrackingModal(null)}
-                  className="px-3 py-1.5 text-neutral-500 hover:text-neutral-800 font-medium"
+                  className="px-3 py-1.5 text-neutral-400 hover:text-white font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl font-bold uppercase text-white bg-emerald-800 hover:bg-emerald-900 transition-colors shadow-2xs"
+                  disabled={updateStatusMutation.isPending}
+                  className="btn-emerald px-4 py-1.5 rounded-xl font-bold uppercase tracking-wider text-[11px] text-white"
                 >
-                  Save Tracking
+                  {updateStatusMutation.isPending ? 'Saving...' : 'Attach Number'}
                 </button>
               </div>
             </form>

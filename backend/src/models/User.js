@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'IN',
     },
+    status: {
+      type: String,
+      enum: ['Active', 'Inactive', 'Blocked'],
+      default: 'Active',
+    },
     isProfileComplete: {
       type: Boolean,
       default: false,

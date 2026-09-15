@@ -179,6 +179,29 @@ export default function AdminLoginPage() {
               </div>
             )}
 
+            {/* Demo Credentials Quick Fill Banner */}
+            <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 text-xs flex items-center justify-between gap-3">
+              <div>
+                <span className="font-semibold text-[11px] uppercase tracking-wider block text-emerald-900">
+                  Demo Admin Credentials
+                </span>
+                <span className="text-[11px] font-mono text-emerald-800">
+                  admin@attardepot.com / Admin@123
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@attardepot.com');
+                  setPassword('Admin@123');
+                  setError('');
+                }}
+                className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-all flex-shrink-0"
+              >
+                Auto Fill
+              </button>
+            </div>
+
             {/* Form Fields */}
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div className="space-y-1.5">

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
+  Droplets,
   Package,
   Layers,
   ShoppingBag,
@@ -22,6 +23,10 @@ import {
   ChevronRight,
   Clock,
   Radio,
+  ShieldCheck,
+  Sun,
+  Moon,
+  Users,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout } from '@/store/authSlice';
@@ -35,8 +40,9 @@ import {
 import { useAdminOrders } from '@/hooks/useAdmin';
 import { toast } from '@/lib/toast';
 import { formatPrice } from '@/lib/utils';
+import { AdminThemeProvider, useAdminTheme } from '@/context/AdminThemeContext';
 
-export default function AdminLayout({
+function AdminLayoutInner({
   children,
 }: {
   children: React.ReactNode;
@@ -45,50 +51,22 @@ export default function AdminLayout({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { theme, toggleTheme } = useAdminTheme();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMuted, setIsMutedState] = useState(false);
   const [toastNotification, setToastNotification] = useState<AdminNotification | null>(null);
 
-  const [notifications, setNotifications] = useState<AdminNotification[]>([
-    {
-      id: 'mock-1',
-      type: 'order',
-      title: 'Royal Consignment #ORD-8821',
-      message: 'New order for Dehn Al Oudh Royale & Kashmiri Rose (₹4,999)',
-      timestamp: '2 mins ago',
-      read: false,
-      orderNumber: '8821',
-      amount: 4999,
-      link: '/admin/orders',
-    },
-    {
-      id: 'mock-2',
-      type: 'stock',
-      title: 'Inventory Health Alert',
-      message: 'Cambodian Agarwood flacons are running low (3 bottles remaining)',
-      timestamp: '25 mins ago',
-      read: false,
-      link: '/admin/products',
-    },
-    {
-      id: 'mock-3',
-      type: 'system',
-      title: 'System Dispatch Ready',
-      message: 'Courier airway label automation is synchronized with Bluedart.',
-      timestamp: '1 hour ago',
-      read: true,
-      link: '/admin/orders',
-    },
-  ]);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
   const initialLoadRef = useRef(true);
 
-  // Poll orders in background every 15s to detect live new orders
-  const { data: ordersData } = useAdminOrders('All');
+  // Poll orders in background every 15s to detect live new orders (only when authenticated and not on login page)
+  const isLoginPage = pathname === '/admin/login';
+  const { data: ordersData } = useAdminOrders('All', !isLoginPage && !!user && user.role === 'admin');
 
   // Load sound mute preference
   useEffect(() => {
@@ -101,10 +79,26 @@ export default function AdminLayout({
 
     const orders = ordersData.orders;
 
-    // On initial mount, populate the known order IDs without triggering chimes
+    // On initial mount, populate the known order IDs and seed recent database orders
     if (initialLoadRef.current) {
       orders.forEach((ord) => knownOrderIdsRef.current.add(ord._id));
       initialLoadRef.current = false;
+
+      if (orders.length > 0) {
+        const initialList: AdminNotification[] = orders.slice(0, 5).map((ord) => ({
+          id: `ord-${ord._id}`,
+          type: 'order',
+          title: `Consignment #${ord.orderNumber}`,
+          message: `${ord.shippingAddress?.fullName || 'Patron'} - ${ord.orderStatus} (${formatPrice(ord.totalPrice)})`,
+          timestamp: new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          read: ord.orderStatus !== 'Pending',
+          orderId: ord._id,
+          orderNumber: ord.orderNumber,
+          amount: ord.totalPrice,
+          link: '/admin/orders',
+        }));
+        setNotifications(initialList);
+      }
       return;
     }
 
@@ -193,45 +187,107 @@ export default function AdminLayout({
     router.push('/admin/login');
   };
 
+  const pendingOrdersCount = ordersData?.orders?.filter((o) => o.orderStatus === 'Pending').length || 0;
+
   const navItems = [
-    { name: 'SaaS Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Flacons & Products', href: '/admin/products', icon: Package },
-    { name: 'Dynamic Categories', href: '/admin/categories', icon: Layers },
-    { name: 'Consignment Orders', href: '/admin/orders', icon: ShoppingBag },
+    {
+      name: 'Dashboard',
+      subtitle: 'Overview & Telemetry',
+      href: '/admin/dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      name: 'All Categories',
+      subtitle: 'Fragrance Families',
+      href: '/admin/categories',
+      icon: Layers,
+    },
+    {
+      name: 'All Products',
+      subtitle: 'Attars & Flacons',
+      href: '/admin/products',
+      icon: Droplets,
+    },
+    {
+      name: 'Orders',
+      subtitle: 'Dispatch & Consignments',
+      href: '/admin/orders',
+      icon: ShoppingBag,
+      badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
+    },
+    {
+      name: 'Customers',
+      subtitle: 'Patrons & Client Directory',
+      href: '/admin/customers',
+      icon: Users,
+    },
   ];
 
+  const activePage = navItems.find((item) => pathname.startsWith(item.href)) || navItems[0];
+  const ActiveIcon = activePage.icon;
+
+  const isLight = theme === 'light';
+
   return (
-    <div className="min-h-screen bg-[#F7FAF8] text-neutral-900 flex font-poppins relative selection:bg-emerald-100 selection:text-emerald-900">
+    <div
+      className={`min-h-screen ${
+        isLight ? 'bg-[#F4F7F5] text-slate-800' : 'bg-[#070B0A] text-neutral-100'
+      } flex font-poppins relative selection:bg-emerald-500 selection:text-white transition-colors duration-300`}
+    >
+      {/* Background Ambient Glows */}
+      <div
+        className={`fixed top-0 left-64 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none transition-opacity ${
+          isLight ? 'bg-emerald-400/10 opacity-40' : 'bg-emerald-500/5 opacity-100'
+        }`}
+      />
+      <div
+        className={`fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none transition-opacity ${
+          isLight ? 'bg-amber-400/10 opacity-30' : 'bg-amber-500/3 opacity-100'
+        }`}
+      />
+
       {/* Real-time Order Popup Toast */}
       {toastNotification && (
         <div className="fixed top-5 right-5 z-60 animate-in slide-in-from-top-4 fade-in duration-300 max-w-sm w-full">
-          <div className="bg-white/95 backdrop-blur-md border border-emerald-300 rounded-2xl p-4 shadow-2xl flex items-start gap-3.5 ring-4 ring-emerald-500/10">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+          <div
+            className={`${
+              isLight
+                ? 'bg-white/98 border-emerald-300 text-slate-800 shadow-2xl ring-1 ring-emerald-500/20'
+                : 'bg-[#0E1715]/95 border-emerald-500/40 text-white shadow-2xl shadow-black/80 ring-1 ring-emerald-500/20'
+            } backdrop-blur-xl rounded-2xl p-4 flex items-start gap-3.5`}
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-900/40">
               <ShoppingBag className="w-5 h-5 animate-pulse" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <p className="text-xs font-bold text-neutral-900 truncate">
+                <p className={`text-xs font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   {toastNotification.title}
                 </p>
-                <span className="text-[10px] bg-emerald-50 text-emerald-800 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                <span
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                    isLight
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                      : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                  }`}
+                >
                   New
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-600 mt-0.5 leading-snug">
+              <p className={`text-[11px] mt-0.5 leading-snug ${isLight ? 'text-slate-600' : 'text-neutral-300'}`}>
                 {toastNotification.message}
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <Link
                   href="/admin/orders"
                   onClick={() => setToastNotification(null)}
-                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1"
                 >
                   View Order <ChevronRight className="w-3 h-3" />
                 </Link>
                 <button
                   onClick={() => setToastNotification(null)}
-                  className="text-[10px] text-neutral-400 hover:text-neutral-600"
+                  className={`text-[10px] ${isLight ? 'text-slate-400 hover:text-slate-700' : 'text-neutral-400 hover:text-neutral-200'}`}
                 >
                   Dismiss
                 </button>
@@ -239,7 +295,7 @@ export default function AdminLayout({
             </div>
             <button
               onClick={() => setToastNotification(null)}
-              className="text-neutral-400 hover:text-neutral-600 p-1"
+              className={`p-1 ${isLight ? 'text-slate-400 hover:text-slate-700' : 'text-neutral-400 hover:text-white'}`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -250,49 +306,65 @@ export default function AdminLayout({
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-neutral-900/40 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+          className="fixed inset-0 bg-black/70 z-40 lg:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Executive Admin Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-white border-r border-emerald-100/90 flex flex-col justify-between transition-transform duration-300 shadow-xl lg:shadow-emerald-sm/40 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 ${
+          isLight
+            ? 'bg-white/95 border-r border-slate-200 text-slate-800 shadow-xl'
+            : 'bg-[#080E0C]/98 border-r border-[#1B2925] text-neutral-100 shadow-2xl'
+        } flex flex-col justify-between transition-all duration-300 backdrop-blur-xl ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="p-5 space-y-6">
           {/* Logo & Brand */}
-          <div className="flex items-center justify-between pb-4 border-b border-emerald-50">
+          <div className={`flex items-center justify-between pb-4 border-b ${isLight ? 'border-slate-200' : 'border-[#1B2925]'}`}>
             <Link href="/admin/dashboard" className="group block">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-900 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                  AD
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-800 to-emerald-950 border border-emerald-400/40 flex items-center justify-center text-amber-300 font-poppins font-bold text-base shadow-[0_0_15px_rgba(16,185,129,0.25)] group-hover:scale-105 transition-transform duration-300">
+                  <Sparkles className="w-5 h-5 text-amber-300" />
                 </div>
                 <div>
-                  <span className="font-poppins text-base font-bold tracking-[0.14em] text-neutral-900 uppercase block">
+                  <span
+                    className={`font-poppins text-base font-bold tracking-[0.12em] uppercase block transition-colors ${
+                      isLight ? 'text-slate-900 group-hover:text-emerald-700' : 'text-white group-hover:text-emerald-300'
+                    }`}
+                  >
                     Attar Depot
                   </span>
-                  <span className="text-[9px] tracking-[0.24em] text-emerald-700 uppercase font-semibold block">
-                    SaaS Command
-                  </span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_#34d399]" />
+                    <span
+                      className={`text-[9px] tracking-[0.2em] font-semibold uppercase block ${
+                        isLight ? 'text-emerald-700' : 'text-emerald-400'
+                      }`}
+                    >
+                      Atelier Backoffice
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden text-neutral-400 hover:text-neutral-700 p-1.5"
+              className={`lg:hidden p-1.5 rounded-xl ${
+                isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : 'text-neutral-400 hover:text-white hover:bg-[#121E1B]'
+              }`}
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* SaaS Navigation */}
-          <div className="space-y-1">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-2">
-              Core Management
-            </p>
-            <nav className="space-y-1 text-xs font-semibold">
+          <div className="space-y-2">
+           
+
+            <nav className="space-y-1.5 text-xs font-semibold">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -301,52 +373,92 @@ export default function AdminLayout({
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+                    className={`group relative flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all duration-200 ${
                       isActive
-                        ? 'bg-gradient-to-r from-emerald-50 to-emerald-100/60 text-emerald-900 border border-emerald-200/90 font-bold shadow-2xs translate-x-1'
-                        : 'text-neutral-600 hover:text-emerald-800 hover:bg-emerald-50/60'
+                        ? isLight
+                          ? 'bg-emerald-50 text-emerald-950 border border-emerald-300 shadow-sm translate-x-0.5 font-bold'
+                          : 'bg-gradient-to-r from-emerald-950/90 via-[#0E201B] to-[#0A1612] text-white border border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.14)] translate-x-0.5'
+                        : isLight
+                        ? 'text-slate-600 hover:text-emerald-900 hover:bg-slate-100/80 border border-transparent'
+                        : 'text-neutral-400 hover:text-emerald-200 hover:bg-[#111E1A]/70 border border-transparent'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-neutral-400'}`} />
-                      <span>{item.name}</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                          isActive
+                            ? isLight
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs'
+                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                            : isLight
+                            ? 'bg-slate-100 text-slate-500 border border-slate-200 group-hover:text-emerald-700 group-hover:bg-emerald-50 group-hover:border-emerald-200'
+                            : 'bg-[#0B1512] text-neutral-400 border border-[#1A2C26] group-hover:text-emerald-300 group-hover:border-emerald-500/30 group-hover:bg-[#13221E]'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="truncate">
+                        <p
+                          className={`text-xs font-bold leading-snug truncate ${
+                            isActive
+                              ? isLight
+                                ? 'text-emerald-950 font-bold'
+                                : 'text-white'
+                              : isLight
+                              ? 'text-slate-800 group-hover:text-slate-900'
+                              : 'text-neutral-300 group-hover:text-white'
+                          }`}
+                        >
+                          {item.name}
+                        </p>
+                        <p
+                          className={`text-[10px] leading-none mt-0.5 font-normal truncate ${
+                            isLight
+                              ? 'text-slate-500 group-hover:text-slate-600'
+                              : 'text-neutral-500 group-hover:text-neutral-400'
+                          }`}
+                        >
+                          {item.subtitle}
+                        </p>
+                      </div>
                     </div>
-                    {isActive && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shadow-xs" />
-                    )}
+
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {item.badge && item.badge > 0 && (
+                        <span
+                          className={`px-2 py-0.5 text-[10px] font-bold rounded-full border animate-pulse ${
+                            isLight
+                              ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-xs'
+                              : 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_8px_rgba(245,158,11,0.25)]'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      {isActive && (
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                      )}
+                    </div>
                   </Link>
                 );
               })}
             </nav>
           </div>
-
-          {/* Quick System Status Card */}
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-              <span className="flex items-center gap-1.5">
-                <Radio className="w-3 h-3 text-emerald-600 animate-pulse" />
-                Live Sync Engine
-              </span>
-              <span className="text-emerald-700">Healthy</span>
-            </div>
-            <p className="text-[11px] text-neutral-600">
-              Real-time order poller & audio chime dispatch active.
-            </p>
-          </div>
         </div>
 
         {/* User Info & Footer */}
-        <div className="p-4 border-t border-emerald-100 bg-[#F7FAF8] space-y-3">
-          <div className="flex items-center gap-3 px-2 py-1">
-            <div className="w-8 h-8 rounded-full bg-emerald-800 text-amber-200 flex items-center justify-center font-bold text-xs shadow-xs">
+        <div className={`p-4 border-t ${isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1B2925] bg-[#070D0B]'} space-y-3`}>
+          <div className={`flex items-center gap-3 px-3 py-2 rounded-xl border ${isLight ? 'bg-white border-slate-200 shadow-xs' : 'bg-[#0E1815] border-[#1B2925]'}`}>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-700 to-emerald-950 text-amber-300 border border-amber-400/30 flex items-center justify-center font-bold text-xs shadow-md">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-neutral-900 truncate">
+              <p className={`text-xs font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 {user?.name || 'Administrator'}
               </p>
-              <p className="text-[10px] text-emerald-700 font-semibold truncate">
-                Role: Master Merchant
+              <p className={`text-[10px] font-semibold truncate flex items-center gap-1 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                <ShieldCheck className="w-3 h-3 text-emerald-500 inline" />
+                <span>Master Merchant</span>
               </p>
             </div>
           </div>
@@ -355,18 +467,22 @@ export default function AdminLayout({
             <Link
               href="/"
               target="_blank"
-              className="flex items-center justify-between px-3 py-2 rounded-xl text-neutral-600 hover:text-emerald-800 hover:bg-emerald-50 transition-colors font-medium"
+              className={`flex items-center justify-between px-3 py-2 rounded-xl transition-colors font-medium ${
+                isLight ? 'text-slate-600 hover:text-emerald-800 hover:bg-slate-100' : 'text-neutral-400 hover:text-emerald-300 hover:bg-[#121E1B]'
+              }`}
             >
               <div className="flex items-center gap-2">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Visit Storefront</span>
               </div>
-              <ExternalLink className="w-3 h-3 text-neutral-400" />
+              <ExternalLink className={`w-3 h-3 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`} />
             </Link>
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors text-left font-medium"
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left font-medium ${
+                isLight ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-rose-400 hover:text-rose-300 hover:bg-rose-950/30'
+              }`}
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Exit Admin Portal</span>
@@ -378,36 +494,71 @@ export default function AdminLayout({
       {/* Main Admin Content Area */}
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-emerald-100 bg-white/90 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <header className={`h-16 border-b ${isLight ? 'border-slate-200/90 bg-white/90 shadow-xs' : 'border-[#1B2925] bg-[#070B0A]/85 shadow-md shadow-black/40'} backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors`}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 text-neutral-600 hover:text-neutral-900 rounded-xl hover:bg-neutral-100"
+              className={`lg:hidden p-2 rounded-xl ${isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' : 'text-neutral-400 hover:text-white hover:bg-[#121E1B]'}`}
               aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">
-                Attar SaaS Command
-              </span>
-              <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100/70 text-emerald-800 border border-emerald-200">
-                v2.4 Enterprise
-              </span>
+
+            {/* Selected Page Breadcrumb / Indicator */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all shadow-xs ${
+                  isLight
+                    ? 'bg-slate-100/90 border-slate-200/90 text-slate-700'
+                    : 'bg-[#0E1815] border-[#1B2925] text-neutral-300'
+                }`}
+              >
+                <span className={`text-[11px] font-normal ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
+                  Admin
+                </span>
+                <span className={isLight ? 'text-slate-300' : 'text-neutral-600'}>/</span>
+                <div className="flex items-center gap-1.5">
+                  <ActiveIcon className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`} />
+                  <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    {activePage.name}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Right Action Icons */}
           <div className="flex items-center gap-2 sm:gap-3" ref={popoverRef}>
+            {/* Theme Toggle Button (Light & Dark Mode) */}
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className={`p-2 rounded-xl border transition-all duration-300 flex items-center justify-center relative ${
+                theme === 'dark'
+                  ? 'border-[#1B2925] bg-[#0E1815] text-amber-400 hover:text-amber-300 hover:border-amber-400/40 hover:bg-[#15231F]'
+                  : 'border-slate-200 bg-white text-emerald-800 hover:bg-emerald-50 hover:border-emerald-400 shadow-xs'
+              }`}
+              aria-label="Toggle light and dark mode"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 transition-transform hover:rotate-45 duration-300" />
+              ) : (
+                <Moon className="w-4 h-4 transition-transform -rotate-12 hover:rotate-0 duration-300" />
+              )}
+            </button>
+
             {/* Audio Chime Mute/Unmute Toggle */}
             <button
               onClick={toggleMute}
               title={isMuted ? 'Unmute Notification Sound' : 'Mute Notification Sound'}
               className={`p-2 rounded-xl border transition-all ${
-                isMuted
-                  ? 'border-neutral-200 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50'
-                  : 'border-emerald-200 bg-emerald-50/60 text-emerald-700 hover:bg-emerald-100/60'
+                isLight
+                  ? isMuted
+                    ? 'border-slate-200 bg-white text-slate-400 hover:text-slate-600'
+                    : 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80 shadow-xs'
+                  : isMuted
+                  ? 'border-[#1B2925] bg-[#0E1815] text-neutral-500 hover:text-neutral-300'
+                  : 'border-emerald-500/30 bg-emerald-950/50 text-emerald-300 hover:bg-emerald-900/50'
               }`}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -418,15 +569,19 @@ export default function AdminLayout({
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={`p-2 rounded-xl border transition-all relative ${
-                  isNotificationsOpen
-                    ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
-                    : 'border-emerald-100 text-neutral-700 hover:text-emerald-800 hover:bg-emerald-50/50'
+                  isLight
+                    ? isNotificationsOpen
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
+                      : 'border-slate-200 bg-white text-slate-700 hover:text-emerald-800 hover:border-emerald-300'
+                    : isNotificationsOpen
+                    ? 'border-emerald-500 bg-emerald-950/80 text-emerald-300 ring-2 ring-emerald-500/20'
+                    : 'border-[#1B2925] bg-[#0E1815] text-neutral-300 hover:text-emerald-300 hover:border-emerald-500/30'
                 }`}
                 aria-label="Toggle notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white animate-bounce">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white animate-bounce">
                     {unreadCount}
                   </span>
                 )}
@@ -434,11 +589,17 @@ export default function AdminLayout({
 
               {/* Notification Popover Dropdown */}
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white border border-emerald-100 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div
+                  className={`absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl border ${
+                    isLight
+                      ? 'bg-white border-slate-200 shadow-2xl text-slate-800'
+                      : 'bg-[#0E1815]/98 border-[#223832] shadow-2xl shadow-black/90 text-white'
+                  }`}
+                >
                   {/* Popover Header */}
-                  <div className="p-4 border-b border-emerald-50 bg-[#F4FAF6] flex items-center justify-between">
+                  <div className={`p-4 border-b flex items-center justify-between ${isLight ? 'border-slate-100 bg-slate-50' : 'border-[#1B2925] bg-black'}`}>
                     <div>
-                      <h3 className="font-poppins text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
+                      <h3 className={`font-poppins text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
                         <span>Live Notifications</span>
                         {unreadCount > 0 && (
                           <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.2 rounded-full font-bold">
@@ -446,7 +607,7 @@ export default function AdminLayout({
                           </span>
                         )}
                       </h3>
-                      <p className="text-[10px] text-neutral-500 mt-0.5">
+                      <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
                         Real-time store consignments & alerts
                       </p>
                     </div>
@@ -454,16 +615,21 @@ export default function AdminLayout({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleTestChime}
-                        className="text-[10px] text-emerald-700 hover:text-emerald-900 bg-white border border-emerald-200 px-2 py-1 rounded-lg font-semibold shadow-2xs flex items-center gap-1 hover:bg-emerald-50"
-                        title="Play audio chime preview"
+                        className={`text-[10px] px-2 py-1 rounded-lg font-semibold shadow-xs flex items-center gap-1 border ${
+                          isLight
+                            ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                            : 'text-emerald-300 bg-[#12211C] border-emerald-500/30 hover:text-emerald-200'
+                        }`}
+                        title="Simulate audio alert chime"
                       >
                         <Volume2 className="w-3 h-3" />
-                        Test Chime
+                        <span>Test Chime</span>
                       </button>
+
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className="text-[10px] text-neutral-500 hover:text-emerald-800 font-medium"
+                          className={`text-[10px] hover:underline ${isLight ? 'text-slate-500 hover:text-slate-900' : 'text-neutral-400 hover:text-white'}`}
                         >
                           Mark all read
                         </button>
@@ -471,82 +637,56 @@ export default function AdminLayout({
                     </div>
                   </div>
 
-                  {/* Popover List */}
-                  <div className="max-h-80 overflow-y-auto divide-y divide-neutral-50 text-xs">
+                  {/* Notifications List */}
+                  <div className={`max-h-80 overflow-y-auto divide-y ${isLight ? 'divide-slate-100' : 'divide-[#1B2925]'}`}>
                     {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-neutral-400">
-                        No notifications currently.
+                      <div className="p-8 text-center">
+                        <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-60" />
+                        <p className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-neutral-300'}`}>All Clear</p>
+                        <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>No unread notifications</p>
                       </div>
                     ) : (
-                      notifications.map((n) => (
+                      notifications.map((item) => (
                         <div
-                          key={n.id}
-                          onClick={() => {
-                            setNotifications((prev) =>
-                              prev.map((item) =>
-                                item.id === n.id ? { ...item, read: true } : item
-                              )
-                            );
-                            if (n.link) {
-                              router.push(n.link);
-                              setIsNotificationsOpen(false);
-                            }
-                          }}
-                          className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 hover:bg-emerald-50/40 ${
-                            !n.read ? 'bg-emerald-50/20' : 'bg-white'
-                          }`}
+                          key={item.id}
+                          className={`p-3.5 transition-colors flex items-start gap-3 ${
+                            item.read
+                              ? isLight ? 'bg-white opacity-70' : 'bg-transparent opacity-60'
+                              : isLight ? 'bg-emerald-50/40' : 'bg-[#121E1B]/60'
+                          } ${isLight ? 'hover:bg-slate-50' : 'hover:bg-[#152420]'}`}
                         >
-                          <div
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                              n.type === 'order'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : n.type === 'stock'
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}
-                          >
-                            {n.type === 'order' ? (
-                              <ShoppingBag className="w-3.5 h-3.5" />
-                            ) : n.type === 'stock' ? (
-                              <AlertCircle className="w-3.5 h-3.5" />
-                            ) : (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            )}
+                          <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <ShoppingBag className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p
-                                className={`text-xs truncate ${
-                                  !n.read ? 'font-bold text-neutral-900' : 'font-medium text-neutral-700'
-                                }`}
-                              >
-                                {n.title}
+                            <div className="flex items-center justify-between gap-1">
+                              <p className={`text-xs font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                                {item.title}
                               </p>
-                              <span className="text-[10px] text-neutral-400 flex-shrink-0">
-                                {n.timestamp}
-                              </span>
+                              <span className={`text-[9px] ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>{item.timestamp}</span>
                             </div>
-                            <p className="text-[11px] text-neutral-500 line-clamp-2 mt-0.5">
-                              {n.message}
+                            <p className={`text-[11px] mt-0.5 leading-snug line-clamp-2 ${isLight ? 'text-slate-600' : 'text-neutral-300'}`}>
+                              {item.message}
                             </p>
+                            {item.link && (
+                              <Link
+                                href={item.link}
+                                onClick={() => {
+                                  setIsNotificationsOpen(false);
+                                  setNotifications((prev) =>
+                                    prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
+                                  );
+                                }}
+                                className="text-[10px] font-bold text-emerald-600 hover:underline mt-1.5 inline-flex items-center gap-1"
+                              >
+                                <span>Inspect Consignment</span>
+                                <ChevronRight className="w-2.5 h-2.5" />
+                              </Link>
+                            )}
                           </div>
-                          {!n.read && (
-                            <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0 mt-1.5" />
-                          )}
                         </div>
                       ))
                     )}
-                  </div>
-
-                  {/* Popover Footer */}
-                  <div className="p-2.5 border-t border-emerald-50 bg-[#F4FAF6] text-center">
-                    <Link
-                      href="/admin/orders"
-                      onClick={() => setIsNotificationsOpen(false)}
-                      className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center justify-center gap-1"
-                    >
-                      View All Consignments <ChevronRight className="w-3 h-3" />
-                    </Link>
                   </div>
                 </div>
               )}
@@ -556,10 +696,14 @@ export default function AdminLayout({
             <Link
               href="/"
               target="_blank"
-              className="text-xs text-neutral-700 hover:text-emerald-800 border border-emerald-200/90 bg-emerald-50/40 hover:bg-emerald-50 px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all font-semibold shadow-2xs"
+              className={`text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all font-semibold shadow-xs border ${
+                isLight
+                  ? 'text-emerald-800 hover:text-emerald-900 border-emerald-200 bg-emerald-50 hover:bg-emerald-100/80'
+                  : 'text-neutral-300 hover:text-emerald-300 border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-950/70'
+              }`}
             >
               <span>Storefront</span>
-              <Sparkles className="w-3 h-3 text-emerald-700" />
+              <Sparkles className="w-3 h-3 text-emerald-600" />
             </Link>
           </div>
         </header>
@@ -567,5 +711,17 @@ export default function AdminLayout({
         <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AdminThemeProvider>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </AdminThemeProvider>
   );
 }

@@ -263,3 +263,249 @@ button, input, select, textarea, .font-sans, .font-inter {
   -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
+/* ========================================================================= */
+/* Admin Portal Font Family Override: Poppins for all Admin typography       */
+/* ========================================================================= */
+.admin-dark-mode,
+.admin-light-mode,
+.admin-dark-mode *,
+.admin-light-mode *,
+.admin-dark-mode h1,
+.admin-dark-mode h2,
+.admin-dark-mode h3,
+.admin-dark-mode h4,
+.admin-dark-mode h5,
+.admin-dark-mode h6,
+.admin-dark-mode p,
+.admin-dark-mode span,
+.admin-dark-mode button,
+.admin-dark-mode input,
+.admin-dark-mode select,
+.admin-dark-mode textarea,
+.admin-dark-mode table,
+.admin-dark-mode .font-serif,
+.admin-dark-mode .font-sans,
+.admin-light-mode h1,
+.admin-light-mode h2,
+.admin-light-mode h3,
+.admin-light-mode h4,
+.admin-light-mode h5,
+.admin-light-mode h6,
+.admin-light-mode p,
+.admin-light-mode span,
+.admin-light-mode button,
+.admin-light-mode input,
+.admin-light-mode select,
+.admin-light-mode textarea,
+.admin-light-mode table,
+.admin-light-mode .font-serif,
+.admin-light-mode .font-sans {
+  font-family: var(--font-poppins), 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* ========================================================================= */
+/* Admin Light Mode Theme Engine (Refined Luxury Atelier Palette)           */
+/* ========================================================================= */
+.admin-light-mode {
+  --admin-bg: #F4F7F5;
+  --admin-card-bg: #FFFFFF;
+  --admin-border: #E2EAE6;
+  --admin-text-primary: #0F172A;
+  --admin-text-secondary: #475569;
+  --admin-text-muted: #64748B;
+  color: #0F172A;
+}
+
+.admin-light-mode > div {
+  background-color: #F4F7F5 !important;
+  color: #0F172A !important;
+}
+
+/* Headings & Text Hierarchy in Light Mode */
+.admin-light-mode h1,
+.admin-light-mode h2,
+.admin-light-mode h3,
+.admin-light-mode h4,
+.admin-light-mode .text-white {
+  color: #0F172A !important;
+}
+
+.admin-light-mode p.text-white,
+.admin-light-mode span.text-white {
+  color: #0F172A !important;
+}
+
+.admin-light-mode .text-neutral-300,
+.admin-light-mode .text-neutral-400 {
+  color: #475569 !important;
+}
+
+.admin-light-mode .text-neutral-500 {
+  color: #64748B !important;
+}
+
+/* Sidebar in Light Mode */
+.admin-light-mode aside {
+  background-color: #FFFFFF !important;
+  border-color: #E2EAE6 !important;
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.admin-light-mode aside .border-b,
+.admin-light-mode aside .border-t {
+  border-color: #E2EAE6 !important;
+}
+
+.admin-light-mode aside .bg-\[\#070D0B\],
+.admin-light-mode aside .bg-\[\#0E1815\] {
+  background-color: #F8FAF9 !important;
+  border-color: #E2EAE6 !important;
+}
+
+/* Header in Light Mode */
+.admin-light-mode header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #E2EAE6 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+
+.admin-light-mode header .bg-\[\#0E1815\] {
+  background-color: #F0FDF4 !important;
+  border-color: #D1FAE5 !important;
+  color: #046A5A !important;
+}
+
+/* Cards & Panels in Light Mode */
+.admin-light-mode .bg-gradient-to-b,
+.admin-light-mode .bg-\[\#0F1916\],
+.admin-light-mode .bg-\[\#0A1210\],
+.admin-light-mode .bg-\[\#0D1815\],
+.admin-light-mode .bg-\[\#07100D\],
+.admin-light-mode .bg-\[\#0E1815\],
+.admin-light-mode .bg-\[\#0A100E\],
+.admin-light-mode .bg-\[\#070B0A\],
+.admin-light-mode .bg-\[\#0C1513\],
+.admin-light-mode .bg-\[\#09110F\] {
+  background: #FFFFFF !important;
+  border-color: #E2EAE6 !important;
+  color: #0F172A;
+}
+
+.admin-light-mode .border-\[\#1B2925\],
+.admin-light-mode .border-\[\#1E332B\],
+.admin-light-mode .border-\[\#162520\],
+.admin-light-mode .border-\[\#223932\] {
+  border-color: #E2EAE6 !important;
+}
+
+.admin-light-mode .shadow-2xl,
+.admin-light-mode .shadow-xl {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Category Cards in Light Mode */
+.admin-light-mode .grid > div[class*="rounded-3xl"] {
+  background-color: #FFFFFF !important;
+  border-color: #E2EAE6 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.admin-light-mode .grid > div[class*="rounded-3xl"]:hover {
+  border-color: #A7F3D0 !important;
+  box-shadow: 0 10px 30px -4px rgba(4, 106, 90, 0.1) !important;
+}
+
+.admin-light-mode span[class*="bg-[#0A1210]/90"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #046A5A !important;
+  border-color: #A7F3D0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.admin-light-mode button[class*="hover:bg-[#13221E]"] {
+  color: #475569 !important;
+}
+
+.admin-light-mode button[class*="hover:bg-[#13221E]"]:hover {
+  color: #046A5A !important;
+  background-color: #ECFDF5 !important;
+}
+
+/* Table in Light Mode */
+.admin-light-mode thead,
+.admin-light-mode thead tr,
+.admin-light-mode thead th {
+  background-color: #F8FAF9 !important;
+  border-color: #E2EAE6 !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+.admin-light-mode tbody tr {
+  border-color: #F1F5F9 !important;
+  color: #334155 !important;
+}
+
+.admin-light-mode tbody tr:hover {
+  background-color: #F0FDF4 !important;
+}
+
+.admin-light-mode .divide-\[\#162520\] > * {
+  border-color: #F1F5F9 !important;
+}
+
+/* Products Table Badges & Notes in Light Mode */
+.admin-light-mode td p.text-emerald-400,
+.admin-light-mode span.text-emerald-400 {
+  color: #059669 !important;
+}
+
+.admin-light-mode td p.font-mono,
+.admin-light-mode td span.font-mono {
+  color: #64748B !important;
+}
+
+/* Inputs in Light Mode */
+.admin-light-mode input[type="text"],
+.admin-light-mode input[type="search"],
+.admin-light-mode input[type="number"],
+.admin-light-mode select,
+.admin-light-mode textarea {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+.admin-light-mode input::placeholder,
+.admin-light-mode textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Light Mode Secondary Buttons */
+.admin-light-mode .bg-\[\#0E1815\]:not(.text-white),
+.admin-light-mode .bg-\[\#070D0B\] {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #046A5A !important;
+}
+
+/* Modals in Light Mode */
+.admin-light-mode .fixed .bg-\[\#0A1210\],
+.admin-light-mode .fixed .bg-\[\#0E1815\],
+.admin-light-mode .fixed .bg-\[\#070D0B\],
+.admin-light-mode .fixed .bg-\[\#0A100E\] {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18) !important;
+}
+
+.admin-light-mode .fixed label {
+  color: #334155 !important;
+}
+
+.admin-light-mode .fixed .border-b,
+.admin-light-mode .fixed .border-t {
+  border-color: #E2EAE6 !important;
+}
+

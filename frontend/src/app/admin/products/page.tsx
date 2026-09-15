@@ -33,6 +33,7 @@ import {
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
 import { toast } from '@/lib/toast';
+import AdminImageUpload from '@/components/admin/AdminImageUpload';
 
 interface ProductFormData {
   name: string;
@@ -69,7 +70,7 @@ const defaultFormData: ProductFormData = {
   baseNotes: 'Assam Agarwood, Kashmiri Musk, Golden Amber',
   price: 2499,
   originalPrice: 2999,
-  image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800',
+  image: '',
   stock: 30,
   concentration: 'Pure Concentrated Perfume Oil (Attar)',
   origin: 'Kannauj & Assam, India',
@@ -109,6 +110,7 @@ export default function AdminProductsPage() {
     setFormData({
       ...defaultFormData,
       category: categories[0]?._id || '',
+      image: '',
     });
     setActiveTab('basics');
     setIsFormModalOpen(true);
@@ -132,7 +134,7 @@ export default function AdminProductsPage() {
       baseNotes: p.fragranceNotes?.baseNotes?.join(', ') || '',
       price: p.price || 0,
       originalPrice: p.originalPrice || p.price,
-      image: p.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800',
+      image: p.images?.[0] || '',
       stock: p.stock ?? 25,
       concentration: p.concentration || 'Pure Concentrated Perfume Oil (Attar)',
       origin: p.origin || 'Kannauj, India',
@@ -168,6 +170,12 @@ export default function AdminProductsPage() {
     }
     if (!formData.description.trim()) {
       setStatusMessage('Please enter a description for the flacon.');
+      return;
+    }
+    if (!formData.image.trim()) {
+      setStatusMessage('Please upload an image for the fragrance flacon.');
+      toast.error('Please upload an image for the product flacon.', { title: 'Image Required' });
+      setActiveTab('media');
       return;
     }
 
@@ -244,57 +252,55 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* SaaS Catalog Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-100 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E332B] pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-widest">
-              Flacon Inventory
-            </span>
-            <span className="text-[11px] text-neutral-400 font-medium">
-              {products.length} Sovereign Scents
+          <div className="flex items-center gap-2 mb-1.5">
+          
+            <span className="text-[13px] text-neutral-400 font-medium">
+            No.of Products:  {products.length} 
             </span>
           </div>
-          <h1 className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900">
-            Attar Flacon Catalog & Matrix
+          <h1 className="font-poppins text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            All Products
           </h1>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-neutral-400 mt-1 max-w-xl">
             Manage flacons, edit pricing and scent pyramids, view live patron cards, and update inventory.
           </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-700 to-emerald-900 text-white hover:from-emerald-800 hover:to-emerald-950 transition-all shadow-md shadow-emerald-900/10 active:scale-98 self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/50 border border-emerald-400/30 active:scale-98 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4 text-amber-300" />
-          <span>Add New Flacon</span>
+          <span>Create New Products</span>
         </button>
       </div>
 
       {/* Feedback Alert */}
       {statusMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex justify-between items-center shadow-2xs animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-[#0E1F1A] border border-emerald-500/40 text-emerald-300 text-xs flex justify-between items-center shadow-lg animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
             <span className="font-medium">{statusMessage}</span>
           </div>
-          <button onClick={() => setStatusMessage('')} className="text-emerald-700 hover:text-emerald-950 p-1">
+          <button onClick={() => setStatusMessage('')} className="text-emerald-400 hover:text-white p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-emerald-100 shadow-2xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#0A1210] p-3 rounded-2xl border border-[#1E332B] shadow-inner">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search flacons by name, slug, or notes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-neutral-50/70 border border-emerald-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 text-neutral-800 font-poppins"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-[#070D0B] border border-[#1E332B] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-white placeholder-neutral-500 font-poppins"
           />
         </div>
 
@@ -306,8 +312,8 @@ export default function AdminProductsPage() {
               onClick={() => setSelectedFamily(fam)}
               className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
                 selectedFamily === fam
-                  ? 'bg-emerald-800 text-white shadow-2xs'
-                  : 'bg-neutral-50 text-neutral-600 hover:text-emerald-800 hover:bg-emerald-50'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
+                  : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
               }`}
             >
               {fam}
@@ -317,52 +323,56 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products SaaS Table */}
-      <div className="rounded-3xl bg-white border border-emerald-100 overflow-hidden shadow-sm">
+      <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#F4FAF6] text-neutral-600 uppercase tracking-wider font-semibold border-b border-emerald-100">
+            <thead className="bg-[#09110F] text-neutral-400 uppercase tracking-wider font-semibold border-b border-[#1E332B]">
               <tr>
-                <th className="p-4">Flacon & Notes</th>
+                <th className="p-4 pl-6">Images and Titles</th>
                 <th className="p-4">Category</th>
                 <th className="p-4">Olfactory Family</th>
                 <th className="p-4">Price (6ml)</th>
                 <th className="p-4">Stock</th>
                 <th className="p-4">Flags</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 text-neutral-700">
+            <tbody className="divide-y divide-[#162520] text-neutral-300">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-neutral-400">
-                    Loading concentrated flacon catalog...
+                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                      <span>Loading concentrated flacon catalog...</span>
+                    </div>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-neutral-400">
+                  <td colSpan={7} className="p-12 text-center text-neutral-500">
                     No perfume flacons found matching your search.
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map((p) => (
-                  <tr key={p._id} className="hover:bg-emerald-50/30 transition-colors group">
-                    <td className="p-4">
+                  <tr key={p._id} className="hover:bg-[#12211C]/80 transition-colors group">
+                    <td className="p-4 pl-6">
                       <div className="flex items-center gap-3.5">
-                        <div className="relative w-11 h-13 rounded-xl bg-neutral-100 overflow-hidden flex-shrink-0 border border-emerald-100 shadow-2xs">
+                        <div className="relative w-12 h-14 rounded-xl bg-[#0E1815] overflow-hidden flex-shrink-0 border border-[#1E332B] shadow-md">
                           <Image
                             src={p.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800'}
                             alt={p.name}
                             fill
-                            sizes="44px"
+                            sizes="48px"
+                            unoptimized
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-neutral-900 text-sm">{p.name}</p>
-                          <p className="text-[10px] text-neutral-400 font-mono">/{p.slug}</p>
+                          <p className="font-bold text-white text-sm">{p.name}</p>
+                          <p className="text-[10px] text-neutral-500 font-mono">/{p.slug}</p>
                           {p.fragranceNotes?.topNotes?.length > 0 && (
-                            <p className="text-[10px] text-emerald-700 mt-0.5 line-clamp-1">
+                            <p className="text-[10px] text-emerald-400 mt-0.5 line-clamp-1">
                               Notes: {p.fragranceNotes.topNotes.slice(0, 2).join(', ')}
                             </p>
                           )}
@@ -371,64 +381,61 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td className="p-4">
-                      <span className="font-semibold text-emerald-800 bg-emerald-50/70 border border-emerald-200 px-2.5 py-1 rounded-lg text-[11px]">
+                      <span className="font-semibold text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px]">
                         {p.category?.name || 'Unassigned'}
                       </span>
                     </td>
 
                     <td className="p-4">
-                      <span className="text-neutral-600 font-medium">{p.fragranceFamily}</span>
+                      <span className="text-neutral-400 font-medium">{p.fragranceFamily}</span>
                     </td>
 
                     <td className="p-4">
-                      <p className="font-poppins font-bold text-neutral-900 text-sm">
+                      <p className="font-poppins font-bold text-emerald-400 text-sm">
                         {formatPrice(p.price)}
                       </p>
                       {p.originalPrice && p.originalPrice > p.price && (
-                        <p className="text-[10px] text-neutral-400 line-through">
+                        <p className="text-[10px] text-neutral-500 line-through">
                           {formatPrice(p.originalPrice)}
                         </p>
                       )}
                     </td>
 
                     <td className="p-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          p.stock > 10
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : 'bg-red-50 text-red-800 border border-red-200'
-                        }`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            p.stock > 10 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'
-                          }`}
-                        />
-                        {p.stock} units
-                      </span>
+                      {p.stock <= 0 ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-950/80 text-rose-300 border border-rose-500/40 whitespace-nowrap shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                          OUT OF STOCK
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 whitespace-nowrap shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          Available : {p.stock}
+                        </span>
+                      )}
                     </td>
 
                     <td className="p-4">
-                      <div className="flex gap-1 flex-wrap">
+                      <div className="flex gap-1.5 flex-wrap">
                         {p.isFeatured && (
-                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40">
                             Featured
                           </span>
                         )}
                         {p.isBestSeller && (
-                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-950/80 text-purple-300 border border-purple-500/40">
                             Best Seller
                           </span>
                         )}
                       </div>
                     </td>
 
-                    <td className="p-4 text-right">
+                    <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {/* View Product Modal Trigger */}
                         <button
                           onClick={() => setViewingProduct(p)}
-                          className="p-1.5 rounded-lg text-neutral-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-emerald-300 hover:bg-[#13221E] transition-colors"
                           title="View flacon details"
                         >
                           <Eye className="w-4 h-4" />
@@ -437,16 +444,16 @@ export default function AdminProductsPage() {
                         {/* Edit Product Modal Trigger */}
                         <button
                           onClick={() => handleOpenEditModal(p)}
-                          className="p-1.5 rounded-lg text-neutral-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-blue-400 hover:bg-blue-950/30 transition-colors"
                           title="Edit flacon"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
 
-                        {/* Delete Trigger */}
+                        {/* Delete Product */}
                         <button
                           onClick={() => handleDelete(p._id, p.name)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          className="p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
                           title="Delete flacon"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -463,18 +470,18 @@ export default function AdminProductsPage() {
 
       {/* QUICK VIEW PRODUCT MODAL */}
       {viewingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900/50 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-white border border-emerald-100 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-emerald-100 pb-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-white">
+            <div className="flex items-center justify-between border-b border-[#1E332B] pb-4">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 uppercase">
                   Flacon Intelligence
                 </span>
                 <span className="text-xs text-neutral-400 font-mono">/{viewingProduct.slug}</span>
               </div>
               <button
                 onClick={() => setViewingProduct(null)}
-                className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-xl hover:bg-neutral-100"
+                className="p-1.5 text-neutral-400 hover:text-white rounded-xl hover:bg-[#121E1B]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -482,12 +489,13 @@ export default function AdminProductsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Product Photo */}
-              <div className="relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-neutral-50 border border-emerald-100 shadow-sm">
+              <div className="relative aspect-[3/4] w-full min-h-[220px] rounded-2xl overflow-hidden bg-neutral-900 border border-[#1E332B] shadow-inner">
                 <Image
                   src={viewingProduct.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800'}
                   alt={viewingProduct.name}
                   fill
-                  sizes="200px"
+                  sizes="300px"
+                  unoptimized
                   className="object-cover"
                 />
               </div>
@@ -495,42 +503,48 @@ export default function AdminProductsPage() {
               {/* Product Scent Details */}
               <div className="sm:col-span-2 space-y-4">
                 <div>
-                  <h2 className="font-poppins text-xl font-bold text-neutral-900">
+                  <h2 className="font-serif text-xl font-bold text-white">
                     {viewingProduct.name}
                   </h2>
-                  <p className="text-xs text-emerald-800 font-medium mt-0.5">
+                  <p className="text-xs text-emerald-400 font-medium mt-0.5">
                     {viewingProduct.tagline || 'Concentrated Royal Attar Extract'}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-extrabold text-neutral-900 font-poppins">
+                  <span className="text-xl font-extrabold text-white font-poppins">
                     {formatPrice(viewingProduct.price)}
                   </span>
-                  <span className="text-xs text-neutral-500 font-medium">
+                  <span className="text-xs text-neutral-400 font-medium">
                     (Standard 6ml Flacon)
                   </span>
-                  <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                    Stock: {viewingProduct.stock} bottles
-                  </span>
+                  {viewingProduct.stock <= 0 ? (
+                    <span className="text-[10px] bg-rose-950/80 text-rose-300 font-bold px-2.5 py-0.5 rounded-full border border-rose-500/40 uppercase tracking-wider">
+                      OUT OF STOCK
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-emerald-950/80 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                      Available : {viewingProduct.stock}
+                    </span>
+                  )}
                 </div>
 
                 {/* Scent Pyramid Breakdown */}
-                <div className="p-3.5 rounded-2xl bg-neutral-50 border border-emerald-100 space-y-2 text-xs">
-                  <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-900">
+                <div className="p-3.5 rounded-2xl bg-[#0E1815] border border-[#1E332B] space-y-2 text-xs">
+                  <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-400">
                     Olfactory Architecture
                   </p>
-                  <div className="space-y-1 text-neutral-700">
+                  <div className="space-y-1 text-neutral-300">
                     <p>
-                      <strong className="text-neutral-900 font-semibold">Top Notes:</strong>{' '}
+                      <strong className="text-white font-semibold">Top Notes:</strong>{' '}
                       {viewingProduct.fragranceNotes?.topNotes?.join(', ') || 'N/A'}
                     </p>
                     <p>
-                      <strong className="text-neutral-900 font-semibold">Heart Notes:</strong>{' '}
+                      <strong className="text-white font-semibold">Heart Notes:</strong>{' '}
                       {viewingProduct.fragranceNotes?.heartNotes?.join(', ') || 'N/A'}
                     </p>
                     <p>
-                      <strong className="text-neutral-900 font-semibold">Base Notes:</strong>{' '}
+                      <strong className="text-white font-semibold">Base Notes:</strong>{' '}
                       {viewingProduct.fragranceNotes?.baseNotes?.join(', ') || 'N/A'}
                     </p>
                   </div>
@@ -539,14 +553,14 @@ export default function AdminProductsPage() {
                 {/* Sizes Matrix */}
                 {viewingProduct.sizes?.length > 0 && (
                   <div className="space-y-1.5 text-xs">
-                    <p className="font-bold text-[11px] uppercase tracking-wider text-neutral-500">
+                    <p className="font-bold text-[11px] uppercase tracking-wider text-neutral-400">
                       Available Sizes & Pricing Matrix
                     </p>
                     <div className="grid grid-cols-3 gap-2">
                       {viewingProduct.sizes.map((s, idx) => (
-                        <div key={idx} className="p-2 rounded-xl border border-neutral-200 bg-white text-center">
-                          <p className="font-bold text-neutral-900">{s.size}</p>
-                          <p className="font-poppins font-bold text-emerald-800">{formatPrice(s.price)}</p>
+                        <div key={idx} className="p-2 rounded-xl border border-[#1E332B] bg-[#070D0B] text-center">
+                          <p className="font-bold text-white">{s.size}</p>
+                          <p className="font-poppins font-bold text-emerald-400">{formatPrice(s.price)}</p>
                           <p className="text-[10px] text-neutral-400">{s.stock} in stock</p>
                         </div>
                       ))}
@@ -557,16 +571,16 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Description */}
-            <div className="text-xs text-neutral-600 bg-neutral-50 p-4 rounded-2xl border border-neutral-100 leading-relaxed">
+            <div className="text-xs text-neutral-300 bg-[#0E1815] p-4 rounded-2xl border border-[#1E332B] leading-relaxed">
               {viewingProduct.description}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-emerald-100">
+            <div className="flex items-center justify-between pt-2 border-t border-[#1E332B]">
               <Link
                 href={`/product/${viewingProduct.slug}`}
                 target="_blank"
-                className="text-xs text-neutral-600 hover:text-emerald-800 font-bold flex items-center gap-1"
+                className="text-xs text-neutral-400 hover:text-emerald-300 font-bold flex items-center gap-1"
               >
                 <span>Preview on Storefront</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -580,7 +594,7 @@ export default function AdminProductsPage() {
                     setViewingProduct(null);
                     handleOpenEditModal(prodToEdit);
                   }}
-                  className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-emerald-800 text-white rounded-xl hover:bg-emerald-900 transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-emerald-700 text-white rounded-xl hover:bg-emerald-600 transition-colors flex items-center gap-1.5"
                 >
                   <Edit className="w-3.5 h-3.5" />
                   <span>Edit Flacon</span>
@@ -593,36 +607,34 @@ export default function AdminProductsPage() {
 
       {/* CREATE & EDIT PRODUCT MODAL (Sectioned / Tabbed UX) */}
       {isFormModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900/50 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-white border border-emerald-100 rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8 text-white">
             {/* Modal Header */}
-            <div className="flex justify-between items-center border-b border-emerald-100 pb-4">
+            <div className="flex justify-between items-center border-b border-[#1E332B] pb-4">
               <div>
-                <h2 className="font-poppins text-lg font-bold text-neutral-900 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  <span>{editingProductId ? 'Edit Fragrance Flacon' : 'Publish New Luxury Attar Flacon'}</span>
+                <h2 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <span>{editingProductId ? 'Edit Product' : 'Add Product'}</span>
                 </h2>
-                <p className="text-xs text-neutral-500 mt-0.5">
-                  Configure formulation attributes, olfactory pyramid, and multi-tier pricing.
-                </p>
+               
               </div>
               <button
                 onClick={() => setIsFormModalOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-xl hover:bg-neutral-100"
+                className="p-1.5 text-neutral-400 hover:text-white rounded-xl hover:bg-[#121E1B]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Tabs for Better Visibility & UX */}
-            <div className="flex border-b border-neutral-200 text-xs font-semibold overflow-x-auto gap-2">
+            <div className="flex border-b border-[#1E332B] text-xs font-semibold overflow-x-auto gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab('basics')}
                 className={`pb-2.5 px-3 border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === 'basics'
-                    ? 'border-emerald-700 text-emerald-900 font-bold'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800'
+                    ? 'border-emerald-500 text-emerald-400 font-bold'
+                    : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
                 <Tag className="w-3.5 h-3.5" />
@@ -634,8 +646,8 @@ export default function AdminProductsPage() {
                 onClick={() => setActiveTab('pricing')}
                 className={`pb-2.5 px-3 border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === 'pricing'
-                    ? 'border-emerald-700 text-emerald-900 font-bold'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800'
+                    ? 'border-emerald-500 text-emerald-400 font-bold'
+                    : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
                 <DollarSign className="w-3.5 h-3.5" />
@@ -647,8 +659,8 @@ export default function AdminProductsPage() {
                 onClick={() => setActiveTab('olfactory')}
                 className={`pb-2.5 px-3 border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === 'olfactory'
-                    ? 'border-emerald-700 text-emerald-900 font-bold'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800'
+                    ? 'border-emerald-500 text-emerald-400 font-bold'
+                    : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
                 <Sliders className="w-3.5 h-3.5" />
@@ -660,8 +672,8 @@ export default function AdminProductsPage() {
                 onClick={() => setActiveTab('media')}
                 className={`pb-2.5 px-3 border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === 'media'
-                    ? 'border-emerald-700 text-emerald-900 font-bold'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800'
+                    ? 'border-emerald-500 text-emerald-400 font-bold'
+                    : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
                 <ImageIcon className="w-3.5 h-3.5" />
@@ -675,7 +687,7 @@ export default function AdminProductsPage() {
               {activeTab === 'basics' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in">
                   <div className="sm:col-span-2">
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Fragrance Flacon Name *
                     </label>
                     <input
@@ -685,12 +697,12 @@ export default function AdminProductsPage() {
                       placeholder="e.g. Royal Mukhallat Al-Sultan"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-medium"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 font-medium"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Tagline / Royal Descriptor
                     </label>
                     <input
@@ -699,22 +711,22 @@ export default function AdminProductsPage() {
                       placeholder="e.g. Vintage 20-Year Aged Cambodian Agarwood & Mysore Sandalwood"
                       value={formData.tagline}
                       onChange={handleInputChange}
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Dynamic Category *
                     </label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
                     >
                       {categories.map((c) => (
-                        <option key={c._id} value={c._id}>
+                        <option key={c._id} value={c._id} className="bg-[#0A1210] text-white">
                           {c.name}
                         </option>
                       ))}
@@ -722,26 +734,26 @@ export default function AdminProductsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Fragrance Family *
                     </label>
                     <select
                       name="fragranceFamily"
                       value={formData.fragranceFamily}
                       onChange={handleInputChange}
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
                     >
-                      <option value="Oudh">Oudh</option>
-                      <option value="Floral">Floral</option>
-                      <option value="Musk">Musk</option>
-                      <option value="Amber & Woods">Amber & Woods</option>
-                      <option value="Spicy Oriental">Spicy Oriental</option>
-                      <option value="Fresh Citrus">Fresh Citrus</option>
+                      <option value="Oudh" className="bg-[#0A1210] text-white">Oudh</option>
+                      <option value="Floral" className="bg-[#0A1210] text-white">Floral</option>
+                      <option value="Musk" className="bg-[#0A1210] text-white">Musk</option>
+                      <option value="Amber & Woods" className="bg-[#0A1210] text-white">Amber & Woods</option>
+                      <option value="Spicy Oriental" className="bg-[#0A1210] text-white">Spicy Oriental</option>
+                      <option value="Fresh Citrus" className="bg-[#0A1210] text-white">Fresh Citrus</option>
                     </select>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Full Olfactory Story & Formulation *
                     </label>
                     <textarea
@@ -751,7 +763,7 @@ export default function AdminProductsPage() {
                       value={formData.description}
                       onChange={handleInputChange}
                       placeholder="Describe distillation origin, scent progression, wear time, and artisanal flacon packaging..."
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 leading-relaxed"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 leading-relaxed font-medium"
                     />
                   </div>
                 </div>
@@ -762,7 +774,7 @@ export default function AdminProductsPage() {
                 <div className="space-y-4 animate-in fade-in">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                         Base Price 6ml (₹) *
                       </label>
                       <input
@@ -771,12 +783,12 @@ export default function AdminProductsPage() {
                         required
                         value={formData.price}
                         onChange={handleInputChange}
-                        className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 font-poppins font-bold"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-poppins font-bold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                         Original / Compare Price (₹)
                       </label>
                       <input
@@ -784,12 +796,12 @@ export default function AdminProductsPage() {
                         name="originalPrice"
                         value={formData.originalPrice}
                         onChange={handleInputChange}
-                        className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 font-poppins"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-poppins"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                         Total Inventory Stock *
                       </label>
                       <input
@@ -798,18 +810,18 @@ export default function AdminProductsPage() {
                         required
                         value={formData.stock}
                         onChange={handleInputChange}
-                        className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500 font-bold"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-bold"
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#F4FAF6] border border-emerald-100 space-y-3">
-                    <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-900">
+                  <div className="p-4 rounded-2xl bg-[#0E1815] border border-[#1E332B] space-y-3">
+                    <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-400">
                       Multi-Tier Bottle Sizes Pricing Matrix
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-neutral-600 font-semibold mb-1 text-[10px]">
+                        <label className="block text-neutral-400 font-semibold mb-1 text-[10px]">
                           3ml Flacon (₹)
                         </label>
                         <input
@@ -817,12 +829,12 @@ export default function AdminProductsPage() {
                           name="size3mlPrice"
                           value={formData.size3mlPrice}
                           onChange={handleInputChange}
-                          className="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-neutral-800 font-poppins font-bold"
+                          className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white font-poppins font-bold focus:border-emerald-500"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-neutral-600 font-semibold mb-1 text-[10px]">
+                        <label className="block text-neutral-400 font-semibold mb-1 text-[10px]">
                           6ml Flacon (₹)
                         </label>
                         <input
@@ -830,12 +842,12 @@ export default function AdminProductsPage() {
                           name="size6mlPrice"
                           value={formData.size6mlPrice}
                           onChange={handleInputChange}
-                          className="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-neutral-800 font-poppins font-bold"
+                          className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white font-poppins font-bold focus:border-emerald-500"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-neutral-600 font-semibold mb-1 text-[10px]">
+                        <label className="block text-neutral-400 font-semibold mb-1 text-[10px]">
                           12ml Royal Flacon (₹)
                         </label>
                         <input
@@ -843,7 +855,7 @@ export default function AdminProductsPage() {
                           name="size12mlPrice"
                           value={formData.size12mlPrice}
                           onChange={handleInputChange}
-                          className="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-neutral-800 font-poppins font-bold"
+                          className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white font-poppins font-bold focus:border-emerald-500"
                         />
                       </div>
                     </div>
@@ -855,7 +867,7 @@ export default function AdminProductsPage() {
               {activeTab === 'olfactory' && (
                 <div className="space-y-4 animate-in fade-in">
                   <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Top Notes (First 15-30 Mins)
                     </label>
                     <input
@@ -864,12 +876,12 @@ export default function AdminProductsPage() {
                       value={formData.topNotes}
                       onChange={handleInputChange}
                       placeholder="e.g. Italian Bergamot, Saffron, Cardamom"
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Heart Notes (2 - 6 Hours)
                     </label>
                     <input
@@ -878,12 +890,12 @@ export default function AdminProductsPage() {
                       value={formData.heartNotes}
                       onChange={handleInputChange}
                       placeholder="e.g. Taif Rose, Mysore Sandalwood, Frankincense"
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                       Base Notes (Dry Down & Sillage 12+ Hours)
                     </label>
                     <input
@@ -892,13 +904,13 @@ export default function AdminProductsPage() {
                       value={formData.baseNotes}
                       onChange={handleInputChange}
                       placeholder="e.g. Aged Assam Oudh, Royal Kashmiri Musk, Amber Resin"
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div>
-                      <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                         Distillation Origin
                       </label>
                       <input
@@ -907,12 +919,12 @@ export default function AdminProductsPage() {
                         value={formData.origin}
                         onChange={handleInputChange}
                         placeholder="e.g. Assam, India"
-                        className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
                         Longevity & Sillage
                       </label>
                       <input
@@ -921,7 +933,7 @@ export default function AdminProductsPage() {
                         value={formData.longevityHours}
                         onChange={handleInputChange}
                         placeholder="e.g. 14+ Hours on Skin"
-                        className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                   </div>
@@ -930,76 +942,45 @@ export default function AdminProductsPage() {
 
               {/* TAB 4: MEDIA & BADGES */}
               {activeTab === 'media' && (
-                <div className="space-y-4 animate-in fade-in">
-                  <div>
-                    <label className="block text-neutral-800 font-bold mb-1 uppercase tracking-wider text-[11px]">
-                      Flacon Image URL
-                    </label>
-                    <input
-                      type="url"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-neutral-800 focus:outline-none focus:border-emerald-500"
-                    />
-                  </div>
-
-                  {/* Live Image Preview */}
-                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
-                    <div className="relative w-16 h-20 rounded-xl bg-white border border-emerald-100 overflow-hidden flex-shrink-0 shadow-xs">
-                      {formData.image ? (
-                        <Image
-                          src={formData.image}
-                          alt="Flacon Preview"
-                          fill
-                          sizes="64px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-neutral-400">
-                          <ImageIcon className="w-6 h-6" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-neutral-900 text-xs">Live Flacon Card Preview</p>
-                      <p className="text-[11px] text-neutral-500">
-                        This image appears in the storefront catalog, search results, and checkout cart.
-                      </p>
-                    </div>
-                  </div>
+                <div className="space-y-5 animate-in fade-in">
+                  <AdminImageUpload
+                    value={formData.image}
+                    onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+                    label="Product Flacon Image (Upload directly to Cloudinary)"
+                    folder="attar-depot/products"
+                  />
 
                   {/* Storefront Feature Toggles */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-neutral-200 cursor-pointer hover:bg-neutral-50 transition-colors">
+                    <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#1E332B] bg-[#070D0B] cursor-pointer hover:border-emerald-500/40 transition-colors">
                       <input
                         type="checkbox"
                         name="isFeatured"
                         checked={formData.isFeatured}
                         onChange={handleInputChange}
-                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 bg-[#070D0B]"
                       />
                       <div>
-                        <p className="font-bold text-neutral-900 text-xs flex items-center gap-1">
-                          <Award className="w-3.5 h-3.5 text-amber-600" /> Featured Collection
+                        <p className="font-bold text-white text-xs flex items-center gap-1">
+                          <Award className="w-3.5 h-3.5 text-amber-400" /> Featured Collection
                         </p>
-                        <p className="text-[10px] text-neutral-400">Highlight on store home page carousel</p>
+                        <p className="text-[10px] text-neutral-500">Highlight on store home page carousel</p>
                       </div>
                     </label>
 
-                    <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-neutral-200 cursor-pointer hover:bg-neutral-50 transition-colors">
+                    <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#1E332B] bg-[#070D0B] cursor-pointer hover:border-emerald-500/40 transition-colors">
                       <input
                         type="checkbox"
                         name="isBestSeller"
                         checked={formData.isBestSeller}
                         onChange={handleInputChange}
-                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 bg-[#070D0B]"
                       />
                       <div>
-                        <p className="font-bold text-neutral-900 text-xs flex items-center gap-1">
-                          <Flame className="w-3.5 h-3.5 text-rose-600" /> Best Seller Badge
+                        <p className="font-bold text-white text-xs flex items-center gap-1">
+                          <Flame className="w-3.5 h-3.5 text-rose-400" /> Best Seller Badge
                         </p>
-                        <p className="text-[10px] text-neutral-400">Display trending badge on catalog</p>
+                        <p className="text-[10px] text-neutral-500">Display trending badge on catalog</p>
                       </div>
                     </label>
                   </div>
@@ -1007,11 +988,11 @@ export default function AdminProductsPage() {
               )}
 
               {/* Modal Action Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-emerald-100">
+              <div className="flex items-center justify-between pt-4 border-t border-[#1E332B]">
                 <button
                   type="button"
                   onClick={() => setIsFormModalOpen(false)}
-                  className="px-4 py-2.5 text-neutral-500 hover:text-neutral-900 font-semibold"
+                  className="px-4 py-2.5 text-neutral-400 hover:text-white font-semibold"
                 >
                   Cancel
                 </button>
@@ -1025,7 +1006,7 @@ export default function AdminProductsPage() {
                         else if (activeTab === 'olfactory') setActiveTab('pricing');
                         else if (activeTab === 'pricing') setActiveTab('basics');
                       }}
-                      className="px-4 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 font-bold hover:bg-neutral-50"
+                      className="px-4 py-2.5 rounded-xl border border-[#1E332B] text-neutral-300 font-bold hover:bg-[#121E1B]"
                     >
                       Previous
                     </button>
@@ -1039,7 +1020,7 @@ export default function AdminProductsPage() {
                         else if (activeTab === 'pricing') setActiveTab('olfactory');
                         else if (activeTab === 'olfactory') setActiveTab('media');
                       }}
-                      className="px-5 py-2.5 rounded-xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition-colors shadow-2xs"
+                      className="px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-600 transition-colors shadow-md"
                     >
                       Next Step →
                     </button>
@@ -1047,7 +1028,7 @@ export default function AdminProductsPage() {
                     <button
                       type="submit"
                       disabled={createProductMutation.isPending || updateProductMutation.isPending}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-950 text-white font-bold uppercase tracking-wider hover:from-emerald-800 hover:to-emerald-900 transition-all shadow-md active:scale-98"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 text-white font-bold uppercase tracking-wider hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/50 active:scale-98"
                     >
                       {createProductMutation.isPending || updateProductMutation.isPending
                         ? 'Saving Flacon...'
