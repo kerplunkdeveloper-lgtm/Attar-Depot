@@ -18,6 +18,9 @@ import { useFeaturedProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/product/ProductCard';
 import ProductGridSkeleton from '@/components/product/ProductCardSkeleton';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
+import InfiniteMarquee from '@/components/home/InfiniteMarquee';
+import WatchAndBuy from '@/components/home/WatchAndBuy';
+import Faq from '@/components/home/Faq';
 
 export default function HomePage() {
   const { data: categories = [] } = useCategories();
@@ -84,7 +87,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Dynamic Categories Section with Clean Balanced Alignment */}
+      {/* 2. Imperial Royal Attar Standards - Infinite Marquee */}
+      <div className="-mt-14 sm:-mt-16 relative z-20">
+        <InfiniteMarquee />
+      </div>
+
+      {/* 3. Dynamic Categories Section with Clean Balanced Alignment */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-emerald-100 pb-4">
           <div>
@@ -163,7 +171,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. The Art of Distillation Banner */}
+      {/* 4. Shoppable Reels: Watch and Buy */}
+      <WatchAndBuy />
+
+      {/* 5. The Art of Distillation Banner */}
       <section className="relative overflow-hidden py-20 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/60 to-[#ECFDF5] border-y border-emerald-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -224,6 +235,9 @@ export default function HomePage() {
 
       {/* 5. Customer Testimonials Reviews Carousel */}
       <TestimonialCarousel />
+
+      {/* 6. Frequently Asked Questions (FAQ) */}
+      <Faq />
     </div>
   );
 }

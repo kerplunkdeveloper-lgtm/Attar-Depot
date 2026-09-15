@@ -28,8 +28,16 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       const url = error.config?.url || '';
-      // Don't wipe on login/signup attempt errors so the user can see wrong password message
-      if (!url.includes('/auth/login') && !url.includes('/auth/admin-login') && !url.includes('/auth/register')) {
+      // Don't wipe on login/signup attempt errors so the user can see error message
+      if (
+        !url.includes('/auth/login') &&
+        !url.includes('/auth/admin-login') &&
+        !url.includes('/auth/register') &&
+        !url.includes('/auth/verify-otp') &&
+        !url.includes('/auth/send-otp') &&
+        !url.includes('/auth/complete-profile') &&
+        !url.includes('/auth/google')
+      ) {
         localStorage.removeItem('attar_token');
         localStorage.removeItem('attar_user');
       }

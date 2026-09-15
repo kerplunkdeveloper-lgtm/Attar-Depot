@@ -30,6 +30,7 @@ import { logout, hydrateAuth } from '@/store/authSlice';
 import { hydrateCart } from '@/store/cartSlice';
 import { useCategories } from '@/hooks/useCategories';
 import { toast } from '@/lib/toast';
+import AttarDepotLogo from '@/components/common/AttarDepotLogo';
 
 export default function Navbar() {
   const router = useRouter();
@@ -164,11 +165,7 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* 2. Center: Announcement (Desktop Only) */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-emerald-800 tracking-wide font-medium flex-shrink-0 px-2">
-            <Sparkles className="w-3 h-3 text-emerald-600 animate-pulse flex-shrink-0" />
-            <span>Complimentary Silk Flacon Pouch & Free Express Shipping on ₹1,999+</span>
-          </div>
+         
 
           {/* 3. Right: Follow Us Social Media Links */}
           <div className="flex items-center gap-1 sm:gap-2 text-[11px] flex-shrink-0">
@@ -328,13 +325,16 @@ export default function Navbar() {
 
           {/* 2. CENTER SECTION: Brand Logo (Responsive scaling, no overflow/overlap) */}
           <div className="flex-1 lg:flex-initial flex items-center justify-center text-center px-1 sm:px-4 min-w-0">
-            <Link href="/" className="group flex flex-col items-center max-w-full">
-              <span className="font-serif text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold tracking-[0.12em] xs:tracking-[0.16em] sm:tracking-[0.22em] text-emerald-gradient uppercase drop-shadow-sm truncate">
-                Attar Depot
-              </span>
-              <span className="hidden xs:block text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.38em] text-emerald-800/80 font-sans font-medium uppercase -mt-0.5 group-hover:text-emerald-600 transition-colors truncate">
-                Pure Essence of Royalty
-              </span>
+            <Link href="/" className="group flex items-center gap-2 sm:gap-2.5 max-w-full">
+              <AttarDepotLogo variant="icon" className="w-6 h-6 sm:w-8 sm:h-8 text-[#046A5A] group-hover:scale-105 transition-transform shrink-0 drop-shadow-xs" />
+              <div className="flex flex-col items-start text-left">
+                <span className="font-serif text-base xs:text-lg sm:text-2xl font-bold tracking-[0.12em] xs:tracking-[0.16em] text-emerald-gradient uppercase drop-shadow-sm truncate leading-tight">
+                  Attar Depot
+                </span>
+                <span className="hidden xs:block text-[8px] sm:text-[9px] tracking-[0.18em] sm:tracking-[0.28em] text-emerald-800/80 font-sans font-medium uppercase group-hover:text-emerald-600 transition-colors truncate">
+                  Pure Essence of Royalty
+                </span>
+              </div>
             </Link>
           </div>
 
@@ -507,8 +507,8 @@ export default function Navbar() {
               onClick={() => setIsMobileNavOpen(false)}
               className="flex items-center gap-2.5"
             >
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#046A5A] to-[#023F36] flex items-center justify-center text-[#FAF8F2] font-serif font-bold text-sm shadow-emerald-sm border border-emerald-500/20">
-                AD
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#046A5A] to-[#023F36] flex items-center justify-center text-[#FAF8F2] shadow-emerald-sm border border-emerald-500/20 p-1.5 shrink-0">
+                <AttarDepotLogo variant="icon" className="w-full h-full text-[#FAF8F2]" />
               </div>
               <div>
                 <span className="font-serif text-base font-bold tracking-[0.16em] text-emerald-gradient uppercase block leading-tight">

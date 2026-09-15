@@ -1,9 +1,12 @@
 export interface User {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
   role: 'user' | 'admin';
   phone?: string;
+  title?: string;
+  country?: string;
+  isProfileComplete?: boolean;
   avatar?: string;
 }
 

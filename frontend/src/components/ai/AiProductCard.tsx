@@ -50,7 +50,7 @@ export default function AiProductCard({ product }: AiProductCardProps) {
       : 0;
 
   return (
-    <div className="flex-shrink-0 w-60 sm:w-64 bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden flex flex-col justify-between transition-all hover:shadow-md hover:border-emerald-200">
+    <div className="shrink-0 w-[215px] sm:w-64 snap-start bg-white rounded-2xl border border-emerald-100/90 shadow-sm overflow-hidden flex flex-col justify-between transition-all hover:shadow-md hover:border-emerald-200">
       {/* Product Image with Skeleton Loading */}
       <div className="relative aspect-square w-full bg-[#FAF8F2] overflow-hidden group">
         {!isImgLoaded && (
@@ -60,7 +60,7 @@ export default function AiProductCard({ product }: AiProductCardProps) {
           src={product.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600'}
           alt={product.name}
           fill
-          sizes="256px"
+          sizes="(max-width: 640px) 215px, 256px"
           onLoad={() => setIsImgLoaded(true)}
           className={`object-cover transition-all duration-500 group-hover:scale-105 ${
             isImgLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-xs'
@@ -73,14 +73,13 @@ export default function AiProductCard({ product }: AiProductCardProps) {
           </span>
         )}
 
-        <span className="absolute bottom-2 left-2 text-[10px] font-semibold text-emerald-900 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-emerald-100 shadow-2xs">
+        <span className="absolute bottom-2 left-2 text-[10px] font-semibold text-emerald-900 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-full border border-emerald-100 shadow-2xs max-w-[85%] truncate">
           {product.fragranceFamily || 'Pure Attar'}
         </span>
       </div>
 
-
       {/* Details */}
-      <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+      <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
         <div>
           {/* Rating */}
           <div className="flex items-center gap-1 text-amber-500 text-[11px] mb-1">
@@ -93,13 +92,13 @@ export default function AiProductCard({ product }: AiProductCardProps) {
             </span>
           </div>
 
-          <h4 className="font-serif text-sm sm:text-base font-bold text-neutral-900 truncate" title={product.name}>
+          <h4 className="font-serif text-sm font-bold text-neutral-900 line-clamp-1" title={product.name}>
             {product.name}
           </h4>
 
-          {/* Price in Inter */}
-          <div className="flex items-baseline gap-2 mt-1 font-sans">
-            <span className="font-sans text-sm font-bold text-neutral-900">
+          {/* Price */}
+          <div className="flex items-baseline gap-1.5 mt-1 font-sans">
+            <span className="text-sm font-bold text-neutral-900">
               ₹{defaultPrice.toLocaleString('en-IN')}
             </span>
             {defaultOriginalPrice && defaultOriginalPrice > defaultPrice && (
@@ -114,11 +113,11 @@ export default function AiProductCard({ product }: AiProductCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="grid grid-cols-2 gap-1.5 pt-1">
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`py-1.5 px-2 rounded-xl text-[11px] font-bold tracking-wide flex items-center justify-center gap-1 transition-all ${
+            className={`py-2 px-2 rounded-xl text-[11px] font-bold tracking-wide flex items-center justify-center gap-1 transition-all ${
               isAdded
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 active:scale-95'
@@ -126,23 +125,23 @@ export default function AiProductCard({ product }: AiProductCardProps) {
           >
             {isAdded ? (
               <>
-                <Check className="w-3.5 h-3.5" />
-                <span>Added!</span>
+                <Check className="w-3.5 h-3.5 shrink-0" />
+                <span>Added</span>
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>Add to Cart</span>
+                <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                <span>+ Cart</span>
               </>
             )}
           </button>
 
           <Link
             href={`/product/${product.slug}`}
-            className="py-1.5 px-2 rounded-xl text-[11px] font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200/80 active:scale-95 flex items-center justify-center gap-1 transition-all"
+            className="py-2 px-2 rounded-xl text-[11px] font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200/80 active:scale-95 flex items-center justify-center gap-1 transition-all"
           >
             <span>View</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
           </Link>
         </div>
       </div>

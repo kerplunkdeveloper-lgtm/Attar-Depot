@@ -1,7 +1,9 @@
 import express from 'express';
 import {
-  register,
-  login,
+  sendOtp,
+  verifyOtp,
+  completeProfile,
+  googleAuth,
   adminLogin,
   getMe,
   logout,
@@ -10,9 +12,18 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
+// Customer Phone OTP & Profile Routes (Titan SKINN 3-Step Flow)
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
+router.post('/complete-profile', completeProfile);
+
+// Google OAuth
+router.post('/google', googleAuth);
+
+// Admin Email/Password Login
 router.post('/admin-login', adminLogin);
+
+// Session & Profile
 router.post('/logout', logout);
 router.get('/me', protect, getMe);
 

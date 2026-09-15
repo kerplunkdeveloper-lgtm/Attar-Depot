@@ -5,24 +5,24 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please provide your name'],
+      default: 'Patron',
       trim: true,
       maxlength: [60, 'Name cannot exceed 60 characters'],
     },
+    title: {
+      type: String,
+      enum: ['Mr', 'Ms', 'Mrs', 'Dr', ''],
+      default: '',
+    },
     email: {
       type: String,
-      required: [true, 'Please provide your email'],
       unique: true,
+      sparse: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please provide a valid email address',
-      ],
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,
     },
@@ -33,7 +33,21 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      default: '',
+      trim: true,
+      index: true,
+      sparse: true,
+    },
+    country: {
+      type: String,
+      default: 'IN',
+    },
+    isProfileComplete: {
+      type: Boolean,
+      default: false,
+    },
+    googleId: {
+      type: String,
+      sparse: true,
     },
     avatar: {
       type: String,
@@ -57,7 +71,7 @@ const userSchema = new mongoose.Schema(
 
 // Encrypt password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+  if (!this.password || !this.isModified('password')) {
     return next();
   }
   const salt = await bcrypt.genSalt(10);
@@ -67,6 +81,9 @@ userSchema.pre('save', async function (next) {
 
 // Compare user password
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) {
+    return false;
+  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
