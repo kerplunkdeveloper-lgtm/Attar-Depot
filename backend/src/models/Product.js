@@ -48,13 +48,32 @@ const productSchema = new mongoose.Schema(
     },
     fragranceFamily: {
       type: String,
-      enum: ['Oudh', 'Floral', 'Musk', 'Amber & Woods', 'Spicy Oriental', 'Fresh Citrus'],
+      trim: true,
       default: 'Oudh',
     },
     fragranceNotes: {
       topNotes: [{ type: String, trim: true }],
       heartNotes: [{ type: String, trim: true }],
       baseNotes: [{ type: String, trim: true }],
+    },
+    // Dynamic ecommerce filter & catalog attributes
+    gender: {
+      type: String,
+      trim: true,
+      default: 'Unisex',
+    },
+    notes: {
+      type: [String],
+      default: [],
+    },
+    collection: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    occasions: {
+      type: [String],
+      default: [],
     },
     sizes: [sizeOptionSchema],
     price: {

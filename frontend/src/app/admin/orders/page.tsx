@@ -126,9 +126,13 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Orders Table */}
-      <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+      <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60 relative">
+        <div className="md:hidden px-4 py-1.5 text-[10px] text-emerald-400 bg-[#0A1512] flex items-center justify-between border-b border-[#1E332B]">
+          <span>Scroll horizontally for full consignment lifecycle</span>
+          <span className="font-mono text-[11px]">&rarr;</span>
+        </div>
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full text-left text-xs min-w-[750px]">
             <thead className="bg-[#09110F] text-neutral-400 uppercase tracking-wider font-semibold border-b border-[#1E332B]">
               <tr>
                 <th className="p-4">Order Ref</th>

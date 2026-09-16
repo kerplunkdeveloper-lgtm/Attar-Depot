@@ -8,9 +8,15 @@ interface ProductQueryParams {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
+  priceRange?: string;
   sort?: string;
   page?: number;
   limit?: number;
+  // Vera-style filter fields
+  gender?: string;
+  notes?: string;       // comma-separated e.g. "Musk,Floral"
+  collection?: string;
+  occasion?: string;    // comma-separated
 }
 
 interface ProductsResponse {
@@ -32,9 +38,15 @@ export const useProducts = (params: ProductQueryParams = {}) => {
       if (params.search) query.append('search', params.search);
       if (params.minPrice) query.append('minPrice', params.minPrice.toString());
       if (params.maxPrice) query.append('maxPrice', params.maxPrice.toString());
+      if (params.priceRange) query.append('priceRange', params.priceRange);
       if (params.sort) query.append('sort', params.sort);
       if (params.page) query.append('page', params.page.toString());
       if (params.limit) query.append('limit', params.limit.toString());
+      // Vera-style filters
+      if (params.gender) query.append('gender', params.gender);
+      if (params.notes) query.append('notes', params.notes);
+      if (params.collection) query.append('collection', params.collection);
+      if (params.occasion) query.append('occasion', params.occasion);
 
       const { data } = await api.get(`/products?${query.toString()}`);
       return data;

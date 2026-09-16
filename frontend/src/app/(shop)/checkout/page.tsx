@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle, MapPin, Home, Briefcase } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { clearCart } from '@/store/cartSlice';
 import { useCreateOrder } from '@/hooks/useOrders';
+import { useAddresses } from '@/hooks/useProfile';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
 
@@ -19,6 +20,7 @@ export default function CheckoutPage() {
   );
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const createOrderMutation = useCreateOrder();
+  const { data: addresses = [] } = useAddresses(isAuthenticated);
 
   const [formData, setFormData] = useState({
     fullName: user?.name || '',
@@ -29,6 +31,39 @@ export default function CheckoutPage() {
     postalCode: '',
     country: 'India',
   });
+
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (addresses.length > 0 && !formData.address) {
+      const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
+      if (defaultAddr && defaultAddr._id) {
+        setSelectedAddressId(defaultAddr._id);
+        setFormData({
+          fullName: defaultAddr.fullName || user?.name || '',
+          phone: defaultAddr.phone || user?.phone || '',
+          address: defaultAddr.street ? `${defaultAddr.street}${defaultAddr.landmark ? ', ' + defaultAddr.landmark : ''}` : '',
+          city: defaultAddr.city || '',
+          state: defaultAddr.state || '',
+          postalCode: defaultAddr.postalCode || '',
+          country: defaultAddr.country || 'India',
+        });
+      }
+    }
+  }, [addresses]);
+
+  const selectSavedAddress = (addr: any) => {
+    setSelectedAddressId(addr._id);
+    setFormData({
+      fullName: addr.fullName || '',
+      phone: addr.phone || '',
+      address: addr.street ? `${addr.street}${addr.landmark ? ', ' + addr.landmark : ''}` : '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postalCode || '',
+      country: addr.country || 'India',
+    });
+  };
 
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online' | 'UPI'>('COD');
   const [orderPlaced, setOrderPlaced] = useState<any>(null);
@@ -183,12 +218,69 @@ export default function CheckoutPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Shipping Address */}
           <div className="rounded-3xl glass-card p-6 sm:p-8 border border-emerald-100 space-y-4 bg-white shadow-emerald-sm">
-            <div className="flex items-center gap-2 border-b border-emerald-100 pb-3 text-neutral-900">
-              <Truck className="w-4 h-4 text-emerald-600" />
-              <h2 className="font-serif text-base font-bold uppercase tracking-wider">
-                Consignment Shipping Address
-              </h2>
+            <div className="flex items-center justify-between border-b border-emerald-100 pb-3 text-neutral-900">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-emerald-600" />
+                <h2 className="font-serif text-base font-bold uppercase tracking-wider">
+                  Consignment Shipping Address
+                </h2>
+              </div>
             </div>
+
+            {/* Saved Addresses Quick Selector */}
+            {isAuthenticated && addresses.length > 0 && (
+              <div className="space-y-3 pb-3 border-b border-emerald-100/80">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Select from Saved Addresses</span>
+                  </span>
+                  <Link
+                    href="/profile"
+                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-950 hover:underline"
+                  >
+                    Manage in Profile →
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {addresses.map((addr) => {
+                    const isSelected = selectedAddressId === addr._id;
+                    return (
+                      <div
+                        key={addr._id}
+                        onClick={() => selectSavedAddress(addr)}
+                        className={`p-3.5 rounded-2xl border text-xs cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-600/20 shadow-xs'
+                            : 'border-neutral-200 bg-neutral-50/40 hover:bg-emerald-50/30 hover:border-emerald-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-neutral-900 truncate">
+                            {addr.fullName}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-white border border-neutral-200 text-neutral-600">
+                              {addr.addressType || 'Home'}
+                            </span>
+                            {addr.isDefault && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-neutral-600 truncate">{addr.street}</p>
+                        <p className="text-[11px] text-neutral-500 font-medium">
+                          {addr.city}, {addr.state} - {addr.postalCode}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
               <div>

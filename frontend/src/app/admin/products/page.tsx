@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -22,9 +22,11 @@ import {
   Image as ImageIcon,
   Flame,
   Award,
+  Check,
 } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
+import { usePublicTaxonomy } from '@/hooks/useTaxonomy';
 import {
   useAdminCreateProduct,
   useAdminUpdateProduct,
@@ -35,12 +37,60 @@ import { Product } from '@/types';
 import { toast } from '@/lib/toast';
 import AdminImageUpload from '@/components/admin/AdminImageUpload';
 
+// Ecommerce Filter Presets from Reference Architecture
+export const PRESET_GENDERS = [
+  { label: "Men's Perfumes", value: 'Men' },
+  { label: "Women's Perfumes", value: 'Women' },
+  { label: 'Unisex Perfumes', value: 'Unisex' },
+];
+
+export const PRESET_COLLECTIONS = [
+  'Untold Stories',
+  'Artisan Series',
+  'Wisal Series',
+  'Aurum Series',
+  'Aristocrat Series',
+  'Gold Series',
+  'Royal Series',
+];
+
+export const PRESET_NOTES = [
+  'Fresh & Aquatic',
+  'Musk',
+  'Oudh/Agarwood',
+  'Floral',
+  'Fruity',
+  'Sweet',
+  'Woody',
+  'Spicy',
+  'Amber',
+  'Vanilla',
+  'Citrus',
+  'Patchouli',
+  'Sandalwood',
+  'Rose',
+];
+
+export const PRESET_OCCASIONS = [
+  'Casual Wear',
+  'Evening Wear',
+  'Gym Wear',
+  'Office Wear',
+  'Party Wear',
+  'Summer Wear',
+  'Winter Wear',
+];
+
 interface ProductFormData {
   name: string;
   tagline: string;
   description: string;
   category: string;
-  fragranceFamily: 'Oudh' | 'Floral' | 'Musk' | 'Amber & Woods' | 'Spicy Oriental' | 'Fresh Citrus';
+  fragranceFamily: string;
+  gender: string;
+  collection: string;
+  notes: string[];
+  occasions: string[];
   topNotes: string;
   heartNotes: string;
   baseNotes: string;
@@ -65,6 +115,10 @@ const defaultFormData: ProductFormData = {
   description: '',
   category: '',
   fragranceFamily: 'Oudh',
+  gender: 'Unisex',
+  collection: 'Untold Stories',
+  notes: ['Oudh/Agarwood', 'Amber'],
+  occasions: ['Evening Wear', 'Party Wear'],
   topNotes: 'Smoky Amber, Bergamot, Saffron',
   heartNotes: 'Damask Rose, Sandalwood, Frankincense',
   baseNotes: 'Assam Agarwood, Kashmiri Musk, Golden Amber',
@@ -85,7 +139,8 @@ const defaultFormData: ProductFormData = {
 
 export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFamily, setSelectedFamily] = useState('All');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
+  const [selectedGenderFilter, setSelectedGenderFilter] = useState('All');
   const [statusMessage, setStatusMessage] = useState('');
 
   // Modals state
@@ -94,9 +149,31 @@ export default function AdminProductsPage() {
   const [activeTab, setActiveTab] = useState<'basics' | 'pricing' | 'olfactory' | 'media'>('basics');
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
 
+  // Dynamic tags input state
+  const [customNoteInput, setCustomNoteInput] = useState('');
+  const [customOccasionInput, setCustomOccasionInput] = useState('');
+  const [isCustomCollection, setIsCustomCollection] = useState(false);
+  const [customCollectionInput, setCustomCollectionInput] = useState('');
+
   const { data: productsData, isLoading } = useProducts({ search: searchTerm, limit: 100 });
   const products = productsData?.products || [];
   const { data: categories = [] } = useCategories();
+  const { data: taxonomy } = usePublicTaxonomy();
+
+  const dynamicCollections = useMemo(() => {
+    const list = taxonomy?.collections?.filter((c) => c.isActive !== false).map((c) => c.name) || [];
+    return list.length > 0 ? list : PRESET_COLLECTIONS;
+  }, [taxonomy?.collections]);
+
+  const dynamicNotes = useMemo(() => {
+    const list = taxonomy?.notes?.filter((n) => n.isActive !== false).map((n) => n.name) || [];
+    return list.length > 0 ? list : PRESET_NOTES;
+  }, [taxonomy?.notes]);
+
+  const dynamicOccasions = useMemo(() => {
+    const list = taxonomy?.occasions?.filter((o) => o.isActive !== false).map((o) => o.name) || [];
+    return list.length > 0 ? list : PRESET_OCCASIONS;
+  }, [taxonomy?.occasions]);
 
   const createProductMutation = useAdminCreateProduct();
   const updateProductMutation = useAdminUpdateProduct();
@@ -107,9 +184,17 @@ export default function AdminProductsPage() {
   // Open Create Modal
   const handleOpenCreateModal = () => {
     setEditingProductId(null);
+    setIsCustomCollection(false);
+    setCustomCollectionInput('');
+    setCustomNoteInput('');
+    setCustomOccasionInput('');
     setFormData({
       ...defaultFormData,
       category: categories[0]?._id || '',
+      gender: 'Unisex',
+      collection: 'Untold Stories',
+      notes: ['Oudh/Agarwood', 'Amber'],
+      occasions: ['Evening Wear', 'Party Wear'],
       image: '',
     });
     setActiveTab('basics');
@@ -123,12 +208,22 @@ export default function AdminProductsPage() {
     const size6 = p.sizes?.find((s) => s.size === '6ml')?.price || p.price;
     const size12 = p.sizes?.find((s) => s.size === '12ml')?.price || Math.round(p.price * 1.8);
 
+    const isCustomCol = p.collection && !dynamicCollections.includes(p.collection);
+    setIsCustomCollection(!!isCustomCol);
+    setCustomCollectionInput(isCustomCol ? p.collection : '');
+    setCustomNoteInput('');
+    setCustomOccasionInput('');
+
     setFormData({
       name: p.name || '',
       tagline: p.tagline || '',
       description: p.description || '',
       category: p.category?._id || categories[0]?._id || '',
-      fragranceFamily: p.fragranceFamily || 'Oudh',
+      fragranceFamily: p.fragranceFamily || (p.notes?.[0] || 'Oudh'),
+      gender: p.gender || 'Unisex',
+      collection: p.collection || 'Untold Stories',
+      notes: p.notes || [],
+      occasions: p.occasions || [],
       topNotes: p.fragranceNotes?.topNotes?.join(', ') || '',
       heartNotes: p.fragranceNotes?.heartNotes?.join(', ') || '',
       baseNotes: p.fragranceNotes?.baseNotes?.join(', ') || '',
@@ -162,6 +257,46 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleToggleNote = (note: string) => {
+    setFormData((prev) => {
+      const exists = prev.notes.includes(note);
+      return {
+        ...prev,
+        notes: exists ? prev.notes.filter((n) => n !== note) : [...prev.notes, note],
+      };
+    });
+  };
+
+  const handleAddCustomNote = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = customNoteInput.trim();
+    if (!trimmed) return;
+    if (!formData.notes.includes(trimmed)) {
+      setFormData((prev) => ({ ...prev, notes: [...prev.notes, trimmed] }));
+    }
+    setCustomNoteInput('');
+  };
+
+  const handleToggleOccasion = (occasion: string) => {
+    setFormData((prev) => {
+      const exists = prev.occasions.includes(occasion);
+      return {
+        ...prev,
+        occasions: exists ? prev.occasions.filter((o) => o !== occasion) : [...prev.occasions, occasion],
+      };
+    });
+  };
+
+  const handleAddCustomOccasion = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = customOccasionInput.trim();
+    if (!trimmed) return;
+    if (!formData.occasions.includes(trimmed)) {
+      setFormData((prev) => ({ ...prev, occasions: [...prev.occasions, trimmed] }));
+    }
+    setCustomOccasionInput('');
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
@@ -180,12 +315,17 @@ export default function AdminProductsPage() {
     }
 
     try {
+      const finalCollection = isCustomCollection ? customCollectionInput.trim() : formData.collection;
       const payload = {
         name: formData.name.trim(),
         tagline: formData.tagline.trim(),
         description: formData.description.trim(),
         category: formData.category || categories[0]?._id,
-        fragranceFamily: formData.fragranceFamily,
+        fragranceFamily: formData.notes?.[0] || formData.fragranceFamily || 'Oudh',
+        gender: formData.gender,
+        collection: finalCollection,
+        notes: formData.notes,
+        occasions: formData.occasions,
         price: Number(formData.price),
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
         stock: Number(formData.stock),
@@ -241,9 +381,16 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Filter products by family
+  // Filter products by dynamic category and gender
   const filteredProducts = products.filter((p) => {
-    if (selectedFamily !== 'All' && p.fragranceFamily !== selectedFamily) {
+    if (selectedCategoryFilter !== 'All') {
+      const catId = typeof p.category === 'object' ? p.category?._id : p.category;
+      const catName = typeof p.category === 'object' ? p.category?.name : '';
+      if (catId !== selectedCategoryFilter && catName !== selectedCategoryFilter) {
+        return false;
+      }
+    }
+    if (selectedGenderFilter !== 'All' && p.gender !== selectedGenderFilter) {
       return false;
     }
     return true;
@@ -255,9 +402,8 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E332B] pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-          
             <span className="text-[13px] text-neutral-400 font-medium">
-            No.of Products:  {products.length} 
+              No. of Products: {products.length}
             </span>
           </div>
           <h1 className="font-poppins text-2xl sm:text-3xl font-bold tracking-tight text-white">
@@ -297,40 +443,58 @@ export default function AdminProductsPage() {
           <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search flacons by name, slug, or notes..."
+            placeholder="Search flacons by name, slug, notes, or collection..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs bg-[#070D0B] border border-[#1E332B] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-white placeholder-neutral-500 font-poppins"
           />
         </div>
 
-        {/* Family Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {['All', 'Oudh', 'Floral', 'Musk', 'Amber & Woods'].map((fam) => (
-            <button
-              key={fam}
-              onClick={() => setSelectedFamily(fam)}
-              className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
-                selectedFamily === fam
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
-                  : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
-              }`}
-            >
-              {fam}
-            </button>
-          ))}
+        {/* Dynamic Category Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          <button
+            key="All"
+            onClick={() => setSelectedCategoryFilter('All')}
+            className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
+              selectedCategoryFilter === 'All'
+                ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
+                : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
+            }`}
+          >
+            All
+          </button>
+          {categories.map((cat) => {
+            const isSelected = selectedCategoryFilter === cat._id;
+            return (
+              <button
+                key={cat._id}
+                onClick={() => setSelectedCategoryFilter(cat._id)}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
+                    : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
+                }`}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Products SaaS Table */}
       <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="md:hidden px-4 py-1.5 text-[10px] text-emerald-400 bg-[#0A1512] flex items-center justify-between border-b border-[#1E332B]">
+          <span>Scroll horizontally for full flacon metrics</span>
+          <span className="font-mono text-[11px]">&rarr;</span>
+        </div>
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full text-left text-xs min-w-[800px]">
             <thead className="bg-[#09110F] text-neutral-400 uppercase tracking-wider font-semibold border-b border-[#1E332B]">
               <tr>
                 <th className="p-4 pl-6">Images and Titles</th>
                 <th className="p-4">Category</th>
-                <th className="p-4">Olfactory Family</th>
+                <th className="p-4">Collection & Gender</th>
                 <th className="p-4">Price (6ml)</th>
                 <th className="p-4">Stock</th>
                 <th className="p-4">Flags</th>
@@ -371,11 +535,15 @@ export default function AdminProductsPage() {
                         <div>
                           <p className="font-bold text-white text-sm">{p.name}</p>
                           <p className="text-[10px] text-neutral-500 font-mono">/{p.slug}</p>
-                          {p.fragranceNotes?.topNotes?.length > 0 && (
+                          {p.notes && p.notes.length > 0 ? (
+                            <p className="text-[10px] text-emerald-400 mt-0.5 line-clamp-1 font-medium">
+                              Notes: {p.notes.slice(0, 3).join(' • ')}
+                            </p>
+                          ) : p.fragranceNotes?.topNotes?.length > 0 ? (
                             <p className="text-[10px] text-emerald-400 mt-0.5 line-clamp-1">
                               Notes: {p.fragranceNotes.topNotes.slice(0, 2).join(', ')}
                             </p>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     </td>
@@ -387,7 +555,21 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td className="p-4">
-                      <span className="text-neutral-400 font-medium">{p.fragranceFamily}</span>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-white text-xs">
+                          {p.collection || 'Standard Series'}
+                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] text-amber-300 font-medium bg-[#070D0B] border border-[#1E332B] px-1.5 py-0.5 rounded-md">
+                            {p.gender ? (p.gender === 'Men' ? "Men's" : p.gender === 'Women' ? "Women's" : p.gender) : 'Unisex'}
+                          </span>
+                          {p.occasions && p.occasions.length > 0 && (
+                            <span className="text-[10px] text-neutral-400">
+                              • {p.occasions[0]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
 
                     <td className="p-4">
@@ -470,8 +652,8 @@ export default function AdminProductsPage() {
 
       {/* QUICK VIEW PRODUCT MODAL */}
       {viewingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-white">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-2xl w-full p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-2xl relative text-white max-h-[90vh] overflow-y-auto my-auto">
             <div className="flex items-center justify-between border-b border-[#1E332B] pb-4">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 uppercase">
@@ -528,6 +710,35 @@ export default function AdminProductsPage() {
                     </span>
                   )}
                 </div>
+
+                {/* Ecommerce Attributes Badges */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {viewingProduct.collection && (
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#11221C] text-emerald-300 border border-emerald-500/30">
+                      Series: {viewingProduct.collection}
+                    </span>
+                  )}
+                  {viewingProduct.gender && (
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#1F1C10] text-amber-300 border border-amber-500/30">
+                      Gender: {viewingProduct.gender}
+                    </span>
+                  )}
+                </div>
+
+                {viewingProduct.notes && viewingProduct.notes.length > 0 && (
+                  <div className="space-y-1 text-xs">
+                    <p className="font-bold text-[10px] uppercase tracking-wider text-neutral-400">
+                      Storefront Filter Notes
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {viewingProduct.notes.map((n) => (
+                        <span key={n} className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                          {n}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Scent Pyramid Breakdown */}
                 <div className="p-3.5 rounded-2xl bg-[#0E1815] border border-[#1E332B] space-y-2 text-xs">
@@ -607,16 +818,15 @@ export default function AdminProductsPage() {
 
       {/* CREATE & EDIT PRODUCT MODAL (Sectioned / Tabbed UX) */}
       {isFormModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8 text-white">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl relative my-auto text-white overflow-hidden">
             {/* Modal Header */}
-            <div className="flex justify-between items-center border-b border-[#1E332B] pb-4">
+            <div className="flex justify-between items-center border-b border-[#1E332B] px-5 sm:px-6 py-4 flex-shrink-0">
               <div>
                 <h2 className="font-serif text-lg font-bold text-white flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-amber-400" />
                   <span>{editingProductId ? 'Edit Product' : 'Add Product'}</span>
                 </h2>
-               
               </div>
               <button
                 onClick={() => setIsFormModalOpen(false)}
@@ -627,7 +837,7 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Tabs for Better Visibility & UX */}
-            <div className="flex border-b border-[#1E332B] text-xs font-semibold overflow-x-auto gap-2">
+            <div className="flex border-b border-[#1E332B] text-xs font-semibold overflow-x-auto gap-1 sm:gap-2 px-4 sm:px-6 pt-2 no-scrollbar flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveTab('basics')}
@@ -682,7 +892,8 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveProduct} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 text-xs">
               {/* TAB 1: BASICS */}
               {activeTab === 'basics' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in">
@@ -733,23 +944,76 @@ export default function AdminProductsPage() {
                     </select>
                   </div>
 
+                  {/* Gender Selector */}
                   <div>
                     <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                      Fragrance Family *
+                      Target Gender *
                     </label>
-                    <select
-                      name="fragranceFamily"
-                      value={formData.fragranceFamily}
-                      onChange={handleInputChange}
-                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
-                    >
-                      <option value="Oudh" className="bg-[#0A1210] text-white">Oudh</option>
-                      <option value="Floral" className="bg-[#0A1210] text-white">Floral</option>
-                      <option value="Musk" className="bg-[#0A1210] text-white">Musk</option>
-                      <option value="Amber & Woods" className="bg-[#0A1210] text-white">Amber & Woods</option>
-                      <option value="Spicy Oriental" className="bg-[#0A1210] text-white">Spicy Oriental</option>
-                      <option value="Fresh Citrus" className="bg-[#0A1210] text-white">Fresh Citrus</option>
-                    </select>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                      {PRESET_GENDERS.map((g) => {
+                        const isSelected = formData.gender === g.value;
+                        return (
+                          <button
+                            type="button"
+                            key={g.value}
+                            onClick={() => setFormData((prev) => ({ ...prev, gender: g.value }))}
+                            className={`py-2 px-1 rounded-xl text-[11px] font-semibold border transition-all text-center truncate ${
+                              isSelected
+                                ? 'border-emerald-500 bg-emerald-950/70 text-emerald-300 shadow-sm'
+                                : 'border-[#1E332B] bg-[#070D0B] text-neutral-400 hover:text-white hover:border-neutral-600'
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Collection / Product Series Selector */}
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-neutral-300 font-bold uppercase tracking-wider text-[10px]">
+                        Collection / Product Line *
+                      </label>
+                      <span className="text-[10px] text-neutral-500">
+                        {isCustomCollection ? 'Custom Series' : 'Preset Series'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <select
+                        value={isCustomCollection ? '__custom__' : formData.collection}
+                        onChange={(e) => {
+                          if (e.target.value === '__custom__') {
+                            setIsCustomCollection(true);
+                          } else {
+                            setIsCustomCollection(false);
+                            setFormData((prev) => ({ ...prev, collection: e.target.value }));
+                          }
+                        }}
+                        className="flex-1 bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-medium cursor-pointer"
+                      >
+                        {dynamicCollections.map((col) => (
+                          <option key={col} value={col} className="bg-[#0A1210] text-white">
+                            {col}
+                          </option>
+                        ))}
+                        <option value="__custom__" className="bg-[#0A1210] text-amber-300 font-semibold">
+                          + Add Custom Series Name...
+                        </option>
+                      </select>
+
+                      {isCustomCollection && (
+                        <input
+                          type="text"
+                          required
+                          placeholder="Type custom collection name..."
+                          value={customCollectionInput}
+                          onChange={(e) => setCustomCollectionInput(e.target.value)}
+                          className="flex-1 bg-[#070D0B] border border-emerald-500/60 rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 font-medium animate-in fade-in"
+                        />
+                      )}
+                    </div>
                   </div>
 
                   <div className="sm:col-span-2">
@@ -863,78 +1127,251 @@ export default function AdminProductsPage() {
                 </div>
               )}
 
-              {/* TAB 3: SCENT PYRAMID */}
+              {/* TAB 3: SCENT PYRAMID & ECOMMERCE ATTRIBUTES */}
               {activeTab === 'olfactory' && (
-                <div className="space-y-4 animate-in fade-in">
-                  <div>
-                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                      Top Notes (First 15-30 Mins)
-                    </label>
-                    <input
-                      type="text"
-                      name="topNotes"
-                      value={formData.topNotes}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Italian Bergamot, Saffron, Cardamom"
-                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
-                    />
+                <div className="space-y-6 animate-in fade-in">
+                  {/* Scent Notes Facet Filter Chips */}
+                  <div className="p-4 rounded-2xl bg-[#0E1815] border border-[#1E332B] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Fragrance Notes (For Storefront Filter & Customer Search)</span>
+                        </p>
+                        <p className="text-[10px] text-neutral-400 mt-0.5">
+                          Click to toggle notes matching customer search preferences from reference image
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono bg-[#070D0B] px-2 py-0.5 rounded text-neutral-400 border border-[#1E332B]">
+                        {formData.notes.length} Selected
+                      </span>
+                    </div>
+
+                    {/* Dynamic Note Chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {dynamicNotes.map((note) => {
+                        const isSelected = formData.notes.includes(note);
+                        return (
+                          <button
+                            type="button"
+                            key={note}
+                            onClick={() => handleToggleNote(note)}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-emerald-600 text-white font-bold shadow-[0_0_10px_rgba(16,185,129,0.3)] border border-emerald-400'
+                                : 'bg-[#070D0B] text-neutral-400 hover:text-white hover:bg-[#142621] border border-[#1E332B]'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                            <span>{note}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Custom Dynamic Note Input */}
+                    <div className="flex gap-2 pt-2 border-t border-[#1E332B]">
+                      <input
+                        type="text"
+                        placeholder="Add custom note (e.g. Smoky Cardamom, White Amber)..."
+                        value={customNoteInput}
+                        onChange={(e) => setCustomNoteInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddCustomNote();
+                          }
+                        }}
+                        className="flex-1 bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddCustomNote()}
+                        className="px-3.5 py-2 bg-[#12241F] hover:bg-emerald-700 text-neutral-200 hover:text-white rounded-xl font-bold text-xs transition-colors border border-[#1E332B]"
+                      >
+                        + Add Note
+                      </button>
+                    </div>
+
+                    {/* Selected Notes Summary Pills */}
+                    {formData.notes.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {formData.notes.map((note) => (
+                          <span
+                            key={note}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30"
+                          >
+                            {note}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleNote(note)}
+                              className="hover:text-rose-400 p-0.5"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                      Heart Notes (2 - 6 Hours)
-                    </label>
-                    <input
-                      type="text"
-                      name="heartNotes"
-                      value={formData.heartNotes}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Taif Rose, Mysore Sandalwood, Frankincense"
-                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
-                    />
+                  {/* Occasions Facet Filter Chips */}
+                  <div className="p-4 rounded-2xl bg-[#0E1815] border border-[#1E332B] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-[11px] uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                          <Award className="w-3.5 h-3.5 text-rose-400" />
+                          <span>Recommended Occasions (Lifestyle & Wear Recommendations)</span>
+                        </p>
+                        <p className="text-[10px] text-neutral-400 mt-0.5">
+                          Categorize which lifestyle occasions this fragrance is recommended for
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono bg-[#070D0B] px-2 py-0.5 rounded text-neutral-400 border border-[#1E332B]">
+                        {formData.occasions.length} Selected
+                      </span>
+                    </div>
+
+                    {/* Dynamic Occasion Chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {dynamicOccasions.map((occ) => {
+                        const isSelected = formData.occasions.includes(occ);
+                        return (
+                          <button
+                            type="button"
+                            key={occ}
+                            onClick={() => handleToggleOccasion(occ)}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-amber-600 text-white font-bold shadow-[0_0_10px_rgba(217,119,6,0.3)] border border-amber-400'
+                                : 'bg-[#070D0B] text-neutral-400 hover:text-white hover:bg-[#142621] border border-[#1E332B]'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                            <span>{occ}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Custom Dynamic Occasion Input */}
+                    <div className="flex gap-2 pt-2 border-t border-[#1E332B]">
+                      <input
+                        type="text"
+                        placeholder="Add custom occasion (e.g. Royal Wedding, Friday Prayers)..."
+                        value={customOccasionInput}
+                        onChange={(e) => setCustomOccasionInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddCustomOccasion();
+                          }
+                        }}
+                        className="flex-1 bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddCustomOccasion()}
+                        className="px-3.5 py-2 bg-[#12241F] hover:bg-amber-700 text-neutral-200 hover:text-white rounded-xl font-bold text-xs transition-colors border border-[#1E332B]"
+                      >
+                        + Add Occasion
+                      </button>
+                    </div>
+
+                    {/* Selected Occasions Summary Pills */}
+                    {formData.occasions.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {formData.occasions.map((occ) => (
+                          <span
+                            key={occ}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-950/80 text-amber-300 border border-amber-500/30"
+                          >
+                            {occ}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleOccasion(occ)}
+                              className="hover:text-rose-400 p-0.5"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                      Base Notes (Dry Down & Sillage 12+ Hours)
-                    </label>
-                    <input
-                      type="text"
-                      name="baseNotes"
-                      value={formData.baseNotes}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Aged Assam Oudh, Royal Kashmiri Musk, Amber Resin"
-                      className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {/* Scent Pyramid Breakdown */}
+                  <div className="space-y-4 pt-2 border-t border-[#1E332B]">
                     <div>
                       <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                        Distillation Origin
+                        Top Notes (First 15-30 Mins)
                       </label>
                       <input
                         type="text"
-                        name="origin"
-                        value={formData.origin}
+                        name="topNotes"
+                        value={formData.topNotes}
                         onChange={handleInputChange}
-                        placeholder="e.g. Assam, India"
+                        placeholder="e.g. Italian Bergamot, Saffron, Cardamom"
                         className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
                     <div>
                       <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                        Longevity & Sillage
+                        Heart Notes (2 - 6 Hours)
                       </label>
                       <input
                         type="text"
-                        name="longevityHours"
-                        value={formData.longevityHours}
+                        name="heartNotes"
+                        value={formData.heartNotes}
                         onChange={handleInputChange}
-                        placeholder="e.g. 14+ Hours on Skin"
+                        placeholder="e.g. Taif Rose, Mysore Sandalwood, Frankincense"
                         className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
+                        Base Notes (Dry Down & Sillage 12+ Hours)
+                      </label>
+                      <input
+                        type="text"
+                        name="baseNotes"
+                        value={formData.baseNotes}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Aged Assam Oudh, Royal Kashmiri Musk, Amber Resin"
+                        className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
+                          Distillation Origin
+                        </label>
+                        <input
+                          type="text"
+                          name="origin"
+                          value={formData.origin}
+                          onChange={handleInputChange}
+                          placeholder="e.g. Assam, India"
+                          className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
+                          Longevity & Sillage
+                        </label>
+                        <input
+                          type="text"
+                          name="longevityHours"
+                          value={formData.longevityHours}
+                          onChange={handleInputChange}
+                          placeholder="e.g. 14+ Hours on Skin"
+                          className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3.5 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -987,12 +1424,14 @@ export default function AdminProductsPage() {
                 </div>
               )}
 
-              {/* Modal Action Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#1E332B]">
+              </div>
+
+              {/* Modal Action Buttons (Sticky at bottom) */}
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-t border-[#1E332B] flex-shrink-0 bg-[#070D0B]">
                 <button
                   type="button"
                   onClick={() => setIsFormModalOpen(false)}
-                  className="px-4 py-2.5 text-neutral-400 hover:text-white font-semibold"
+                  className="px-3 sm:px-4 py-2 text-neutral-400 hover:text-white font-semibold text-xs"
                 >
                   Cancel
                 </button>
@@ -1006,7 +1445,7 @@ export default function AdminProductsPage() {
                         else if (activeTab === 'olfactory') setActiveTab('pricing');
                         else if (activeTab === 'pricing') setActiveTab('basics');
                       }}
-                      className="px-4 py-2.5 rounded-xl border border-[#1E332B] text-neutral-300 font-bold hover:bg-[#121E1B]"
+                      className="px-3.5 sm:px-4 py-2 rounded-xl border border-[#1E332B] text-neutral-300 font-bold hover:bg-[#121E1B] text-xs"
                     >
                       Previous
                     </button>
@@ -1020,7 +1459,7 @@ export default function AdminProductsPage() {
                         else if (activeTab === 'pricing') setActiveTab('olfactory');
                         else if (activeTab === 'olfactory') setActiveTab('media');
                       }}
-                      className="px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-600 transition-colors shadow-md"
+                      className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-600 transition-colors shadow-md text-xs"
                     >
                       Next Step →
                     </button>
@@ -1028,7 +1467,7 @@ export default function AdminProductsPage() {
                     <button
                       type="submit"
                       disabled={createProductMutation.isPending || updateProductMutation.isPending}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 text-white font-bold uppercase tracking-wider hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/50 active:scale-98"
+                      className="px-4 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-800 text-white font-bold uppercase tracking-wider hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/50 active:scale-98 text-xs"
                     >
                       {createProductMutation.isPending || updateProductMutation.isPending
                         ? 'Saving Flacon...'

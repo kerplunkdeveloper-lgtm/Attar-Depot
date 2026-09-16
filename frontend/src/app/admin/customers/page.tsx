@@ -686,8 +686,17 @@ export default function AdminCustomersPage() {
             ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
             : 'bg-[#0E1715] border-[#1B2925]'
         }`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          {/* Mobile Horizontal Swipe Indicator */}
+          <div
+            className={`md:hidden px-4 py-1.5 text-[10px] flex items-center justify-between border-b ${
+              isLight ? 'bg-slate-50 text-slate-600 border-slate-200' : 'bg-[#0A1512] text-emerald-400 border-[#1E332B]'
+            }`}
+          >
+            <span>Scroll horizontally for full customer directory</span>
+            <span className="font-mono text-[11px]">&rarr;</span>
+          </div>
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full text-left border-collapse text-xs min-w-[760px]">
               <thead>
                 <tr className={`border-b font-semibold ${
                   isLight ? 'border-slate-200 text-slate-500 bg-white' : 'border-[#1B2925] text-neutral-400 bg-[#0C1513]'
@@ -1348,13 +1357,13 @@ export default function AdminCustomersPage() {
 
       {/* 5. Add Customer Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div className="absolute inset-0" onClick={() => setIsAddModalOpen(false)} />
 
-          <div className={`relative w-full max-w-lg rounded-2xl p-6 shadow-2xl z-10 border transition-all ${
+          <div className={`relative w-full max-w-lg rounded-2xl shadow-2xl z-10 border transition-all max-h-[90vh] flex flex-col my-auto overflow-hidden ${
             isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0E1715] border-[#1B2925] text-white'
           }`}>
-            <div className="flex items-center justify-between pb-3 border-b mb-4">
+            <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
               <div>
                 <h3 className="font-bold text-base">Add New Customer</h3>
                 <p className="text-xs text-slate-400">Enter customer details to register in portal</p>
@@ -1364,115 +1373,120 @@ export default function AdminCustomersPage() {
               </button>
             </div>
 
-            {formError && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-                {formError}
-              </div>
-            )}
+            <form onSubmit={handleCreateCustomer} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-5 overflow-y-auto flex-1 space-y-3.5 text-xs">
+                {formError && (
+                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                    {formError}
+                  </div>
+                )}
 
-            <form onSubmit={handleCreateCustomer} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-semibold mb-1">Customer Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Arun Kumar"
-                  value={newCustForm.name}
-                  onChange={(e) => setNewCustForm({ ...newCustForm, name: e.target.value })}
-                  className={`w-full p-2.5 rounded-xl border outline-none ${
-                    isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                  }`}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">Mobile Number</label>
-                  <input
-                    type="tel"
-                    placeholder="+91 98765 43210"
-                    value={newCustForm.phone}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, phone: e.target.value })}
-                    className={`w-full p-2.5 rounded-xl border outline-none ${
-                      isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                    }`}
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    placeholder="arun@gmail.com"
-                    value={newCustForm.email}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, email: e.target.value })}
-                    className={`w-full p-2.5 rounded-xl border outline-none ${
-                      isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold mb-1">Street Address</label>
-                <input
-                  type="text"
-                  placeholder="12, Green Park Street, T. Nagar"
-                  value={newCustForm.address}
-                  onChange={(e) => setNewCustForm({ ...newCustForm, address: e.target.value })}
-                  className={`w-full p-2.5 rounded-xl border outline-none ${
-                    isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                  }`}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-semibold mb-1">City</label>
+                  <label className="block font-semibold mb-1">Customer Full Name *</label>
                   <input
                     type="text"
-                    value={newCustForm.city}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, city: e.target.value })}
+                    required
+                    placeholder="e.g. Arun Kumar"
+                    value={newCustForm.name}
+                    onChange={(e) => setNewCustForm({ ...newCustForm, name: e.target.value })}
                     className={`w-full p-2.5 rounded-xl border outline-none ${
                       isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
                     }`}
                   />
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1">Mobile Number</label>
+                    <input
+                      type="tel"
+                      placeholder="+91 98765 43210"
+                      value={newCustForm.phone}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, phone: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none ${
+                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="arun@gmail.com"
+                      value={newCustForm.email}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, email: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none ${
+                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
+                      }`}
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block font-semibold mb-1">State</label>
+                  <label className="block font-semibold mb-1">Street Address</label>
                   <input
                     type="text"
-                    value={newCustForm.state}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, state: e.target.value })}
+                    placeholder="12, Green Park Street, T. Nagar"
+                    value={newCustForm.address}
+                    onChange={(e) => setNewCustForm({ ...newCustForm, address: e.target.value })}
                     className={`w-full p-2.5 rounded-xl border outline-none ${
                       isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
                     }`}
                   />
                 </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <label className="block font-semibold mb-1">Postal Code</label>
-                  <input
-                    type="text"
-                    value={newCustForm.postalCode}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, postalCode: e.target.value })}
-                    className={`w-full p-2.5 rounded-xl border outline-none ${
-                      isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                    }`}
-                  />
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1">City</label>
+                    <input
+                      type="text"
+                      value={newCustForm.city}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, city: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none ${
+                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold mb-1">State</label>
+                    <input
+                      type="text"
+                      value={newCustForm.state}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, state: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none ${
+                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
+                      }`}
+                    />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block font-semibold mb-1">Postal Code</label>
+                    <input
+                      type="text"
+                      value={newCustForm.postalCode}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, postalCode: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none ${
+                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
+                      }`}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-2.5">
+              {/* Sticky Action Footer */}
+              <div className={`p-4 border-t flex items-center justify-end gap-2.5 flex-shrink-0 ${
+                isLight ? 'border-slate-100 bg-slate-50/70' : 'border-[#1E332B] bg-[#0A1411]'
+              }`}>
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl font-semibold border text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-xl font-semibold border text-slate-600 hover:bg-slate-100 text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createCustomerMutation.isPending}
-                  className="px-4 py-2 rounded-xl font-bold bg-[#111827] text-white hover:bg-[#1f2937] shadow-sm disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl font-bold bg-[#111827] text-white hover:bg-[#1f2937] shadow-sm disabled:opacity-50 text-xs"
                 >
                   {createCustomerMutation.isPending ? 'Saving...' : 'Add Customer'}
                 </button>

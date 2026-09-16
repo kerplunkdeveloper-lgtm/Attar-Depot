@@ -51,6 +51,13 @@ export const authSlice = createSlice({
         localStorage.setItem('attar_user', JSON.stringify(user));
       }
     },
+    updateUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAdmin = action.payload.role === 'admin';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('attar_user', JSON.stringify(action.payload));
+      }
+    },
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -65,5 +72,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { hydrateAuth, setCredentials, logout } = authSlice.actions;
+export const { hydrateAuth, setCredentials, updateUser, logout } = authSlice.actions;
 export default authSlice.reducer;

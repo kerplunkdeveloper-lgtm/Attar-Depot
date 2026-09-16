@@ -29,6 +29,8 @@ import { toggleCartDrawer, openAuthModal, toggleSearch } from '@/store/uiSlice';
 import { logout, hydrateAuth } from '@/store/authSlice';
 import { hydrateCart } from '@/store/cartSlice';
 import { useCategories } from '@/hooks/useCategories';
+import { useFilterOptions } from '@/hooks/useFilterOptions';
+import { usePublicTaxonomy } from '@/hooks/useTaxonomy';
 import { toast } from '@/lib/toast';
 import AttarDepotLogo from '@/components/common/AttarDepotLogo';
 
@@ -43,15 +45,85 @@ export default function Navbar() {
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-
-  // Scroll detection state: hide on scroll down, show on scroll up
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const openShopDropdown = () => {
+    if (shopTimeoutRef.current) {
+      clearTimeout(shopTimeoutRef.current);
+      shopTimeoutRef.current = null;
+    }
+    setIsShopOpen(true);
+  };
+
+  const closeShopDropdown = (delay = 250) => {
+    if (shopTimeoutRef.current) {
+      clearTimeout(shopTimeoutRef.current);
+    }
+    shopTimeoutRef.current = setTimeout(() => {
+      setIsShopOpen(false);
+    }, delay);
+  };
+
+  const toggleShopDropdown = () => {
+    if (shopTimeoutRef.current) {
+      clearTimeout(shopTimeoutRef.current);
+      shopTimeoutRef.current = null;
+    }
+    setIsShopOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (shopTimeoutRef.current) {
+        clearTimeout(shopTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Scroll detection state: transparent at top, blurred on scroll down
+  const [isScrolled, setIsScrolled] = useState(false);
+  const isHomePage = pathname === '/';
+  const isTransparent = !isScrolled && isHomePage && !isShopOpen;
 
   const shopDropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   const { data: categories = [] } = useCategories();
+  const { data: filterOptions } = useFilterOptions();
+  const { data: taxonomy } = usePublicTaxonomy();
+
+  const rawMegaNotes = (taxonomy?.notes && taxonomy.notes.length > 0)
+    ? taxonomy.notes.map((n) => n.name)
+    : (filterOptions?.notes ?? []);
+  const megaNotes = rawMegaNotes.filter(
+    (n) => n && n.trim() !== '' && n.toLowerCase() !== 'sex'
+  );
+
+  const megaGenders = filterOptions?.genders ?? ['Men', 'Women', 'Unisex'];
+
+  const megaCollections = (taxonomy?.collections && taxonomy.collections.length > 0)
+    ? taxonomy.collections.map((c) => c.name)
+    : (filterOptions?.collections ?? []);
+
+  const megaOccasions = (taxonomy?.occasions && taxonomy.occasions.length > 0)
+    ? taxonomy.occasions.map((o) => o.name)
+    : (filterOptions?.occasions ?? []);
+
+  const megaPriceRanges = filterOptions?.priceRanges ?? [
+    { label: 'Under ₹1999', value: 'under-1999', min: 0, max: 1999 },
+    { label: '₹2000 – ₹2999', value: '2000-2999', min: 2000, max: 2999 },
+    { label: '₹3000 – ₹3999', value: '3000-3999', min: 3000, max: 3999 },
+    { label: '₹4000 – ₹4999', value: '4000-4999', min: 4000, max: 4999 },
+    { label: '₹5000 – ₹5999', value: '5000-5999', min: 5000, max: 5999 },
+  ];
+
+  const GENDER_LABEL: Record<string, string> = {
+    Men: "Men's Perfumes",
+    Women: "Women's Perfumes",
+    Unisex: 'Unisex Perfumes',
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -94,6 +166,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 20);
 
       // Always show near the very top
       if (currentScrollY < 30) {
@@ -122,6 +195,9 @@ export default function Navbar() {
         shopDropdownRef.current &&
         !shopDropdownRef.current.contains(event.target as Node)
       ) {
+        if (shopTimeoutRef.current) {
+          clearTimeout(shopTimeoutRef.current);
+        }
         setIsShopOpen(false);
       }
       if (
@@ -149,56 +225,10 @@ export default function Navbar() {
   return (
     <>
       <header
-      className={`sticky top-0 z-40 w-full border-b border-emerald-100/80 bg-white/95 backdrop-blur-md shadow-xs transition-transform duration-350 ease-in-out ${
+      className={`fixed top-0 left-0 right-0 z-40 w-full border-b border-emerald-100/80 bg-white/95 backdrop-blur-md shadow-xs transition-transform duration-350 ease-in-out ${
         isNavVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
-      {/* Top Emerald Ribbon: Shop Address, Announcement, and Follow Us Socials (Always Single Line on Mobile) */}
-      <div className="bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/70 to-[#ECFDF5] border-b border-emerald-100/90 py-1 sm:py-1.5 px-3 sm:px-6 text-xs text-emerald-950 font-medium">
-        <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-2">
-          {/* 1. Left: Shop Address (Cleanly truncated on narrow screens) */}
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-900 font-medium min-w-0 flex-1 truncate">
-            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-700 flex-shrink-0" />
-            <span className="truncate">
-              <strong className="font-bold text-emerald-950">Shop: </strong>
-              14, Royal Perfumers Lane, Kannauj
-            </span>
-          </div>
-
-         
-
-          {/* 3. Right: Follow Us Social Media Links */}
-          <div className="flex items-center gap-1 sm:gap-2 text-[11px] flex-shrink-0">
-            <span className="text-emerald-900/80 font-bold uppercase tracking-wider text-[9px] sm:text-[10px] hidden sm:inline">
-              Follow:
-            </span>
-
-            {/* Instagram Link */}
-            <a
-              href="https://www.instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/90 hover:bg-white text-emerald-800 hover:text-[#E4405F] border border-emerald-200/90 flex items-center justify-center transition-all shadow-2xs hover:scale-110 flex-shrink-0"
-              title="Follow Attar Depot on Instagram (Opens in new tab)"
-              aria-label="Follow Attar Depot on Instagram"
-            >
-              <Instagram className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-            </a>
-
-            {/* Facebook Link */}
-            <a
-              href="https://www.facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/90 hover:bg-white text-emerald-800 hover:text-[#1877F2] border border-emerald-200/90 flex items-center justify-center transition-all shadow-2xs hover:scale-110 flex-shrink-0"
-              title="Follow Attar Depot on Facebook (Opens in new tab)"
-              aria-label="Follow Attar Depot on Facebook"
-            >
-              <Facebook className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-            </a>
-          </div>
-        </div>
-      </div>
 
       {/* Main Navigation Bar with Perfectly Balanced Mobile Layout */}
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
@@ -219,17 +249,23 @@ export default function Navbar() {
               <Link
                 href="/"
                 prefetch={true}
-                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase"
+                onMouseEnter={() => closeShopDropdown(100)}
+                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase py-2"
               >
                 Home
               </Link>
 
-              {/* Dynamic Shop Dropdown */}
-              <div className="relative" ref={shopDropdownRef}>
+              {/* Dynamic Full-Width Shop Dropdown */}
+              <div
+                className="relative py-2"
+                ref={shopDropdownRef}
+                onMouseEnter={openShopDropdown}
+                onMouseLeave={() => closeShopDropdown(250)}
+              >
                 <button
-                  onClick={() => setIsShopOpen(!isShopOpen)}
-                  onMouseEnter={() => setIsShopOpen(true)}
-                  className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase py-2"
+                  onClick={toggleShopDropdown}
+                  className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase"
+                  aria-expanded={isShopOpen}
                 >
                   <span>Shop</span>
                   <ChevronDown
@@ -241,74 +277,375 @@ export default function Navbar() {
 
                 {isShopOpen && (
                   <div
-                    onMouseLeave={() => setIsShopOpen(false)}
-                    className="absolute left-0 top-full mt-1 w-88 sm:w-[440px] rounded-2xl glass-panel p-4 shadow-emerald-md border border-emerald-100/90 animate-in fade-in slide-in-from-top-2 duration-200 bg-white/95 backdrop-blur-md z-50"
+                    className="fixed left-0 right-0 w-full top-16 sm:top-20 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+                    onMouseEnter={openShopDropdown}
+                    onMouseLeave={() => closeShopDropdown(250)}
                   >
-                    <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-emerald-800/90 mb-3 px-2 border-b border-emerald-50 pb-2">
-                      <span>Dynamic Fragrance Collections</span>
-                      <span className="text-[10px] text-emerald-600 font-semibold lowercase">
-                        {categories.length} curated
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-1 gap-1.5 max-h-[360px] overflow-y-auto pr-1">
-                      {categories.length > 0 ? (
-                        categories.map((cat) => (
+                    {/* Full-width darkened backdrop covering the rest of the page */}
+                    <div
+                      className="fixed inset-0 top-16 sm:top-20 bg-black/40 backdrop-blur-xs -z-10"
+                      onClick={() => {
+                        if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                        setIsShopOpen(false);
+                      }}
+                      aria-hidden="true"
+                    />
+
+                    {/* Edge-to-Edge Full-Width White Mega Menu Panel */}
+                    <div className="w-full bg-white border-b border-emerald-100 shadow-[0_25px_60px_-15px_rgba(4,106,90,0.18)] overflow-hidden">
+                      {/* Top Bar (Full Width) */}
+                      <div className="w-full border-b border-emerald-100/80 bg-gradient-to-r from-emerald-50/90 via-emerald-50/40 to-emerald-50/90">
+                        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-900">
+                              Artisanal Fragrance Vault
+                            </span>
+                            <span className="hidden md:inline-block text-[10px] font-semibold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+                              100% Pure & Alcohol-Free
+                            </span>
+                          </div>
                           <Link
-                            key={cat._id}
-                            href={`/shop?category=${cat.slug}`}
-                            prefetch={true}
-                            onClick={() => setIsShopOpen(false)}
-                            className="group flex items-center justify-between p-2 rounded-xl hover:bg-emerald-50/80 transition-all border border-transparent hover:border-emerald-100/80"
+                            href="/shop"
+                            onClick={() => {
+                              if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                              setIsShopOpen(false);
+                            }}
+                            className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 uppercase tracking-wider transition-colors flex items-center gap-1 group"
                           >
-                            <div className="flex items-center gap-3 min-w-0">
-                              {/* Category Image Preview Thumbnail */}
-                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 border border-emerald-100/80 flex-shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                                <Image
-                                  src={cat.image || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=300'}
-                                  alt={cat.name}
-                                  fill
-                                  sizes="48px"
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-xs font-bold text-neutral-800 group-hover:text-emerald-800 transition-colors truncate">
-                                  {cat.name}
-                                </p>
-                                {cat.description && (
-                                  <p className="text-[11px] text-neutral-500 line-clamp-1 mt-0.5">
-                                    {cat.description}
-                                  </p>
-                                )}
+                            <span>View Entire Collection</span>
+                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Main 6-Column Content Grid across full width container */}
+                      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                        <div className="grid grid-cols-6 gap-6 divide-x divide-emerald-50">
+
+                          {/* Column 1: Notes */}
+                          <div className="pr-4 space-y-2">
+                            <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
+                              <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                Fragrance Notes
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              {megaNotes.length > 0 ? (
+                                megaNotes.slice(0, 8).map((note) => (
+                                  <Link
+                                    key={note}
+                                    href={`/shop?notes=${encodeURIComponent(note)}`}
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="group flex items-center justify-between text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                  >
+                                    <span>{note}</span>
+                                    <ChevronRight className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                  </Link>
+                                ))
+                              ) : (
+                                <p className="text-[11px] text-neutral-400 italic px-2">Loading notes...</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Column 2: Categories */}
+                          <div className="px-4 space-y-2">
+                            <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
+                              <ShoppingBag className="w-3.5 h-3.5 text-emerald-700" />
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                Categories
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              {categories.slice(0, 8).map((cat) => (
+                                <Link
+                                  key={cat._id}
+                                  href={`/shop?category=${cat.slug}`}
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="group flex items-center justify-between text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                >
+                                  <span>{cat.name}</span>
+                                  <ChevronRight className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                </Link>
+                              ))}
+                              {categories.length === 0 && (
+                                <p className="text-[11px] text-neutral-400 italic px-2">Pure Attars</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Column 3: Gender & Formulation */}
+                          <div className="px-4 space-y-2">
+                            <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
+                              <UserIcon className="w-3.5 h-3.5 text-emerald-700" />
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                By Gender
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              {megaGenders.map((val) => (
+                                <Link
+                                  key={val}
+                                  href={`/shop?gender=${val}`}
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="group flex items-center justify-between text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                >
+                                  <span>{GENDER_LABEL[val] || val}</span>
+                                  <ChevronRight className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                </Link>
+                              ))}
+                            </div>
+
+                            {/* Formulation Type */}
+                            <div className="pt-3">
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 pb-1.5 border-b border-emerald-100 mb-1.5">
+                                Formulation
+                              </p>
+                              <div className="space-y-1">
+                                <Link
+                                  href="/shop?type=pure-oil"
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="block text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                >
+                                  Pure Attar Oils (Concentrated)
+                                </Link>
+                                <Link
+                                  href="/shop?type=spray"
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="block text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                >
+                                  Artisanal EDP Blends
+                                </Link>
                               </div>
                             </div>
-                            <span className="text-xs text-emerald-400 group-hover:text-emerald-700 group-hover:translate-x-1 transition-all pl-2 flex-shrink-0 font-bold">
-                              →
+                          </div>
+
+                          {/* Column 4: Collections */}
+                          <div className="px-4 space-y-2">
+                            <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
+                              <Crown className="w-3.5 h-3.5 text-emerald-700" />
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                Collections
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              {megaCollections.length > 0 ? (
+                                megaCollections.slice(0, 8).map((col) => (
+                                  <Link
+                                    key={col}
+                                    href={`/shop?collection=${encodeURIComponent(col)}`}
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="group flex items-center justify-between text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                  >
+                                    <span>{col}</span>
+                                    <ChevronRight className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                  </Link>
+                                ))
+                              ) : (
+                                <>
+                                  <Link
+                                    href="/shop?collection=Royal+Heritage"
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="block text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                  >
+                                    Royal Heritage
+                                  </Link>
+                                  <Link
+                                    href="/shop?collection=Daily+Luxury"
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="block text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                  >
+                                    Daily Luxury
+                                  </Link>
+                                  <Link
+                                    href="/shop?collection=Bridal+Edition"
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="block text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                  >
+                                    Bridal Edition
+                                  </Link>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Column 5: Price & Occasions */}
+                          <div className="px-4 space-y-2">
+                            <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
+                              <Compass className="w-3.5 h-3.5 text-emerald-700" />
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                Shop By Price
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              {megaPriceRanges.slice(0, 5).map(({ label, value }) => (
+                                <Link
+                                  key={value}
+                                  href={`/shop?priceRange=${value}`}
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="group flex items-center justify-between text-xs text-neutral-600 hover:text-emerald-900 py-1 px-2 rounded-lg hover:bg-emerald-50/80 transition-all font-medium"
+                                >
+                                  <span>{label}</span>
+                                  <ChevronRight className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                </Link>
+                              ))}
+                            </div>
+
+                            {/* Occasions tags */}
+                            <div className="pt-3">
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 pb-1.5 border-b border-emerald-100 mb-2">
+                                Occasions
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(megaOccasions.length > 0 ? megaOccasions : ['Festive', 'Daily Wear', 'Evening', 'Gifting']).slice(0, 4).map((occ) => (
+                                  <Link
+                                    key={occ}
+                                    href={`/shop?occasion=${encodeURIComponent(occ)}`}
+                                    onClick={() => {
+                                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                      setIsShopOpen(false);
+                                    }}
+                                    className="text-[11px] bg-emerald-50 hover:bg-emerald-100/90 text-emerald-800 px-2.5 py-1 rounded-md transition-colors font-medium border border-emerald-100/60"
+                                  >
+                                    {occ}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Column 6: Luxury Spotlight Card with Attar Perfume Image */}
+                          <div className="pl-5 flex flex-col justify-between">
+                            <div className="h-full rounded-2xl bg-gradient-to-br from-[#023129] via-[#034A3E] to-[#01221c] p-4 text-white shadow-xl relative overflow-hidden group flex flex-col justify-between border border-emerald-700/40">
+                              <div className="absolute -right-10 -top-10 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all pointer-events-none" />
+                              
+                              {/* Top Badge & Header */}
+                              <div className="relative z-10 space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest uppercase bg-amber-400/20 text-amber-300 border border-amber-400/35 px-2.5 py-0.5 rounded-full backdrop-blur-xs">
+                                    <Crown className="w-3 h-3 text-amber-300" /> Royal Blend
+                                  </span>
+                                  <span className="text-[9px] font-semibold text-emerald-300/80 uppercase tracking-wider">
+                                    Artisanal
+                                  </span>
+                                </div>
+                                <h4 className="font-serif text-sm font-bold tracking-wide text-white leading-snug pt-1">
+                                  Pure Dehn Al Oud & Artisan Attars
+                                </h4>
+                              </div>
+
+                              {/* Attar Perfume Image Frame */}
+                              <div className="relative z-10 my-2.5 w-full h-32 rounded-xl overflow-hidden shadow-md border border-emerald-500/30 bg-emerald-950/60 group/img">
+                                <Image
+                                  src="/api/spotlight-image"
+                                  alt="Pure Artisanal Attar Perfume Oil Flacon"
+                                  fill
+                                  unoptimized={true}
+                                  sizes="260px"
+                                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                  priority
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#023129]/80 via-transparent to-transparent pointer-events-none" />
+                              </div>
+
+                              {/* Description */}
+                              <p className="relative z-10 text-[11px] text-emerald-100/75 leading-relaxed">
+                                Distilled from premium aged agarwood and precious botanicals. 100% alcohol-free.
+                              </p>
+
+                              {/* Yellow Bestseller CTA Button */}
+                              <div className="relative z-10 pt-3">
+                                <Link
+                                  href="/shop?sort=bestselling"
+                                  onClick={() => {
+                                    if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                    setIsShopOpen(false);
+                                  }}
+                                  className="inline-flex items-center justify-between w-full text-xs font-bold text-emerald-950 bg-[#F5B418] hover:bg-[#ffc32c] py-2.5 px-4 rounded-xl transition-all shadow-md group-hover:shadow-lg uppercase tracking-wider font-sans"
+                                >
+                                  <span>Explore Bestsellers</span>
+                                  <ChevronRight className="w-4 h-4 text-emerald-950 stroke-[2.5]" />
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {/* Bottom Bar (Full Width) */}
+                      <div className="w-full border-t border-emerald-100/70 bg-neutral-50/90">
+                        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+                          <div className="flex items-center gap-5 text-xs text-neutral-600">
+                            <span className="flex items-center gap-1.5 font-medium">
+                              <ShieldCheck className="w-4 h-4 text-emerald-700" /> 100% Certified Alcohol-Free
                             </span>
+                            <span className="hidden md:inline-block text-emerald-300">•</span>
+                            <span className="hidden md:flex items-center gap-1.5 font-medium">
+                              <PackageCheck className="w-4 h-4 text-emerald-700" /> Free Shipping Over ₹999
+                            </span>
+                            <span className="hidden lg:inline-block text-emerald-300">•</span>
+                            <span className="hidden lg:flex items-center gap-1.5 font-medium">
+                              <Sparkles className="w-4 h-4 text-emerald-700" /> Hand-poured Crystal Flacons
+                            </span>
+                          </div>
+
+                          <Link
+                            href="/shop"
+                            onClick={() => {
+                              if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                              setIsShopOpen(false);
+                            }}
+                            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-5 py-2 rounded-xl transition-all shadow-xs hover:shadow-md uppercase tracking-wider"
+                          >
+                            <span>Explore All Fragrances</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
                           </Link>
-                        ))
-                      ) : (
-                        <p className="text-xs text-neutral-500 p-2">Loading collections...</p>
-                      )}
-                    </div>
-                    <div className="mt-3 pt-2.5 border-t border-emerald-50">
-                      <Link
-                        href="/shop"
-                        prefetch={true}
-                        onClick={() => setIsShopOpen(false)}
-                        className="block text-center py-2.5 text-xs uppercase font-bold tracking-widest text-emerald-800 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100/80 rounded-xl transition-all shadow-2xs"
-                      >
-                        Explore All Flacons & Attar Oils
-                      </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
 
+
               <Link
                 href="/about"
                 prefetch={true}
-                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase"
+                onMouseEnter={() => closeShopDropdown(100)}
+                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase py-2"
               >
                 Heritage
               </Link>
@@ -316,7 +653,8 @@ export default function Navbar() {
               <Link
                 href="/orders"
                 prefetch={true}
-                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase"
+                onMouseEnter={() => closeShopDropdown(100)}
+                className="text-xs font-semibold tracking-wider text-neutral-700 hover:text-emerald-700 transition-colors uppercase py-2"
               >
                 Orders
               </Link>
@@ -370,7 +708,15 @@ export default function Navbar() {
                 aria-label="User Account"
                 suppressHydrationWarning
               >
-                <UserIcon className="w-5 h-5" />
+                {mounted && isAuthenticated && user?.avatar && !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-6 h-6 rounded-full object-cover border border-emerald-300"
+                  />
+                ) : (
+                  <UserIcon className="w-5 h-5" />
+                )}
                 {mounted && isAuthenticated && user && (
                   <span className="hidden md:inline-block text-xs font-medium text-emerald-800 max-w-[80px] truncate">
                     {user.name.split(' ')[0]}
@@ -402,6 +748,15 @@ export default function Navbar() {
                           <span>Admin Portal</span>
                         </Link>
                       )}
+
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-neutral-700 hover:bg-emerald-50 hover:text-emerald-800"
+                      >
+                        <UserIcon className="w-4 h-4 text-emerald-700" />
+                        <span>My Profile & Addresses</span>
+                      </Link>
 
                       <Link
                         href="/orders"
@@ -472,7 +827,11 @@ export default function Navbar() {
       </div>
     </header>
 
+    {/* Spacer to offset fixed header height so page content is not hidden behind it */}
+    <div className="h-16 sm:h-20 w-full flex-shrink-0" aria-hidden="true" />
+
     {/* ========================================================================= */}
+
     {/* 4. PREMIUM OFF-CANVAS MOBILE DRAWER & BACKDROP (PORTALLED TO BODY)         */}
     {/* ========================================================================= */}
     {mounted && typeof document !== 'undefined' && createPortal(
@@ -708,13 +1067,37 @@ export default function Navbar() {
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center gap-2.5 px-1">
-                  <div className="w-8 h-8 rounded-full bg-emerald-800 text-amber-200 flex items-center justify-center font-bold text-xs shadow-2xs">
-                    {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
+                  <div className="w-8 h-8 rounded-full bg-emerald-800 text-amber-200 flex items-center justify-center font-bold text-xs shadow-2xs overflow-hidden">
+                    {user?.avatar && !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : user?.name ? (
+                      user.name.charAt(0).toUpperCase()
+                    ) : (
+                      'P'
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-neutral-900 truncate">{user?.name}</p>
                     <p className="text-[10px] text-emerald-700 truncate">{user?.email}</p>
                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="flex items-center justify-center gap-1.5 py-2 px-2 text-center text-xs font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
+                  >
+                    <UserIcon className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>My Profile</span>
+                  </Link>
+                  <Link
+                    href="/orders"
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="flex items-center justify-center gap-1.5 py-2 px-2 text-center text-xs font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
+                  >
+                    <PackageCheck className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>My Orders</span>
+                  </Link>
                 </div>
                 {isAdmin && (
                   <Link

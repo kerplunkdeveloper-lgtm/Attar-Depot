@@ -15,11 +15,15 @@ import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import taxonomyRoutes from './routes/taxonomyRoutes.js';
+import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
 
 dotenv.config();
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => {
+  seedDefaultTaxonomyIfNeeded();
+});
 
 const app = express();
 
@@ -76,6 +80,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/taxonomy', taxonomyRoutes);
 
 // Error Handling
 app.use(notFound);

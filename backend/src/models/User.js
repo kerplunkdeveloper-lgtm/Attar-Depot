@@ -56,14 +56,22 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+      default: '',
     },
     addresses: [
       {
-        street: String,
-        city: String,
-        state: String,
-        postalCode: String,
+        fullName: { type: String, trim: true },
+        phone: { type: String, trim: true },
+        addressType: {
+          type: String,
+          enum: ['Home', 'Work', 'Other'],
+          default: 'Home',
+        },
+        street: { type: String, trim: true },
+        landmark: { type: String, trim: true },
+        city: { type: String, trim: true },
+        state: { type: String, trim: true },
+        postalCode: { type: String, trim: true },
         country: { type: String, default: 'India' },
         isDefault: { type: Boolean, default: false },
       },

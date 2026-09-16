@@ -96,6 +96,9 @@ export const useAdminCreateCategory = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
     },
   });
 };
@@ -110,6 +113,7 @@ export const useAdminUpdateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
     },
   });
 };
@@ -124,6 +128,9 @@ export const useAdminUpdateCategory = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
     },
   });
 };
@@ -138,6 +145,9 @@ export const useAdminDeleteCategory = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
     },
   });
 };

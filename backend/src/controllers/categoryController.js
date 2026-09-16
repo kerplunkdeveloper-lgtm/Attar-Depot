@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Category from '../models/Category.js';
 import { uploadToCloudinary } from '../middleware/uploadMiddleware.js';
 
@@ -17,12 +18,16 @@ export const getCategories = async (req, res, next) => {
   }
 };
 
-// @desc    Get single category by slug
+// @desc    Get single category by slug or ID
 // @route   GET /api/categories/:slug
 // @access  Public
 export const getCategoryBySlug = async (req, res, next) => {
   try {
-    const category = await Category.findOne({ slug: req.params.slug });
+    const param = req.params.slug;
+    const isObjectId = mongoose.Types.ObjectId.isValid(param);
+    const category = await Category.findOne(
+      isObjectId ? { $or: [{ slug: param }, { _id: param }] } : { slug: param }
+    );
     if (!category) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
@@ -38,15 +43,16 @@ export const getCategoryBySlug = async (req, res, next) => {
 export const createCategory = async (req, res, next) => {
   try {
     const { name, description, featured } = req.body;
-    if (!name) {
+    if (!name || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Category name is required' });
     }
 
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const trimmedName = name.trim();
+    const slug = trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
     const existing = await Category.findOne({ slug });
     if (existing) {
-      return res.status(400).json({ success: false, message: 'Category with this name already exists' });
+      return res.status(400).json({ success: false, message: `Category "${trimmedName}" already exists` });
     }
 
     let imageUrl = req.body.image || 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?auto=format&fit=crop&q=80&w=800';
@@ -55,9 +61,9 @@ export const createCategory = async (req, res, next) => {
     }
 
     const category = await Category.create({
-      name,
+      name: trimmedName,
       slug,
-      description: description || '',
+      description: description ? description.trim() : '',
       image: imageUrl,
       featured: featured === 'true' || featured === true,
     });
@@ -81,11 +87,18 @@ export const updateCategory = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
 
-    if (req.body.name) {
-      category.name = req.body.name;
-      category.slug = req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    if (req.body.name && req.body.name.trim()) {
+      const trimmedName = req.body.name.trim();
+      const newSlug = trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const duplicate = await Category.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
+      if (duplicate) {
+        return res.status(400).json({ success: false, message: `A category named "${trimmedName}" already exists` });
+      }
+      category.name = trimmedName;
+      category.slug = newSlug;
     }
-    if (req.body.description !== undefined) category.description = req.body.description;
+
+    if (req.body.description !== undefined) category.description = req.body.description.trim();
     if (req.body.featured !== undefined) category.featured = req.body.featured === 'true' || req.body.featured === true;
     if (req.body.isActive !== undefined) category.isActive = req.body.isActive === 'true' || req.body.isActive === true;
 

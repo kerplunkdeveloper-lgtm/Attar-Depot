@@ -1,5 +1,10 @@
 export interface UserAddress {
+  _id?: string;
+  fullName?: string;
+  phone?: string;
+  addressType?: 'Home' | 'Work' | 'Other';
   street?: string;
+  landmark?: string;
   city?: string;
   state?: string;
   postalCode?: string;
@@ -41,6 +46,55 @@ export interface Category {
   image: string;
   featured?: boolean;
   isActive?: boolean;
+  createdAt?: string;
+}
+
+export interface Collection {
+  _id: string;
+  name: string;
+  slug: string;
+  tagline?: string;
+  description?: string;
+  image?: string;
+  banner?: string;
+  featured?: boolean;
+  isActive?: boolean;
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+export interface FragranceNote {
+  _id: string;
+  name: string;
+  slug: string;
+  family?: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+export interface Occasion {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+export interface TaxonomySummary {
+  stats: {
+    totalCategories: number;
+    totalCollections: number;
+    totalNotes: number;
+    totalOccasions: number;
+  };
+  categories: Category[];
+  collections: Collection[];
+  notes: FragranceNote[];
+  occasions: Occasion[];
 }
 
 export interface FragranceNotes {
@@ -64,8 +118,12 @@ export interface Product {
   tagline?: string;
   description: string;
   category: Category;
-  fragranceFamily: 'Oudh' | 'Floral' | 'Musk' | 'Amber & Woods' | 'Spicy Oriental' | 'Fresh Citrus';
+  fragranceFamily?: string;
   fragranceNotes: FragranceNotes;
+  gender?: 'Men' | 'Women' | 'Unisex' | string;
+  notes?: string[];
+  collection?: string;
+  occasions?: string[];
   sizes: ProductSizeOption[];
   price: number;
   originalPrice?: number;

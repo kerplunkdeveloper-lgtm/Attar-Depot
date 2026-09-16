@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getProducts,
+  getFilterOptions,
   getFeaturedProducts,
   getProductByIdOrSlug,
   createProduct,
@@ -17,6 +18,7 @@ router.route('/')
   .post(protect, authorize('admin'), upload.array('images', 5), createProduct);
 
 router.get('/featured', getFeaturedProducts);
+router.get('/filter-options', getFilterOptions);
 
 router.route('/:idOrSlug')
   .get(getProductByIdOrSlug);

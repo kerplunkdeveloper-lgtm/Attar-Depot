@@ -3,25 +3,31 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  CheckCircle2,
+  Check,
   AlertCircle,
   AlertTriangle,
-  Sparkles,
+  Info,
   X,
   ArrowRight,
 } from 'lucide-react';
 import { toast, ToastItem } from '@/lib/toast';
 
-function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+function ToastCard({
+  item,
+  onDismiss,
+}: {
+  item: ToastItem;
+  onDismiss: () => void;
+}) {
   const [progress, setProgress] = useState(100);
   const [isPaused, setIsPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
-  const remainingTimeRef = useRef(item.duration || 4200);
+  const remainingTimeRef = useRef(item.duration || 4000);
 
   useEffect(() => {
     if (!item.duration || item.duration <= 0) return;
 
-    const interval = 25; // 25ms tick for silky smooth progress bar
+    const interval = 20; // 20ms for buttery-smooth progress bar
     const totalDuration = item.duration;
 
     const timer = setInterval(() => {
@@ -30,9 +36,8 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
         return;
       }
 
-      const elapsedSinceResume = Date.now() - startTimeRef.current;
-      const currentRemaining = Math.max(0, remainingTimeRef.current - elapsedSinceResume);
-
+      const elapsed = Date.now() - startTimeRef.current;
+      const currentRemaining = Math.max(0, remainingTimeRef.current - elapsed);
       const percent = (currentRemaining / totalDuration) * 100;
       setProgress(percent);
 
@@ -58,103 +63,108 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
     setIsPaused(false);
   };
 
-  const getTypeStyles = () => {
+  // Status configuration - Clean, modern, professional
+  const getConfig = () => {
     switch (item.type) {
       case 'success':
         return {
-          icon: <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />,
-          iconBg: 'bg-emerald-50 border border-emerald-200/80',
-          titleColor: 'text-emerald-950',
-          progressBar: 'bg-gradient-to-r from-emerald-400 via-emerald-600 to-[#046A5A]',
-          border: 'border-emerald-200/90 shadow-emerald-500/10',
-          defaultTitle: 'Sovereign Selection',
+          icon: <Check className="w-4 h-4 text-emerald-600 stroke-[2.5]" />,
+          iconBg: 'bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20',
+          accentBar: 'bg-emerald-500',
+          badgeText: 'Success',
         };
       case 'error':
         return {
-          icon: <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />,
-          iconBg: 'bg-rose-50 border border-rose-200/80',
-          titleColor: 'text-rose-950',
-          progressBar: 'bg-gradient-to-r from-rose-400 via-rose-600 to-rose-700',
-          border: 'border-rose-200/90 shadow-rose-500/10',
-          defaultTitle: 'Notice',
+          icon: <AlertCircle className="w-4 h-4 text-rose-600 stroke-[2.2]" />,
+          iconBg: 'bg-rose-500/10 text-rose-600 ring-1 ring-rose-500/20',
+          accentBar: 'bg-rose-500',
+          badgeText: 'Error',
         };
       case 'warning':
         return {
-          icon: <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />,
-          iconBg: 'bg-amber-50 border border-amber-200/80',
-          titleColor: 'text-amber-950',
-          progressBar: 'bg-gradient-to-r from-amber-300 via-amber-500 to-amber-600',
-          border: 'border-amber-200/90 shadow-amber-500/10',
-          defaultTitle: 'Attention',
+          icon: <AlertTriangle className="w-4 h-4 text-amber-600 stroke-[2.2]" />,
+          iconBg: 'bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20',
+          accentBar: 'bg-amber-500',
+          badgeText: 'Warning',
         };
       case 'info':
       default:
         return {
-          icon: <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0" />,
-          iconBg: 'bg-blue-50 border border-blue-200/80',
-          titleColor: 'text-blue-950',
-          progressBar: 'bg-gradient-to-r from-blue-400 via-blue-600 to-indigo-600',
-          border: 'border-blue-200/90 shadow-blue-500/10',
-          defaultTitle: 'House of Attar',
+          icon: <Info className="w-4 h-4 text-sky-600 stroke-[2.2]" />,
+          iconBg: 'bg-sky-500/10 text-sky-600 ring-1 ring-sky-500/20',
+          accentBar: 'bg-sky-500',
+          badgeText: 'Info',
         };
     }
   };
 
-  const styles = getTypeStyles();
+  const config = getConfig();
 
   return (
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative w-full sm:w-[380px] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border ${styles.border} overflow-hidden pointer-events-auto transition-all duration-300 hover:shadow-emerald-md hover:scale-[1.01] animate-in fade-in slide-in-from-top-4 duration-250`}
-      role="alert"
+      className="group relative w-full sm:w-[360px] bg-white/95 backdrop-blur-xl rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.10)] border border-neutral-200/80 overflow-hidden pointer-events-auto transition-all duration-200 hover:shadow-[0_12px_36px_rgb(0,0,0,0.14)] hover:border-neutral-300 animate-in fade-in slide-in-from-top-3"
+      role="status"
     >
-      <div className="p-4 flex items-start gap-3">
-        {/* Icon Badge */}
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${styles.iconBg}`}>
-          {item.icon || styles.icon}
+      <div className="p-3.5 sm:p-4 flex items-start gap-3">
+        {/* Status Icon Badge */}
+        <div
+          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${config.iconBg}`}
+        >
+          {item.icon || config.icon}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0 pr-2">
-          <h4 className={`font-serif text-sm font-bold tracking-wide ${styles.titleColor}`}>
-            {item.title || styles.defaultTitle}
-          </h4>
-          <p className="font-sans text-xs text-neutral-600 mt-0.5 leading-relaxed break-words">
-            {item.message}
-          </p>
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 pt-0.5">
+          {item.title ? (
+            <>
+              <h4 className="font-sans text-xs font-semibold text-neutral-900 tracking-tight leading-none mb-1">
+                {item.title}
+              </h4>
+              <p className="font-sans text-xs text-neutral-600 leading-relaxed break-words">
+                {item.message}
+              </p>
+            </>
+          ) : (
+            <p className="font-sans text-xs font-medium text-neutral-800 leading-relaxed break-words">
+              {item.message}
+            </p>
+          )}
 
-          {/* Action Button */}
+          {/* Optional Action Button */}
           {item.action && (
-            <button
-              type="button"
-              onClick={() => {
-                item.action?.onClick();
-                onDismiss();
-              }}
-              className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100/90 border border-emerald-200/80 px-3 py-1 rounded-xl transition-all shadow-2xs group"
-            >
-              <span>{item.action.label}</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            <div className="mt-2.5 pt-2 border-t border-neutral-100 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  item.action?.onClick();
+                  onDismiss();
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-1 rounded-md transition-all duration-150 group/btn cursor-pointer"
+              >
+                <span>{item.action.label}</span>
+                <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           )}
         </div>
 
-        {/* Close Button */}
+        {/* Dismiss Close Button */}
         <button
           type="button"
           onClick={onDismiss}
-          className="p-1 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors flex-shrink-0"
+          className="p-1 -mr-1 -mt-0.5 rounded-md text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors flex-shrink-0 cursor-pointer"
           aria-label="Close notification"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Toastify Animated Countdown Progress Bar */}
-      <div className="w-full bg-neutral-100 h-[3px] overflow-hidden">
+      {/* Sleek Minimalist Countdown Progress Bar */}
+      <div className="w-full bg-neutral-100 h-[2.5px] overflow-hidden">
         <div
-          className={`h-full ${styles.progressBar} transition-all ease-linear`}
+          className={`h-full ${config.accentBar} transition-all ease-linear`}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -178,7 +188,7 @@ export default function ToastContainer() {
 
   return createPortal(
     <div
-      className="fixed top-4 right-3 sm:top-6 sm:right-6 z-[125] flex flex-col gap-3 pointer-events-none max-w-[calc(100vw-1.5rem)] sm:max-w-none"
+      className="fixed top-4 right-3 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-1.5rem)] sm:max-w-none"
       aria-live="polite"
     >
       {toasts.map((t) => (

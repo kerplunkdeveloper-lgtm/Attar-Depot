@@ -8,6 +8,7 @@ import {
   maskPhone,
   dispatchSmsOtp,
 } from '../services/otpService.js';
+import { uploadToCloudinary } from '../middleware/uploadMiddleware.js';
 
 // @desc    Send OTP to customer phone number for login / register (Twilio SMS)
 // @route   POST /api/auth/send-otp
@@ -293,7 +294,7 @@ export const googleAuth = async (req, res, next) => {
       name: name || 'Google Patron',
       email: cleanEmail,
       googleId: googleId || '',
-      avatar: avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+      avatar: avatar || '',
       role: 'user',
       isProfileComplete: true,
     });
@@ -383,6 +384,10 @@ export const adminLogin = async (req, res, next) => {
 // @route   GET /api/auth/me
 // @access  Private
 export const getMe = async (req, res) => {
+  if (req.user && req.user.avatar && req.user.avatar.includes('photo-1534528741775-53994a69daeb')) {
+    req.user.avatar = '';
+    await User.updateOne({ _id: req.user._id }, { $set: { avatar: '' } });
+  }
   res.status(200).json({
     success: true,
     user: req.user,
@@ -402,4 +407,333 @@ export const logout = async (req, res) => {
     success: true,
     message: 'Logged out successfully',
   });
+};
+
+// @desc    Update user profile details (Name, Title, Email, Phone, Avatar)
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found',
+      });
+    }
+
+    const { name, title, email, phone, avatar } = req.body;
+
+    if (name !== undefined) user.name = name.trim();
+    if (title !== undefined) user.title = title;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    if (phone !== undefined && phone.trim()) {
+      const cleanPhone = normalizePhone(phone);
+      if (!isValidPhone(cleanPhone)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide a valid 10-digit mobile number',
+        });
+      }
+      user.phone = cleanPhone;
+    }
+
+    if (email !== undefined && email.trim()) {
+      const cleanEmail = email.trim().toLowerCase();
+      // Check if email taken by someone else
+      const existingEmail = await User.findOne({
+        email: cleanEmail,
+        _id: { $ne: user._id },
+      });
+
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email address is already in use by another account.',
+        });
+      }
+      user.email = cleanEmail;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all saved addresses for current user
+// @route   GET /api/auth/addresses
+// @access  Private
+export const getAddresses = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('addresses');
+    res.status(200).json({
+      success: true,
+      addresses: user?.addresses || [],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Add a new shipping address
+// @route   POST /api/auth/addresses
+// @access  Private
+export const addAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const {
+      fullName,
+      phone,
+      addressType,
+      street,
+      landmark,
+      city,
+      state,
+      postalCode,
+      country,
+      isDefault,
+    } = req.body;
+
+    if (!fullName || !phone || !street || !city || !state || !postalCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill in all mandatory address fields (Full Name, Phone, Street, City, State, PIN Code)',
+      });
+    }
+
+    // Auto default if first address or explicitly marked
+    const shouldBeDefault = Boolean(isDefault) || !user.addresses || user.addresses.length === 0;
+
+    if (shouldBeDefault && user.addresses && user.addresses.length > 0) {
+      user.addresses.forEach((addr) => {
+        addr.isDefault = false;
+      });
+    }
+
+    const newAddress = {
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      addressType: addressType || 'Home',
+      street: street.trim(),
+      landmark: landmark ? landmark.trim() : '',
+      city: city.trim(),
+      state: state.trim(),
+      postalCode: postalCode.trim(),
+      country: country || 'India',
+      isDefault: shouldBeDefault,
+    };
+
+    user.addresses.push(newAddress);
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Address added successfully',
+      addresses: user.addresses,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update an existing address
+// @route   PUT /api/auth/addresses/:id
+// @access  Private
+export const updateAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const address = user.addresses.id(req.params.id);
+    if (!address) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found',
+      });
+    }
+
+    const {
+      fullName,
+      phone,
+      addressType,
+      street,
+      landmark,
+      city,
+      state,
+      postalCode,
+      country,
+      isDefault,
+    } = req.body;
+
+    if (fullName !== undefined) address.fullName = fullName.trim();
+    if (phone !== undefined) address.phone = phone.trim();
+    if (addressType !== undefined) address.addressType = addressType;
+    if (street !== undefined) address.street = street.trim();
+    if (landmark !== undefined) address.landmark = landmark.trim();
+    if (city !== undefined) address.city = city.trim();
+    if (state !== undefined) address.state = state.trim();
+    if (postalCode !== undefined) address.postalCode = postalCode.trim();
+    if (country !== undefined) address.country = country;
+
+    if (isDefault === true) {
+      user.addresses.forEach((addr) => {
+        addr.isDefault = addr._id.toString() === address._id.toString();
+      });
+    } else if (isDefault === false && address.isDefault) {
+      // If unmarking default, make sure at least one is default if multiple exist
+      address.isDefault = false;
+      const other = user.addresses.find((a) => a._id.toString() !== address._id.toString());
+      if (other) other.isDefault = true;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Address updated successfully',
+      addresses: user.addresses,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete an address
+// @route   DELETE /api/auth/addresses/:id
+// @access  Private
+export const deleteAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const addressToDelete = user.addresses.id(req.params.id);
+    if (!addressToDelete) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found',
+      });
+    }
+
+    const wasDefault = addressToDelete.isDefault;
+    user.addresses.pull({ _id: req.params.id });
+
+    // If we deleted the default address and other addresses exist, set the first one as default
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Address deleted successfully',
+      addresses: user.addresses,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Set address as default
+// @route   PUT /api/auth/addresses/:id/default
+// @access  Private
+export const setDefaultAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const target = user.addresses.id(req.params.id);
+    if (!target) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found',
+      });
+    }
+
+    user.addresses.forEach((addr) => {
+      addr.isDefault = addr._id.toString() === target._id.toString();
+    });
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Default address set successfully',
+      addresses: user.addresses,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload user profile avatar
+// @route   POST /api/auth/avatar
+// @access  Private
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    const file = req.file || (req.files && req.files[0]);
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select an image file to upload as your profile picture',
+      });
+    }
+
+    const imageUrl = await uploadToCloudinary(file.buffer, 'attar-depot/avatars');
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    user.avatar = imageUrl;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      avatar: imageUrl,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

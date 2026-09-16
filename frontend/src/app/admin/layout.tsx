@@ -41,6 +41,7 @@ import { useAdminOrders } from '@/hooks/useAdmin';
 import { toast } from '@/lib/toast';
 import { formatPrice } from '@/lib/utils';
 import { AdminThemeProvider, useAdminTheme } from '@/context/AdminThemeContext';
+import AttarDepotLogo from '@/components/common/AttarDepotLogo';
 
 function AdminLayoutInner({
   children,
@@ -197,8 +198,8 @@ function AdminLayoutInner({
       icon: LayoutDashboard,
     },
     {
-      name: 'All Categories',
-      subtitle: 'Fragrance Families',
+      name: 'Categories & Taxonomy',
+      subtitle: 'Collections, Notes & Occasions',
       href: '/admin/categories',
       icon: Layers,
     },
@@ -231,18 +232,20 @@ function AdminLayoutInner({
   return (
     <div
       className={`min-h-screen ${
-        isLight ? 'bg-[#F4F7F5] text-slate-800' : 'bg-[#070B0A] text-neutral-100'
+        isLight
+          ? 'bg-gradient-to-br from-[#F0FDF4] via-[#F5FAF7] to-[#E9F6EF] text-slate-800'
+          : 'bg-[#070B0A] text-neutral-100'
       } flex font-poppins relative selection:bg-emerald-500 selection:text-white transition-colors duration-300`}
     >
       {/* Background Ambient Glows */}
       <div
         className={`fixed top-0 left-64 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none transition-opacity ${
-          isLight ? 'bg-emerald-400/10 opacity-40' : 'bg-emerald-500/5 opacity-100'
+          isLight ? 'bg-emerald-400/20 opacity-60' : 'bg-emerald-500/5 opacity-100'
         }`}
       />
       <div
         className={`fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none transition-opacity ${
-          isLight ? 'bg-amber-400/10 opacity-30' : 'bg-amber-500/3 opacity-100'
+          isLight ? 'bg-amber-400/15 opacity-50' : 'bg-amber-500/3 opacity-100'
         }`}
       />
 
@@ -311,37 +314,43 @@ function AdminLayoutInner({
         />
       )}
 
-      {/* Executive Admin Sidebar */}
+      {/* Executive Admin Sidebar (Dual Royal Green Theme: Sage-Mint Green in Light Mode, Imperial Emerald in Dark Mode) */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 w-64 ${
           isLight
-            ? 'bg-white/95 border-r border-slate-200 text-slate-800 shadow-xl'
-            : 'bg-[#080E0C]/98 border-r border-[#1B2925] text-neutral-100 shadow-2xl'
+            ? 'bg-gradient-to-b from-[#EBF7F2] via-[#E2F3EB] to-[#D5EFE3] border-r border-[#B2DFD0] text-emerald-950 shadow-xl'
+            : 'bg-gradient-to-b from-[#023329] via-[#012820] to-[#011C16] border-r border-[#0B4B3D] text-emerald-100 shadow-2xl'
         } flex flex-col justify-between transition-all duration-300 backdrop-blur-xl ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="p-5 space-y-6">
           {/* Logo & Brand */}
-          <div className={`flex items-center justify-between pb-4 border-b ${isLight ? 'border-slate-200' : 'border-[#1B2925]'}`}>
+          <div
+            className={`flex items-center justify-between pb-4 border-b ${
+              isLight ? 'border-[#B2DFD0]' : 'border-[#0B4B3D]/80'
+            }`}
+          >
             <Link href="/admin/dashboard" className="group block">
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-800 to-emerald-950 border border-emerald-400/40 flex items-center justify-center text-amber-300 font-poppins font-bold text-base shadow-[0_0_15px_rgba(16,185,129,0.25)] group-hover:scale-105 transition-transform duration-300">
-                  <Sparkles className="w-5 h-5 text-amber-300" />
+                <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-[#065A49] to-[#022D24] border border-[#1A7763] flex items-center justify-center p-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] group-hover:scale-105 transition-transform duration-300">
+                  <AttarDepotLogo variant="icon" className="w-full h-full text-white" />
                 </div>
                 <div>
                   <span
                     className={`font-poppins text-base font-bold tracking-[0.12em] uppercase block transition-colors ${
-                      isLight ? 'text-slate-900 group-hover:text-emerald-700' : 'text-white group-hover:text-emerald-300'
+                      isLight
+                        ? 'text-[#043C31] group-hover:text-emerald-700'
+                        : 'text-white group-hover:text-amber-300'
                     }`}
                   >
                     Attar Depot
                   </span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_#34d399]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]" />
                     <span
-                      className={`text-[9px] tracking-[0.2em] font-semibold uppercase block ${
-                        isLight ? 'text-emerald-700' : 'text-emerald-400'
+                      className={`text-[9px] tracking-[0.2em] font-bold uppercase block ${
+                        isLight ? 'text-amber-700' : 'text-amber-300'
                       }`}
                     >
                       Atelier Backoffice
@@ -352,8 +361,10 @@ function AdminLayoutInner({
             </Link>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className={`lg:hidden p-1.5 rounded-xl ${
-                isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : 'text-neutral-400 hover:text-white hover:bg-[#121E1B]'
+              className={`lg:hidden p-1.5 rounded-xl transition-colors ${
+                isLight
+                  ? 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-200/60'
+                  : 'text-emerald-200 hover:text-white hover:bg-[#07473A]/60'
               }`}
             >
               <X className="w-5 h-5" />
@@ -362,8 +373,13 @@ function AdminLayoutInner({
 
           {/* SaaS Navigation */}
           <div className="space-y-2">
-           
-
+            <p
+              className={`text-[10px] font-bold uppercase tracking-[0.18em] px-3 ${
+                isLight ? 'text-emerald-800/80' : 'text-emerald-300/70'
+              }`}
+            >
+              Core Modules
+            </p>
             <nav className="space-y-1.5 text-xs font-semibold">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -376,23 +392,21 @@ function AdminLayoutInner({
                     className={`group relative flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all duration-200 ${
                       isActive
                         ? isLight
-                          ? 'bg-emerald-50 text-emerald-950 border border-emerald-300 shadow-sm translate-x-0.5 font-bold'
-                          : 'bg-gradient-to-r from-emerald-950/90 via-[#0E201B] to-[#0A1612] text-white border border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.14)] translate-x-0.5'
+                          ? 'bg-gradient-to-r from-[#0E6251] via-[#0B5344] to-[#084236] text-white border border-[#1A7763] shadow-[0_4px_16px_rgba(11,83,68,0.25)] translate-x-0.5 before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-1.5 before:rounded-r-full before:bg-amber-400 before:shadow-[0_0_8px_#F59E0B]'
+                          : 'bg-gradient-to-r from-[#075948] via-[#064B3D] to-[#043C31] text-white border border-[#238B74] shadow-[0_6px_20px_rgba(4,106,90,0.35)] translate-x-0.5 before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-1.5 before:rounded-r-full before:bg-amber-300 before:shadow-[0_0_10px_#FCD34D]'
                         : isLight
-                        ? 'text-slate-600 hover:text-emerald-900 hover:bg-slate-100/80 border border-transparent'
-                        : 'text-neutral-400 hover:text-emerald-200 hover:bg-[#111E1A]/70 border border-transparent'
+                        ? 'text-emerald-900/80 hover:text-emerald-950 hover:bg-emerald-200/50 border border-transparent hover:border-emerald-300/60'
+                        : 'text-emerald-100/80 hover:text-white hover:bg-[#07473A]/50 border border-transparent hover:border-[#135A4B]'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                           isActive
-                            ? isLight
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs'
-                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                            ? 'bg-emerald-500/30 text-amber-300 border border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
                             : isLight
-                            ? 'bg-slate-100 text-slate-500 border border-slate-200 group-hover:text-emerald-700 group-hover:bg-emerald-50 group-hover:border-emerald-200'
-                            : 'bg-[#0B1512] text-neutral-400 border border-[#1A2C26] group-hover:text-emerald-300 group-hover:border-emerald-500/30 group-hover:bg-[#13221E]'
+                            ? 'bg-white/80 text-emerald-800 border border-emerald-300/70 group-hover:bg-white group-hover:border-emerald-500 group-hover:text-emerald-950 shadow-xs'
+                            : 'bg-[#032921] text-emerald-200 border border-[#0A4D3F] group-hover:text-white group-hover:border-[#1E7562] group-hover:bg-[#065646]'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -401,21 +415,21 @@ function AdminLayoutInner({
                         <p
                           className={`text-xs font-bold leading-snug truncate ${
                             isActive
-                              ? isLight
-                                ? 'text-emerald-950 font-bold'
-                                : 'text-white'
+                              ? 'text-white'
                               : isLight
-                              ? 'text-slate-800 group-hover:text-slate-900'
-                              : 'text-neutral-300 group-hover:text-white'
+                              ? 'text-emerald-950 group-hover:text-[#022D24]'
+                              : 'text-emerald-100 group-hover:text-white'
                           }`}
                         >
                           {item.name}
                         </p>
                         <p
-                          className={`text-[10px] leading-none mt-0.5 font-normal truncate ${
-                            isLight
-                              ? 'text-slate-500 group-hover:text-slate-600'
-                              : 'text-neutral-500 group-hover:text-neutral-400'
+                          className={`text-[10px] leading-none mt-0.5 truncate ${
+                            isActive
+                              ? 'text-amber-200 font-medium'
+                              : isLight
+                              ? 'text-emerald-700/70 group-hover:text-emerald-800 font-medium'
+                              : 'text-emerald-300/60 group-hover:text-emerald-200 font-normal'
                           }`}
                         >
                           {item.subtitle}
@@ -426,17 +440,23 @@ function AdminLayoutInner({
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {item.badge && item.badge > 0 && (
                         <span
-                          className={`px-2 py-0.5 text-[10px] font-bold rounded-full border animate-pulse ${
+                          className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
                             isLight
-                              ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-xs'
-                              : 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_8px_rgba(245,158,11,0.25)]'
+                              ? 'border-amber-500/40 bg-amber-500/20 text-amber-800'
+                              : 'border-amber-400/40 bg-amber-500/20 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)] animate-pulse'
                           }`}
                         >
                           {item.badge}
                         </span>
                       )}
                       {isActive && (
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            isLight
+                              ? 'bg-amber-400 shadow-[0_0_6px_#F59E0B]'
+                              : 'bg-amber-300 shadow-[0_0_8px_#FCD34D]'
+                          }`}
+                        />
                       )}
                     </div>
                   </Link>
@@ -447,17 +467,43 @@ function AdminLayoutInner({
         </div>
 
         {/* User Info & Footer */}
-        <div className={`p-4 border-t ${isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1B2925] bg-[#070D0B]'} space-y-3`}>
-          <div className={`flex items-center gap-3 px-3 py-2 rounded-xl border ${isLight ? 'bg-white border-slate-200 shadow-xs' : 'bg-[#0E1815] border-[#1B2925]'}`}>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-700 to-emerald-950 text-amber-300 border border-amber-400/30 flex items-center justify-center font-bold text-xs shadow-md">
+        <div
+          className={`p-4 border-t ${
+            isLight ? 'border-[#B2DFD0] bg-[#DBEFE5]/90' : 'border-[#0B4B3D] bg-[#011C16]/90'
+          } space-y-3`}
+        >
+          <div
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl border shadow-xs ${
+              isLight
+                ? 'border-emerald-300/80 bg-white/90 text-emerald-950'
+                : 'border-[#0F5A4A] bg-[#032A22] text-white'
+            }`}
+          >
+            <div
+              className={`w-8 h-8 rounded-full ${
+                isLight
+                  ? 'bg-emerald-800 text-amber-200 border-amber-500/50'
+                  : 'bg-gradient-to-br from-[#065E4D] to-[#023126] text-amber-300 border-amber-400/40'
+              } border flex items-center justify-center font-bold text-xs shadow-md`}
+            >
               {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className={`text-xs font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <p
+                className={`text-xs font-bold truncate ${
+                  isLight ? 'text-[#022D24]' : 'text-white'
+                }`}
+              >
                 {user?.name || 'Administrator'}
               </p>
-              <p className={`text-[10px] font-semibold truncate flex items-center gap-1 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
-                <ShieldCheck className="w-3 h-3 text-emerald-500 inline" />
+              <p
+                className={`text-[10px] font-semibold truncate flex items-center gap-1 ${
+                  isLight ? 'text-amber-700' : 'text-amber-300'
+                }`}
+              >
+                <ShieldCheck
+                  className={`w-3 h-3 ${isLight ? 'text-emerald-700' : 'text-emerald-400'} inline`}
+                />
                 <span>Master Merchant</span>
               </p>
             </div>
@@ -467,21 +513,27 @@ function AdminLayoutInner({
             <Link
               href="/"
               target="_blank"
-              className={`flex items-center justify-between px-3 py-2 rounded-xl transition-colors font-medium ${
-                isLight ? 'text-slate-600 hover:text-emerald-800 hover:bg-slate-100' : 'text-neutral-400 hover:text-emerald-300 hover:bg-[#121E1B]'
+              className={`flex items-center justify-between px-3 py-2 rounded-xl transition-colors font-medium border ${
+                isLight
+                  ? 'text-emerald-900 hover:text-emerald-950 hover:bg-emerald-200/60 border-transparent hover:border-emerald-300/80'
+                  : 'text-emerald-100 hover:text-white hover:bg-[#07473A]/60 border-transparent hover:border-[#135A4B]'
               }`}
             >
               <div className="flex items-center gap-2">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Visit Storefront</span>
               </div>
-              <ExternalLink className={`w-3 h-3 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`} />
+              <ExternalLink
+                className={`w-3 h-3 ${isLight ? 'text-emerald-700' : 'text-emerald-300'}`}
+              />
             </Link>
 
             <button
               onClick={handleLogout}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left font-medium ${
-                isLight ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-rose-400 hover:text-rose-300 hover:bg-rose-950/30'
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left font-medium border ${
+                isLight
+                  ? 'text-rose-700 hover:text-rose-900 hover:bg-rose-100/70 border-transparent hover:border-rose-200'
+                  : 'text-rose-300 hover:text-white hover:bg-rose-950/40 border-transparent hover:border-rose-800/40'
               }`}
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -494,32 +546,42 @@ function AdminLayoutInner({
       {/* Main Admin Content Area */}
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* Top Navbar */}
-        <header className={`h-16 border-b ${isLight ? 'border-slate-200/90 bg-white/90 shadow-xs' : 'border-[#1B2925] bg-[#070B0A]/85 shadow-md shadow-black/40'} backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors`}>
-          <div className="flex items-center gap-3">
+        <header
+          className={`h-16 border-b ${
+            isLight
+              ? 'border-emerald-200/80 bg-[#F2FBF6]/90 shadow-xs'
+              : 'border-[#1B2925] bg-[#070B0A]/85 shadow-md shadow-black/40'
+          } backdrop-blur-xl px-3 sm:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors`}
+        >
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className={`lg:hidden p-2 rounded-xl ${isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' : 'text-neutral-400 hover:text-white hover:bg-[#121E1B]'}`}
+              className={`lg:hidden p-2 rounded-xl shrink-0 ${
+                isLight
+                  ? 'text-emerald-900 hover:text-emerald-950 hover:bg-emerald-100'
+                  : 'text-neutral-400 hover:text-white hover:bg-[#121E1B]'
+              }`}
               aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Selected Page Breadcrumb / Indicator */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <div
-                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all shadow-xs ${
+                className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-medium transition-all shadow-xs truncate ${
                   isLight
-                    ? 'bg-slate-100/90 border-slate-200/90 text-slate-700'
+                    ? 'bg-white/90 border-emerald-200 text-emerald-900 shadow-emerald-900/5'
                     : 'bg-[#0E1815] border-[#1B2925] text-neutral-300'
                 }`}
               >
-                <span className={`text-[11px] font-normal ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
+                <span className={`hidden sm:inline text-[11px] font-normal ${isLight ? 'text-emerald-700/70' : 'text-neutral-500'}`}>
                   Admin
                 </span>
-                <span className={isLight ? 'text-slate-300' : 'text-neutral-600'}>/</span>
-                <div className="flex items-center gap-1.5">
-                  <ActiveIcon className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`} />
-                  <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <span className={`hidden sm:inline ${isLight ? 'text-emerald-300' : 'text-neutral-600'}`}>/</span>
+                <div className="flex items-center gap-1.5 truncate">
+                  <ActiveIcon className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`} />
+                  <span className={`font-bold truncate ${isLight ? 'text-emerald-950' : 'text-white'}`}>
                     {activePage.name}
                   </span>
                 </div>
@@ -528,7 +590,7 @@ function AdminLayoutInner({
           </div>
 
           {/* Right Action Icons */}
-          <div className="flex items-center gap-2 sm:gap-3" ref={popoverRef}>
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0" ref={popoverRef}>
             {/* Theme Toggle Button (Light & Dark Mode) */}
             <button
               onClick={toggleTheme}
@@ -587,49 +649,42 @@ function AdminLayoutInner({
                 )}
               </button>
 
-              {/* Notification Popover Dropdown */}
+              {/* Enhanced Notification Popover Panel */}
               {isNotificationsOpen && (
                 <div
-                  className={`absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl border ${
+                  className={`fixed inset-x-3 top-16 max-w-sm mx-auto sm:static sm:absolute sm:inset-auto sm:right-0 sm:mt-3 sm:w-96 sm:max-w-none rounded-2xl border shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 ${
                     isLight
-                      ? 'bg-white border-slate-200 shadow-2xl text-slate-800'
-                      : 'bg-[#0E1815]/98 border-[#223832] shadow-2xl shadow-black/90 text-white'
-                  }`}
+                      ? 'bg-white/98 border-slate-200 shadow-slate-900/10'
+                      : 'bg-[#0D1614]/98 border-[#1B2925] shadow-black/80'
+                  } backdrop-blur-xl`}
                 >
-                  {/* Popover Header */}
-                  <div className={`p-4 border-b flex items-center justify-between ${isLight ? 'border-slate-100 bg-slate-50' : 'border-[#1B2925] bg-black'}`}>
-                    <div>
-                      <h3 className={`font-poppins text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        <span>Live Notifications</span>
-                        {unreadCount > 0 && (
-                          <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.2 rounded-full font-bold">
-                            {unreadCount} new
-                          </span>
-                        )}
-                      </h3>
-                      <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-                        Real-time store consignments & alerts
-                      </p>
+                  <div
+                    className={`p-3.5 border-b flex items-center justify-between ${
+                      isLight ? 'border-slate-100 bg-slate-50/70' : 'border-[#1B2925] bg-[#09110F]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                      <span className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-800' : 'text-white'}`}>
+                        Realtime Telemetry
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleTestChime}
-                        className={`text-[10px] px-2 py-1 rounded-lg font-semibold shadow-xs flex items-center gap-1 border ${
+                        className={`text-[10px] px-2 py-0.5 rounded-lg border font-semibold transition-colors ${
                           isLight
-                            ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                            : 'text-emerald-300 bg-[#12211C] border-emerald-500/30 hover:text-emerald-200'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                            : 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/40'
                         }`}
-                        title="Simulate audio alert chime"
                       >
-                        <Volume2 className="w-3 h-3" />
-                        <span>Test Chime</span>
+                        Test Chime
                       </button>
-
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className={`text-[10px] hover:underline ${isLight ? 'text-slate-500 hover:text-slate-900' : 'text-neutral-400 hover:text-white'}`}
+                          className="text-[10px] text-emerald-600 hover:underline font-semibold"
                         >
                           Mark all read
                         </button>
@@ -637,23 +692,31 @@ function AdminLayoutInner({
                     </div>
                   </div>
 
-                  {/* Notifications List */}
-                  <div className={`max-h-80 overflow-y-auto divide-y ${isLight ? 'divide-slate-100' : 'divide-[#1B2925]'}`}>
+                  {/* Notification Items List */}
+                  <div className="max-h-80 overflow-y-auto divide-y divide-emerald-500/10">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center">
-                        <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-60" />
-                        <p className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-neutral-300'}`}>All Clear</p>
-                        <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>No unread notifications</p>
+                        <Clock className={`w-8 h-8 mx-auto mb-2 opacity-40 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`} />
+                        <p className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                          No dispatch signals logged yet
+                        </p>
+                        <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-neutral-600'}`}>
+                          Listening for incoming orders...
+                        </p>
                       </div>
                     ) : (
                       notifications.map((item) => (
                         <div
                           key={item.id}
-                          className={`p-3.5 transition-colors flex items-start gap-3 ${
+                          className={`p-3.5 flex items-start gap-3 transition-colors ${
                             item.read
-                              ? isLight ? 'bg-white opacity-70' : 'bg-transparent opacity-60'
-                              : isLight ? 'bg-emerald-50/40' : 'bg-[#121E1B]/60'
-                          } ${isLight ? 'hover:bg-slate-50' : 'hover:bg-[#152420]'}`}
+                              ? isLight
+                                ? 'bg-transparent opacity-75'
+                                : 'bg-transparent opacity-60'
+                              : isLight
+                              ? 'bg-emerald-50/60'
+                              : 'bg-emerald-950/20'
+                          }`}
                         >
                           <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <ShoppingBag className="w-3.5 h-3.5" />
@@ -692,23 +755,74 @@ function AdminLayoutInner({
               )}
             </div>
 
-            {/* Live Storefront Link */}
+            {/* Live Storefront Link (Responsive Compact on Mobile) */}
             <Link
               href="/"
               target="_blank"
-              className={`text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all font-semibold shadow-xs border ${
+              title="View Storefront"
+              className={`text-xs p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 transition-all font-semibold shadow-xs border shrink-0 ${
                 isLight
                   ? 'text-emerald-800 hover:text-emerald-900 border-emerald-200 bg-emerald-50 hover:bg-emerald-100/80'
                   : 'text-neutral-300 hover:text-emerald-300 border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-950/70'
               }`}
             >
-              <span>Storefront</span>
-              <Sparkles className="w-3 h-3 text-emerald-600" />
+              <span className="hidden sm:inline">Storefront</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             </Link>
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">{children}</main>
+        {/* Main Content Area with Bottom Padding for Mobile Nav Bar */}
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">{children}</main>
+
+        {/* Mobile Sticky Bottom Navigation Bar */}
+        <nav
+          className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t ${
+            isLight
+              ? 'bg-[#F2FBF6]/95 border-emerald-200 text-emerald-950 shadow-[0_-4px_20px_rgba(4,106,90,0.08)]'
+              : 'bg-[#070B0A]/95 border-[#1B2925] text-neutral-200 shadow-[0_-4px_25px_rgba(0,0,0,0.5)]'
+          } backdrop-blur-xl px-2 py-1.5 flex items-center justify-around`}
+          aria-label="Mobile Navigation"
+        >
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
+                  isActive
+                    ? isLight
+                      ? 'text-[#065A49] font-bold scale-105'
+                      : 'text-amber-300 font-bold scale-105'
+                    : isLight
+                    ? 'text-emerald-800/70 hover:text-emerald-950'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <div className="relative">
+                  <Icon className="w-5 h-5" />
+                  {item.badge && item.badge > 0 && (
+                    <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center px-0.5">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] tracking-tight mt-0.5 whitespace-nowrap">
+                  {item.name.split(' ')[0]}
+                </span>
+                {isActive && (
+                  <span
+                    className={`w-1 h-1 rounded-full mt-0.5 ${
+                      isLight ? 'bg-emerald-600' : 'bg-amber-400'
+                    }`}
+                  />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
