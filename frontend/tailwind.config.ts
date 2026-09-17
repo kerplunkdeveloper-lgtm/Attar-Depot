@@ -73,6 +73,9 @@ const config: Config = {
         'rose-md': '0 8px 25px -4px rgba(232, 61, 101, 0.14)',
         'rose-lg': '0 12px 35px -5px rgba(232, 61, 101, 0.20)',
       },
+      maxWidth: {
+        '8xl': '90rem',
+      },
     },
   },
   plugins: [],

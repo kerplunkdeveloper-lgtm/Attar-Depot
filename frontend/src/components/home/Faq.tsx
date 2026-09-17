@@ -122,68 +122,70 @@ export default function Faq() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-start">
         {/* Left Side: Luxury Image Card (Compact & punchy on mobile, sticky full height on desktop) */}
-        <div className="lg:col-span-5 relative w-full h-[220px] xs:h-[260px] sm:h-[340px] lg:h-[680px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg lg:shadow-xl border border-emerald-900/20 bg-emerald-950 lg:sticky lg:top-24">
-          <Image
-            src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=1200"
-            alt="Pure Hydro-distilled Attar Flacon and Natural Oils"
-            fill
-            sizes="(max-width: 1024px) 100vw, 40vw"
-            priority
-            className="object-cover object-center brightness-90 hover:scale-105 transition-transform duration-1000"
-          />
+        <div className="lg:col-span-5 lg:sticky lg:top-24">
+          <div className="relative w-full h-[220px] xs:h-[260px] sm:h-[340px] lg:h-[680px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg lg:shadow-xl border border-emerald-900/20 bg-emerald-950">
+            <Image
+              src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=1200"
+              alt="Pure Hydro-distilled Attar Flacon and Natural Oils"
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              priority
+              className="object-cover object-center brightness-90 hover:scale-105 transition-transform duration-1000"
+            />
 
-          {/* Luxury Vignette Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/40 to-black/30" />
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/60 via-transparent to-transparent hidden sm:block" />
+            {/* Luxury Vignette Gradients */}
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/40 to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/60 via-transparent to-transparent hidden sm:block" />
 
-          {/* Top Badge */}
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-white/40 text-emerald-950 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase shadow-xs">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#C9A227]" />
-              <span>Imperial Kannauj Heritage</span>
-            </div>
-          </div>
-
-          {/* Bottom Overlay Info & Features */}
-          <div className="absolute bottom-4 inset-x-4 sm:bottom-6 sm:inset-x-6 z-10 space-y-2 sm:space-y-4">
-            <div className="space-y-1">
-              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-emerald-300">
-                100% Pure Concentrated Oils
-              </span>
-              <h3 className="font-serif text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                Distilled Pure. Bottled Sacred.
-              </h3>
-            </div>
-
-            {/* Mobile Compact Features Badge */}
-            <div className="flex sm:hidden items-center gap-1.5 text-[10px] font-medium text-white/90 pt-1 border-t border-white/15">
-              <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span>0% Alcohol</span>
-              </span>
-              <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span>Halal</span>
-              </span>
-              <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span>24h+ Sillage</span>
-              </span>
-            </div>
-
-            {/* Desktop Full Feature List */}
-            <div className="hidden sm:block space-y-2 pt-1 border-t border-white/15">
-              <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>0% Alcohol • 100% Halal Prayer-Safe</span>
+            {/* Top Badge */}
+            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-white/40 text-emerald-950 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase shadow-xs">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#C9A227]" />
+                <span>Imperial Kannauj Heritage</span>
               </div>
-              <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>24+ Hour Sillage on Skin & Garments</span>
+            </div>
+
+            {/* Bottom Overlay Info & Features */}
+            <div className="absolute bottom-4 inset-x-4 sm:bottom-6 sm:inset-x-6 z-10 space-y-2 sm:space-y-4">
+              <div className="space-y-1">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-emerald-300">
+                  100% Pure Concentrated Oils
+                </span>
+                <h3 className="font-serif text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
+                  Distilled Pure. Bottled Sacred.
+                </h3>
               </div>
-              <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Traditional Deg &amp; Bhapka Copper Distillation</span>
+
+              {/* Mobile Compact Features Badge */}
+              <div className="flex sm:hidden items-center gap-1.5 text-[10px] font-medium text-white/90 pt-1 border-t border-white/15">
+                <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span>0% Alcohol</span>
+                </span>
+                <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span>Halal</span>
+                </span>
+                <span className="inline-flex items-center gap-1 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span>24h+ Sillage</span>
+                </span>
+              </div>
+
+              {/* Desktop Full Feature List */}
+              <div className="hidden sm:block space-y-2 pt-1 border-t border-white/15">
+                <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>0% Alcohol • 100% Halal Prayer-Safe</span>
+                </div>
+                <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>24+ Hour Sillage on Skin & Garments</span>
+                </div>
+                <div className="flex items-center gap-2 text-white/90 text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Traditional Deg &amp; Bhapka Copper Distillation</span>
+                </div>
               </div>
             </div>
           </div>

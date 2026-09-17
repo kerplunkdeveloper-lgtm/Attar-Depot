@@ -7,26 +7,21 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BannerSlide {
   id: string;
-  desktopImage: string;
-  mobileImage: string;
+  image: string;
   alt: string;
-  link: string;
+  link?: string;
 }
 
 const BANNER_SLIDES: BannerSlide[] = [
   {
     id: 'banner-1',
-    desktopImage: '/images/banner1.png',
-    mobileImage: '/images/banner2.png',
+    image: '/images/banner1.png',
     alt: 'Attar Depot Royal Fragrance Banner 1',
-    link: '/shop',
   },
   {
     id: 'banner-2',
-    desktopImage: '/images/bannerf1.png',
-    mobileImage: '/images/bannerf2.png',
+    image: '/images/bannerf1.png',
     alt: 'Attar Depot Exclusive Fragrance Banner 2',
-    link: '/shop',
   },
 ];
 
@@ -51,6 +46,7 @@ export default function HeroBannerCarousel() {
 
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const touchMovedRef = useRef<boolean>(false);
   const lastTimeRef = useRef<number>(Date.now());
   const isTransitioningRef = useRef(false);
 
@@ -137,7 +133,17 @@ export default function HeroBannerCarousel() {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
+    touchMovedRef.current = false;
     setIsPaused(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current !== null) {
+      const diffX = Math.abs(e.touches[0].clientX - touchStartX.current);
+      if (diffX > 10) {
+        touchMovedRef.current = true;
+      }
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -149,6 +155,7 @@ export default function HeroBannerCarousel() {
 
     // Horizontal swipe threshold
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+      touchMovedRef.current = true;
       if (diffX > 0) {
         nextSlide();
       } else {
@@ -167,6 +174,7 @@ export default function HeroBannerCarousel() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       aria-label="Promotional Banner Carousel"
     >
@@ -186,28 +194,40 @@ export default function HeroBannerCarousel() {
             key={`${slide.id}-${index}`}
             className="w-full flex-shrink-0 relative"
           >
-            <Link href={slide.link} className="block w-full cursor-pointer">
-              {/* Desktop Banner Image */}
-              <Image
-                src={slide.desktopImage}
-                alt={slide.alt}
-                width={1920}
-                height={800}
-                priority
-                sizes="100vw"
-                className="hidden md:block w-full h-auto object-cover"
-              />
-              {/* Mobile Banner Image */}
-              <Image
-                src={slide.mobileImage}
-                alt={slide.alt}
-                width={800}
-                height={1000}
-                priority
-                sizes="100vw"
-                className="block md:hidden w-full h-auto object-cover"
-              />
-            </Link>
+            {slide.link ? (
+              <Link
+                href={slide.link}
+                onClick={(e) => {
+                  if (touchMovedRef.current) {
+                    e.preventDefault();
+                    touchMovedRef.current = false;
+                  }
+                }}
+                className="block w-full cursor-pointer select-none"
+              >
+                <Image
+                  src={slide.image}
+                  alt={slide.alt}
+                  width={1920}
+                  height={800}
+                  priority={index <= 2}
+                  sizes="100vw"
+                  className="w-full h-auto object-cover"
+                />
+              </Link>
+            ) : (
+              <div className="block w-full select-none">
+                <Image
+                  src={slide.image}
+                  alt={slide.alt}
+                  width={1920}
+                  height={800}
+                  priority={index <= 2}
+                  sizes="100vw"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -217,9 +237,9 @@ export default function HeroBannerCarousel() {
         type="button"
         onClick={prevSlide}
         aria-label="Previous Slide"
-        className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
+        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
       >
-        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
       </button>
 
       {/* Navigation Arrow - Right */}
@@ -227,9 +247,9 @@ export default function HeroBannerCarousel() {
         type="button"
         onClick={nextSlide}
         aria-label="Next Slide"
-        className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
+        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
       >
-        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
       </button>
 
       {/* Slide Counter Badge (Top Right) */}
@@ -242,7 +262,7 @@ export default function HeroBannerCarousel() {
       </div>
 
       {/* Bottom Controls: Animated Progress Pills & Pause Indicator */}
-      <div className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
+      <div className="absolute bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-2.5 z-20 bg-black/40 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-white/15">
         {BANNER_SLIDES.map((slide, idx) => {
           const isActive = activeRealIndex === idx;
 

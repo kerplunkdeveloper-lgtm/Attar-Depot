@@ -1,22 +1,15 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import {
   Play,
   Volume2,
   VolumeX,
-  ShoppingBag,
   ChevronLeft,
   ChevronRight,
   X,
-  Check,
   Star,
 } from 'lucide-react';
-import { useAppDispatch } from '@/store';
-import { addToCart } from '@/store/cartSlice';
-import { toast } from '@/lib/toast';
 
 export interface WatchAndBuyItem {
   id: string;
@@ -25,10 +18,7 @@ export interface WatchAndBuyItem {
   originalPrice: number;
   discountPercent?: number;
   slug: string;
-  thumbnail: string;
   videoUrl: string;
-  fallbackVideoUrl?: string;
-  posterUrl: string;
   reviewerName: string;
   reviewerHandle: string;
   reviewText: string;
@@ -37,6 +27,7 @@ export interface WatchAndBuyItem {
   badge?: string;
 }
 
+// Perfume vertical videos from Pexels (portrait 9:16)
 const REEL_ITEMS: WatchAndBuyItem[] = [
   {
     id: 'reel-1',
@@ -45,9 +36,8 @@ const REEL_ITEMS: WatchAndBuyItem[] = [
     originalPrice: 1299,
     discountPercent: 38,
     slug: 'artiscents-atomizer',
-    thumbnail: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=300',
-    posterUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    // Perfume bottle spray — Pexels #6585753
+    videoUrl: 'https://videos.pexels.com/video-files/6585753/6585753-hd_1080_1920_30fps.mp4',
     reviewerName: 'Aaliyah M.',
     reviewerHandle: '@aaliyah_scents',
     reviewText: 'The sleek gold packaging is stunning! The ultra-fine mist atomizer distributes pure attar oil effortlessly without sticking.',
@@ -62,9 +52,8 @@ const REEL_ITEMS: WatchAndBuyItem[] = [
     originalPrice: 1799,
     discountPercent: 44,
     slug: 'eternal-grace',
-    thumbnail: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=80&w=300',
-    posterUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    // Luxury perfume close-up — Pexels #7641847
+    videoUrl: 'https://videos.pexels.com/video-files/7641847/7641847-hd_1080_1920_25fps.mp4',
     reviewerName: 'Priya Sharma',
     reviewerHandle: '@priya_luxury',
     reviewText: 'Crisp green pear with royal Kannauj Damask rose. Sweet, refreshing, and 100% alcohol-free. Lasts all day on my skin!',
@@ -79,9 +68,8 @@ const REEL_ITEMS: WatchAndBuyItem[] = [
     originalPrice: 1799,
     discountPercent: 44,
     slug: 'black-tie',
-    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
-    posterUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    // Dark oud fragrance — Pexels #5940838
+    videoUrl: 'https://videos.pexels.com/video-files/5940838/5940838-hd_1080_1920_25fps.mp4',
     reviewerName: 'Kabir Roy',
     reviewerHandle: '@kabir_lifestyle',
     reviewText: 'Dark Cambodian agarwood blended with smoky Tuscan leather. Wore this to an evening gala and got asked about it 5 times.',
@@ -96,9 +84,8 @@ const REEL_ITEMS: WatchAndBuyItem[] = [
     originalPrice: 1799,
     discountPercent: 44,
     slug: 'ocean-bound',
-    thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-    posterUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+    // Fragrance unboxing — Pexels #7641848
+    videoUrl: 'https://videos.pexels.com/video-files/7641848/7641848-hd_1080_1920_25fps.mp4',
     reviewerName: 'Zoya Khan',
     reviewerHandle: '@zoyakhan_beauty',
     reviewText: 'Unboxing the bespoke silk packaging felt like opening a royal heirloom. The ambergris and sea breeze notes are so calming.',
@@ -113,9 +100,8 @@ const REEL_ITEMS: WatchAndBuyItem[] = [
     originalPrice: 1899,
     discountPercent: 47,
     slug: 'modern-royalty',
-    thumbnail: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
-    posterUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    // Royal oudh — Pexels #6585754
+    videoUrl: 'https://videos.pexels.com/video-files/6585754/6585754-hd_1080_1920_30fps.mp4',
     reviewerName: 'Rohan Verma',
     reviewerHandle: '@rohan_perfumes',
     reviewText: 'Assamese vintage dehn al oudh with saffron and amber. Just two dabs with the glass rod and the scent trail lasts for 48 hours!',
@@ -265,7 +251,8 @@ function VideoReelCard({
     <div
       ref={cardRef}
       onClick={onOpenModal}
-      className="group relative w-[220px] xs:w-[240px] sm:w-[260px] md:w-[280px] h-[390px] xs:h-[420px] sm:h-[460px] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-neutral-200/80 hover:border-emerald-500/60 transition-all duration-300 snap-start shrink-0 cursor-pointer bg-neutral-900"
+      className="group relative w-[185px] sm:w-[210px] md:w-[225px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl border border-white/10 hover:border-emerald-400/60 transition-all duration-300 snap-start shrink-0 cursor-pointer bg-neutral-900"
+      style={{ aspectRatio: '9/16' }}
     >
       {/* Live Video Playing Continuously (No static poster hiding the video) */}
       <video
@@ -308,46 +295,19 @@ function VideoReelCard({
         </div>
       )}
 
-      {/* Subtle Video Progress Bar at the Bottom */}
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-20">
-        <div
-          className="h-full bg-emerald-400 transition-all duration-100"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {/* Bottom Gradient Overlay with Product Info (Exact UI Match to Screenshot) */}
-      <div className="absolute inset-x-0 bottom-0 pt-16 pb-3.5 px-3 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end justify-between gap-2.5 z-10 pointer-events-none">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          {/* Square Product Thumbnail */}
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white/95 border border-white/30 shrink-0 shadow-xs">
-            <Image
-              src={item.thumbnail}
-              alt={item.title}
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
-          </div>
-
-          {/* Product Name & Pricing */}
-          <div className="min-w-0 flex-1 text-left">
-            <h4 className="font-sans text-xs sm:text-sm font-bold text-white truncate drop-shadow-md leading-tight">
-              {item.title}
-            </h4>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="font-sans text-xs sm:text-sm font-bold text-white drop-shadow-md">
-                ₹ {item.price}
-              </span>
-              {item.originalPrice && (
-                <span className="text-[10px] sm:text-[11px] text-white/70 line-through">
-                  ₹ {item.originalPrice}
-                </span>
-              )}
-            </div>
-          </div>
+      {/* Badge top-left */}
+      {item.badge && (
+        <div className="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-[10px] font-bold text-white tracking-wide">
+          {item.badge}
         </div>
+      )}
+
+      {/* Bottom Title + reviewer name overlay */}
+      <div className="absolute inset-x-0 bottom-0 z-20 px-3 pt-10 pb-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none">
+        <p className="text-[11px] font-bold text-white leading-tight truncate drop-shadow">{item.title}</p>
+        <p className="text-[10px] text-white/60 mt-0.5 truncate">{item.reviewerHandle}</p>
       </div>
+
     </div>
   );
 }
@@ -366,11 +326,9 @@ function ReelModal({
   onNext: () => void;
   onPrev: () => void;
 }) {
-  const dispatch = useAppDispatch();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -407,29 +365,6 @@ function ReelModal({
     if (!videoRef.current) return;
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch(
-      addToCart({
-        productId: item.id,
-        name: item.title,
-        slug: item.slug,
-        image: item.thumbnail,
-        size: item.size,
-        price: item.price,
-        originalPrice: item.originalPrice,
-        quantity: 1,
-        stock: 10,
-      })
-    );
-
-    setIsAdded(true);
-    toast.success(`${item.title} added to your fragrance cart!`, {
-      title: 'Added to Cart',
-    });
-    setTimeout(() => setIsAdded(false), 2200);
   };
 
   return (
@@ -470,7 +405,6 @@ function ReelModal({
         <video
           ref={videoRef}
           src={item.videoUrl}
-          poster={item.posterUrl}
           autoPlay
           loop
           playsInline
@@ -547,67 +481,6 @@ function ReelModal({
             </p>
           </div>
 
-          {/* Shoppable Product Card inside Reel */}
-          <div className="p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-white shadow-lg flex items-center justify-between gap-3">
-            {/* Product Image & Info */}
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 shadow-2xs">
-                <Image
-                  src={item.thumbnail}
-                  alt={item.title}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="min-w-0 text-left">
-                <Link
-                  href={`/product/${item.slug}`}
-                  onClick={onClose}
-                  className="text-xs sm:text-sm font-bold text-neutral-900 hover:text-emerald-800 transition-colors truncate block"
-                >
-                  {item.title}
-                </Link>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-sm font-bold text-neutral-950">
-                    ₹{item.price.toLocaleString('en-IN')}
-                  </span>
-                  {item.originalPrice && (
-                    <span className="text-xs text-neutral-400 line-through">
-                      ₹{item.originalPrice.toLocaleString('en-IN')}
-                    </span>
-                  )}
-                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-50 px-1.5 py-0.2 rounded-full ml-auto">
-                    Save {item.discountPercent}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Add to Cart Button */}
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className={`py-2.5 px-3.5 rounded-xl text-xs font-bold tracking-wide flex items-center gap-1.5 transition-all shrink-0 active:scale-95 shadow-xs ${
-                isAdded
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-800 hover:bg-emerald-900 text-white'
-              }`}
-            >
-              {isAdded ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Added!</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>+ Cart</span>
-                </>
-              )}
-            </button>
-          </div>
         </div>
       </div>
     </div>

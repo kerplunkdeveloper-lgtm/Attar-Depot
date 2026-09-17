@@ -36,7 +36,7 @@ export default function FloatingActionHub() {
   const whatsappUrl = `https://wa.me/919876543210?text=${whatsappMessage}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-3 pointer-events-none">
       {/* WhatsApp Button */}
       <div className="relative group pointer-events-auto">
         <a

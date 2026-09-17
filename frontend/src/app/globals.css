@@ -509,3 +509,35 @@ button, input, select, textarea, .font-sans, .font-inter {
   border-color: #E2EAE6 !important;
 }
 
+/* ========================================================================= */
+/* Luxury Mobile Bottom Navigation Animations                                */
+/* ========================================================================= */
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2.2s ease-in-out infinite;
+}
+
+@keyframes goldPulseHalo {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 0.75;
+  }
+}
+
+.animate-gold-halo {
+  animation: goldPulseHalo 2.6s ease-in-out infinite;
+}
+
+

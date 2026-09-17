@@ -263,7 +263,59 @@ export const completeProfile = async (req, res, next) => {
 // @access  Public
 export const googleAuth = async (req, res, next) => {
   try {
-    const { email, name, avatar, googleId } = req.body;
+    let { email, name, avatar, googleId, accessToken, credential } = req.body;
+
+    // If real Google OAuth Access Token was passed from Google Identity Services Token Client
+    if (accessToken) {
+      try {
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!userInfoRes.ok) {
+          const errData = await userInfoRes.json().catch(() => ({}));
+          return res.status(401).json({
+            success: false,
+            message: errData.error_description || 'Invalid or expired Google access token',
+          });
+        }
+
+        const profile = await userInfoRes.json();
+        email = profile.email;
+        name = profile.name || profile.given_name || name;
+        avatar = profile.picture || avatar;
+        googleId = profile.sub || googleId;
+      } catch (tokenErr) {
+        console.error('Failed to verify Google access token:', tokenErr);
+        return res.status(401).json({
+          success: false,
+          message: 'Unable to verify Google credentials with Google servers',
+        });
+      }
+    }
+    // If real Google One-Tap / ID Token was passed
+    else if (credential) {
+      try {
+        const tokenInfoRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+        if (!tokenInfoRes.ok) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid or expired Google ID token',
+          });
+        }
+        const tokenData = await tokenInfoRes.json();
+        email = tokenData.email;
+        name = tokenData.name || name;
+        avatar = tokenData.picture || avatar;
+        googleId = tokenData.sub || googleId;
+      } catch (idErr) {
+        console.error('Failed to verify Google ID token:', idErr);
+        return res.status(401).json({
+          success: false,
+          message: 'Unable to verify Google credentials with Google servers',
+        });
+      }
+    }
 
     if (!email) {
       return res.status(400).json({
@@ -284,6 +336,9 @@ export const googleAuth = async (req, res, next) => {
       }
       if (avatar && !user.avatar) {
         user.avatar = avatar;
+      }
+      if (name && (!user.name || user.name === 'Google Patron')) {
+        user.name = name;
       }
       await user.save();
       return sendTokenResponse(user, 200, res);

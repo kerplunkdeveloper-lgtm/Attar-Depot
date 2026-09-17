@@ -13,7 +13,7 @@ import ProductGridSkeleton from '@/components/product/ProductCardSkeleton';
 import HeroBannerCarousel from '@/components/home/HeroBannerCarousel';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import InfiniteMarquee from '@/components/home/InfiniteMarquee';
-import WatchAndBuy from '@/components/home/WatchAndBuy';
+
 import Faq from '@/components/home/Faq';
 
 export default function HomePage() {
@@ -59,8 +59,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. Shoppable Reels: Watch and Buy */}
-      <WatchAndBuy />
+
 
       {/* 5. The Art of Distillation Banner */}
       <section className="relative overflow-hidden py-20 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/60 to-[#ECFDF5] border-y border-emerald-200/80">

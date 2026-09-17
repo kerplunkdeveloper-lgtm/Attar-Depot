@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import {
   Check,
   AlertCircle,
@@ -178,15 +177,35 @@ export default function ToastContainer() {
 
   useEffect(() => {
     setMounted(true);
+
+    // Check for pending toast persisted across hard redirect or page transition
+    if (typeof window !== 'undefined') {
+      try {
+        const pending = sessionStorage.getItem('attar_pending_toast');
+        if (pending) {
+          sessionStorage.removeItem('attar_pending_toast');
+          const { type, message, options } = JSON.parse(pending);
+          setTimeout(() => {
+            if (type === 'success') toast.success(message, options);
+            else if (type === 'error') toast.error(message, options);
+            else if (type === 'warning') toast.warning(message, options);
+            else toast.info(message, options);
+          }, 120);
+        }
+      } catch (e) {
+        console.error('Failed to parse pending toast', e);
+      }
+    }
+
     const unsubscribe = toast.subscribe((newToasts) => {
       setToasts(newToasts);
     });
     return () => unsubscribe();
   }, []);
 
-  if (!mounted || typeof document === 'undefined') return null;
+  if (!mounted) return null;
 
-  return createPortal(
+  return (
     <div
       className="fixed top-4 right-3 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-1.5rem)] sm:max-w-none"
       aria-live="polite"
@@ -198,7 +217,6 @@ export default function ToastContainer() {
           onDismiss={() => toast.dismiss(t.id)}
         />
       ))}
-    </div>,
-    document.body
+    </div>
   );
 }

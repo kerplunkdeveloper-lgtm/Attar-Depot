@@ -7,6 +7,7 @@ import { closeAuthModal } from '@/store/uiSlice';
 import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
+import { authenticateWithGoogle } from '@/lib/googleAuth';
 import {
   X,
   ChevronDown,
@@ -295,40 +296,25 @@ export default function AuthModal() {
     }
   };
 
-  // Google OAuth Handler (One-Tap / Google Sign-In)
+  // Real-Time Google OAuth Handler (Google Identity Services)
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setApiError(null);
 
     try {
-      // If a real client id is configured or fallback for testing
-      const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
-      if (!googleClientId) {
-        // High quality simulated Google Auth when no Google Cloud Client ID is configured yet
-        const promptName = prompt('Google Account Name:', 'Royal Patron') || 'Royal Patron';
-        const promptEmail = prompt('Google Email:', `patron${Date.now().toString().slice(-4)}@gmail.com`);
-
-        if (!promptEmail) {
-          setIsLoading(false);
-          return;
-        }
-
-        const { data } = await api.post('/auth/google', {
-          name: promptName,
-          email: promptEmail,
-          googleId: `google_${Date.now()}`,
-          avatar: '',
-        });
-
-        dispatch(setCredentials({ user: data.user, token: data.token }));
-        toast.success(`Signed in with Google as ${data.user.name}!`);
-        dispatch(closeAuthModal());
-      } else {
-        toast.info('Connecting to Google Identity Services...');
-      }
+      const { user, token } = await authenticateWithGoogle();
+      dispatch(setCredentials({ user, token }));
+      toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
+      dispatch(closeAuthModal());
     } catch (err: any) {
-      setApiError('Google sign in encountered an issue. Please try mobile OTP.');
+      const msg = err?.message || '';
+      if (msg === 'POPUP_CLOSED') {
+        // User dismissed popup — silent
+      } else {
+        const serverMsg = err?.response?.data?.message || msg || 'Google sign in encountered an issue.';
+        setApiError(serverMsg);
+        toast.error(serverMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -360,6 +346,7 @@ export default function AuthModal() {
                 <span>{apiError}</span>
               </div>
             )}
+
 
             {/* --------------------------------------------------------------------- */}
             {/* STEP 1: Login Or Signup (Reference Image 1)                           */}

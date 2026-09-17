@@ -2,12 +2,30 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, Poppins } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/providers/Providers';
-import CartDrawer from '@/components/layout/CartDrawer';
-import AuthModal from '@/components/auth/AuthModal';
-import SearchModal from '@/components/search/SearchModal';
-import ToastContainer from '@/components/common/ToastContainer';
-import FloatingActionHub from '@/components/common/FloatingActionHub';
-import AiChatDrawer from '@/components/ai/AiChatDrawer';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import RouteProgressBar from '@/components/common/RouteProgressBar';
+
+const SearchModal = dynamic(() => import('@/components/search/SearchModal'), {
+  ssr: false,
+});
+const CartDrawer = dynamic(() => import('@/components/layout/CartDrawer'), {
+  ssr: false,
+});
+const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), {
+  ssr: false,
+});
+const ToastContainer = dynamic(
+  () => import('@/components/common/ToastContainer'),
+  { ssr: false }
+);
+const FloatingActionHub = dynamic(
+  () => import('@/components/common/FloatingActionHub'),
+  { ssr: false }
+);
+const AiChatDrawer = dynamic(() => import('@/components/ai/AiChatDrawer'), {
+  ssr: false,
+});
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -56,12 +74,18 @@ export default function RootLayout({
       >
         <Providers>
           {children}
-          <SearchModal />
-          <CartDrawer />
-          <AuthModal />
-          <ToastContainer />
-          <FloatingActionHub />
-          <AiChatDrawer />
+          {/* Global application modals & floating interactive hubs */}
+          <div id="overlays">
+            <Suspense fallback={null}>
+              <RouteProgressBar />
+            </Suspense>
+            <SearchModal />
+            <CartDrawer />
+            <AuthModal />
+            <ToastContainer />
+            <FloatingActionHub />
+            <AiChatDrawer />
+          </div>
         </Providers>
       </body>
     </html>

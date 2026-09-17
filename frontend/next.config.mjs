@@ -23,6 +23,14 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/logo.png',
+        destination: '/images/logo.png',
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

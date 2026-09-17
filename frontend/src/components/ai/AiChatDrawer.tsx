@@ -30,8 +30,13 @@ export default function AiChatDrawer() {
   const { messages, sendMessage, isThinking, retryLast, clearChat } = useAiChat();
 
   const [inputMessage, setInputMessage] = useState('');
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
@@ -80,11 +85,13 @@ export default function AiChatDrawer() {
     sendMessage(cleanText || chipText);
   };
 
+  if (!mounted) return null;
+
   return (
     <>
       {/* Floating Launcher Button (Hidden when drawer is open to prevent mobile overlap) */}
       {!isAiChatOpen && (
-        <div className="fixed bottom-5 left-4 sm:bottom-6 sm:right-24 z-40 pointer-events-auto">
+        <div className="fixed bottom-20 left-4 sm:bottom-6 sm:right-24 z-40 pointer-events-auto">
           <button
             onClick={() => dispatch(toggleAiChat(true))}
             className="flex items-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-400/40 group focus:outline-none focus:ring-2 focus:ring-[#046A5A]/50 backdrop-blur-md"

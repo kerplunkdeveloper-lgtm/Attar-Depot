@@ -14,6 +14,7 @@ import { useAppDispatch } from '@/store';
 import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
+import { authenticateWithGoogle } from '@/lib/googleAuth';
 
 function LoginFormContent() {
   const router = useRouter();
@@ -242,25 +243,23 @@ function LoginFormContent() {
   };
 
   const handleGoogleSignIn = async () => {
-    const promptName = prompt('Google Account Name:', 'Royal Patron') || 'Royal Patron';
-    const promptEmail = prompt('Google Email:', `patron${Date.now().toString().slice(-4)}@gmail.com`);
-
-    if (!promptEmail) return;
+    setIsLoading(true);
+    setApiError(null);
 
     try {
-      setIsLoading(true);
-      const { data } = await api.post('/auth/google', {
-        name: promptName,
-        email: promptEmail,
-        googleId: `google_${Date.now()}`,
-        avatar: '',
-      });
-
-      dispatch(setCredentials({ user: data.user, token: data.token }));
-      toast.success(`Signed in as ${data.user.name}!`);
+      const { user, token } = await authenticateWithGoogle();
+      dispatch(setCredentials({ user, token }));
+      toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
       router.push(redirect);
-    } catch (err) {
-      setApiError('Google sign in failed. Please try mobile OTP.');
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg === 'POPUP_CLOSED') {
+        // User dismissed popup — silent
+      } else {
+        const serverMsg = err?.response?.data?.message || msg || 'Google sign in encountered an issue.';
+        setApiError(serverMsg);
+        toast.error(serverMsg);
+      }
     } finally {
       setIsLoading(false);
     }
