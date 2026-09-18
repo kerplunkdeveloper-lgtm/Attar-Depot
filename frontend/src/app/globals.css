@@ -540,4 +540,45 @@ button, input, select, textarea, .font-sans, .font-inter {
   animation: goldPulseHalo 2.6s ease-in-out infinite;
 }
 
+/* ========================================================================= */
+/* Elimination of browser default focus outline & tap highlight rectangle    */
+/* ========================================================================= */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Remove default harsh black focus ring on buttons and links */
+button:focus,
+button:focus-visible,
+button:active,
+a:focus,
+a:focus-visible,
+a:active {
+  outline: none !important;
+  box-shadow: none;
+}
+
+/* Luxury bottom navigation resets: pure smooth experience with no black borders */
+nav a,
+nav button {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+nav a:focus,
+nav a:focus-visible,
+nav a:active,
+nav button:focus,
+nav button:focus-visible,
+nav button:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+
 

@@ -50,6 +50,7 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const { itemsCount } = useAppSelector((state) => state.cart);
   const { user, isAuthenticated, isAdmin } = useAppSelector((state) => state.auth);
+  const { isSearchOpen } = useAppSelector((state) => state.ui);
 
   const [mounted, setMounted] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -1292,14 +1293,14 @@ export default function Navbar() {
           {/* 1. Home */}
           <Link
             href="/"
-            className="flex flex-col items-center justify-center py-1 group focus:outline-none select-none transition-all active:scale-90"
+            className="flex flex-col items-center justify-center py-1 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="Navigate to Home"
           >
             <div
               className={`relative flex items-center justify-center w-10 h-8 rounded-2xl transition-all duration-300 ${
                 isHome
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.3)]'
-                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06]'
+                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <Home
@@ -1324,22 +1325,23 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* 2. Shop Vault */}
-          <Link
-            href="/shop"
-            className="flex flex-col items-center justify-center py-1 group focus:outline-none select-none transition-all active:scale-90"
-            aria-label="Navigate to Shop"
+          {/* 2. Quick Search */}
+          <button
+            type="button"
+            onClick={() => dispatch(toggleSearch(true))}
+            className="flex flex-col items-center justify-center py-1 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
+            aria-label="Search fragrances"
           >
             <div
               className={`relative flex items-center justify-center w-10 h-8 rounded-2xl transition-all duration-300 ${
-                isShop
+                isSearchOpen
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.3)]'
-                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06]'
+                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
-              <ShoppingBag
+              <Search
                 className={`w-5 h-5 transition-all duration-300 ${
-                  isShop
+                  isSearchOpen
                     ? 'stroke-[2.4] text-[#F5B418] drop-shadow-[0_0_8px_rgba(245,180,24,0.7)] scale-110'
                     : 'stroke-[1.8] group-hover:scale-105'
                 }`}
@@ -1347,57 +1349,58 @@ export default function Navbar() {
             </div>
             <span
               className={`text-[10px] tracking-wide mt-1 transition-colors duration-200 ${
-                isShop
+                isSearchOpen
                   ? 'font-bold text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.3)]'
                   : 'font-medium text-[#FAF8F2]/75 group-hover:text-[#F5B418]'
               }`}
             >
-              Shop
+              Search
             </span>
-            {isShop && (
+            {isSearchOpen && (
               <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFE28A] shadow-[0_0_8px_#F5B418] mt-0.5 animate-pulse" />
             )}
-          </Link>
+          </button>
 
-          {/* 3. Quick Search (Center Elevated Imperial Medallion Action) */}
-          <button
-            type="button"
-            onClick={() => dispatch(toggleSearch(true))}
-            className="flex flex-col items-center justify-center -mt-6 group focus:outline-none select-none relative"
-            aria-label="Search fragrances"
+          {/* 3. Shop Vault (Center Elevated Imperial Medallion Action) */}
+          <Link
+            href="/shop"
+            className="flex flex-col items-center justify-center -mt-6 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none relative transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
+            aria-label="Navigate to Shop"
           >
             {/* Ambient pulsating gold aura halo */}
-            <span className="absolute -inset-1.5 rounded-full bg-[#F5B418]/35 blur-xs animate-gold-halo pointer-events-none" />
+            <span className={`absolute -inset-1.5 rounded-full bg-[#F5B418]/35 blur-xs ${isShop ? 'animate-pulse opacity-100' : 'animate-gold-halo'} pointer-events-none`} />
 
             {/* Royal Gold Bezel Ring */}
-            <div className="relative p-[2.5px] rounded-full bg-gradient-to-b from-[#FFF0BA] via-[#F5B418] to-[#996D12] shadow-[0_8px_25px_rgba(245,180,24,0.65),0_2px_4px_rgba(0,0,0,0.6)] ring-2 ring-[#012520] transition-all duration-300 group-hover:scale-105 group-active:scale-90">
+            <div className={`relative p-[2.5px] rounded-full bg-gradient-to-b from-[#FFF0BA] via-[#F5B418] to-[#996D12] shadow-[0_8px_25px_rgba(245,180,24,0.65),0_2px_4px_rgba(0,0,0,0.6)] ring-2 ${isShop ? 'ring-[#FFE28A]' : 'ring-[#F5B418]/40'} transition-all duration-300 group-hover:scale-105 group-active:scale-95`}>
               {/* Inner Medallion Disc */}
               <div className="w-12 h-12 rounded-full bg-gradient-to-b from-[#FFEAA0] via-[#F5B418] to-[#D99B12] flex items-center justify-center relative overflow-hidden shadow-inner">
                 {/* Glass top reflection sheen */}
                 <div className="absolute top-0 inset-x-0 h-[48%] bg-gradient-to-b from-white/70 to-transparent rounded-t-full pointer-events-none" />
 
-                {/* Search icon */}
-                <Search className="w-5 h-5 stroke-[2.8] text-[#012520] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 group-active:scale-95 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] relative z-10" />
+                {/* Shop icon */}
+                <ShoppingBag className="w-5 h-5 stroke-[2.8] text-[#012520] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] relative z-10" />
               </div>
             </div>
 
             {/* Text Label */}
-            <span className="text-[9.5px] font-black uppercase tracking-[0.14em] text-[#F5B418] mt-1.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] group-hover:text-[#FFE28A] transition-colors">
-              Search
+            <span className={`text-[9.5px] font-black uppercase tracking-[0.14em] mt-1.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] transition-colors ${
+              isShop ? 'text-[#FFE28A] font-extrabold' : 'text-[#F5B418] group-hover:text-[#FFE28A]'
+            }`}>
+              Shop
             </span>
-          </button>
+          </Link>
 
           {/* 4. Orders */}
           <Link
             href="/orders"
-            className="flex flex-col items-center justify-center py-1 group focus:outline-none select-none transition-all active:scale-90"
+            className="flex flex-col items-center justify-center py-1 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="View Orders"
           >
             <div
               className={`relative flex items-center justify-center w-10 h-8 rounded-2xl transition-all duration-300 ${
                 isOrders
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.3)]'
-                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06]'
+                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <PackageCheck
@@ -1426,14 +1429,14 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => dispatch(toggleCartDrawer(true))}
-            className="flex flex-col items-center justify-center py-1 group focus:outline-none select-none transition-all active:scale-90"
+            className="flex flex-col items-center justify-center py-1 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="Open Cart"
           >
             <div
               className={`relative flex items-center justify-center w-10 h-8 rounded-2xl transition-all duration-300 ${
                 isCart
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.3)]'
-                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06]'
+                  : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <ShoppingBag
