@@ -31,6 +31,11 @@ import {
   Users,
   PanelLeftClose,
   PanelLeft,
+  UserCheck,
+  Camera,
+  Trash2,
+  Loader2,
+  Upload,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout, hydrateAuth } from '@/store/authSlice';
@@ -42,7 +47,9 @@ import {
   AdminNotification,
 } from '@/lib/adminNotifications';
 import { useAdminOrders } from '@/hooks/useAdmin';
+import { useUploadAvatar, useUpdateProfile } from '@/hooks/useProfile';
 import { toast } from '@/lib/toast';
+import { getQueryClient } from '@/components/providers/Providers';
 import { formatPrice } from '@/lib/utils';
 import { AdminThemeProvider, useAdminTheme } from '@/context/AdminThemeContext';
 import AttarDepotLogo from '@/components/common/AttarDepotLogo';
@@ -71,6 +78,46 @@ function AdminLayoutInner({
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
   const initialLoadRef = useRef(true);
+
+  // Avatar upload & profile mutations
+  const uploadAvatarMutation = useUploadAvatar();
+  const updateProfileMutation = useUpdateProfile();
+  const headerFileInputRef = useRef<HTMLInputElement>(null);
+  const sidebarFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (JPEG, PNG, WEBP).', { title: 'Invalid Image' });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be under 5MB.', { title: 'File Too Large' });
+      return;
+    }
+
+    try {
+      await uploadAvatarMutation.mutateAsync(file);
+      toast.success('Admin avatar updated successfully!', { title: 'Avatar Saved' });
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to upload avatar.', { title: 'Upload Failed' });
+    } finally {
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!user?.avatar) return;
+    try {
+      await updateProfileMutation.mutateAsync({ avatar: '' });
+      toast.success('Profile photo removed successfully.', { title: 'Photo Removed' });
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to remove avatar.', { title: 'Action Failed' });
+    }
+  };
 
   // Poll orders in background every 15s to detect live new orders (only when authenticated and not on login page)
   const isLoginPage = pathname === '/admin/login';
@@ -227,7 +274,7 @@ function AdminLayoutInner({
         'attar_pending_toast',
         JSON.stringify({
           type: 'success',
-          message: 'Administrator session terminated securely.',
+          message: 'Admin session terminated securely.',
           options: {
             title: 'Logged Out Successfully',
           },
@@ -237,6 +284,7 @@ function AdminLayoutInner({
 
     // 3. Fire backend logout in background without awaiting or blocking UI
     api.post('/auth/logout').catch((e) => console.error(e));
+    getQueryClient().clear();
 
     // 4. Instant hard redirect to admin login page
     window.location.href = '/admin/login';
@@ -287,6 +335,16 @@ function AdminLayoutInner({
         },
       ],
     },
+    {
+      label: 'Account & Settings',
+      items: [
+        {
+          name: 'Profile',
+          href: '/admin/profile',
+          icon: UserCheck,
+        },
+      ],
+    },
   ];
 
   const allNavItems = navGroups.flatMap((g) => g.items);
@@ -297,49 +355,56 @@ function AdminLayoutInner({
   return (
     <div
       style={{
-        backgroundColor: '#011C16',
-        backgroundImage:
-          'radial-gradient(at 20% 10%, rgba(4, 90, 75, 0.25) 0px, transparent 50%), radial-gradient(at 80% 20%, rgba(201, 162, 39, 0.12) 0px, transparent 40%), linear-gradient(180deg, #022019 0%, #011C16 40%, #01140F 100%)',
+        backgroundColor: '#FAF8F5',
+        backgroundImage: `
+          radial-gradient(circle at 12% 8%, rgba(209, 250, 229, 0.45) 0%, transparent 45%),
+          radial-gradient(circle at 88% 18%, rgba(254, 243, 199, 0.45) 0%, transparent 45%),
+          radial-gradient(circle at 50% 85%, rgba(236, 253, 245, 0.50) 0%, transparent 55%),
+          linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
+          url('/images/luxury-marble-bg.jpg')
+        `,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundAttachment: 'fixed',
       }}
-      className="min-h-screen flex font-poppins relative text-amber-300 selection:bg-amber-400 selection:text-slate-950 transition-colors duration-300"
+      className="min-h-screen flex font-poppins relative text-slate-800 selection:bg-emerald-600 selection:text-white transition-colors duration-300"
     >
       {/* Dynamic Ambient Background Glows */}
-      <div className="fixed top-16 left-60 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none bg-emerald-500/10 opacity-70" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none bg-amber-400/10 opacity-60" />
+      <div className="fixed top-16 left-60 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none bg-emerald-500/10 opacity-60" />
+      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none bg-amber-400/10 opacity-50" />
 
       {/* Real-time Order Popup Toast */}
       {toastNotification && (
         <div className="fixed top-5 right-5 z-[80] animate-in slide-in-from-top-4 fade-in duration-300 max-w-sm w-full">
           <div
-            style={{ backgroundColor: '#02241D' }}
-            className="border border-[#0C4E40] text-white shadow-2xl shadow-black/80 ring-1 ring-amber-400/20 backdrop-blur-xl rounded-2xl p-4 flex items-start gap-3.5"
+            className="border border-slate-200/90 bg-white/95 text-slate-900 shadow-2xl shadow-emerald-950/10 ring-1 ring-emerald-500/20 backdrop-blur-xl rounded-2xl p-4 flex items-start gap-3.5"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#063B2F] border border-amber-400/40 text-amber-300 flex items-center justify-center flex-shrink-0 shadow-lg">
-              <ShoppingBag className="w-5 h-5 animate-pulse" />
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <ShoppingBag className="w-5 h-5 animate-pulse text-emerald-600" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <p className="text-xs font-bold truncate text-amber-300">
+                <p className="text-xs font-bold truncate text-slate-900">
                   {toastNotification.title}
                 </p>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-amber-400/20 text-amber-300 border-amber-400/40">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-emerald-100 text-emerald-800 border-emerald-300">
                   New
                 </span>
               </div>
-              <p className="text-[11px] mt-0.5 leading-snug text-emerald-100/80">
+              <p className="text-[11px] mt-0.5 leading-snug text-slate-600">
                 {toastNotification.message}
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <Link
                   href="/admin/orders"
                   onClick={() => setToastNotification(null)}
-                  className="text-[11px] font-bold text-amber-400 hover:text-amber-200 hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
                 >
                   View Order <ChevronRight className="w-3 h-3" />
                 </Link>
                 <button
                   onClick={() => setToastNotification(null)}
-                  className="text-[10px] text-emerald-200/60 hover:text-amber-300 transition-colors"
+                  className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   Dismiss
                 </button>
@@ -347,7 +412,7 @@ function AdminLayoutInner({
             </div>
             <button
               onClick={() => setToastNotification(null)}
-              className="p-1 text-emerald-200/60 hover:text-amber-300 transition-colors"
+              className="p-1 text-slate-400 hover:text-slate-700 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -358,53 +423,51 @@ function AdminLayoutInner({
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/75 z-40 lg:hidden backdrop-blur-sm transition-opacity animate-in fade-in"
+          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-sm transition-opacity animate-in fade-in"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* ========================================================================= */}
-      {/* 1. COMPACT ROYAL GREEN ADMIN SIDEBAR (Full Background, Premium UI/UX)      */}
+      {/* 1. ROYAL EMERALD LUXURY ADMIN SIDEBAR (Attractive Green, Modern UI/UX)    */}
       {/* ========================================================================= */}
       <aside
         style={{
-          backgroundColor: '#02241D',
-          backgroundImage: 'linear-gradient(180deg, #032E25 0%, #02241D 45%, #011914 100%)',
-          color: '#FFFFFF',
+          background: 'linear-gradient(180deg, #053b2f 0%, #042e25 50%, #021f19 100%)',
         }}
-        className={`fixed top-0 bottom-0 left-0 z-50 ${
+        className={`admin-sidebar fixed top-0 bottom-0 left-0 z-50 ${
           isSidebarCollapsed ? 'lg:w-16' : 'lg:w-56'
-        } w-60 border-r border-[#08483A] text-white flex flex-col justify-between transition-all duration-300 shadow-2xl ${
+        } w-60 border-r border-emerald-800/80 text-white flex flex-col justify-between transition-all duration-300 shadow-[4px_0_30px_rgba(2,31,25,0.45)] ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="p-3 space-y-4 overflow-y-auto scrollbar-none flex-1">
           {/* Logo & Brand Identity */}
-          <div className="relative flex items-center justify-between pb-3 border-b border-[#0C4E40]">
+          <div className="relative flex items-center justify-between pb-3 border-b border-emerald-800/60">
             <Link
               href="/admin/dashboard"
               className="group flex items-center justify-center flex-1 min-w-0 transition-transform duration-200"
             >
               {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-center w-full py-0.5">
+                <div className="flex items-center justify-center w-full py-2 px-1">
                   <Image
                     src="/images/logo.png"
                     alt="The Attar Depot"
-                    width={180}
-                    height={100}
+                    width={220}
+                    height={90}
                     priority
-                    className="h-14 max-h-18 w-auto object-contain drop-shadow-[0_4px_14px_rgba(201,162,39,0.38)] group-hover:scale-105 group-hover:brightness-110 transition-all duration-300"
+                    className="h-16 sm:h-18 max-h-22 w-auto object-contain brightness-105 contrast-105 drop-shadow-[0_2px_16px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-all duration-300"
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-0.5">
+                <div className="flex items-center justify-center py-2">
                   <Image
                     src="/images/logo.png"
                     alt="The Attar Depot"
-                    width={48}
-                    height={48}
+                    width={52}
+                    height={52}
                     priority
-                    className="h-9 w-auto object-contain drop-shadow-[0_2px_8px_rgba(201,162,39,0.4)] group-hover:scale-110 transition-all duration-300"
+                    className="h-10 w-auto object-contain brightness-105 drop-shadow-[0_2px_10px_rgba(245,180,24,0.4)] group-hover:scale-110 transition-all duration-300"
                   />
                 </div>
               )}
@@ -413,7 +476,7 @@ function AdminLayoutInner({
             {/* Mobile Close Button */}
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden absolute right-0 top-1 p-1 rounded-lg text-emerald-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="lg:hidden absolute right-0 top-1 p-1 rounded-lg !text-emerald-300 hover:!text-white hover:bg-emerald-800/60 transition-colors"
               aria-label="Close Sidebar"
             >
               <X className="w-4 h-4" />
@@ -425,11 +488,14 @@ function AdminLayoutInner({
             {navGroups.map((group) => (
               <div key={group.label} className="space-y-1">
                 {!isSidebarCollapsed && (
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-400/90 px-2.5 pt-1">
-                    {group.label}
-                  </p>
+                  <div className="flex items-center gap-1.5 px-2.5 pt-1.5 pb-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
+                    <p className="text-[10px] font-bold uppercase tracking-wider !text-emerald-300/80">
+                      {group.label}
+                    </p>
+                  </div>
                 )}
-                <nav className="space-y-0.5 text-xs font-medium">
+                <nav className="space-y-1 text-xs font-medium">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
@@ -439,32 +505,33 @@ function AdminLayoutInner({
                         href={item.href}
                         onClick={() => setIsSidebarOpen(false)}
                         title={isSidebarCollapsed ? item.name : undefined}
-                        style={
-                          isActive
-                            ? {
-                                background: 'linear-gradient(90deg, #0C6A56 0%, #075242 100%)',
-                                borderColor: 'rgba(30, 165, 136, 0.7)',
-                              }
-                            : undefined
-                        }
                         className={`group relative flex items-center ${
-                          isSidebarCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-2'
-                        } rounded-xl transition-all duration-150 ${
+                          isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
+                        } rounded-xl transition-all duration-200 border ${
                           isActive
-                            ? 'text-white border shadow-[0_4px_16px_rgba(4,90,75,0.45)] font-bold before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1.5 before:rounded-r-full before:bg-amber-400 before:shadow-[0_0_10px_#F59E0B]'
-                            : 'text-emerald-100 hover:text-white hover:bg-white/[0.08] border border-transparent hover:border-[#0C5847] font-medium'
+                            ? 'admin-nav-active border-emerald-400/50 translate-x-0.5'
+                            : 'admin-nav-inactive border-transparent hover:translate-x-0.5'
                         }`}
                       >
+                        {/* Active Left Indicator Bar */}
+                        {isActive && !isSidebarCollapsed && (
+                          <span className="absolute -left-1 top-2 bottom-2 w-1.5 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_10px_#F59E0B]" />
+                        )}
+
                         <div className="flex items-center gap-2.5 min-w-0">
                           <Icon
-                            className={`w-4 h-4 flex-shrink-0 transition-colors ${
+                            className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${
                               isActive
-                                ? 'text-amber-300 drop-shadow-sm'
-                                : 'text-emerald-300 group-hover:text-amber-300'
+                                ? '!text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]'
+                                : '!text-emerald-300 group-hover:!text-white group-hover:scale-110'
                             }`}
                           />
                           {!isSidebarCollapsed && (
-                            <span className={`truncate text-xs ${isActive ? 'text-white font-bold' : 'text-emerald-100 group-hover:text-white'}`}>
+                            <span
+                              className={`truncate text-xs tracking-wide transition-colors ${
+                                isActive ? '!text-white font-bold drop-shadow-xs' : '!text-emerald-100 group-hover:!text-white'
+                              }`}
+                            >
                               {item.name}
                             </span>
                           )}
@@ -474,17 +541,17 @@ function AdminLayoutInner({
                           <div className="flex items-center gap-1.5 shrink-0">
                             {item.badge && item.badge > 0 && (
                               <span
-                                className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full ${
+                                className={`px-2 py-0.5 text-[9px] font-black rounded-full transition-all ${
                                   isActive
-                                    ? 'bg-amber-400 text-[#022D24] shadow-xs'
-                                    : 'bg-[#064B3C] text-amber-300 border border-amber-500/40'
+                                    ? 'bg-amber-400 text-slate-950 shadow-[0_2px_8px_rgba(245,158,11,0.5)]'
+                                    : 'bg-emerald-800/90 text-emerald-100 border border-emerald-600/50'
                                 }`}
                               >
                                 {item.badge}
                               </span>
                             )}
                             {isActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#F59E0B]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_#F59E0B] animate-pulse" />
                             )}
                           </div>
                         )}
@@ -499,56 +566,86 @@ function AdminLayoutInner({
 
         {/* Sidebar Footer & User Profile Row */}
         <div
-          style={{ backgroundColor: '#011914' }}
-          className="p-2.5 border-t border-[#094738] space-y-1.5 shrink-0"
+          className="relative p-2.5 border-t border-emerald-800/80 bg-[#021813]/90 space-y-1.5 shrink-0"
         >
           {!isSidebarCollapsed ? (
             <>
               {/* User Profile Mini Row */}
               <div className="flex items-center justify-between px-1 py-1">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#065E4D] to-[#023126] text-amber-300 border border-amber-400/40 flex items-center justify-center font-bold text-[11px] shadow-xs shrink-0">
-                    {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative group/sideavatar shrink-0">
+                    <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center">
+                      {user?.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user?.name || 'Admin'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-slate-950 flex items-center justify-center font-black text-xs">
+                          {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                        </div>
+                      )}
+                    </div>
+                    {/* Quick Camera Upload Button */}
+                    <button
+                      type="button"
+                      onClick={() => sidebarFileInputRef.current?.click()}
+                      disabled={uploadAvatarMutation.isPending}
+                      title="Upload/Change Photo"
+                      className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center shadow-xs ring-1 ring-[#021813] transition-transform hover:scale-110 cursor-pointer"
+                    >
+                      {uploadAvatarMutation.isPending ? (
+                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                      ) : (
+                        <Camera className="w-2.5 h-2.5" />
+                      )}
+                    </button>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-white truncate leading-tight">
+
+                  <Link
+                    href="/admin/profile"
+                    title="Open Profile Page"
+                    className="min-w-0 group/namelink hover:opacity-90 transition-opacity"
+                  >
+                    <p className="text-xs font-bold !text-white truncate leading-tight group-hover/namelink:underline">
                       {user?.name || 'Administrator'}
                     </p>
-                    <p className="text-[9px] text-amber-300/90 font-semibold flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <p className="text-[10px] !text-emerald-300 font-medium flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 !text-emerald-400 shrink-0" />
                       <span>Master Admin</span>
                     </p>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Desktop Collapse Toggle */}
                 <button
                   onClick={() => setIsSidebarCollapsed(true)}
                   title="Collapse Sidebar"
-                  className="hidden lg:flex p-1 rounded-lg text-emerald-300/80 hover:text-white hover:bg-white/10 transition-colors"
+                  className="hidden lg:flex p-1 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors"
                 >
                   <PanelLeftClose className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Quick Actions Row */}
-              <div className="pt-1 flex items-center gap-1">
+              <div className="pt-1 flex items-center gap-1.5">
                 <Link
                   href="/"
                   target="_blank"
                   title="Open live storefront"
-                  className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-medium text-emerald-200 hover:text-white hover:bg-white/10 border border-emerald-900/60 hover:border-[#0F5A4A] transition-all bg-emerald-950/40"
+                  className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold !text-emerald-100 hover:!text-white bg-emerald-900/60 hover:bg-emerald-600 border border-emerald-600/50 shadow-xs transition-all duration-200"
                 >
-                  <ExternalLink className="w-3 h-3 text-emerald-300" />
+                  <ExternalLink className="w-3.5 h-3.5 !text-emerald-300" />
                   <span>Store</span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
                   title="Exit Admin Portal"
-                  className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-rose-300 hover:text-white hover:bg-rose-950/80 border border-rose-950/60 hover:border-rose-800/60 transition-all bg-rose-950/30"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold !text-rose-100 hover:!text-white bg-rose-950/60 hover:bg-rose-600 border border-rose-600/50 shadow-xs transition-all duration-200 cursor-pointer"
                 >
-                  <LogOut className="w-3 h-3" />
+                  <LogOut className="w-3.5 h-3.5 !text-rose-300" />
                   <span>Exit</span>
                 </button>
               </div>
@@ -558,22 +655,42 @@ function AdminLayoutInner({
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
                 title="Expand Sidebar"
-                className="p-1.5 rounded-lg text-emerald-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors"
               >
                 <PanelLeft className="w-4 h-4" />
               </button>
 
-              <div
-                title={user?.name || 'Administrator'}
-                className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#065E4D] to-[#023126] text-amber-300 border border-amber-400/40 flex items-center justify-center font-bold text-[11px] shadow-xs"
-              >
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+              <div className="relative group/colavatar">
+                <div
+                  title={user?.name || 'Administrator'}
+                  className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center"
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user?.name || 'Admin'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-slate-950 flex items-center justify-center font-black text-xs">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => sidebarFileInputRef.current?.click()}
+                  title="Upload/Change Photo"
+                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs cursor-pointer hover:bg-amber-300"
+                >
+                  <Camera className="w-2.5 h-2.5" />
+                </button>
               </div>
 
               <button
                 onClick={handleLogout}
                 title="Exit Admin Portal"
-                className="p-1.5 rounded-lg text-rose-400 hover:text-rose-200 hover:bg-rose-950/60 transition-colors"
+                className="p-1.5 rounded-lg !text-rose-300 hover:!text-rose-100 hover:bg-rose-900/50 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -586,9 +703,6 @@ function AdminLayoutInner({
       {/* 2. MAIN ADMIN CONTENT AREA & EXECUTIVE HEADER                             */}
       {/* ========================================================================= */}
       <div
-        style={{
-          backgroundColor: '#011C16',
-        }}
         className={`flex-1 ${
           isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-56'
         } flex flex-col min-h-screen transition-all duration-300`}
@@ -596,16 +710,15 @@ function AdminLayoutInner({
         {/* Top Navbar */}
         <header
           style={{
-            backgroundColor: '#02241D',
-            backgroundImage: 'linear-gradient(90deg, #02241D 0%, #033026 50%, #02241D 100%)',
+            backgroundColor: 'rgba(255, 255, 255, 0.88)',
           }}
-          className="h-16 border-b border-[#0C4E40] shadow-md px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors text-amber-300"
+          className="h-16 border-b border-slate-200/80 shadow-xs backdrop-blur-xl px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors text-slate-800"
         >
           {/* Left: Mobile Trigger + Breadcrumb + Status Badge */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl shrink-0 text-amber-300 hover:text-amber-100 hover:bg-white/10 transition-colors"
+              className="lg:hidden p-2 rounded-xl shrink-0 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
@@ -613,14 +726,14 @@ function AdminLayoutInner({
 
             {/* Breadcrumb Navigation Pill */}
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#146654] bg-[#03362B]/85 text-xs font-medium shadow-sm truncate">
-                <span className="hidden sm:inline text-[11px] font-medium text-amber-200/75">
+              <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200/90 bg-slate-100/90 text-xs font-medium shadow-xs truncate">
+                <span className="hidden sm:inline text-[11px] font-medium text-slate-500">
                   Admin
                 </span>
-                <span className="hidden sm:inline text-amber-400/50">/</span>
+                <span className="hidden sm:inline text-slate-300">/</span>
                 <div className="flex items-center gap-1.5 truncate">
-                  <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-amber-300" />
-                  <span className="font-bold truncate text-amber-300 tracking-wide">
+                  <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <span className="font-bold truncate text-slate-900 tracking-wide">
                     {activePage.name}
                   </span>
                 </div>
@@ -636,8 +749,8 @@ function AdminLayoutInner({
               title={isMuted ? 'Unmute Notification Sound' : 'Mute Notification Sound'}
               className={`p-2 rounded-xl border transition-all ${
                 isMuted
-                  ? 'border-[#0D5545] bg-[#022D24] text-amber-200/50 hover:text-amber-200'
-                  : 'border-[#146654] bg-[#03362B] text-amber-300 hover:bg-[#054E3F] hover:text-amber-200 shadow-sm'
+                  ? 'border-slate-300 bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200'
+                  : 'border-slate-300 bg-white text-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 shadow-xs'
               }`}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -649,14 +762,14 @@ function AdminLayoutInner({
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={`p-2 rounded-xl border transition-all relative ${
                   isNotificationsOpen
-                    ? 'border-amber-400/70 bg-[#054E3F] text-amber-300 ring-2 ring-amber-400/30'
-                    : 'border-[#146654] bg-[#03362B] text-amber-300 hover:bg-[#054E3F] hover:text-amber-200 shadow-sm'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
+                    : 'border-slate-300 bg-white text-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 shadow-xs'
                 }`}
                 aria-label="Toggle notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-amber-400 text-[#02241D] rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-[#02241D] animate-bounce">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white animate-bounce">
                     {unreadCount}
                   </span>
                 )}
@@ -665,13 +778,12 @@ function AdminLayoutInner({
               {/* Enhanced Notification Popover Panel */}
               {isNotificationsOpen && (
                 <div
-                  style={{ backgroundColor: '#02241D' }}
-                  className="fixed inset-x-3 top-16 max-w-sm mx-auto sm:static sm:absolute sm:inset-auto sm:right-0 sm:mt-3 sm:w-96 sm:max-w-none rounded-2xl border border-[#0C4E40] shadow-2xl shadow-black/80 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl"
+                  className="fixed inset-x-3 top-16 max-w-sm mx-auto sm:static sm:absolute sm:inset-auto sm:right-0 sm:mt-3 sm:w-96 sm:max-w-none rounded-2xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-2xl"
                 >
-                  <div className="p-3.5 border-b border-[#0C4E40] bg-[#011B16] flex items-center justify-between">
+                  <div className="p-3.5 border-b border-slate-200/80 bg-slate-50/90 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                      <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                         Realtime Telemetry
                       </span>
                     </div>
@@ -679,14 +791,14 @@ function AdminLayoutInner({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleTestChime}
-                        className="text-[10px] px-2 py-0.5 rounded-lg border border-amber-400/40 bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 font-semibold transition-colors"
+                        className="text-[10px] px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 font-semibold transition-colors shadow-xs"
                       >
                         Test Chime
                       </button>
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className="text-[10px] text-amber-300 hover:text-amber-100 hover:underline font-semibold"
+                          className="text-[10px] text-emerald-700 hover:text-emerald-900 hover:underline font-semibold"
                         >
                           Mark all read
                         </button>
@@ -695,14 +807,14 @@ function AdminLayoutInner({
                   </div>
 
                   {/* Notification Items List */}
-                  <div className="max-h-80 overflow-y-auto divide-y divide-emerald-500/15">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center">
-                        <Clock className="w-8 h-8 mx-auto mb-2 opacity-40 text-amber-300/60" />
-                        <p className="text-xs font-medium text-emerald-200/80">
+                        <Clock className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                        <p className="text-xs font-medium text-slate-600">
                           No dispatch signals logged yet
                         </p>
-                        <p className="text-[10px] mt-0.5 text-emerald-300/50">
+                        <p className="text-[10px] mt-0.5 text-slate-400">
                           Listening for incoming orders...
                         </p>
                       </div>
@@ -713,20 +825,20 @@ function AdminLayoutInner({
                           className={`p-3.5 flex items-start gap-3 transition-colors ${
                             item.read
                               ? 'bg-transparent opacity-65'
-                              : 'bg-emerald-950/40'
+                              : 'bg-emerald-50/40'
                           }`}
                         >
-                          <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-amber-300 flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-500/30">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-200">
                             <ShoppingBag className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-1">
-                              <p className="text-xs font-bold truncate text-white">
+                              <p className="text-xs font-bold truncate text-slate-900">
                                 {item.title}
                               </p>
-                              <span className="text-[9px] text-amber-300/70">{item.timestamp}</span>
+                              <span className="text-[9px] text-slate-400">{item.timestamp}</span>
                             </div>
-                            <p className="text-[11px] mt-0.5 leading-snug line-clamp-2 text-emerald-100/80">
+                            <p className="text-[11px] mt-0.5 leading-snug line-clamp-2 text-slate-600">
                               {item.message}
                             </p>
                             {item.link && (
@@ -738,7 +850,7 @@ function AdminLayoutInner({
                                     prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
                                   );
                                 }}
-                                className="text-[10px] font-bold text-amber-300 hover:text-amber-100 hover:underline mt-1.5 inline-flex items-center gap-1"
+                                className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline mt-1.5 inline-flex items-center gap-1"
                               >
                                 <span>Inspect Consignment</span>
                                 <ChevronRight className="w-2.5 h-2.5" />
@@ -758,60 +870,155 @@ function AdminLayoutInner({
               href="/"
               target="_blank"
               title="View Storefront"
-              className="text-xs p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 transition-all font-semibold shadow-sm border border-[#146654] bg-[#03362B] text-amber-300 hover:bg-[#054E3F] hover:text-amber-200 shrink-0"
+              className="text-xs p-2 sm:px-3.5 sm:py-2 rounded-xl flex items-center gap-1.5 transition-all font-bold shadow-xs border border-emerald-300/90 bg-emerald-50/80 text-emerald-900 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 shrink-0"
             >
               <span className="hidden sm:inline">Storefront</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-amber-300 shrink-0" />
             </Link>
 
             {/* Admin Avatar Profile Menu Trigger */}
             <div className="relative" ref={profileDropdownRef}>
               <button
                 onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-                className="flex items-center gap-2 p-1 sm:pl-1 sm:pr-2.5 sm:py-1 rounded-xl border border-[#146654] bg-[#03362B] hover:bg-[#054E3F] text-amber-300 shadow-sm transition-all"
+                className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3 sm:py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-900 shadow-xs transition-all font-semibold cursor-pointer"
                 aria-label="Admin Profile Options"
               >
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#065E4D] to-[#023126] text-amber-300 border border-amber-400/40 flex items-center justify-center font-bold text-xs shrink-0">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs bg-emerald-900 flex items-center justify-center">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user?.name || 'Admin'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center font-bold text-xs">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                  )}
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-xs font-bold leading-tight truncate max-w-[90px] text-amber-300">
+                  <p className="text-xs font-bold leading-tight truncate max-w-[90px] text-slate-900">
                     {user?.name || 'Admin'}
                   </p>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-300/70 hidden sm:block" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
               </button>
 
-              {/* Profile Dropdown Menu */}
+              {/* Profile Dropdown Menu with Avatar Actions */}
               {isAdminDropdownOpen && (
                 <div
-                  style={{ backgroundColor: '#02241D' }}
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-[#0C4E40] shadow-2xl shadow-black/80 backdrop-blur-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                  className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
                 >
-                  <div className="p-2.5 border-b border-[#0C4E40] mb-1 rounded-xl bg-[#011B16]">
-                    <p className="text-xs font-bold truncate text-amber-300">
-                      {user?.name || 'Master Administrator'}
-                    </p>
-                    <p className="text-[10px] truncate mt-0.5 text-emerald-200/70">
-                      {user?.email || 'admin@attardepot.com'}
-                    </p>
-                    <span className="inline-block mt-1.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                      Super Administrator
-                    </span>
+                  <div className="p-3 border-b border-slate-200/80 mb-2 rounded-xl bg-slate-50 flex items-center gap-3">
+                    <div className="relative group/avatar shrink-0">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-emerald-500/30 shadow-sm bg-slate-100 flex items-center justify-center">
+                        {user?.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user?.name || 'Admin'}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center font-bold text-base">
+                            {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                          </div>
+                        )}
+                      </div>
+                      {/* Quick Camera Overlay Icon on Avatar */}
+                      <button
+                        type="button"
+                        onClick={() => headerFileInputRef.current?.click()}
+                        disabled={uploadAvatarMutation.isPending}
+                        title="Upload/Change Photo"
+                        className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md ring-2 ring-white transition-transform hover:scale-110 cursor-pointer"
+                      >
+                        {uploadAvatarMutation.isPending ? (
+                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        ) : (
+                          <Camera className="w-2.5 h-2.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold truncate text-slate-900">
+                        {user?.name || 'Master Administrator'}
+                      </p>
+                      <p className="text-[10px] truncate text-slate-500">
+                        {user?.email || 'admin@attardepot.com'}
+                      </p>
+                      <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        Super Admin
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Photo Actions Row (Upload & Delete) */}
+                  <div className="grid grid-cols-2 gap-1.5 pb-2 mb-2 border-b border-slate-200/80">
+                    <button
+                      type="button"
+                      onClick={() => headerFileInputRef.current?.click()}
+                      disabled={uploadAvatarMutation.isPending}
+                      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 shadow-xs transition-colors cursor-pointer"
+                    >
+                      {uploadAvatarMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Camera className="w-3 h-3" />
+                      )}
+                      <span>{user?.avatar ? 'Change' : 'Upload'}</span>
+                    </button>
+
+                    {user?.avatar ? (
+                      <button
+                        type="button"
+                        onClick={handleDeleteAvatar}
+                        disabled={updateProfileMutation.isPending}
+                        className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 border border-rose-500 shadow-xs transition-colors cursor-pointer"
+                      >
+                        {updateProfileMutation.isPending ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3 h-3" />
+                        )}
+                        <span>Remove</span>
+                      </button>
+                    ) : (
+                      <Link
+                        href="/admin/profile"
+                        onClick={() => setIsAdminDropdownOpen(false)}
+                        className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-300 shadow-xs transition-colors"
+                      >
+                        <UserCheck className="w-3 h-3" />
+                        <span>Profile</span>
+                      </Link>
+                    )}
                   </div>
 
                   <div className="space-y-0.5">
                     <Link
+                      href="/admin/profile"
+                      onClick={() => setIsAdminDropdownOpen(false)}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-emerald-50 text-slate-800 hover:text-emerald-800"
+                    >
+                      <span className="flex items-center gap-2">
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Profile & Security</span>
+                      </span>
+                      <ChevronRight className="w-3 h-3 opacity-60 text-slate-400" />
+                    </Link>
+
+                    <Link
                       href="/"
                       target="_blank"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors hover:bg-white/10 text-emerald-100 hover:text-amber-300"
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-emerald-50 text-slate-800 hover:text-emerald-800"
                     >
                       <span className="flex items-center gap-2">
-                        <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+                        <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
                         <span>View Live Store</span>
                       </span>
-                      <ChevronRight className="w-3 h-3 opacity-60 text-amber-400/70" />
+                      <ChevronRight className="w-3 h-3 opacity-60 text-slate-400" />
                     </Link>
 
                     <button
@@ -819,7 +1026,7 @@ function AdminLayoutInner({
                         setIsAdminDropdownOpen(false);
                         handleLogout();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-950/70 rounded-xl transition-all"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-rose-700 hover:text-white hover:bg-rose-600 border border-rose-200 transition-all cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Exit Admin Portal</span>
@@ -828,6 +1035,22 @@ function AdminLayoutInner({
                 </div>
               )}
             </div>
+
+            {/* Hidden File Inputs for Header and Sidebar Profile Photo Upload */}
+            <input
+              ref={headerFileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/jpg"
+              className="hidden"
+              onChange={handleAvatarFileSelect}
+            />
+            <input
+              ref={sidebarFileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/jpg"
+              className="hidden"
+              onChange={handleAvatarFileSelect}
+            />
           </div>
         </header>
 
@@ -839,10 +1062,9 @@ function AdminLayoutInner({
         {/* Mobile Sticky Bottom Navigation Bar */}
         <nav
           style={{
-            backgroundColor: '#02241D',
-            backgroundImage: 'linear-gradient(90deg, #02241D 0%, #033026 50%, #02241D 100%)',
+            background: 'linear-gradient(180deg, #053b2f 0%, #03271f 100%)',
           }}
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#0C4E40] shadow-[0_-4px_25px_rgba(0,0,0,0.5)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-800/80 shadow-[0_-4px_24px_rgba(2,31,25,0.4)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around"
           aria-label="Mobile Navigation"
         >
           {allNavItems.map((item) => {
@@ -854,23 +1076,27 @@ function AdminLayoutInner({
                 href={item.href}
                 className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
                   isActive
-                    ? 'text-amber-300 font-bold scale-105'
-                    : 'text-emerald-100/70 hover:text-amber-200'
+                    ? 'text-white font-bold scale-105'
+                    : 'text-emerald-200/70 hover:text-white'
                 }`}
               >
                 <div className="relative">
-                  <Icon className="w-5 h-5" />
+                  <Icon
+                    className={`w-5 h-5 transition-colors ${
+                      isActive ? 'text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]' : 'text-emerald-300/80'
+                    }`}
+                  />
                   {item.badge && item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] bg-amber-400 text-[#02241D] rounded-full text-[9px] font-bold flex items-center justify-center px-0.5">
+                    <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] bg-amber-400 text-slate-950 rounded-full text-[9px] font-black flex items-center justify-center px-0.5 shadow-sm">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] tracking-tight mt-0.5 whitespace-nowrap">
+                <span className={`text-[10px] tracking-tight mt-0.5 whitespace-nowrap ${isActive ? 'text-white font-bold' : 'text-emerald-200/75'}`}>
                   {item.name.split(' ')[0]}
                 </span>
                 {isActive && (
-                  <span className="w-1 h-1 rounded-full mt-0.5 bg-amber-400 shadow-[0_0_6px_#F59E0B]" />
+                  <span className="w-1 h-1 rounded-full mt-0.5 bg-amber-300 shadow-[0_0_6px_#F59E0B]" />
                 )}
               </Link>
             );

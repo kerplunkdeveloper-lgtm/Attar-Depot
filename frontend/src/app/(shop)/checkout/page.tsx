@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle, MapPin, Home, Briefcase } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle, MapPin, Home, Briefcase, LocateFixed, Loader2, AlertCircle } from 'lucide-react';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { clearCart } from '@/store/cartSlice';
 import { useCreateOrder } from '@/hooks/useOrders';
@@ -68,6 +69,25 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online' | 'UPI'>('COD');
   const [orderPlaced, setOrderPlaced] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const { fetchLocation, isLocating, error: geoError, clearError } = useGeolocation();
+
+  const handleUseMyLocation = async () => {
+    clearError();
+    const loc = await fetchLocation();
+    if (loc) {
+      setSelectedAddressId(null); // deselect saved address
+      setFormData((prev) => ({
+        ...prev,
+        address: loc.street || prev.address,
+        city: loc.city || prev.city,
+        state: loc.state || prev.state,
+        postalCode: loc.postalCode || prev.postalCode,
+        country: loc.country || 'India',
+      }));
+      toast.success(`Location detected: ${loc.displayName}`, { title: '📍 Location Found' });
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -225,7 +245,33 @@ export default function CheckoutPage() {
                   Consignment Shipping Address
                 </h2>
               </div>
+
+              {/* 📍 Use My Location Button */}
+              <button
+                type="button"
+                onClick={handleUseMyLocation}
+                disabled={isLocating}
+                className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-wider transition-all duration-200 font-sans
+                  bg-gradient-to-r from-emerald-50 to-emerald-100/80 border-emerald-300 text-emerald-800
+                  hover:from-emerald-600 hover:to-emerald-700 hover:text-white hover:border-emerald-600 hover:shadow-[0_0_14px_rgba(16,185,129,0.35)]
+                  disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+              >
+                {isLocating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <LocateFixed className="w-3.5 h-3.5 group-hover:animate-pulse" />
+                )}
+                <span>{isLocating ? 'Detecting...' : 'Use My Location'}</span>
+              </button>
             </div>
+
+            {/* Geo Error Banner */}
+            {geoError && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{geoError}</span>
+              </div>
+            )}
 
             {/* Saved Addresses Quick Selector */}
             {isAuthenticated && addresses.length > 0 && (

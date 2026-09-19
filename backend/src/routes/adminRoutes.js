@@ -4,6 +4,8 @@ import {
   getCustomers,
   getCustomerDetails,
   createCustomer,
+  updateCustomer,
+  deleteCustomer,
   updateCustomerStatus,
 } from '../controllers/adminController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
@@ -16,6 +18,9 @@ router.get('/stats', getAdminStats);
 router.get('/customers', getCustomers);
 router.post('/customers', createCustomer);
 router.get('/customers/:id', getCustomerDetails);
+router.put('/customers/:id', updateCustomer);
+router.delete('/customers/:id', deleteCustomer);
 router.put('/customers/:id/status', updateCustomerStatus);
 
 export default router;
+

@@ -125,11 +125,11 @@ export default function AdminOrdersPage() {
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
-              className={`px-3.5 py-1.5 rounded-xl font-medium transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs transition-all ${
                 selectedStatus === st
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold shadow-md'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold shadow-sm shadow-emerald-700/25 ring-1 ring-emerald-500/40'
                   : isLight
-                  ? 'text-emerald-900/70 hover:text-emerald-950 hover:bg-emerald-100/50'
+                  ? 'text-emerald-950 font-bold hover:bg-emerald-100/70'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -393,9 +393,7 @@ export default function AdminOrdersPage() {
                               trackingNumber: '',
                             })
                           }
-                          className={`text-[11px] font-bold hover:underline ${
-                            isLight ? 'text-emerald-700' : 'text-emerald-400'
-                          }`}
+                          className="text-xs font-bold px-2.5 py-1 rounded-lg border border-emerald-300/90 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-xs inline-block cursor-pointer"
                         >
                           + Add Tracking
                         </button>
@@ -453,14 +451,14 @@ export default function AdminOrdersPage() {
                 <button
                   type="button"
                   onClick={() => setTrackingModal(null)}
-                  className={`px-3 py-1.5 font-medium ${isLight ? 'text-slate-500 hover:text-slate-800' : 'text-neutral-400 hover:text-white'}`}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-300 transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={updateStatusMutation.isPending}
-                  className="px-4 py-1.5 rounded-xl font-bold uppercase tracking-wider text-[11px] text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-md shadow-emerald-950/30"
+                  className="px-4 py-1.5 rounded-xl font-extrabold uppercase tracking-wider text-xs text-white bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 shadow-md shadow-emerald-700/25 border border-emerald-500/40 transition-all cursor-pointer"
                 >
                   {updateStatusMutation.isPending ? 'Saving...' : 'Attach Number'}
                 </button>

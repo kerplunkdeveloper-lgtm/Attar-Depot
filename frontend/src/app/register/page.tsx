@@ -124,6 +124,9 @@ function RegisterFormContent() {
         if (data.user?.email) {
           setEmail(data.user.email);
         }
+        if (data.user?.title) {
+          setTitle(data.user.title);
+        }
         setStep('missing_fields');
       }
     } catch (err: any) {

@@ -443,22 +443,8 @@ export default function AdminCatalogTaxonomyPage() {
         }`}
       >
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              Dynamic Catalog Taxonomy Hub
-            </span>
-          </div>
-          <h1
-            className={`font-poppins text-2xl sm:text-3xl font-bold tracking-tight ${
-              isLight ? 'text-slate-900' : 'text-white'
-            }`}
-          >
-            Catalog Taxonomy & Attributes
-          </h1>
-          <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-            Manage dynamic Categories, Collections, Fragrance Notes & Occasions in one unified dashboard.
-          </p>
+          <h1 className={`font-poppins text-2xl sm:text-3xl font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'
+            }`}>All Categories</h1>
         </div>
 
         {/* Dynamic Action Button (Changes per Tab) */}
@@ -466,7 +452,7 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'categories' && (
             <button
               onClick={handleOpenCreateCategory}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/40 border border-emerald-400/30 active:scale-98"
+              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 text-amber-300" />
               <span>New Category</span>
@@ -476,7 +462,7 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'collections' && (
             <button
               onClick={handleOpenCreateCollection}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/40 border border-emerald-400/30 active:scale-98"
+              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 text-amber-300" />
               <span>Add Collection</span>
@@ -486,7 +472,7 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'notes' && (
             <button
               onClick={handleOpenCreateNote}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/40 border border-emerald-400/30 active:scale-98"
+              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 text-amber-300" />
               <span>New Fragrance Note</span>
@@ -496,7 +482,7 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'occasions' && (
             <button
               onClick={handleOpenCreateOccasion}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/40 border border-emerald-400/30 active:scale-98"
+              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 text-amber-300" />
               <span>New Occasion</span>
@@ -507,7 +493,7 @@ export default function AdminCatalogTaxonomyPage() {
             <Link
               href="/shop"
               target="_blank"
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/40 border border-emerald-400/30"
+              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95"
             >
               <ExternalLink className="w-4 h-4 text-amber-300" />
               <span>Open Storefront Shop</span>
@@ -608,11 +594,13 @@ export default function AdminCatalogTaxonomyPage() {
                   setActiveTab(tab.id as TabType);
                   setSearchTerm('');
                 }}
-                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 -mb-[2px] whitespace-nowrap flex-shrink-0 ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs font-extrabold uppercase tracking-wider transition-all border-b-2 -mb-[2px] whitespace-nowrap flex-shrink-0 cursor-pointer ${
                   isActive
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5 rounded-t-xl'
+                    ? isLight
+                      ? 'border-emerald-600 text-emerald-800 bg-emerald-50/90 rounded-t-xl shadow-xs'
+                      : 'border-emerald-500 text-emerald-300 bg-emerald-500/10 rounded-t-xl'
                     : isLight
-                    ? 'border-transparent text-slate-500 hover:text-slate-900'
+                    ? 'border-transparent text-slate-700 hover:text-slate-950 font-bold hover:bg-slate-50'
                     : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
@@ -620,11 +608,13 @@ export default function AdminCatalogTaxonomyPage() {
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span
-                    className={`text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-mono font-bold ${
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
                       isActive
-                        ? 'bg-emerald-500/20 text-emerald-300'
+                        ? isLight
+                          ? 'bg-emerald-200 text-emerald-950 font-black'
+                          : 'bg-emerald-500/20 text-emerald-300'
                         : isLight
-                        ? 'bg-slate-100 text-slate-600'
+                        ? 'bg-slate-200 text-slate-800 font-extrabold'
                         : 'bg-[#15231F] text-neutral-400'
                     }`}
                   >
@@ -666,12 +656,12 @@ export default function AdminCatalogTaxonomyPage() {
                 <button
                   key={fam}
                   onClick={() => setSelectedNoteFamily(fam)}
-                  className={`px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     selectedNoteFamily === fam
-                      ? 'bg-emerald-600 text-white shadow-xs'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold shadow-sm shadow-emerald-700/25 ring-1 ring-emerald-500/40'
                       : isLight
-                      ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                      : 'bg-[#0D1815] border border-[#1E332B] text-neutral-400 hover:text-white'
+                      ? 'bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 hover:text-slate-950 font-bold shadow-xs'
+                      : 'bg-[#0D1815] border border-[#1E332B] text-neutral-300 hover:text-white'
                   }`}
                 >
                   {fam}
@@ -752,13 +742,13 @@ export default function AdminCatalogTaxonomyPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" /> Active Storefront
                     </span>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleOpenEditCategory(cat)}
-                        className={`p-1.5 rounded-lg transition-colors ${
+                        className={`p-1.5 rounded-xl border transition-all shadow-xs cursor-pointer ${
                           isLight
-                            ? 'text-slate-400 hover:text-emerald-700 hover:bg-emerald-50'
-                            : 'text-neutral-400 hover:text-emerald-300 hover:bg-[#13221E]'
+                            ? 'border-slate-300 bg-white text-slate-800 hover:text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300'
+                            : 'border-[#1E332B] bg-[#0E1715] text-neutral-300 hover:text-emerald-300 hover:bg-[#13221E]'
                         }`}
                         title="Edit category"
                       >
@@ -766,7 +756,11 @@ export default function AdminCatalogTaxonomyPage() {
                       </button>
                       <button
                         onClick={() => handleDeleteCategory(cat._id, cat.name)}
-                        className="p-1.5 text-neutral-500 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors"
+                        className={`p-1.5 rounded-xl border transition-all shadow-xs cursor-pointer ${
+                          isLight
+                            ? 'border-slate-300 bg-white text-slate-700 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300'
+                            : 'border-[#1E332B] bg-[#0E1715] text-neutral-400 hover:text-rose-400 hover:bg-rose-950/30'
+                        }`}
                         title="Delete category"
                       >
                         <Trash2 className="w-4 h-4" />

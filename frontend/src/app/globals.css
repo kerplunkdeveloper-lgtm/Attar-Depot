@@ -12,11 +12,28 @@
   --ivory: #FAF8F2;
 }
 
+/* Luxury Royal Onyx & Golden Veined Marble Background System */
 body {
   color: var(--foreground);
-  background: #FFFFFF;
+  background-color: #FAF8F2;
+  background-image: 
+    radial-gradient(circle at 10% 8%, rgba(209, 250, 229, 0.40) 0%, transparent 45%),
+    radial-gradient(circle at 90% 20%, rgba(254, 243, 199, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(236, 253, 245, 0.50) 0%, transparent 55%),
+    linear-gradient(rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.48)),
+    url('/images/luxury-marble-bg.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   font-family: var(--font-inter), 'Inter', sans-serif;
   overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 /* Cormorant Garamond for Headings & Product Titles */
@@ -55,8 +72,10 @@ button, input, select, textarea, .font-sans, .font-inter {
 }
 
 .glass-card {
-  background: #FFFFFF;
-  border: 1px solid rgba(16, 185, 129, 0.14);
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.16);
   box-shadow: 0 4px 20px -2px rgba(5, 150, 105, 0.06);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -103,9 +122,9 @@ button, input, select, textarea, .font-sans, .font-inter {
 .pink-overlay-bg,
 .emerald-overlay-bg {
   background-image: 
-    radial-gradient(at 0% 0%, rgba(209, 250, 229, 0.60) 0px, transparent 45%),
-    radial-gradient(at 100% 0%, rgba(167, 243, 208, 0.45) 0px, transparent 45%),
-    radial-gradient(at 50% 100%, rgba(236, 253, 245, 0.70) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(209, 250, 229, 0.40) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(167, 243, 208, 0.30) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(236, 253, 245, 0.45) 0px, transparent 50%);
 }
 
 .emergent-emerald-glow {
@@ -344,22 +363,72 @@ button, input, select, textarea, .font-sans, .font-inter {
   color: #64748B !important;
 }
 
-/* Sidebar in Light Mode */
-.admin-light-mode aside {
-  background-color: #FFFFFF !important;
-  border-color: #E2EAE6 !important;
-  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.05) !important;
+/* Sidebar in Admin Portal (Attractive Royal Green Theme) */
+.admin-light-mode aside,
+.admin-dark-mode aside,
+aside.admin-sidebar {
+  background: linear-gradient(180deg, #053b2f 0%, #042e25 50%, #021f19 100%) !important;
+  background-color: #042e25 !important;
+  border-color: rgba(6, 95, 70, 0.6) !important;
+  box-shadow: 4px 0 30px rgba(2, 31, 25, 0.45) !important;
 }
 
 .admin-light-mode aside .border-b,
 .admin-light-mode aside .border-t {
-  border-color: #E2EAE6 !important;
+  border-color: rgba(6, 95, 70, 0.45) !important;
 }
 
-.admin-light-mode aside .bg-\[\#070D0B\],
-.admin-light-mode aside .bg-\[\#0E1815\] {
-  background-color: #F8FAF9 !important;
-  border-color: #E2EAE6 !important;
+/* Ensure sidebar typography retains its contrast against green background */
+.admin-light-mode aside .text-white,
+.admin-dark-mode aside .text-white,
+aside.admin-sidebar .text-white,
+.admin-light-mode aside span.text-white,
+.admin-light-mode aside p.text-white {
+  color: #FFFFFF !important;
+}
+
+.admin-light-mode aside .text-emerald-100,
+.admin-dark-mode aside .text-emerald-100 {
+  color: #D1FAE5 !important;
+}
+
+.admin-light-mode aside .text-emerald-200,
+.admin-dark-mode aside .text-emerald-200 {
+  color: #A7F3D0 !important;
+}
+
+.admin-light-mode aside .text-emerald-300,
+.admin-dark-mode aside .text-emerald-300 {
+  color: #6EE7B7 !important;
+}
+
+.admin-light-mode aside .text-emerald-400,
+.admin-dark-mode aside .text-emerald-400 {
+  color: #34D399 !important;
+}
+
+.admin-light-mode aside .admin-nav-active,
+aside.admin-sidebar .admin-nav-active {
+  background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%) !important;
+  border-color: rgba(110, 231, 183, 0.5) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35) !important;
+}
+
+.admin-light-mode aside .admin-nav-active *,
+aside.admin-sidebar .admin-nav-active * {
+  color: #FFFFFF !important;
+}
+
+.admin-light-mode aside .admin-nav-inactive,
+aside.admin-sidebar .admin-nav-inactive {
+  color: #D1FAE5 !important;
+}
+
+.admin-light-mode aside .admin-nav-inactive:hover,
+aside.admin-sidebar .admin-nav-inactive:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
 }
 
 /* Header in Light Mode */
@@ -435,9 +504,9 @@ button, input, select, textarea, .font-sans, .font-inter {
 .admin-light-mode thead,
 .admin-light-mode thead tr,
 .admin-light-mode thead th {
-  background-color: #F8FAF9 !important;
+  background-color: #206442 !important;
   border-color: #E2EAE6 !important;
-  color: #475569 !important;
+  color: #ffffff !important;
   font-weight: 700 !important;
 }
 

@@ -1,52 +1,55 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  User,
   UserPlus,
   Users,
-  UserX,
-  Plus,
+  ShoppingBag,
+  Star,
   Search,
-  Filter,
-  MoreHorizontal,
-  Phone,
-  Mail,
-  MessageCircle,
   MapPin,
-  Package,
-  ShieldBan,
-  Send,
-  X,
+  Eye,
+  MoreVertical,
+  Download,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   Check,
-  ExternalLink,
-  Square,
-  CheckSquare,
-  Sparkles,
-  ArrowUp,
+  X,
+  Edit,
+  Trash2,
+  ShieldBan,
+  Phone,
+  Mail,
+  MessageCircle,
+  Package,
   CreditCard,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
+  ArrowUp,
 } from 'lucide-react';
 import {
   useAdminCustomers,
   useAdminCustomerDetails,
   useAdminCreateCustomer,
+  useAdminUpdateCustomer,
+  useAdminDeleteCustomer,
   useAdminUpdateCustomerStatus,
 } from '@/hooks/useAdmin';
-import { formatPrice, formatDate } from '@/lib/utils';
-import { useAdminTheme } from '@/context/AdminThemeContext';
+import { formatPrice } from '@/lib/utils';
 import { Customer } from '@/types';
+import { toast } from '@/lib/toast';
 
-const AVATAR_COLORS = [
-  'bg-purple-100 text-purple-700',
-  'bg-blue-100 text-blue-700',
-  'bg-emerald-100 text-emerald-700',
-  'bg-amber-100 text-amber-700',
-  'bg-rose-100 text-rose-700',
-  'bg-teal-100 text-teal-700',
+const AVATAR_PALETTES = [
+  'bg-emerald-100 text-emerald-800 border-emerald-300',
+  'bg-blue-100 text-blue-800 border-blue-300',
+  'bg-purple-100 text-purple-800 border-purple-300',
+  'bg-amber-100 text-amber-800 border-amber-300',
+  'bg-rose-100 text-rose-800 border-rose-300',
+  'bg-teal-100 text-teal-800 border-teal-300',
+  'bg-sky-100 text-sky-800 border-sky-300',
 ];
 
 const getInitials = (name: string) => {
@@ -57,13 +60,42 @@ const getInitials = (name: string) => {
   return (name || '').slice(0, 2).toUpperCase();
 };
 
-export default function AdminCustomersPage() {
-  const { theme } = useAdminTheme();
-  const isLight = theme === 'light';
+const formatJoinedDate = (dateStr: string) => {
+  if (!dateStr) return 'Recently';
+  const d = new Date(dateStr);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleDateString('en-GB', { month: 'short' });
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+};
 
+const formatLastOrder = (dateStr?: string | null) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleDateString('en-GB', { month: 'short' });
+  const year = d.getFullYear();
+  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return { date: `${day} ${month} ${year}`, time };
+};
+
+const getCustomerLocation = (cust: Customer) => {
+  const addr = cust.latestShippingAddress || (cust.addresses && cust.addresses[0]);
+  if (!addr) return 'Not set';
+  const city = (addr as any).city;
+  const state = (addr as any).state;
+  if (city && state) return `${city}, ${state}`;
+  if (city) return city;
+  if (state) return state;
+  return 'India';
+};
+
+export default function AdminCustomersPage() {
   // API Data
   const { data, isLoading } = useAdminCustomers();
   const createCustomerMutation = useAdminCreateCustomer();
+  const updateCustomerMutation = useAdminUpdateCustomer();
+  const deleteCustomerMutation = useAdminDeleteCustomer();
   const updateStatusMutation = useAdminUpdateCustomerStatus();
 
   // Pure real database customers
@@ -71,18 +103,39 @@ export default function AdminCustomersPage() {
     return data?.customers || [];
   }, [data]);
 
-  // States
+  // UI States
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'new' | 'blocked'>('all');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'VIP' | 'Inactive' | 'Blocked'>('All');
+  const [locationFilter, setLocationFilter] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'spent' | 'orders' | 'name'>('newest');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'overview' | 'orders' | 'addresses' | 'payments'>('overview');
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
+  // Edit Customer Modal State
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    title: '',
+    email: '',
+    phone: '',
+    status: 'Active' as 'Active' | 'Inactive' | 'Blocked',
+    address: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'India',
+  });
+  const [editError, setEditError] = useState('');
+
+  // Delete Customer Confirmation Modal State
+  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 8; // Exactly matches reference layout
 
   // Add Customer Form state
   const [newCustForm, setNewCustForm] = useState({
@@ -97,102 +150,232 @@ export default function AdminCustomersPage() {
   });
   const [formError, setFormError] = useState('');
 
-  // Selected customer object for right panel
+  // Selected customer object for preview drawer/modal (Fix: null when selectedCustomerId is null!)
   const selectedCustomer = useMemo(() => {
-    if (allCustomers.length === 0) return null;
-    return allCustomers.find((c) => c._id === selectedCustomerId) || allCustomers[0] || null;
+    if (!selectedCustomerId) return null;
+    return allCustomers.find((c) => c._id === selectedCustomerId) || null;
   }, [allCustomers, selectedCustomerId]);
 
   // Hook for detailed customer orders from database
-  const { data: realCustomerDetails, isLoading: isCustomerDetailsLoading } = useAdminCustomerDetails(
-    selectedCustomer ? selectedCustomer._id : null
+  const { data: customerDetailsData, isLoading: isCustomerDetailsLoading } = useAdminCustomerDetails(
+    selectedCustomerId || ''
   );
+  const realCustomerDetails = customerDetailsData?.customer;
 
-  // KPI Calculations
-  const totalCount = allCustomers.length;
-  const activeCount = allCustomers.filter((c) => (c.status || 'Active') === 'Active').length;
-  const newCount = allCustomers.filter((c) => {
-    const joined = new Date(c.createdAt).getTime();
-    return Date.now() - joined < 30 * 24 * 60 * 60 * 1000;
-  }).length;
-  const blockedCount = allCustomers.filter((c) => c.status === 'Blocked').length;
-
-  // Filtered customers
-  const filteredCustomers = useMemo(() => {
-    return allCustomers.filter((c) => {
-      // Tab filter
-      if (activeTab === 'active' && (c.status || 'Active') !== 'Active') return false;
-      if (activeTab === 'blocked' && c.status !== 'Blocked') return false;
-      if (activeTab === 'new') {
-        const joined = new Date(c.createdAt).getTime();
-        if (Date.now() - joined >= 30 * 24 * 60 * 60 * 1000) return false;
+  // ESC key to close preview drawer & dropdowns
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedCustomerId(null);
+        setActiveMenuId(null);
       }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-      // Search query
-      if (searchTerm.trim()) {
-        const q = searchTerm.toLowerCase().trim();
-        const matches =
-          c.name.toLowerCase().includes(q) ||
-          (c.email || '').toLowerCase().includes(q) ||
-          (c.phone || '').includes(q) ||
-          (c.latestShippingAddress?.city || '').toLowerCase().includes(q);
-        if (!matches) return false;
+  // Close dropdown on clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (activeMenuId && !(e.target as HTMLElement).closest('.action-menu-container')) {
+        setActiveMenuId(null);
       }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [activeMenuId]);
 
-      return true;
+  // Distinct locations for filter dropdown
+  const distinctLocations = useMemo(() => {
+    const locSet = new Set<string>();
+    allCustomers.forEach((c) => {
+      const loc = getCustomerLocation(c);
+      if (loc && loc !== 'Not set') {
+        locSet.add(loc);
+      }
     });
-  }, [allCustomers, activeTab, searchTerm]);
+    return Array.from(locSet).sort();
+  }, [allCustomers]);
 
-  // Paginated customers
-  const totalPages = Math.ceil(filteredCustomers.length / pageSize) || 1;
+  // Computed summary metrics from real database data
+  const summary = useMemo(() => {
+    const total = allCustomers.length;
+    const active = allCustomers.filter((c) => c.status === 'Active').length;
+    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const newCusts = allCustomers.filter((c) => new Date(c.createdAt) >= oneMonthAgo).length;
+    const totalSpent = allCustomers.reduce((acc, c) => acc + (c.totalSpent || 0), 0);
+    const activePercent = total > 0 ? Math.round((active / total) * 100) : 0;
+
+    return {
+      total,
+      active,
+      newCusts,
+      totalSpent,
+      activePercent,
+    };
+  }, [allCustomers]);
+
+  // Filtered and Sorted Customers
+  const filteredCustomers = useMemo(() => {
+    return allCustomers
+      .filter((c) => {
+        // Search Filter
+        const term = searchTerm.toLowerCase();
+        const matchesSearch =
+          (c.name || '').toLowerCase().includes(term) ||
+          (c.email || '').toLowerCase().includes(term) ||
+          (c.phone || '').includes(term) ||
+          (c._id || '').toLowerCase().includes(term);
+
+        if (!matchesSearch) return false;
+
+        // Status Filter
+        if (statusFilter === 'Active') return c.status === 'Active';
+        if (statusFilter === 'Inactive') return c.status === 'Inactive';
+        if (statusFilter === 'Blocked') return c.status === 'Blocked';
+        if (statusFilter === 'VIP') return (c.ordersCount || 0) >= 5 || (c.totalSpent || 0) >= 5000;
+
+        // Location Filter
+        if (locationFilter !== 'All') {
+          const loc = getCustomerLocation(c);
+          if (loc !== locationFilter) return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        if (sortBy === 'spent') return (b.totalSpent || 0) - (a.totalSpent || 0);
+        if (sortBy === 'orders') return (b.ordersCount || 0) - (a.ordersCount || 0);
+        if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
+        return 0;
+      });
+  }, [allCustomers, searchTerm, statusFilter, locationFilter, sortBy]);
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(filteredCustomers.length / pageSize));
   const paginatedCustomers = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredCustomers.slice(start, start + pageSize);
   }, [filteredCustomers, currentPage, pageSize]);
 
-  // Checkbox select all
+  // Bulk selection handlers
   const handleSelectAll = () => {
-    if (selectedRows.size === paginatedCustomers.length) {
+    if (selectedRows.size === paginatedCustomers.length && paginatedCustomers.length > 0) {
       setSelectedRows(new Set());
     } else {
       setSelectedRows(new Set(paginatedCustomers.map((c) => c._id)));
     }
   };
 
-  const handleToggleRow = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSelectRow = (id: string) => {
     const next = new Set(selectedRows);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     setSelectedRows(next);
   };
 
-  // Toggle block status
+  // Status toggle handler
   const handleToggleBlock = async (cust: Customer) => {
-    const nextStatus = cust.status === 'Blocked' ? 'Active' : 'Blocked';
     try {
+      const nextStatus = cust.status === 'Blocked' ? 'Active' : 'Blocked';
       await updateStatusMutation.mutateAsync({ id: cust._id, status: nextStatus });
-      cust.status = nextStatus;
+      toast.success(
+        nextStatus === 'Blocked'
+          ? `Customer ${cust.name} has been blocked.`
+          : `Customer ${cust.name} has been unblocked.`
+      );
       setActiveMenuId(null);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error('Failed to update customer status');
     }
   };
 
-  // Submit New Customer
+  // Open Edit Modal
+  const handleOpenEdit = (cust: Customer) => {
+    const addr = cust.latestShippingAddress || (cust.addresses && cust.addresses[0]);
+    setEditingCustomer(cust);
+    setEditForm({
+      name: cust.name || '',
+      title: cust.title || '',
+      email: cust.email || '',
+      phone: cust.phone || '',
+      status: (cust.status as any) || 'Active',
+      address: (addr as any)?.street || (addr as any)?.address || '',
+      city: (addr as any)?.city || '',
+      state: (addr as any)?.state || '',
+      postalCode: (addr as any)?.postalCode || '',
+      country: (addr as any)?.country || 'India',
+    });
+    setEditError('');
+    setActiveMenuId(null);
+  };
+
+  // Submit Edit Customer
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+    setEditError('');
+
+    if (!editForm.name.trim()) {
+      setEditError('Customer name is required');
+      return;
+    }
+
+    try {
+      await updateCustomerMutation.mutateAsync({
+        id: editingCustomer._id,
+        data: editForm,
+      });
+      toast.success('Customer details updated successfully!');
+      setEditingCustomer(null);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to update customer';
+      setEditError(msg);
+      toast.error(msg);
+    }
+  };
+
+  // Open Delete Confirmation Modal
+  const handleOpenDelete = (cust: Customer) => {
+    setDeletingCustomer(cust);
+    setActiveMenuId(null);
+  };
+
+  // Submit Delete Customer
+  const handleConfirmDelete = async () => {
+    if (!deletingCustomer) return;
+    try {
+      await deleteCustomerMutation.mutateAsync(deletingCustomer._id);
+      toast.success(`Customer "${deletingCustomer.name}" has been deleted.`);
+      if (selectedCustomerId === deletingCustomer._id) {
+        setSelectedCustomerId(null);
+      }
+      setDeletingCustomer(null);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to delete customer';
+      toast.error(msg);
+    }
+  };
+
+  // Submit Add New Customer
   const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
+
     if (!newCustForm.name.trim()) {
-      setFormError('Please enter customer full name');
+      setFormError('Name is required');
+      return;
+    }
+    if (!newCustForm.email.trim() && !newCustForm.phone.trim()) {
+      setFormError('Provide at least an email or phone number');
       return;
     }
 
     try {
       await createCustomerMutation.mutateAsync(newCustForm);
+      toast.success('Customer registered successfully!');
       setIsAddModalOpen(false);
       setNewCustForm({
         name: '',
@@ -205,1109 +388,1256 @@ export default function AdminCustomersPage() {
         country: 'India',
       });
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to create customer');
+      const msg = err.response?.data?.message || 'Failed to create customer';
+      setFormError(msg);
+      toast.error(msg);
     }
   };
 
-  const avgOrderValue =
-    selectedCustomer && selectedCustomer.ordersCount > 0
-      ? Math.round(selectedCustomer.totalSpent / selectedCustomer.ordersCount)
-      : 0;
+  // Export to CSV
+  const handleExportCSV = () => {
+    if (filteredCustomers.length === 0) {
+      toast.error('No customer records to export');
+      return;
+    }
+
+    const headers = ['Customer ID', 'Name', 'Email', 'Phone', 'Location', 'Orders', 'Total Spent', 'Status', 'Joined Date'];
+    const rows = filteredCustomers.map((c) => [
+      c._id,
+      `"${(c.name || '').replace(/"/g, '""')}"`,
+      `"${(c.email || '').replace(/"/g, '""')}"`,
+      `"${(c.phone || '').replace(/"/g, '""')}"`,
+      `"${getCustomerLocation(c).replace(/"/g, '""')}"`,
+      c.ordersCount || 0,
+      c.totalSpent || 0,
+      c.status || 'Active',
+      formatJoinedDate(c.createdAt),
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `customers_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Customer directory exported successfully!');
+  };
+
+  const avgOrderValue = useMemo(() => {
+    if (!selectedCustomer || !selectedCustomer.ordersCount || selectedCustomer.ordersCount === 0) return 0;
+    return Math.round((selectedCustomer.totalSpent || 0) / selectedCustomer.ordersCount);
+  }, [selectedCustomer]);
 
   return (
-    <div className={isLight ? 'space-y-6 pb-12 font-sans text-slate-800' : 'space-y-6 pb-12 font-sans text-neutral-100'}>
-      {/* 1. Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-[1600px] mx-auto text-slate-800 antialiased">
+      {/* ─── 1. TOP HEADER & BREADCRUMBS ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className={`text-2xl sm:text-[28px] font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Customers
           </h1>
-          <p className={`text-xs sm:text-sm mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-            Manage your customers and view their details
+          <p className="text-sm text-slate-500 mt-1">
+            Manage your customers, view details and track their orders.
           </p>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-sm self-start sm:self-auto ${
-            isLight
-              ? 'bg-[#111827] hover:bg-[#1f2937] text-white active:scale-98'
-              : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
-          }`}
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Customer</span>
-        </button>
-      </div>
-
-      {/* 2. Top 4 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Customers */}
-        <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex items-center gap-4 ${
-          isLight
-            ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-            : 'bg-[#0E1715] border-[#1B2925] shadow-lg shadow-black/40'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-            <User className="w-5 h-5" />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="text-xs text-slate-400 sm:text-right hidden sm:block">
+            <span>Dashboard</span> &gt; <span className="text-slate-700 font-medium">Customers</span>
           </div>
-          <div>
-            <span className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-              Total Customers
-            </span>
-            <p className={`text-2xl font-bold tracking-tight mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {totalCount.toLocaleString()}
-            </p>
-            <div className="flex items-center gap-1 mt-0.5 text-[11px]">
-              <span className={isLight ? 'text-slate-500 font-medium' : 'text-neutral-400'}>Registered in store</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: New Customers */}
-        <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex items-center gap-4 ${
-          isLight
-            ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-            : 'bg-[#0E1715] border-[#1B2925] shadow-lg shadow-black/40'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-            <UserPlus className="w-5 h-5" />
-          </div>
-          <div>
-            <span className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-              New Customers
-            </span>
-            <p className={`text-2xl font-bold tracking-tight mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {newCount.toLocaleString()}
-            </p>
-            <div className="flex items-center gap-1 mt-0.5 text-[11px]">
-              <span className={isLight ? 'text-slate-500 font-medium' : 'text-neutral-400'}>Joined last 30 days</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Active Customers */}
-        <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex items-center gap-4 ${
-          isLight
-            ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-            : 'bg-[#0E1715] border-[#1B2925] shadow-lg shadow-black/40'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <span className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-              Active Customers
-            </span>
-            <p className={`text-2xl font-bold tracking-tight mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {activeCount.toLocaleString()}
-            </p>
-            <div className="flex items-center gap-1 mt-0.5 text-[11px]">
-              <span className={isLight ? 'text-slate-500 font-medium' : 'text-neutral-400'}>Active accounts</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 4: Blocked Customers */}
-        <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex items-center gap-4 ${
-          isLight
-            ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-            : 'bg-[#0E1715] border-[#1B2925] shadow-lg shadow-black/40'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-            <UserX className="w-5 h-5" />
-          </div>
-          <div>
-            <span className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-              Blocked Customers
-            </span>
-            <p className={`text-2xl font-bold tracking-tight mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {blockedCount.toLocaleString()}
-            </p>
-            <div className="flex items-center gap-1 mt-0.5 text-[11px]">
-              <span className={isLight ? 'text-slate-500 font-medium' : 'text-neutral-400'}>Restricted access</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Filter Tabs & Search Bar */}
-      <div className={`p-2 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-3 ${
-        isLight ? 'bg-white border-slate-200/90' : 'bg-[#0E1715] border-[#1B2925]'
-      }`}>
-        {/* Left Tabs */}
-        <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pl-2">
-          {(
-            [
-              { id: 'all', label: `All Customers (${totalCount})` },
-              { id: 'active', label: `Active (${activeCount})` },
-              { id: 'new', label: `New (${newCount})` },
-              { id: 'blocked', label: `Blocked (${blockedCount})` },
-            ] as const
-          ).map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setCurrentPage(1);
-                }}
-                className={`px-3 py-2 text-xs font-semibold whitespace-nowrap transition-all relative ${
-                  isActive
-                    ? isLight
-                      ? 'text-slate-900 font-bold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-slate-900'
-                      : 'text-white font-bold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-emerald-500'
-                    : isLight
-                    ? 'text-slate-500 hover:text-slate-800'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Right Search & Filters */}
-        <div className="flex items-center gap-2 pr-1 self-stretch md:self-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${
-              isLight ? 'text-slate-400' : 'text-neutral-500'
-            }`} />
-            <input
-              type="text"
-              placeholder="Search customers..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className={`w-full pl-9 pr-8 py-2 rounded-xl text-xs font-medium border outline-none transition-all ${
-                isLight
-                  ? 'bg-slate-50/60 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-slate-400'
-                  : 'bg-[#0B1512] border-[#1B2925] text-white placeholder:text-neutral-500 focus:border-emerald-500/50'
-              }`}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
           <button
-            className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
-              isLight
-                ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                : 'bg-[#101E1A] border-[#1B2925] text-neutral-300 hover:text-white'
-            }`}
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#044e43] hover:bg-[#033c34] text-slate-50 text-sm font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
           >
-            <Filter className="w-3.5 h-3.5" />
-            <span>Filters</span>
+            <UserPlus className="w-4 h-4" />
+            <span>Add Customer</span>
           </button>
         </div>
       </div>
 
-      {/* 4. Split Screen: Main Table + Right Detail Sidebar */}
-      <div className="flex flex-col lg:flex-row items-start gap-5">
-        {/* Left: Customer Table Card */}
-        <div className={`flex-1 min-w-0 w-full rounded-2xl border overflow-hidden transition-all ${
-          isLight
-            ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-            : 'bg-[#0E1715] border-[#1B2925]'
-        }`}>
-          {/* Mobile Horizontal Swipe Indicator */}
-          <div
-            className={`md:hidden px-4 py-1.5 text-[10px] flex items-center justify-between border-b ${
-              isLight ? 'bg-slate-50 text-slate-600 border-slate-200' : 'bg-[#0A1512] text-emerald-400 border-[#1E332B]'
-            }`}
-          >
-            <span>Scroll horizontally for full customer directory</span>
-            <span className="font-mono text-[11px]">→</span>
+      {/* ─── 2. FOUR STAT CARDS (EXACT REFERENCE UI) ─── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Total Customers */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+            <Users className="w-6 h-6" />
           </div>
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full text-left border-collapse text-xs min-w-[760px]">
-              <thead>
-                <tr className={`border-b font-semibold ${
-                  isLight ? 'border-slate-200 text-slate-500 bg-white' : 'border-[#1B2925] text-neutral-400 bg-[#0C1513]'
-                }`}>
-                  <th className="py-3.5 pl-4 pr-2 w-10">
-                    <button onClick={handleSelectAll} className="flex items-center text-slate-400 hover:text-slate-600">
-                      {selectedRows.size > 0 && selectedRows.size === paginatedCustomers.length ? (
-                        <CheckSquare className="w-4 h-4 text-emerald-600" />
-                      ) : (
-                        <Square className="w-4 h-4" />
-                      )}
-                    </button>
-                  </th>
-                  <th className="py-3.5 px-3">Customer</th>
-                  <th className="py-3.5 px-3">Contact</th>
-                  <th className="py-3.5 px-3 text-center">Total Orders</th>
-                  <th className="py-3.5 px-3">Total Purchase</th>
-                  <th className="py-3.5 px-3">Last Order</th>
-                  <th className="py-3.5 px-3 text-center">Status</th>
-                  <th className="py-3.5 pr-4 pl-2 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className={`divide-y ${isLight ? 'divide-slate-100' : 'divide-[#15231F]'}`}>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={8} className="p-12 text-center text-xs text-slate-400">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span>Loading patrons from database...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : paginatedCustomers.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="p-12 text-center text-xs text-slate-400">
-                      <div className="max-w-xs mx-auto space-y-2">
-                        <Users className="w-8 h-8 mx-auto text-slate-300 dark:text-neutral-600" />
-                        <p className="font-semibold text-xs text-slate-700 dark:text-neutral-300">
-                          No customers found
-                        </p>
-                        <p className="text-[11px] text-slate-400 dark:text-neutral-500">
-                          {searchTerm
-                            ? `No customer matching "${searchTerm}".`
-                            : 'Registered patrons will appear here once accounts or orders are created.'}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedCustomers.map((cust, idx) => {
-                    const isSelected = selectedCustomerId === cust._id;
-                    const isChecked = selectedRows.has(cust._id);
-                    const isBlocked = cust.status === 'Blocked';
-                    const isInactive = cust.status === 'Inactive';
-                    const colorClass = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+          <div>
+            <p className="text-xs font-medium text-slate-500">Total Customers</p>
+            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+              {summary.total.toLocaleString()}
+            </p>
+            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+              <ArrowUp className="w-3.5 h-3.5" />
+              <span>+12% this month</span>
+            </p>
+          </div>
+        </div>
 
+        {/* Card 2: New Customers */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+            <ShoppingBag className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-slate-500">New Customers</p>
+            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+              {summary.newCusts.toLocaleString()}
+            </p>
+            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+              <ArrowUp className="w-3.5 h-3.5" />
+              <span>+18% this month</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Card 3: Total Spent */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-lg shrink-0">
+            ₹
+          </div>
+          <div>
+            <p className="text-xs font-medium text-slate-500">Total Spent</p>
+            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+              {formatPrice(summary.totalSpent)}
+            </p>
+            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+              <ArrowUp className="w-3.5 h-3.5" />
+              <span>+22% this month</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Card 4: Active Customers */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+            <Star className="w-6 h-6 fill-amber-400" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-slate-500">Active Customers</p>
+            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+              {summary.active.toLocaleString()}
+            </p>
+            <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5">
+              <span className="text-slate-400">⊘</span>
+              <span>{summary.activePercent}% of total</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 3. FILTER AND SEARCH BAR (EXACT REFERENCE UI) ─── */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Search input */}
+        <div className="relative flex-1 min-w-[260px] max-w-md">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-xs"
+          />
+        </div>
+
+        {/* Filter Dropdowns */}
+        <div className="flex items-center flex-wrap gap-2.5">
+          {/* Status Dropdown */}
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as any);
+                setCurrentPage(1);
+              }}
+              className="appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:border-emerald-600 shadow-xs cursor-pointer"
+            >
+              <option value="All">All Customers</option>
+              <option value="Active">Active</option>
+              <option value="VIP">VIP</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Blocked">Blocked</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Locations Dropdown */}
+          <div className="relative">
+            <select
+              value={locationFilter}
+              onChange={(e) => {
+                setLocationFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:border-emerald-600 shadow-xs cursor-pointer max-w-[160px] truncate"
+            >
+              <option value="All">All Locations</option>
+              {distinctLocations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value as any);
+                setCurrentPage(1);
+              }}
+              className="appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:border-emerald-600 shadow-xs cursor-pointer"
+            >
+              <option value="newest">Sort by: Newest</option>
+              <option value="oldest">Sort by: Oldest</option>
+              <option value="spent">Sort by: Highest Spent</option>
+              <option value="orders">Sort by: Most Orders</option>
+              <option value="name">Sort by: Name (A-Z)</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Export Button */}
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-slate-500" />
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ─── 4. CUSTOMERS TABLE CONTAINER ─── */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        {isLoading ? (
+          <div className="py-24 text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-slate-600">Loading customer telemetry...</p>
+          </div>
+        ) : filteredCustomers.length === 0 ? (
+          <div className="py-20 text-center px-4">
+            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+              <Users className="w-7 h-7" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800">No customers found</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+              {searchTerm || statusFilter !== 'All' || locationFilter !== 'All'
+                ? 'Try adjusting your search criteria or clear active filters.'
+                : 'No customers have registered yet. Click "Add Customer" to create one.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="overflow-x-auto min-h-[300px]">
+              <table className="w-full text-left border-collapse min-w-[950px]">
+                <thead >
+                  <tr className="border-b border-slate-200  text-[11px] uppercase tracking-wider font-semibold ">
+                    <th className="py-3.5 px-4 w-10">
+                      <input
+                        type="checkbox"
+                        checked={
+                          paginatedCustomers.length > 0 &&
+                          selectedRows.size === paginatedCustomers.length
+                        }
+                        onChange={handleSelectAll}
+                        className="rounded border-slate-300 text-slate-50 focus:ring-slate-500 cursor-pointer"
+                      />
+                    </th>
+                    <th className="py-3.5 px-4">Customer</th>
+                    <th className="py-3.5 px-4">Contact</th>
+                    <th className="py-3.5 px-4">Location</th>
+                    <th className="py-3.5 px-4">Orders</th>
+                    <th className="py-3.5 px-4">Total Spent</th>
+                    <th className="py-3.5 px-4">Last Order</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {paginatedCustomers.map((cust, idx) => {
+                    const isSelected = selectedRows.has(cust._id);
+                    const location = getCustomerLocation(cust);
+                    const lastOrder = formatLastOrder(cust.lastOrderDate);
+                    const isVip = (cust.ordersCount || 0) >= 5 || (cust.totalSpent || 0) >= 5000;
+                    const paletteClass = AVATAR_PALETTES[idx % AVATAR_PALETTES.length];
                     return (
                       <tr
                         key={cust._id}
-                        onClick={() => setSelectedCustomerId(cust._id)}
-                        className={`cursor-pointer transition-colors ${
-                          isSelected
-                            ? isLight
-                              ? 'bg-slate-50/90 font-medium'
-                              : 'bg-[#14231E]'
-                            : isLight
-                            ? 'hover:bg-slate-50/50'
-                            : 'hover:bg-[#111E1A]'
+                        className={`hover:bg-slate-50/80 transition-colors ${
+                          isSelected ? 'bg-emerald-50/30' : ''
                         }`}
                       >
                         {/* Checkbox */}
-                        <td className="py-3.5 pl-4 pr-2" onClick={(e) => handleToggleRow(cust._id, e)}>
-                          <button className="flex items-center text-slate-400 hover:text-slate-600">
-                            {isChecked ? (
-                              <CheckSquare className="w-4 h-4 text-emerald-600" />
-                            ) : (
-                              <Square className="w-4 h-4" />
-                            )}
-                          </button>
+                        <td className="py-3.5 px-4">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectRow(cust._id)}
+                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          />
                         </td>
 
-                        {/* Customer Info */}
-                        <td className="py-3.5 px-3">
+                        {/* Customer Column */}
+                        <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            {cust.avatar && !cust.avatar.includes('unsplash') ? (
-                              <img
-                                src={cust.avatar}
-                                alt={cust.name}
-                                className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-slate-200"
-                              />
-                            ) : (
-                              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${colorClass}`}>
-                                {getInitials(cust.name)}
-                              </div>
-                            )}
+                            {/* Avatar image / initials with strictly fixed round frame */}
+                            <div className="w-10 h-10 min-w-[40px] min-h-[40px] max-w-[40px] max-h-[40px] rounded-full overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center font-bold text-xs shadow-xs">
+                              {cust.avatar && !cust.avatar.includes('unsplash') ? (
+                                <img
+                                  src={cust.avatar}
+                                  alt={cust.name}
+                                  className="w-full h-full object-cover shrink-0"
+                                />
+                              ) : (
+                                <span className={`w-full h-full flex items-center justify-center font-bold ${paletteClass}`}>
+                                  {getInitials(cust.name)}
+                                </span>
+                              )}
+                            </div>
                             <div className="min-w-0">
-                              <p className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                              <button
+                                onClick={() => setSelectedCustomerId(cust._id)}
+                                className="font-semibold text-slate-900 hover:text-emerald-700 text-sm text-left truncate block cursor-pointer transition-colors"
+                              >
                                 {cust.name}
-                              </p>
-                              <p className={`text-[11px] truncate ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
-                                Joined {new Date(cust.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                              </p>
+                              </button>
+                              <span className="text-xs text-slate-400 block mt-0.5">
+                                Joined {formatJoinedDate(cust.createdAt)}
+                              </span>
                             </div>
                           </div>
                         </td>
 
-                        {/* Contact */}
-                        <td className="py-3.5 px-3">
-                          <div>
-                            <p className={`font-mono text-xs ${isLight ? 'text-slate-800' : 'text-neutral-200'}`}>
-                              {cust.phone || '-'}
-                            </p>
-                            <p className={`text-[11px] truncate ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
-                              {cust.email || '-'}
-                            </p>
+                        {/* Contact Column */}
+                        <td className="py-3.5 px-4">
+                          <div className="text-xs">
+                            <span className="text-slate-800 font-medium block truncate max-w-[200px]">
+                              {cust.email || 'No email provided'}
+                            </span>
+                            <span className="text-slate-500 block mt-0.5">
+                              {cust.phone || 'No phone provided'}
+                            </span>
                           </div>
                         </td>
 
-                        {/* Total Orders */}
-                        <td className="py-3.5 px-3 text-center">
-                          <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-neutral-200'}`}>
+                        {/* Location Column */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="truncate max-w-[150px]">{location}</span>
+                          </div>
+                        </td>
+
+                        {/* Orders Column */}
+                        <td className="py-3.5 px-4">
+                          <span className="text-xs font-semibold text-slate-800">
                             {cust.ordersCount || 0}
                           </span>
                         </td>
 
-                        {/* Total Purchase */}
-                        <td className="py-3.5 px-3">
-                          <span className={`font-bold font-poppins ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {/* Total Spent Column */}
+                        <td className="py-3.5 px-4">
+                          <span className="text-xs font-bold text-slate-900 font-poppins">
                             {formatPrice(cust.totalSpent || 0)}
                           </span>
                         </td>
 
-                        {/* Last Order Date */}
-                        <td className="py-3.5 px-3">
-                          <span className={isLight ? 'text-slate-700' : 'text-neutral-300'}>
-                            {cust.lastOrderDate
-                              ? new Date(cust.lastOrderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                              : '-'}
-                          </span>
+                        {/* Last Order Column */}
+                        <td className="py-3.5 px-4">
+                          {lastOrder ? (
+                            <div className="text-xs">
+                              <span className="text-slate-800 font-medium block">
+                                {lastOrder.date}
+                              </span>
+                              <span className="text-slate-400 text-[11px] block mt-0.5">
+                                {lastOrder.time}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-400 italic">No orders yet</span>
+                          )}
                         </td>
 
-                        {/* Status */}
-                        <td className="py-3.5 px-3 text-center">
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                            isBlocked
-                              ? 'bg-red-50 text-red-600 border border-red-200/60'
-                              : isInactive
-                              ? 'bg-orange-50 text-orange-600 border border-orange-200/60'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                          }`}>
-                            {cust.status || 'Active'}
-                          </span>
+                        {/* Status Column */}
+                        <td className="py-3.5 px-4">
+                          {isVip ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                              VIP
+                            </span>
+                          ) : cust.status === 'Blocked' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                              Blocked
+                            </span>
+                          ) : cust.status === 'Inactive' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                              Inactive
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Active
+                            </span>
+                          )}
                         </td>
 
-                      {/* Actions */}
-                      <td className="py-3.5 pr-4 pl-2 text-right relative">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenuId(activeMenuId === cust._id ? null : cust._id);
-                          }}
-                          className={`p-1.5 rounded-lg text-slate-400 hover:text-slate-700 ${
-                            isLight ? 'hover:bg-slate-100' : 'hover:bg-[#1A2A25]'
-                          }`}
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-
-                        {/* Dropdown Menu */}
-                        {activeMenuId === cust._id && (
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className={`absolute right-4 top-10 w-44 rounded-xl border shadow-xl py-1.5 z-20 text-left animate-in fade-in zoom-in-95 ${
-                              isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#101E1A] border-[#1E332B] text-neutral-200'
-                            }`}
-                          >
+                        {/* Actions Column (Direct, clean inline actions inside the table - No clipping issues!) */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="inline-flex items-center justify-end gap-1.5">
+                            {/* View Customer Details */}
                             <button
-                              onClick={() => {
-                                setSelectedCustomerId(cust._id);
-                                setActiveMenuId(null);
-                              }}
-                              className="w-full px-3.5 py-1.5 text-xs text-left hover:bg-slate-100 dark:hover:bg-neutral-800 flex items-center gap-2"
+                              type="button"
+                              onClick={() => setSelectedCustomerId(cust._id)}
+                              className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 shadow-xs transition-all cursor-pointer"
+                              title="View Customer Dossier"
                             >
-                              <User className="w-3.5 h-3.5" /> View Profile
+                              <Eye className="w-4 h-4" />
                             </button>
-                            <a
-                              href={`https://wa.me/${(cust.phone || '').replace(/[^0-9]/g, '')}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="w-full px-3.5 py-1.5 text-xs text-left hover:bg-slate-100 dark:hover:bg-neutral-800 flex items-center gap-2 text-emerald-600"
-                            >
-                              <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                            </a>
-                            <a
-                              href={`tel:${cust.phone}`}
-                              className="w-full px-3.5 py-1.5 text-xs text-left hover:bg-slate-100 dark:hover:bg-neutral-800 flex items-center gap-2"
-                            >
-                              <Phone className="w-3.5 h-3.5" /> Call Customer
-                            </a>
-                            <div className="border-t my-1 border-slate-100 dark:border-neutral-800"></div>
+
+                            {/* Edit Customer */}
                             <button
-                              onClick={() => handleToggleBlock(cust)}
-                              className={`w-full px-3.5 py-1.5 text-xs text-left flex items-center gap-2 font-medium ${
-                                cust.status === 'Blocked' ? 'text-emerald-600' : 'text-red-600'
-                              }`}
+                              type="button"
+                              onClick={() => handleOpenEdit(cust)}
+                              className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 shadow-xs transition-all cursor-pointer"
+                              title="Edit Customer"
                             >
-                              <ShieldBan className="w-3.5 h-3.5" />
-                              {cust.status === 'Blocked' ? 'Unblock Customer' : 'Block Customer'}
+                              <Edit className="w-4 h-4" />
+                            </button>
+
+                            {/* Block / Unblock Customer */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleBlock(cust)}
+                              className={`p-1.5 rounded-xl border shadow-xs transition-all cursor-pointer ${
+                                cust.status === 'Blocked'
+                                  ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                  : 'border-slate-200 bg-white text-slate-600 hover:text-amber-700 hover:bg-amber-50 hover:border-amber-300'
+                              }`}
+                              title={cust.status === 'Blocked' ? 'Unblock Customer' : 'Block Customer'}
+                            >
+                              <ShieldBan className="w-4 h-4" />
+                            </button>
+
+                            {/* Delete Customer */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDelete(cust)}
+                              className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 shadow-xs transition-all cursor-pointer"
+                              title="Delete Customer"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-            </table>
-          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Table Footer / Pagination */}
-          <div className={`p-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
-            isLight ? 'border-slate-200 bg-white text-slate-500' : 'border-[#1B2925] bg-[#0C1513] text-neutral-400'
-          }`}>
-            <span>
-              Showing {Math.min((currentPage - 1) * pageSize + 1, filteredCustomers.length)} to{' '}
-              {Math.min(currentPage * pageSize, filteredCustomers.length)} of {filteredCustomers.length.toLocaleString()} customers
-            </span>
+            {/* Pagination Footer (Exact Match with Reference Image) */}
+            <div className="p-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
+              <div>
+                Showing{' '}
+                <strong className="text-slate-800">
+                  {filteredCustomers.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                </strong>{' '}
+                -{' '}
+                <strong className="text-slate-800">
+                  {Math.min(currentPage * pageSize, filteredCustomers.length)}
+                </strong>{' '}
+                of <strong className="text-slate-800">{filteredCustomers.length}</strong> customers
+              </div>
 
-            {/* Page buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className={`p-1.5 rounded-lg border disabled:opacity-40 ${
-                  isLight ? 'border-slate-200 hover:bg-slate-100' : 'border-[#1E332B] hover:bg-neutral-800'
-                }`}
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-
-              {[1, 2, 3, 4, 5].slice(0, totalPages).map((page) => (
+              {/* Numbered Pagination Buttons */}
+              <div className="flex items-center gap-1.5 self-center sm:self-auto">
                 <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-7 h-7 rounded-lg font-bold text-xs transition-all ${
-                    currentPage === page
-                      ? isLight
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-emerald-600 text-white'
-                      : isLight
-                      ? 'text-slate-600 hover:bg-slate-100'
-                      : 'text-neutral-400 hover:bg-neutral-800'
-                  }`}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 cursor-pointer text-slate-700"
+                  title="Previous page"
                 >
-                  {page}
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
-              ))}
 
-              {totalPages > 5 && (
-                <>
-                  <span className="px-1 text-slate-400">...</span>
-                  <button
-                    onClick={() => setCurrentPage(totalPages)}
-                    className={`w-7 h-7 rounded-lg font-bold text-xs ${
-                      currentPage === totalPages
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    {totalPages}
-                  </button>
-                </>
-              )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  // Display page numbers cleanly
+                  if (
+                    totalPages <= 7 ||
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    Math.abs(pageNum - currentPage) <= 1
+                  ) {
+                    const isActive = currentPage === pageNum;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+                          isActive
+                            ? 'bg-[#044e43] text-white shadow-xs'
+                            : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  if (pageNum === 2 && currentPage > 3) {
+                    return (
+                      <span key="dots-start" className="px-1 text-slate-400">
+                        ...
+                      </span>
+                    );
+                  }
+                  if (pageNum === totalPages - 1 && currentPage < totalPages - 2) {
+                    return (
+                      <span key="dots-end" className="px-1 text-slate-400">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
 
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className={`p-1.5 rounded-lg border disabled:opacity-40 ${
-                  isLight ? 'border-slate-200 hover:bg-slate-100' : 'border-[#1E332B] hover:bg-neutral-800'
-                }`}
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 cursor-pointer text-slate-700"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+          </>
+        )}
+      </div>
 
-            {/* Per page selector */}
-            <div className="flex items-center gap-1.5">
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className={`py-1 px-2.5 rounded-lg border text-xs outline-none cursor-pointer ${
-                  isLight ? 'border-slate-200 bg-white text-slate-700' : 'border-[#1E332B] bg-[#0E1715] text-neutral-300'
-                }`}
-              >
-                <option value={10}>10 per page</option>
-                <option value={20}>20 per page</option>
-                <option value={50}>50 per page</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      {/* ─── 5. CUSTOMER DETAILS PREVIEW DRAWER (OPENS ON VIEW CLICK, CLOSES PROPERLY) ─── */}
+      {selectedCustomer && (
+        <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          {/* Backdrop Click to Close */}
+          <div
+            className="absolute inset-0 cursor-pointer"
+            onClick={() => setSelectedCustomerId(null)}
+            title="Click outside to close preview"
+          />
 
-        {/* Right: Selected Customer Details Sidebar (Exact match to reference UI) */}
-        {selectedCustomer && (
-          <div className={`w-full lg:w-[380px] xl:w-[410px] rounded-2xl border p-5 transition-all flex-shrink-0 space-y-5 ${
-            isLight
-              ? 'bg-white border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
-              : 'bg-[#0E1715] border-[#1B2925] shadow-xl'
-          }`}>
-            {/* Top User Profile Header */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                {selectedCustomer.avatar && !selectedCustomer.avatar.includes('unsplash-placeholder') ? (
-                  <img
-                    src={selectedCustomer.avatar}
-                    alt={selectedCustomer.name}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 font-bold text-sm flex items-center justify-center">
-                    {getInitials(selectedCustomer.name)}
-                  </div>
-                )}
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className={`font-bold text-base ${isLight ? 'text-slate-900' : 'text-white'}`}>
+          {/* Slide-in Drawer Container */}
+          <div className="relative w-full max-w-lg h-full bg-white shadow-2xl z-10 flex flex-col overflow-hidden border-l border-slate-200 animate-in slide-in-from-right duration-300">
+            {/* Header: Customer Info + Action Buttons + Close Button */}
+            <div className="p-5 border-b border-slate-200/80 bg-slate-50/90 flex items-start justify-between gap-3 flex-shrink-0">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl overflow-hidden flex items-center justify-center font-extrabold text-sm shrink-0 border border-slate-200 bg-slate-100 text-slate-800 shadow-sm">
+                  {selectedCustomer.avatar && !selectedCustomer.avatar.includes('unsplash') ? (
+                    <img
+                      src={selectedCustomer.avatar}
+                      alt={selectedCustomer.name}
+                      className="w-full h-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center text-base font-black">
+                      {getInitials(selectedCustomer.name)}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-extrabold text-base text-slate-900 truncate">
                       {selectedCustomer.name}
                     </h2>
-                    <span className={`px-2 py-0.2 rounded-full text-[10.5px] font-semibold ${
-                      selectedCustomer.status === 'Blocked'
-                        ? 'bg-red-50 text-red-600 border border-red-200'
-                        : selectedCustomer.status === 'Inactive'
-                        ? 'bg-orange-50 text-orange-600 border border-orange-200'
-                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    }`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        selectedCustomer.status === 'Blocked'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : selectedCustomer.status === 'Inactive'
+                          ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}
+                    >
                       {selectedCustomer.status || 'Active'}
                     </span>
                   </div>
-                  <p className={`text-[11.5px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-neutral-400'}`}>
-                    Customer since {new Date(selectedCustomer.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Customer since {formatJoinedDate(selectedCustomer.createdAt)}
                   </p>
                 </div>
               </div>
 
+              {/* Action Buttons in Header: Edit, Delete, and Close */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(selectedCustomer)}
+                  className="p-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white transition-all shadow-xs cursor-pointer"
+                  title="Edit customer"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenDelete(selectedCustomer)}
+                  className="p-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white transition-all shadow-xs cursor-pointer"
+                  title="Delete customer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                {/* PROMINENT CLOSE BUTTON */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedCustomerId(null)}
+                  className="p-2 rounded-xl border border-slate-300 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all shadow-xs cursor-pointer"
+                  title="Close preview"
+                  aria-label="Close Preview"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Content Body */}
+            <div className="p-5 overflow-y-auto flex-1 space-y-5 text-xs">
+              {/* Quick Contact Bar */}
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 font-mono text-xs font-semibold text-slate-800">
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    {selectedCustomer.phone || 'No phone provided'}
+                  </span>
+                  {selectedCustomer.phone && (
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`tel:${selectedCustomer.phone}`}
+                        className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] font-bold inline-flex items-center gap-1 shadow-xs"
+                      >
+                        <Phone className="w-3 h-3 text-blue-600" />
+                        <span>Call</span>
+                      </a>
+                      <a
+                        href={`https://wa.me/${selectedCustomer.phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 rounded-lg border border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700 text-[11px] font-bold inline-flex items-center gap-1 shadow-xs"
+                      >
+                        <MessageCircle className="w-3 h-3" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {selectedCustomer.email && (
+                  <div className="flex items-center gap-2 text-slate-600 pt-1 border-t border-slate-200/60">
+                    <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <a href={`mailto:${selectedCustomer.email}`} className="hover:underline truncate font-medium">
+                      {selectedCustomer.email}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* 3 Metric Boxes */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+                  <p className="text-lg font-extrabold text-slate-900">{selectedCustomer.ordersCount || 0}</p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Total Orders</p>
+                </div>
+                <div className="p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+                  <p className="text-lg font-poppins font-extrabold text-emerald-700">
+                    {formatPrice(selectedCustomer.totalSpent || 0)}
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Total Purchase</p>
+                </div>
+                <div className="p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+                  <p className="text-lg font-poppins font-extrabold text-slate-900">
+                    {formatPrice(avgOrderValue)}
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Avg Order Value</p>
+                </div>
+              </div>
+
+              {/* Navigation Tabs inside Drawer */}
+              <div className="flex items-center border-b border-slate-200 text-xs font-bold">
+                {(['overview', 'orders', 'addresses', 'payments'] as const).map((tab) => {
+                  const isActive = sidebarTab === tab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setSidebarTab(tab)}
+                      className={`pb-2.5 px-3 capitalize transition-all relative cursor-pointer ${
+                        isActive
+                          ? 'text-emerald-700 font-extrabold border-b-2 border-emerald-600 -mb-[1px]'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Tab 1: Overview */}
+              {sidebarTab === 'overview' && (
+                <div className="space-y-4">
+                  {/* Latest Shipping Address */}
+                  <div>
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 mb-2">
+                      Primary Delivery Address
+                    </h3>
+                    {selectedCustomer.latestShippingAddress || (selectedCustomer.addresses && selectedCustomer.addresses.length > 0) ? (
+                      (() => {
+                        const a = selectedCustomer.latestShippingAddress || selectedCustomer.addresses![0];
+                        const street = (a as any).address || (a as any).street || '';
+                        return (
+                          <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1 text-slate-700">
+                            <p className="font-bold text-slate-900">{selectedCustomer.name}</p>
+                            {street && <p>{street}</p>}
+                            <p>
+                              {a.city ? `${a.city}, ` : ''}{a.state ? `${a.state} ` : ''}{a.postalCode || ''}
+                            </p>
+                            <p className="text-slate-500">{a.country || 'India'}</p>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <div className="p-4 rounded-xl border border-dashed border-slate-200 text-center text-slate-400">
+                        No address registered yet
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Account Metadata */}
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1.5 text-[11px] text-slate-600">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Customer ID:</span>
+                      <span className="font-mono font-bold text-slate-800">{selectedCustomer._id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Account Type:</span>
+                      <span className="font-bold text-slate-800">Direct Patron</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Account Status:</span>
+                      <span className="font-bold text-emerald-700">{selectedCustomer.status || 'Active'}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2: Orders History */}
+              {sidebarTab === 'orders' && (
+                <div className="space-y-3">
+                  {isCustomerDetailsLoading ? (
+                    <div className="p-8 text-center text-xs text-slate-400">
+                      <div className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                      <span>Loading customer order history...</span>
+                    </div>
+                  ) : !realCustomerDetails?.orders || realCustomerDetails.orders.length === 0 ? (
+                    <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-slate-400">
+                      No order consignments logged for this customer.
+                    </div>
+                  ) : (
+                    realCustomerDetails.orders.map((ord: any) => (
+                      <div
+                        key={ord._id}
+                        className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 transition-colors space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-slate-900">#{ord.orderNumber}</span>
+                          <span
+                            className={`px-2 py-0.2 rounded-full text-[10px] font-bold ${
+                              ord.orderStatus === 'Delivered'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                : ord.orderStatus === 'Shipped'
+                                ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                                : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            }`}
+                          >
+                            {ord.orderStatus}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-slate-600 text-[11px]">
+                          <span>{formatJoinedDate(ord.createdAt)}</span>
+                          <span className="font-poppins font-bold text-emerald-700">
+                            {formatPrice(ord.totalPrice)}
+                          </span>
+                        </div>
+                        <div className="text-right pt-1">
+                          <Link
+                            href="/admin/orders"
+                            className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline"
+                          >
+                            Inspect in Orders &rarr;
+                          </Link>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Tab 3: Addresses */}
+              {sidebarTab === 'addresses' && (
+                <div className="space-y-3">
+                  {selectedCustomer.addresses && selectedCustomer.addresses.length > 0 ? (
+                    selectedCustomer.addresses.map((addr, i) => (
+                      <div key={i} className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1 text-slate-700">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900">Address {i + 1}</span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p>{addr.street || (addr as any).address || ''}</p>
+                        <p>{addr.city}, {addr.state} {addr.postalCode}</p>
+                        <p className="text-slate-500">{addr.country || 'India'}</p>
+                      </div>
+                    ))
+                  ) : selectedCustomer.latestShippingAddress ? (
+                    <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1 text-slate-700">
+                      <span className="font-bold text-slate-900">Latest Shipping Address</span>
+                      <p>{selectedCustomer.latestShippingAddress.address}</p>
+                      <p>{selectedCustomer.latestShippingAddress.city}, {selectedCustomer.latestShippingAddress.state} {selectedCustomer.latestShippingAddress.postalCode}</p>
+                      <p className="text-slate-500">{selectedCustomer.latestShippingAddress.country || 'India'}</p>
+                    </div>
+                  ) : (
+                    <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-slate-400">
+                      No saved addresses.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 4: Payments */}
+              {sidebarTab === 'payments' && (
+                <div className="space-y-3">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-emerald-600" />
+                      <span className="font-bold text-slate-900">Payment Modes</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Total transactions value: <strong className="text-emerald-700 font-poppins">{formatPrice(selectedCustomer.totalSpent || 0)}</strong>
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Supports Prepaid Online (UPI, Cards, NetBanking) and Cash on Delivery.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sticky Action Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center gap-2 flex-shrink-0">
               <button
+                type="button"
+                onClick={() => handleOpenEdit(selectedCustomer)}
+                className="flex-1 py-2 px-3 rounded-xl text-xs font-bold border border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-600 hover:text-white transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                <span>Edit Customer</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleToggleBlock(selectedCustomer)}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold border transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 ${
+                  selectedCustomer.status === 'Blocked'
+                    ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white'
+                    : 'border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-600 hover:text-white'
+                }`}
+              >
+                <ShieldBan className="w-3.5 h-3.5" />
+                <span>{selectedCustomer.status === 'Blocked' ? 'Unblock' : 'Block'}</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setSelectedCustomerId(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-                title="Close"
+                className="py-2 px-4 rounded-xl text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition-all shadow-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 6. EDIT CUSTOMER MODAL ─── */}
+      {editingCustomer && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+          <div className="absolute inset-0 cursor-pointer" onClick={() => setEditingCustomer(null)} />
+
+          <div className="relative w-full max-w-lg rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 flex flex-col my-auto overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                  <Edit className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900">Edit Customer</h3>
+                  <p className="text-xs text-slate-500">Update contact dossier and status</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingCustomer(null)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Quick Contact Links */}
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-2">
-                <Phone className={`w-3.5 h-3.5 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`} />
-                {selectedCustomer.phone ? (
-                  <a href={`tel:${selectedCustomer.phone}`} className={`hover:underline font-mono ${isLight ? 'text-slate-800' : 'text-neutral-200'}`}>
-                    {selectedCustomer.phone}
-                  </a>
-                ) : (
-                  <span className={isLight ? 'text-slate-400' : 'text-neutral-500'}>Not provided</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Mail className={`w-3.5 h-3.5 ${isLight ? 'text-slate-400' : 'text-neutral-500'}`} />
-                {selectedCustomer.email ? (
-                  <a href={`mailto:${selectedCustomer.email}`} className={`hover:underline ${isLight ? 'text-slate-800' : 'text-neutral-200'}`}>
-                    {selectedCustomer.email}
-                  </a>
-                ) : (
-                  <span className={isLight ? 'text-slate-400' : 'text-neutral-500'}>Not provided</span>
-                )}
-              </div>
-
-              {selectedCustomer.phone && (
-                <div className="flex items-center gap-2 pt-0.5">
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-                  <a
-                    href={`https://wa.me/${(selectedCustomer.phone || '').replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-emerald-600 font-semibold hover:underline"
-                  >
-                    Chat on WhatsApp
-                  </a>
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEdit} className="p-5 space-y-4 text-xs overflow-y-auto max-h-[75vh]">
+              {editError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2 font-medium">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{editError}</span>
                 </div>
               )}
-            </div>
 
-            {/* 3 Metric Boxes */}
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className={`p-3 rounded-xl border ${isLight ? 'bg-slate-50/70 border-slate-100' : 'bg-[#101E1A] border-[#1B2925]'}`}>
-                <p className={`text-base font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {selectedCustomer.ordersCount || 0}
-                </p>
-                <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Total Orders</p>
-              </div>
-
-              <div className={`p-3 rounded-xl border ${isLight ? 'bg-slate-50/70 border-slate-100' : 'bg-[#101E1A] border-[#1B2925]'}`}>
-                <p className={`text-base font-bold font-poppins ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {formatPrice(selectedCustomer.totalSpent || 0)}
-                </p>
-                <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Total Purchase</p>
-              </div>
-
-              <div className={`p-3 rounded-xl border ${isLight ? 'bg-slate-50/70 border-slate-100' : 'bg-[#101E1A] border-[#1B2925]'}`}>
-                <p className={`text-base font-bold font-poppins ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {formatPrice(avgOrderValue)}
-                </p>
-                <p className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Avg. Order Value</p>
-              </div>
-            </div>
-
-            {/* Sub Tabs: Overview | Orders | Addresses | Payments */}
-            <div className={`flex items-center border-b text-xs font-semibold ${
-              isLight ? 'border-slate-200' : 'border-[#1B2925]'
-            }`}>
-              {(['overview', 'orders', 'addresses', 'payments'] as const).map((tab) => {
-                const isActive = sidebarTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => setSidebarTab(tab)}
-                    className={`pb-2.5 px-2.5 capitalize transition-all relative ${
-                      isActive
-                        ? isLight
-                          ? 'text-slate-900 font-bold border-b-2 border-slate-900 -mb-[1px]'
-                          : 'text-white font-bold border-b-2 border-emerald-500 -mb-[1px]'
-                        : isLight
-                        ? 'text-slate-400 hover:text-slate-700'
-                        : 'text-neutral-400 hover:text-neutral-200'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Tab 1: OVERVIEW */}
-            {sidebarTab === 'overview' && (
-              <div className="space-y-4 text-xs">
-                {/* Personal Information */}
-                <div>
-                  <h3 className={`font-bold text-xs mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                    Personal Information
-                  </h3>
-                  <div className={`p-3 rounded-xl space-y-2 border ${
-                    isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'
-                  }`}>
-                    <div className="flex items-center justify-between">
-                      <span className={isLight ? 'text-slate-500' : 'text-neutral-400'}>Full Name</span>
-                      <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        {selectedCustomer.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className={isLight ? 'text-slate-500' : 'text-neutral-400'}>Mobile Number</span>
-                      <span className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        {selectedCustomer.phone || '-'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className={isLight ? 'text-slate-500' : 'text-neutral-400'}>Email Address</span>
-                      <span className={isLight ? 'text-slate-900' : 'text-white'}>
-                        {selectedCustomer.email || '-'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className={isLight ? 'text-slate-500' : 'text-neutral-400'}>Account Created</span>
-                      <span className={isLight ? 'text-slate-900' : 'text-white'}>
-                        {formatDate(selectedCustomer.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Default Address */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <h3 className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                      Default Address
-                    </h3>
-                    <button onClick={() => setSidebarTab('addresses')} className="text-[11px] text-blue-600 hover:underline font-medium">
-                      View All
-                    </button>
-                  </div>
-
-                  <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
-                    isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'
-                  }`}>
-                    <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-                    <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-neutral-300'}`}>
-                      {selectedCustomer.latestShippingAddress ? (
-                        `${selectedCustomer.latestShippingAddress.address || ''}${selectedCustomer.latestShippingAddress.city ? `, ${selectedCustomer.latestShippingAddress.city}` : ''}${selectedCustomer.latestShippingAddress.postalCode ? ` - ${selectedCustomer.latestShippingAddress.postalCode}` : ''}${selectedCustomer.latestShippingAddress.state ? `, ${selectedCustomer.latestShippingAddress.state}` : ''}${selectedCustomer.latestShippingAddress.country ? `, ${selectedCustomer.latestShippingAddress.country}` : ''}`
-                      ) : (
-                        'No shipping address on file'
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Recent Orders */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <h3 className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                      Recent Orders
-                    </h3>
-                    <button onClick={() => setSidebarTab('orders')} className="text-[11px] text-blue-600 hover:underline font-medium">
-                      View All
-                    </button>
-                  </div>
-
-                  {realCustomerDetails?.orders && realCustomerDetails.orders.length > 0 ? (
-                    <div className="space-y-2">
-                      {realCustomerDetails.orders.slice(0, 3).map((ord) => (
-                        <div
-                          key={ord._id}
-                          className={`p-2.5 rounded-xl border flex items-center justify-between ${
-                            isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-slate-400" />
-                            <div>
-                              <p className={`font-mono font-bold text-[11px] ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                                #{ord.orderNumber}
-                              </p>
-                              <p className={`text-[10px] ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
-                                {formatDate(ord.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="text-right">
-                            <p className={`font-bold font-poppins text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                              {formatPrice(ord.totalPrice)}
-                            </p>
-                            <span className={`inline-block text-[10px] font-semibold px-2 py-0.2 rounded-full ${
-                              ord.orderStatus === 'Delivered'
-                                ? 'bg-emerald-50 text-emerald-700'
-                                : 'bg-blue-50 text-blue-700'
-                            }`}>
-                              {ord.orderStatus}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`p-4 rounded-xl border text-center text-[11px] ${
-                      isLight ? 'bg-slate-50/50 border-slate-100 text-slate-400' : 'bg-[#0B1512] border-[#162420] text-neutral-500'
-                    }`}>
-                      No orders placed yet
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Tab 2: ORDERS */}
-            {sidebarTab === 'orders' && (
-              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                {realCustomerDetails?.orders && realCustomerDetails.orders.length > 0 ? (
-                  realCustomerDetails.orders.map((ord) => (
-                    <div
-                      key={ord._id}
-                      className={`p-3 rounded-xl border ${isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-xs">#{ord.orderNumber}</span>
-                        <span className="font-poppins font-bold text-xs">{formatPrice(ord.totalPrice)}</span>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between text-[11px]">
-                        <span className="text-slate-400">{formatDate(ord.createdAt)}</span>
-                        <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">
-                          {ord.orderStatus}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className={`p-8 rounded-xl border text-center text-xs ${
-                    isLight ? 'bg-slate-50/50 border-slate-100 text-slate-400' : 'bg-[#0B1512] border-[#162420] text-neutral-400'
-                  }`}>
-                    <Package className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                    <p className="font-semibold">No orders recorded</p>
-                    <p className="text-[11px] mt-0.5 opacity-75">This customer has not placed any orders yet</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab 3: ADDRESSES */}
-            {sidebarTab === 'addresses' && (
-              <div className="space-y-3">
-                {selectedCustomer.addresses && selectedCustomer.addresses.length > 0 ? (
-                  selectedCustomer.addresses.map((addr, aIdx) => (
-                    <div key={addr._id || aIdx} className={`p-3.5 rounded-xl border space-y-1 ${isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'}`}>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs">{addr.name || 'Saved Address'}</span>
-                        {addr.isDefault && (
-                          <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                            Default
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-neutral-300">
-                        {addr.street}
-                        {addr.city ? `, ${addr.city}` : ''}
-                        {addr.postalCode ? ` - ${addr.postalCode}` : ''}
-                      </p>
-                      <p className="text-[11px] text-slate-400">
-                        {addr.state ? `${addr.state}, ` : ''}
-                        {addr.country || 'India'}
-                      </p>
-                    </div>
-                  ))
-                ) : selectedCustomer.latestShippingAddress ? (
-                  <div className={`p-3.5 rounded-xl border space-y-1 ${isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs">Primary Shipping Address</span>
-                      <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        Latest
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-neutral-300">
-                      {selectedCustomer.latestShippingAddress.address}
-                      {selectedCustomer.latestShippingAddress.city ? `, ${selectedCustomer.latestShippingAddress.city}` : ''}
-                      {selectedCustomer.latestShippingAddress.postalCode ? ` - ${selectedCustomer.latestShippingAddress.postalCode}` : ''}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      {selectedCustomer.latestShippingAddress.state ? `${selectedCustomer.latestShippingAddress.state}, ` : ''}
-                      {selectedCustomer.latestShippingAddress.country || 'India'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className={`p-8 rounded-xl border text-center text-xs ${
-                    isLight ? 'bg-slate-50/50 border-slate-100 text-slate-400' : 'bg-[#0B1512] border-[#162420] text-neutral-400'
-                  }`}>
-                    <MapPin className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                    <p className="font-semibold">No address registered</p>
-                    <p className="text-[11px] mt-0.5 opacity-75">No shipping address recorded for this patron</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab 4: PAYMENTS */}
-            {sidebarTab === 'payments' && (
-              <div className="space-y-2.5">
-                {realCustomerDetails?.orders && realCustomerDetails.orders.length > 0 ? (
-                  Array.from(
-                    new Set(
-                      realCustomerDetails.orders
-                        .map((o) => o.paymentMethod)
-                        .filter(Boolean)
-                    )
-                  ).map((method) => {
-                    const methodOrders = realCustomerDetails.orders.filter((o) => o.paymentMethod === method);
-                    return (
-                      <div
-                        key={method}
-                        className={`p-3 rounded-xl border flex items-center justify-between ${
-                          isLight ? 'bg-slate-50/50 border-slate-100' : 'bg-[#0B1512] border-[#162420]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-emerald-600" />
-                          <div>
-                            <p className="font-semibold text-xs capitalize">{method}</p>
-                            <p className="text-[10px] text-slate-400">
-                              Used in {methodOrders.length} order{methodOrders.length > 1 ? 's' : ''}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-emerald-600 font-bold text-xs">Active</span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div
-                    className={`p-8 rounded-xl border text-center text-xs ${
-                      isLight ? 'bg-slate-50/50 border-slate-100 text-slate-400' : 'bg-[#0B1512] border-[#162420] text-neutral-400'
-                    }`}
-                  >
-                    <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                    <p className="font-semibold">No payment history</p>
-                    <p className="text-[11px] mt-0.5 opacity-75">No transactions completed yet for this patron</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Bottom Action Buttons (Send Message + Block Customer) */}
-            <div className="pt-2 flex items-center gap-2">
-              {selectedCustomer.email ? (
-                <a
-                  href={`mailto:${selectedCustomer.email}`}
-                  className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all ${
-                    isLight
-                      ? 'bg-[#111827] hover:bg-[#1f2937] text-white'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                  }`}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Send Email</span>
-                </a>
-              ) : (
-                <button
-                  disabled
-                  className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 opacity-50 cursor-not-allowed ${
-                    isLight ? 'bg-slate-200 text-slate-500' : 'bg-neutral-800 text-neutral-500'
-                  }`}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>No Email</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => handleToggleBlock(selectedCustomer)}
-                className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-xs border flex items-center justify-center gap-2 transition-all ${
-                  isLight
-                    ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-                    : 'bg-transparent border-[#1E332B] text-neutral-300 hover:bg-neutral-800'
-                }`}
-              >
-                <ShieldBan className={`w-3.5 h-3.5 ${selectedCustomer.status === 'Blocked' ? 'text-emerald-600' : 'text-red-500'}`} />
-                <span>{selectedCustomer.status === 'Blocked' ? 'Unblock Customer' : 'Block Customer'}</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* 5. Add Customer Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
-          <div className="absolute inset-0" onClick={() => setIsAddModalOpen(false)}></div>
-
-          <div className={`relative w-full max-w-lg rounded-2xl shadow-2xl z-10 border transition-all max-h-[90vh] flex flex-col my-auto overflow-hidden ${
-            isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0E1715] border-[#1B2925] text-white'
-          }`}>
-            <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
-              <div>
-                <h3 className="font-bold text-base">Add New Customer</h3>
-                <p className="text-xs text-slate-400">Enter customer details to register in portal</p>
-              </div>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateCustomer} className="flex flex-col flex-1 overflow-hidden">
-              <div className="p-5 overflow-y-auto flex-1 space-y-3.5 text-xs">
-                {formError && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-                    {formError}
-                  </div>
-                )}
-
-                <div>
-                  <label className="block font-semibold mb-1">Customer Full Name *</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Full Name <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="text"
                     required
-                    placeholder="Enter full name"
-                    value={newCustForm.name}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, name: e.target.value })}
-                    className={`w-full p-2.5 rounded-xl border outline-none ${
-                      isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                    }`}
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold mb-1">Mobile Number</label>
-                    <input
-                      type="tel"
-                      placeholder="+91 00000 00000"
-                      value={newCustForm.phone}
-                      onChange={(e) => setNewCustForm({ ...newCustForm, phone: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border outline-none ${
-                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      placeholder="customer@example.com"
-                      value={newCustForm.email}
-                      onChange={(e) => setNewCustForm({ ...newCustForm, email: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border outline-none ${
-                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-semibold mb-1">Street Address</label>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">Honorific / Title</label>
                   <input
                     type="text"
-                    placeholder="Street, locality or apartment"
-                    value={newCustForm.address}
-                    onChange={(e) => setNewCustForm({ ...newCustForm, address: e.target.value })}
-                    className={`w-full p-2.5 rounded-xl border outline-none ${
-                      isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                    }`}
+                    placeholder="e.g. Dr., Mr., Sheikh"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block font-semibold mb-1">City</label>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                  />
+                </div>
+
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">Account Status</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as any })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none cursor-pointer"
+                  >
+                    <option value="Active">Active (Permitted)</option>
+                    <option value="Inactive">Inactive (Dormant)</option>
+                    <option value="Blocked">Blocked (Suspended)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Address Fields */}
+              <div className="pt-2 border-t border-slate-200">
+                <p className="font-bold text-xs text-slate-800 mb-2">Shipping Address</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block font-bold text-slate-700 mb-1">Street Address</label>
                     <input
                       type="text"
-                      value={newCustForm.city}
-                      onChange={(e) => setNewCustForm({ ...newCustForm, city: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border outline-none ${
-                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                      }`}
+                      placeholder="Door no, Street name"
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold mb-1">State</label>
+                    <label className="block font-bold text-slate-700 mb-1">City</label>
                     <input
                       type="text"
-                      value={newCustForm.state}
-                      onChange={(e) => setNewCustForm({ ...newCustForm, state: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border outline-none ${
-                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                      }`}
+                      placeholder="City"
+                      value={editForm.city}
+                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">State</label>
+                    <input
+                      type="text"
+                      placeholder="State"
+                      value={editForm.state}
+                      onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
                     />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block font-semibold mb-1">Postal Code</label>
+                    <label className="block font-bold text-slate-700 mb-1">Postal Code</label>
                     <input
                       type="text"
+                      placeholder="Pincode"
+                      value={editForm.postalCode}
+                      onChange={(e) => setEditForm({ ...editForm, postalCode: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setEditingCustomer(null)}
+                  className="px-4 py-2 rounded-xl font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updateCustomerMutation.isPending}
+                  className="px-5 py-2 rounded-xl font-bold bg-[#044e43] hover:bg-[#033c34] text-white shadow-sm transition-all disabled:opacity-50 text-xs cursor-pointer flex items-center gap-2"
+                >
+                  {updateCustomerMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Changes</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 7. DELETE CUSTOMER CONFIRMATION MODAL ─── */}
+      {deletingCustomer && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="absolute inset-0 cursor-pointer" onClick={() => setDeletingCustomer(null)} />
+
+          <div className="relative w-full max-w-md rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 p-6 flex flex-col space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900">Delete Customer?</h3>
+                <p className="text-xs text-slate-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-200 text-xs text-rose-900 space-y-1">
+              <p>
+                Are you sure you want to delete <strong className="underline">{deletingCustomer.name}</strong>?
+              </p>
+              <p className="text-[11px] text-rose-700">
+                Their account profile and direct references will be removed from the system.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingCustomer(null)}
+                className="px-4 py-2 rounded-xl font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deleteCustomerMutation.isPending}
+                className="px-5 py-2 rounded-xl font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-all disabled:opacity-50 text-xs cursor-pointer flex items-center gap-2"
+              >
+                {deleteCustomerMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <span>Yes, Delete</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 8. ADD NEW CUSTOMER MODAL ─── */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+          <div className="absolute inset-0 cursor-pointer" onClick={() => setIsAddModalOpen(false)} />
+
+          <div className="relative w-full max-w-lg rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 flex flex-col my-auto overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900">Add New Customer</h3>
+                  <p className="text-xs text-slate-500">Register a new client directly</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form Body */}
+            <form onSubmit={handleCreateCustomer} className="p-5 space-y-4 text-xs overflow-y-auto max-h-[75vh]">
+              {formError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2 font-medium">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Customer Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full Name"
+                    value={newCustForm.name}
+                    onChange={(e) => setNewCustForm({ ...newCustForm, name: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                  />
+                </div>
+
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    placeholder="customer@example.com"
+                    value={newCustForm.email}
+                    onChange={(e) => setNewCustForm({ ...newCustForm, email: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                  />
+                </div>
+
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold text-slate-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={newCustForm.phone}
+                    onChange={(e) => setNewCustForm({ ...newCustForm, phone: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Address Fields */}
+              <div className="pt-2 border-t border-slate-200">
+                <p className="font-bold text-xs text-slate-800 mb-2">Delivery Address (Optional)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block font-bold text-slate-700 mb-1">Street Address</label>
+                    <input
+                      type="text"
+                      placeholder="Door no, Street name"
+                      value={newCustForm.address}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, address: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      placeholder="City"
+                      value={newCustForm.city}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, city: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">State</label>
+                    <input
+                      type="text"
+                      placeholder="State"
+                      value={newCustForm.state}
+                      onChange={(e) => setNewCustForm({ ...newCustForm, state: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
+                    />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block font-bold text-slate-700 mb-1">Postal Code</label>
+                    <input
+                      type="text"
+                      placeholder="Pincode"
                       value={newCustForm.postalCode}
                       onChange={(e) => setNewCustForm({ ...newCustForm, postalCode: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border outline-none ${
-                        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-[#1E332B] bg-[#0B1512]'
-                      }`}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Sticky Action Footer */}
-              <div className={`p-4 border-t flex items-center justify-end gap-2.5 flex-shrink-0 ${
-                isLight ? 'border-slate-100 bg-slate-50/70' : 'border-[#1E332B] bg-[#0A1411]'
-              }`}>
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl font-semibold border text-slate-600 hover:bg-slate-100 text-xs"
+                  className="px-4 py-2 rounded-xl font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createCustomerMutation.isPending}
-                  className="px-4 py-2 rounded-xl font-bold bg-[#111827] text-white hover:bg-[#1f2937] shadow-sm disabled:opacity-50 text-xs"
+                  className="px-5 py-2 rounded-xl font-bold bg-[#044e43] hover:bg-[#033c34] text-slate-50 shadow-sm transition-all disabled:opacity-50 text-xs cursor-pointer flex items-center gap-2"
                 >
-                  {createCustomerMutation.isPending ? 'Saving...' : 'Add Customer'}
+                  {createCustomerMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Add Customer</span>
+                  )}
                 </button>
               </div>
             </form>

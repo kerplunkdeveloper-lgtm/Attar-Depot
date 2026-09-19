@@ -37,15 +37,11 @@ export default function HomePage() {
       {/* 3. Featured Sovereign Attars with Better Alignment */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 font-sans">
-            Handcrafted Treasures
-          </span>
+        
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-neutral-900 uppercase">
-            Best Selling Elixirs
+         Our Bestsellers
           </h2>
-          <p className="font-sans text-xs sm:text-sm text-neutral-600">
-            Timeless concentrated oils celebrated for unmatched projection and intoxicating depth.
-          </p>
+         
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

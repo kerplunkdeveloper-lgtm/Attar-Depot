@@ -8,6 +8,7 @@ import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { authenticateWithGoogle } from '@/lib/googleAuth';
+import { getQueryClient } from '@/components/providers/Providers';
 import {
   X,
   ChevronDown,
@@ -166,6 +167,7 @@ export default function AuthModal() {
 
       // If user already has full profile (Title, Name, Email), finish login!
       if (data.isProfileComplete && data.user) {
+        getQueryClient().clear();
         dispatch(setCredentials({ user: data.user, token: data.token }));
         toast.success(`Welcome back, ${data.user.name}!`, { title: 'Login Successful' });
         setTimeout(() => dispatch(closeAuthModal()), 500);
@@ -176,6 +178,9 @@ export default function AuthModal() {
         }
         if (data.user?.email) {
           setEmail(data.user.email);
+        }
+        if (data.user?.title) {
+          setTitle(data.user.title);
         }
         setStep('missing_fields');
       }
@@ -247,6 +252,7 @@ export default function AuthModal() {
         email: email.trim().toLowerCase(),
       });
 
+      getQueryClient().clear();
       dispatch(setCredentials({ user: data.user, token: data.token }));
       toast.success(`Welcome to Attar Depot, ${title} ${fullName}!`, {
         title: 'Registration Complete',
@@ -303,6 +309,7 @@ export default function AuthModal() {
 
     try {
       const { user, token } = await authenticateWithGoogle();
+      getQueryClient().clear();
       dispatch(setCredentials({ user, token }));
       toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
       dispatch(closeAuthModal());

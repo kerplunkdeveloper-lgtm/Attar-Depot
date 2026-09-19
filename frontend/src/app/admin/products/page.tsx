@@ -399,24 +399,18 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* SaaS Catalog Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E332B] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[13px] text-neutral-400 font-medium">
+            <span className="text-[13px] text-slate-500 font-medium">
               No. of Products: {products.length}
             </span>
           </div>
-          <h1 className="font-poppins text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            All Products
-          </h1>
-          <p className="text-xs text-neutral-400 mt-1 max-w-xl">
-            Manage flacons, edit pricing and scent pyramids, view live patron cards, and update inventory.
-          </p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 text-white hover:from-emerald-500 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-950/50 border border-emerald-400/30 active:scale-98 self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4 text-amber-300" />
           <span>Create New Products</span>
@@ -425,28 +419,28 @@ export default function AdminProductsPage() {
 
       {/* Feedback Alert */}
       {statusMessage && (
-        <div className="p-4 rounded-2xl bg-[#0E1F1A] border border-emerald-500/40 text-emerald-300 text-xs flex justify-between items-center shadow-lg animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex justify-between items-center shadow-xs animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span className="font-medium">{statusMessage}</span>
           </div>
-          <button onClick={() => setStatusMessage('')} className="text-emerald-400 hover:text-white p-1">
+          <button onClick={() => setStatusMessage('')} className="text-emerald-700 hover:text-emerald-950 p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#0A1210] p-3 rounded-2xl border border-[#1E332B] shadow-inner">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search flacons by name, slug, notes, or collection..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-[#070D0B] border border-[#1E332B] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 text-white placeholder-neutral-500 font-poppins"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 placeholder-slate-400 font-poppins"
           />
         </div>
 
@@ -455,10 +449,10 @@ export default function AdminProductsPage() {
           <button
             key="All"
             onClick={() => setSelectedCategoryFilter('All')}
-            className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               selectedCategoryFilter === 'All'
-                ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
-                : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-sm font-extrabold ring-1 ring-emerald-500/40'
+                : 'bg-white border border-slate-300 text-slate-800 hover:text-slate-950 hover:bg-slate-100 shadow-xs'
             }`}
           >
             All
@@ -469,10 +463,10 @@ export default function AdminProductsPage() {
               <button
                 key={cat._id}
                 onClick={() => setSelectedCategoryFilter(cat._id)}
-                className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   isSelected
-                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] font-bold'
-                    : 'bg-[#0E1815] text-neutral-400 hover:text-white hover:bg-[#152621]'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-sm font-extrabold ring-1 ring-emerald-500/40'
+                    : 'bg-white border border-slate-300 text-slate-800 hover:text-slate-950 hover:bg-slate-100 shadow-xs'
                 }`}
               >
                 {cat.name}
@@ -483,14 +477,14 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products SaaS Table */}
-      <div className="rounded-3xl bg-gradient-to-b from-[#0F1916] to-[#0A1210] border border-[#1E332B] overflow-hidden shadow-2xl shadow-black/60">
-        <div className="md:hidden px-4 py-1.5 text-[10px] text-emerald-400 bg-[#0A1512] flex items-center justify-between border-b border-[#1E332B]">
+      <div className="rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/5">
+        <div className="md:hidden px-4 py-1.5 text-[10px] text-emerald-700 bg-emerald-50 flex items-center justify-between border-b border-slate-200">
           <span>Scroll horizontally for full flacon metrics</span>
           <span className="font-mono text-[11px]">&rarr;</span>
         </div>
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs min-w-[800px]">
-            <thead className="bg-[#09110F] text-neutral-400 uppercase tracking-wider font-semibold border-b border-[#1E332B]">
+            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200/80">
               <tr>
                 <th className="p-4 pl-6">Images and Titles</th>
                 <th className="p-4">Category</th>
@@ -501,28 +495,28 @@ export default function AdminProductsPage() {
                 <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#162520] text-neutral-300">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                  <td colSpan={7} className="p-12 text-center text-slate-500">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                       <span>Loading concentrated flacon catalog...</span>
                     </div>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                  <td colSpan={7} className="p-12 text-center text-slate-400">
                     No perfume flacons found matching your search.
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map((p) => (
-                  <tr key={p._id} className="hover:bg-[#12211C]/80 transition-colors group">
+                  <tr key={p._id} className="hover:bg-slate-50/70 transition-colors group">
                     <td className="p-4 pl-6">
                       <div className="flex items-center gap-3.5">
-                        <div className="relative w-12 h-14 rounded-xl bg-[#0E1815] overflow-hidden flex-shrink-0 border border-[#1E332B] shadow-md">
+                        <div className="relative w-12 h-14 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200 shadow-xs">
                           <Image
                             src={p.images?.[0] || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800'}
                             alt={p.name}
@@ -533,14 +527,14 @@ export default function AdminProductsPage() {
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm">{p.name}</p>
-                          <p className="text-[10px] text-neutral-500 font-mono">/{p.slug}</p>
+                          <p className="font-bold text-slate-900 text-sm">{p.name}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">/{p.slug}</p>
                           {p.notes && p.notes.length > 0 ? (
-                            <p className="text-[10px] text-emerald-400 mt-0.5 line-clamp-1 font-medium">
+                            <p className="text-[10px] text-emerald-700 mt-0.5 line-clamp-1 font-medium">
                               Notes: {p.notes.slice(0, 3).join(' • ')}
                             </p>
                           ) : p.fragranceNotes?.topNotes?.length > 0 ? (
-                            <p className="text-[10px] text-emerald-400 mt-0.5 line-clamp-1">
+                            <p className="text-[10px] text-emerald-700 mt-0.5 line-clamp-1">
                               Notes: {p.fragranceNotes.topNotes.slice(0, 2).join(', ')}
                             </p>
                           ) : null}
@@ -549,22 +543,22 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td className="p-4">
-                      <span className="font-semibold text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px]">
+                      <span className="font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-[11px]">
                         {p.category?.name || 'Unassigned'}
                       </span>
                     </td>
 
                     <td className="p-4">
                       <div className="space-y-1">
-                        <p className="font-semibold text-white text-xs">
+                        <p className="font-semibold text-slate-800 text-xs">
                           {p.collection || 'Standard Series'}
                         </p>
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] text-amber-300 font-medium bg-[#070D0B] border border-[#1E332B] px-1.5 py-0.5 rounded-md">
+                          <span className="text-[10px] text-amber-700 font-medium bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">
                             {p.gender ? (p.gender === 'Men' ? "Men's" : p.gender === 'Women' ? "Women's" : p.gender) : 'Unisex'}
                           </span>
                           {p.occasions && p.occasions.length > 0 && (
-                            <span className="text-[10px] text-neutral-400">
+                            <span className="text-[10px] text-slate-400">
                               • {p.occasions[0]}
                             </span>
                           )}
@@ -573,11 +567,11 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td className="p-4">
-                      <p className="font-poppins font-bold text-emerald-400 text-sm">
+                      <p className="font-poppins font-bold text-emerald-700 text-sm">
                         {formatPrice(p.price)}
                       </p>
                       {p.originalPrice && p.originalPrice > p.price && (
-                        <p className="text-[10px] text-neutral-500 line-through">
+                        <p className="text-[10px] text-slate-400 line-through">
                           {formatPrice(p.originalPrice)}
                         </p>
                       )}
@@ -585,13 +579,13 @@ export default function AdminProductsPage() {
 
                     <td className="p-4">
                       {p.stock <= 0 ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-950/80 text-rose-300 border border-rose-500/40 whitespace-nowrap shadow-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                           OUT OF STOCK
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 whitespace-nowrap shadow-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           Available : {p.stock}
                         </span>
                       )}
@@ -600,12 +594,12 @@ export default function AdminProductsPage() {
                     <td className="p-4">
                       <div className="flex gap-1.5 flex-wrap">
                         {p.isFeatured && (
-                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40">
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                             Featured
                           </span>
                         )}
                         {p.isBestSeller && (
-                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-950/80 text-purple-300 border border-purple-500/40">
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
                             Best Seller
                           </span>
                         )}
@@ -617,7 +611,7 @@ export default function AdminProductsPage() {
                         {/* View Product Modal Trigger */}
                         <button
                           onClick={() => setViewingProduct(p)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-emerald-300 hover:bg-[#13221E] transition-colors"
+                          className="p-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 shadow-xs transition-colors cursor-pointer"
                           title="View flacon details"
                         >
                           <Eye className="w-4 h-4" />
@@ -626,7 +620,7 @@ export default function AdminProductsPage() {
                         {/* Edit Product Modal Trigger */}
                         <button
                           onClick={() => handleOpenEditModal(p)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-blue-400 hover:bg-blue-950/30 transition-colors"
+                          className="p-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 shadow-xs transition-colors cursor-pointer"
                           title="Edit flacon"
                         >
                           <Edit className="w-4 h-4" />
@@ -635,7 +629,7 @@ export default function AdminProductsPage() {
                         {/* Delete Product */}
                         <button
                           onClick={() => handleDelete(p._id, p.name)}
-                          className="p-1.5 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                          className="p-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 shadow-xs transition-colors cursor-pointer"
                           title="Delete flacon"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -1018,7 +1012,7 @@ export default function AdminProductsPage() {
 
                   <div className="sm:col-span-2">
                     <label className="block text-neutral-300 font-bold mb-1 uppercase tracking-wider text-[10px]">
-                      Full Olfactory Story & Formulation *
+                     Description *
                     </label>
                     <textarea
                       name="description"

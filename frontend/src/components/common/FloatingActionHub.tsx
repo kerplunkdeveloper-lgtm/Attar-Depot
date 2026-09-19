@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { ChevronUp } from 'lucide-react';
 
 export default function FloatingActionHub() {
+  const pathname = usePathname();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -29,6 +31,7 @@ export default function FloatingActionHub() {
   };
 
   if (!mounted) return null;
+  if (pathname?.startsWith('/admin')) return null;
 
   const whatsappMessage = encodeURIComponent(
     'Salam & Greetings! I am inquiring about Attar Depot pure perfume oils and bespoke royal fragrances.'

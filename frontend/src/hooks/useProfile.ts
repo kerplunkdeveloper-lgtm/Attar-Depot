@@ -1,17 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { updateUser } from '@/store/authSlice';
 import { User, UserAddress } from '@/types';
 
 export const useProfile = (enabled: boolean = true) => {
+  const { user } = useAppSelector((state) => state.auth);
+
   return useQuery<User>({
-    queryKey: ['user-profile'],
+    queryKey: ['user-profile', user?._id],
     queryFn: async () => {
       const { data } = await api.get('/auth/me');
       return data.user;
     },
-    enabled,
+    enabled: enabled && !!user,
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -41,13 +43,15 @@ export const useUpdateProfile = () => {
 };
 
 export const useAddresses = (enabled: boolean = true) => {
+  const { user } = useAppSelector((state) => state.auth);
+
   return useQuery<UserAddress[]>({
-    queryKey: ['user-addresses'],
+    queryKey: ['user-addresses', user?._id],
     queryFn: async () => {
       const { data } = await api.get('/auth/addresses');
       return data.addresses || [];
     },
-    enabled,
+    enabled: enabled && !!user,
     staleTime: 60 * 1000,
   });
 };

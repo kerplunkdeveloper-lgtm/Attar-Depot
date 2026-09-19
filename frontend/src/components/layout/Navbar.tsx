@@ -30,6 +30,7 @@ import {
   Layers,
   ArrowRight,
   Gift,
+  LocateFixed,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -43,6 +44,9 @@ import { useCategories } from '@/hooks/useCategories';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { usePublicTaxonomy } from '@/hooks/useTaxonomy';
 import { toast } from '@/lib/toast';
+import api from '@/lib/api';
+import { getQueryClient } from '@/components/providers/Providers';
+import { detectCityForNavbar } from '@/hooks/useGeolocation';
 
 export default function Navbar() {
   const router = useRouter();
@@ -58,6 +62,7 @@ export default function Navbar() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>('categories');
+  const [deliveryCity, setDeliveryCity] = useState<string | null>(null);
 
   const lastScrollY = useRef(0);
   const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -136,6 +141,10 @@ export default function Navbar() {
     setMounted(true);
     dispatch(hydrateAuth());
     dispatch(hydrateCart());
+    // Silently detect city for delivery badge (won't trigger permission popup on its own)
+    detectCityForNavbar()
+      .then((city) => { if (city) setDeliveryCity(city); })
+      .catch(() => {});
   }, [dispatch]);
 
   // Lock body scroll when mobile off-canvas drawer is active
@@ -232,6 +241,8 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(logout());
+    api.post('/auth/logout').catch(() => {});
+    getQueryClient().clear();
     setIsUserMenuOpen(false);
     toast.info('You have safely signed out of your account.', {
       title: 'Signed Out',
@@ -408,6 +419,16 @@ export default function Navbar() {
               {/* 3. RIGHT SECTION: Search, User Profile, Cart (Others)             */}
               {/* ================================================================= */}
               <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2.5 lg:gap-3">
+
+                {/* 📍 Delivery City Badge — Desktop only, shown when location is detected */}
+                {mounted && deliveryCity && (
+                  <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-900/60 border border-emerald-500/40 backdrop-blur-sm shadow-[0_0_10px_rgba(16,185,129,0.2)] cursor-default group transition-all hover:border-emerald-400/60">
+                    <LocateFixed className="w-3 h-3 text-emerald-400 shrink-0 animate-pulse" />
+                    <span className="text-[10px] font-semibold text-emerald-300 whitespace-nowrap">
+                      Delivering to: <span className="text-white font-bold">{deliveryCity}</span>
+                    </span>
+                  </div>
+                )}
                 {/* Responsive Luxury Search Bar / Modal Trigger */}
                 <button
                   onClick={() => dispatch(toggleSearch(true))}

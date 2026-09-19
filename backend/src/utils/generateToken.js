@@ -28,6 +28,9 @@ export const sendTokenResponse = (user, statusCode, res) => {
       role: user.role,
       avatar: user.avatar,
       phone: user.phone,
+      title: user.title || '',
+      isProfileComplete: Boolean(user.isProfileComplete),
+      country: user.country || 'IN',
     },
   });
 };

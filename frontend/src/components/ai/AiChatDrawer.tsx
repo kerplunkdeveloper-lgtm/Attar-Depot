@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { toggleAiChat } from '@/store/uiSlice';
 import { useAiChat, ChatMessage } from '@/hooks/useAiChat';
@@ -85,7 +86,10 @@ export default function AiChatDrawer() {
     sendMessage(cleanText || chipText);
   };
 
+  const pathname = usePathname();
+
   if (!mounted) return null;
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <>

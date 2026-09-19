@@ -251,4 +251,102 @@ export const getCustomerDetails = async (req, res, next) => {
   }
 };
 
+// @desc    Update customer details (Edit Customer)
+// @route   PUT /api/admin/customers/:id
+// @access  Private/Admin
+export const updateCustomer = async (req, res, next) => {
+  try {
+    const { name, email, phone, title, status, address, city, state, postalCode, country } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    if (email && email.toLowerCase() !== (user.email || '').toLowerCase()) {
+      const existingEmail = await User.findOne({
+        email: email.toLowerCase(),
+        _id: { $ne: user._id },
+      });
+      if (existingEmail) {
+        return res.status(400).json({ success: false, message: 'Email is already used by another customer' });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    if (phone && phone !== user.phone) {
+      const existingPhone = await User.findOne({
+        phone,
+        _id: { $ne: user._id },
+      });
+      if (existingPhone) {
+        return res.status(400).json({ success: false, message: 'Phone number is already used by another customer' });
+      }
+      user.phone = phone;
+    }
+
+    if (name) user.name = name;
+    if (title !== undefined) user.title = title;
+    if (status && ['Active', 'Inactive', 'Blocked'].includes(status)) {
+      user.status = status;
+    }
+
+    if (address !== undefined || city !== undefined || state !== undefined || postalCode !== undefined) {
+      if (!user.addresses) user.addresses = [];
+      if (user.addresses.length > 0) {
+        if (address !== undefined) user.addresses[0].street = address;
+        if (city !== undefined) user.addresses[0].city = city;
+        if (state !== undefined) user.addresses[0].state = state;
+        if (postalCode !== undefined) user.addresses[0].postalCode = postalCode;
+        if (country !== undefined) user.addresses[0].country = country || 'India';
+      } else if (address || city || state) {
+        user.addresses.push({
+          street: address || '',
+          city: city || '',
+          state: state || '',
+          postalCode: postalCode || '',
+          country: country || 'India',
+          isDefault: true,
+        });
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Customer details updated successfully',
+      customer: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete customer
+// @route   DELETE /api/admin/customers/:id
+// @access  Private/Admin
+export const deleteCustomer = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(403).json({ success: false, message: 'Cannot delete an administrator account' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Customer deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 

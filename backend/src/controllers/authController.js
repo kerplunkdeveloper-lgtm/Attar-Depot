@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
-import { sendTokenResponse } from '../utils/generateToken.js';
+import { generateToken, sendTokenResponse } from '../utils/generateToken.js';
 import {
   normalizePhone,
   isValidPhone,
@@ -152,18 +152,43 @@ export const verifyOtp = async (req, res, next) => {
         country: 'IN',
         isProfileComplete: false,
       });
+    } else if (user.phone !== cleanPhone) {
+      // Normalize user phone to standard 10-digit format
+      user.phone = cleanPhone;
+      await user.save();
     }
 
-    // Check if user has completed all mandatory fields (Title, Name, Email)
-    const isProfileComplete =
-      Boolean(user.isProfileComplete) &&
-      Boolean(user.email) &&
-      user.name !== `Patron ${cleanPhone.slice(-4)}`;
+    // Check if user has completed all mandatory fields (Name, Email)
+    const hasValidName =
+      Boolean(user.name && user.name.trim()) &&
+      user.name !== 'Patron' &&
+      !user.name.startsWith(`Patron ${cleanPhone.slice(-4)}`);
+    const hasValidEmail = Boolean(user.email && user.email.trim());
+
+    // Profile is complete if explicitly flagged, or if they already have real name and email
+    const isProfileComplete = Boolean(user.isProfileComplete) || (hasValidName && hasValidEmail);
+
+    if (isProfileComplete && !user.isProfileComplete) {
+      user.isProfileComplete = true;
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+
+    const cookieOptions = {
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    };
+
+    res.cookie('token', token, cookieOptions);
 
     return res.status(200).json({
       success: true,
       isProfileComplete,
       phone: cleanPhone,
+      token,
       user: {
         _id: user._id,
         name: user.name,
@@ -171,9 +196,10 @@ export const verifyOtp = async (req, res, next) => {
         title: user.title || '',
         phone: user.phone,
         role: user.role,
+        avatar: user.avatar || '',
+        country: user.country || 'IN',
         isProfileComplete,
       },
-      token: (await import('../utils/generateToken.js')).generateToken(user._id),
     });
   } catch (error) {
     next(error);
@@ -218,10 +244,20 @@ export const completeProfile = async (req, res, next) => {
     const cleanPhone = normalizePhone(phone);
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if email is already taken by another account
+    // Find user first by phone (supporting all formats)
+    let user = await User.findOne({
+      $or: [
+        { phone: cleanPhone },
+        { phone: `+91 ${cleanPhone}` },
+        { phone: `+91${cleanPhone}` },
+        { phone: new RegExp(cleanPhone + '$') },
+      ],
+    });
+
+    // Check if email is already taken by ANOTHER account
     const existingEmail = await User.findOne({
       email: cleanEmail,
-      phone: { $ne: cleanPhone },
+      ...(user ? { _id: { $ne: user._id } } : {}),
     });
 
     if (existingEmail) {
@@ -231,19 +267,11 @@ export const completeProfile = async (req, res, next) => {
       });
     }
 
-    // Find and update user
-    let user = await User.findOne({
-      $or: [
-        { phone: cleanPhone },
-        { phone: `+91 ${cleanPhone}` },
-        { phone: new RegExp(cleanPhone + '$') },
-      ],
-    });
-
     if (!user) {
       user = new User({ phone: cleanPhone, role: 'user' });
     }
 
+    user.phone = cleanPhone;
     user.title = title;
     user.name = name.trim();
     user.email = cleanEmail;
@@ -453,10 +481,15 @@ export const getMe = async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Private / Public
 export const logout = async (req, res) => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
+  const cookieOptions = {
+    expires: new Date(0),
     httpOnly: true,
-  });
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res.cookie('token', '', cookieOptions);
+  res.clearCookie('token', cookieOptions);
 
   res.status(200).json({
     success: true,
@@ -492,6 +525,20 @@ export const updateProfile = async (req, res, next) => {
           message: 'Please provide a valid 10-digit mobile number',
         });
       }
+
+      // Check if phone taken by someone else
+      const existingPhone = await User.findOne({
+        phone: cleanPhone,
+        _id: { $ne: user._id },
+      });
+
+      if (existingPhone) {
+        return res.status(400).json({
+          success: false,
+          message: 'This mobile number is already in use by another account.',
+        });
+      }
+
       user.phone = cleanPhone;
     }
 
@@ -512,12 +559,28 @@ export const updateProfile = async (req, res, next) => {
       user.email = cleanEmail;
     }
 
+    // Set profile as complete if valid name and email are present
+    if (user.name && user.name !== 'Patron' && user.email) {
+      user.isProfileComplete = true;
+    }
+
     await user.save();
 
     res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        title: user.title || '',
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+        isProfileComplete: Boolean(user.isProfileComplete),
+        country: user.country || 'IN',
+        addresses: user.addresses,
+      },
     });
   } catch (error) {
     next(error);

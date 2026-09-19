@@ -15,6 +15,7 @@ import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { authenticateWithGoogle } from '@/lib/googleAuth';
+import { getQueryClient } from '@/components/providers/Providers';
 
 function LoginFormContent() {
   const router = useRouter();
@@ -114,6 +115,7 @@ function LoginFormContent() {
       });
 
       if (data.isProfileComplete && data.user) {
+        getQueryClient().clear();
         dispatch(setCredentials({ user: data.user, token: data.token }));
         toast.success(`Welcome back, ${data.user.name}!`, { title: 'Login Successful' });
         router.push(redirect);
@@ -123,6 +125,9 @@ function LoginFormContent() {
         }
         if (data.user?.email) {
           setEmail(data.user.email);
+        }
+        if (data.user?.title) {
+          setTitle(data.user.title);
         }
         setStep('missing_fields');
       }
@@ -194,6 +199,7 @@ function LoginFormContent() {
         email: email.trim().toLowerCase(),
       });
 
+      getQueryClient().clear();
       dispatch(setCredentials({ user: data.user, token: data.token }));
       toast.success(`Welcome to Attar Depot, ${title} ${fullName}!`, {
         title: 'Registration Complete',
@@ -248,6 +254,7 @@ function LoginFormContent() {
 
     try {
       const { user, token } = await authenticateWithGoogle();
+      getQueryClient().clear();
       dispatch(setCredentials({ user, token }));
       toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
       router.push(redirect);

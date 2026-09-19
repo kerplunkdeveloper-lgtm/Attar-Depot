@@ -87,14 +87,21 @@ export default function AdminLoginPage() {
   return (
     <div
       style={{
-        backgroundColor: '#022D24',
-        backgroundImage: 'radial-gradient(ellipse at top, #064E3E 0%, #022D24 55%, #011E18 100%)',
+        backgroundColor: '#011C16',
+        backgroundImage: `
+          radial-gradient(circle at 18% 12%, rgba(12, 78, 64, 0.55) 0%, transparent 50%),
+          radial-gradient(circle at 82% 22%, rgba(201, 162, 39, 0.15) 0%, transparent 45%),
+          radial-gradient(circle at 50% 100%, rgba(5, 46, 38, 0.70) 0%, transparent 60%),
+          linear-gradient(180deg, #02251E 0%, #011C16 50%, #00120E 100%)
+        `,
+        backgroundAttachment: 'fixed',
       }}
-      className="min-h-screen w-full flex flex-col justify-between items-center text-slate-800 font-poppins antialiased selection:bg-amber-400 selection:text-emerald-950 relative overflow-hidden p-4 sm:p-6 lg:p-8"
+      className="min-h-screen w-full flex flex-col justify-between items-center text-slate-100 font-poppins antialiased selection:bg-emerald-500 selection:text-white relative overflow-hidden p-4 sm:p-6 lg:p-8"
     >
       {/* Ambient luxury glows */}
-      <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[650px] h-[380px] bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 -left-28 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Centered Luxury Authentication Card */}
       <main className="w-full max-w-md my-auto py-6 sm:py-8 relative z-10 space-y-6">

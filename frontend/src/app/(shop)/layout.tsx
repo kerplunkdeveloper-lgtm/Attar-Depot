@@ -8,7 +8,7 @@ export default function ShopLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-neutral-900" suppressHydrationWarning>
+    <div className="min-h-screen flex flex-col bg-transparent text-neutral-900" suppressHydrationWarning>
       <Navbar />
       <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <Footer />

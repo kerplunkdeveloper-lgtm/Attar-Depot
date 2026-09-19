@@ -146,7 +146,7 @@ export default function ProfilePage() {
     title: currentUser?.title || '',
     name: currentUser?.name || '',
     email: currentUser?.email || '',
-    phone: currentUser?.phone || '',
+    phone: currentUser?.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '',
   });
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export default function ProfilePage() {
         title: currentUser.title || '',
         name: currentUser.name || '',
         email: currentUser.email || '',
-        phone: currentUser.phone || '',
+        phone: currentUser.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '',
       });
     }
   }, [currentUser]);
@@ -198,6 +198,10 @@ export default function ProfilePage() {
   // Handle Profile Update
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (profileForm.phone && profileForm.phone.trim().length !== 10) {
+      toast.error('Please enter a valid 10-digit mobile number.', { title: 'Invalid Phone Number' });
+      return;
+    }
     try {
       await updateProfileMutation.mutateAsync({
         title: profileForm.title,
@@ -311,8 +315,8 @@ export default function ProfilePage() {
   const defaultAddress = addresses.find((a) => a.isDefault) || addresses[0];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pb-20 pt-8 sm:pt-12 font-sans">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="min-h-screen pb-20 pt-8 sm:pt-12 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* PATRON BANNER CARD */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-[#0F392B] p-6 sm:p-8 text-white shadow-emerald-lg border border-emerald-800/40">
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.15),transparent_70%)] pointer-events-none" />

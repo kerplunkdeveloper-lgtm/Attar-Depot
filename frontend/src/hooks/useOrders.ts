@@ -1,15 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { useAppSelector } from '@/store';
 import { Order } from '@/types';
 
 export const useMyOrders = (enabled: boolean = true) => {
+  const { user } = useAppSelector((state) => state.auth);
+
   return useQuery<Order[]>({
-    queryKey: ['my-orders'],
+    queryKey: ['my-orders', user?._id],
     queryFn: async () => {
       const { data } = await api.get('/orders/my-orders');
       return data.orders || [];
     },
-    enabled,
+    enabled: enabled && !!user,
     staleTime: 3 * 60 * 1000,
   });
 };
