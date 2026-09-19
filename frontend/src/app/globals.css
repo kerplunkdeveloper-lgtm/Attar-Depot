@@ -354,6 +354,14 @@ button, input, select, textarea, .font-sans, .font-inter {
   color: #0F172A !important;
 }
 
+/* Category Card Title in Admin Catalog - Luxury Yellow / Amber */
+.admin-light-mode .category-card-title,
+.admin-dark-mode .category-card-title,
+h3.category-card-title,
+.category-card-title {
+  color: #FACC15 !important;
+}
+
 .admin-light-mode .text-neutral-300,
 .admin-light-mode .text-neutral-400 {
   color: #475569 !important;

@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getPublicTaxonomy,
   getAllTaxonomyAdmin,
+  resetDefaultTaxonomy,
   createCollection,
   updateCollection,
   deleteCollection,
@@ -24,6 +25,7 @@ router.use(protect, authorize('admin'));
 
 // Full taxonomy with stats for admin
 router.get('/all', getAllTaxonomyAdmin);
+router.post('/reset-defaults', resetDefaultTaxonomy);
 
 // Collections
 router.post('/collections', createCollection);

@@ -82,8 +82,6 @@ export default function Navbar() {
     (n) => n && n.trim() !== '' && n.toLowerCase() !== 'sex'
   );
 
-  const megaGenders = filterOptions?.genders ?? ['Men', 'Women', 'Unisex'];
-
   const megaCollections =
     taxonomy?.collections && taxonomy.collections.length > 0
       ? taxonomy.collections.map((c) => c.name)
@@ -101,12 +99,6 @@ export default function Navbar() {
     { label: '₹4000 – ₹4999', value: '4000-4999', min: 4000, max: 4999 },
     { label: '₹5000 – ₹5999', value: '5000-5999', min: 5000, max: 5999 },
   ];
-
-  const GENDER_LABEL: Record<string, string> = {
-    Men: "Men's Perfumes",
-    Women: "Women's Perfumes",
-    Unisex: 'Unisex Perfumes',
-  };
 
   const openShopDropdown = () => {
     if (shopTimeoutRef.current) {
@@ -693,57 +685,43 @@ export default function Navbar() {
                     </div>
                   </div>
 
-                  {/* Col 3: Gender & Formulation */}
+                  {/* Col 3: Occasions */}
                   <div className="lg:px-4 pt-4 lg:pt-0 space-y-2.5">
                     <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2">
-                      <UserIcon className="w-3.5 h-3.5 text-emerald-700" />
+                      <Gift className="w-3.5 h-3.5 text-emerald-700" />
                       <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-950">
-                        By Gender
+                        Occasions
                       </p>
                     </div>
                     <div className="space-y-1">
-                      {megaGenders.map((val) => (
-                        <Link
-                          key={val}
-                          href={`/shop?gender=${val}`}
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          <span>{GENDER_LABEL[val] || val}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                        </Link>
-                      ))}
-                    </div>
-
-                    <div className="pt-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-950 pb-1 border-b border-emerald-100 mb-1.5">
-                        Formulation
-                      </p>
-                      <div className="space-y-1">
-                        <Link
-                          href="/shop?type=pure-oil"
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="block text-xs text-neutral-700 hover:text-emerald-950 py-1 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          Pure Attar Oils (Concentrated)
-                        </Link>
-                        <Link
-                          href="/shop?type=spray"
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="block text-xs text-neutral-700 hover:text-emerald-950 py-1 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          Artisanal EDP Blends
-                        </Link>
-                      </div>
+                      {(megaOccasions.length > 0
+                        ? megaOccasions
+                        : [
+                            'Daily Wear',
+                            'Special Occasions',
+                            'Evening Wear',
+                            'Festive & Bridal',
+                            'Office & Work',
+                            'Gifting',
+                            'Spiritual & Meditation',
+                            'Casual Day',
+                          ]
+                      )
+                        .slice(0, 8)
+                        .map((occ) => (
+                          <Link
+                            key={occ}
+                            href={`/shop?occasion=${encodeURIComponent(occ)}`}
+                            onClick={() => {
+                              if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                              setIsShopOpen(false);
+                            }}
+                            className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
+                          >
+                            <span>{occ}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                          </Link>
+                        ))}
                     </div>
                   </div>
 
@@ -1047,34 +1025,37 @@ export default function Navbar() {
                     )}
                   </div>
 
-                  {/* 2. Gender Accordion */}
+                  {/* 2. Occasions Accordion */}
                   <div className="border border-emerald-100 rounded-2xl overflow-hidden bg-white shadow-2xs">
                     <button
                       type="button"
-                      onClick={() => toggleAccordion('gender')}
+                      onClick={() => toggleAccordion('occasions')}
                       className="w-full flex items-center justify-between p-3 text-xs font-bold text-neutral-800 bg-neutral-50/70 hover:bg-emerald-50/50 transition-colors"
                     >
                       <span className="flex items-center gap-2">
-                        <UserIcon className="w-3.5 h-3.5 text-emerald-700" />
-                        Shop By Gender
+                        <Gift className="w-3.5 h-3.5 text-emerald-700" />
+                        Shop By Occasion ({megaOccasions.length > 0 ? megaOccasions.length : 4})
                       </span>
                       <ChevronDown
                         className={`w-4 h-4 text-emerald-700 transition-transform duration-200 ${
-                          mobileAccordion === 'gender' ? 'rotate-180' : ''
+                          mobileAccordion === 'occasions' ? 'rotate-180' : ''
                         }`}
                       />
                     </button>
 
-                    {mobileAccordion === 'gender' && (
+                    {mobileAccordion === 'occasions' && (
                       <div className="p-2 space-y-1 bg-white animate-in fade-in duration-150">
-                        {megaGenders.map((val) => (
+                        {(megaOccasions.length > 0
+                          ? megaOccasions
+                          : ['Daily Wear', 'Special Occasion', 'Evening Wear', 'Gifting']
+                        ).map((occ) => (
                           <Link
-                            key={val}
-                            href={`/shop?gender=${val}`}
+                            key={occ}
+                            href={`/shop?occasion=${encodeURIComponent(occ)}`}
                             onClick={() => setIsMobileNavOpen(false)}
                             className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
                           >
-                            <span>{GENDER_LABEL[val] || val}</span>
+                            <span>{occ}</span>
                             <ChevronRight className="w-3 h-3 text-neutral-400" />
                           </Link>
                         ))}

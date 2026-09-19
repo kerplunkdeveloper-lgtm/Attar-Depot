@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Collection from '../models/Collection.js';
 import FragranceNote from '../models/FragranceNote.js';
 import Occasion from '../models/Occasion.js';
@@ -84,9 +85,18 @@ export const DEFAULT_CATEGORIES = [
   },
 ];
 
-// Helper: Seed defaults if empty
+// Helper: Seed defaults ONLY on initial system setup, NEVER resurrect deleted items
 export const seedDefaultTaxonomyIfNeeded = async () => {
   try {
+    const db = mongoose.connection.db;
+    if (!db) return;
+
+    // Check persistent system flag
+    const flag = await db.collection('system_flags').findOne({ key: 'taxonomy_seeded' });
+    if (flag) {
+      return; // Already seeded in the past; respect user deletions and do not recreate!
+    }
+
     const colCount = await Collection.countDocuments();
     if (colCount === 0) {
       await Collection.insertMany(
@@ -97,7 +107,7 @@ export const seedDefaultTaxonomyIfNeeded = async () => {
           isActive: true,
         }))
       );
-      console.log('[Taxonomy] Default collections seeded.');
+      console.log('[Taxonomy] Initial default collections seeded.');
     }
 
     const noteCount = await FragranceNote.countDocuments();
@@ -110,7 +120,7 @@ export const seedDefaultTaxonomyIfNeeded = async () => {
           isActive: true,
         }))
       );
-      console.log('[Taxonomy] Default fragrance notes seeded.');
+      console.log('[Taxonomy] Initial default fragrance notes seeded.');
     }
 
     const occCount = await Occasion.countDocuments();
@@ -123,7 +133,7 @@ export const seedDefaultTaxonomyIfNeeded = async () => {
           isActive: true,
         }))
       );
-      console.log('[Taxonomy] Default occasions seeded.');
+      console.log('[Taxonomy] Initial default occasions seeded.');
     }
 
     const catCount = await Category.countDocuments();
@@ -135,8 +145,15 @@ export const seedDefaultTaxonomyIfNeeded = async () => {
           isActive: true,
         }))
       );
-      console.log('[Taxonomy] Default categories seeded.');
+      console.log('[Taxonomy] Initial default categories seeded.');
     }
+
+    // Persist system flag so it never auto-reseeds deleted items
+    await db.collection('system_flags').updateOne(
+      { key: 'taxonomy_seeded' },
+      { $set: { key: 'taxonomy_seeded', seededAt: new Date() } },
+      { upsert: true }
+    );
   } catch (err) {
     console.error('[Taxonomy] Error in auto-seeding:', err.message);
   }
@@ -147,8 +164,6 @@ export const seedDefaultTaxonomyIfNeeded = async () => {
 // @access  Public
 export const getPublicTaxonomy = async (req, res, next) => {
   try {
-    await seedDefaultTaxonomyIfNeeded();
-
     const [categories, collections, notes, occasions] = await Promise.all([
       Category.find({ isActive: true }).sort({ name: 1 }),
       Collection.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }),
@@ -173,8 +188,6 @@ export const getPublicTaxonomy = async (req, res, next) => {
 // @access  Private/Admin
 export const getAllTaxonomyAdmin = async (req, res, next) => {
   try {
-    await seedDefaultTaxonomyIfNeeded();
-
     const [categories, collections, notes, occasions] = await Promise.all([
       Category.find().sort({ createdAt: -1 }),
       Collection.find().sort({ sortOrder: 1, createdAt: -1 }),
@@ -449,3 +462,64 @@ export const deleteOccasion = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Admin manual trigger to restore default taxonomy (categories, collections, notes, occasions)
+// @route   POST /api/taxonomy/reset-defaults
+// @access  Private/Admin
+export const resetDefaultTaxonomy = async (req, res, next) => {
+  try {
+    const { target } = req.body || {}; // 'categories', 'collections', 'notes', 'occasions', or all
+
+    if (!target || target === 'all' || target === 'categories') {
+      for (const c of DEFAULT_CATEGORIES) {
+        const slug = slugify(c.name);
+        await Category.findOneAndUpdate(
+          { slug },
+          { ...c, slug, isActive: true },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    if (!target || target === 'all' || target === 'collections') {
+      for (let i = 0; i < DEFAULT_COLLECTIONS.length; i++) {
+        const col = DEFAULT_COLLECTIONS[i];
+        const slug = slugify(col.name);
+        await Collection.findOneAndUpdate(
+          { slug },
+          { ...col, slug, sortOrder: i, isActive: true },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    if (!target || target === 'all' || target === 'notes') {
+      for (let i = 0; i < DEFAULT_NOTES.length; i++) {
+        const n = DEFAULT_NOTES[i];
+        const slug = slugify(n.name);
+        await FragranceNote.findOneAndUpdate(
+          { slug },
+          { ...n, slug, sortOrder: i, isActive: true },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    if (!target || target === 'all' || target === 'occasions') {
+      for (let i = 0; i < DEFAULT_OCCASIONS.length; i++) {
+        const o = DEFAULT_OCCASIONS[i];
+        const slug = slugify(o.name);
+        await Occasion.findOneAndUpdate(
+          { slug },
+          { ...o, slug, sortOrder: i, isActive: true },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    res.status(200).json({ success: true, message: 'Default taxonomy reset successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+

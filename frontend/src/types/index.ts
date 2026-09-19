@@ -46,6 +46,7 @@ export interface Category {
   image: string;
   featured?: boolean;
   isActive?: boolean;
+  productCount?: number;
   createdAt?: string;
 }
 

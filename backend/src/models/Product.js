@@ -100,15 +100,15 @@ const productSchema = new mongoose.Schema(
     },
     origin: {
       type: String,
-      default: 'Kannauj & Assam, India',
+      default: '',
     },
     longevityHours: {
       type: String,
-      default: '18 - 24 Hours',
+      default: '',
     },
     projection: {
       type: String,
-      default: 'Strong & Intoxicating',
+      default: '',
     },
     ratings: {
       average: { type: Number, default: 4.8, min: 0, max: 5 },

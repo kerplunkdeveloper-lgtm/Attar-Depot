@@ -86,14 +86,46 @@ export const useAdminDeleteProduct = () => {
   });
 };
 
+export const useAdminCategories = (params?: {
+  search?: string;
+  status?: string;
+  sort?: string;
+}) => {
+  return useQuery<{
+    success: boolean;
+    count: number;
+    categories: (Category & { productCount?: number })[];
+  }>({
+    queryKey: ['admin-categories', params],
+    queryFn: async () => {
+      const query = new URLSearchParams();
+      query.set('all', 'true');
+      if (params?.search) query.set('search', params.search);
+      if (params?.status && params.status !== 'all') query.set('status', params.status);
+      if (params?.sort) query.set('sort', params.sort);
+      const { data } = await api.get(`/categories?${query.toString()}`);
+      return data;
+    },
+    staleTime: 10 * 1000,
+  });
+};
+
 export const useAdminCreateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (catData: { name: string; description?: string; image?: string }) => {
+    mutationFn: async (catData: {
+      name: string;
+      slug?: string;
+      description?: string;
+      image?: string;
+      featured?: boolean;
+      isActive?: boolean;
+    }) => {
       const { data } = await api.post('/categories', catData);
       return data.category;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
@@ -121,11 +153,25 @@ export const useAdminUpdateProduct = () => {
 export const useAdminUpdateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { name?: string; description?: string; image?: string; featured?: boolean } }) => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        name?: string;
+        slug?: string;
+        description?: string;
+        image?: string;
+        featured?: boolean;
+        isActive?: boolean;
+      };
+    }) => {
       const response = await api.put(`/categories/${id}`, data);
       return response.data.category;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
@@ -135,19 +181,92 @@ export const useAdminUpdateCategory = () => {
   });
 };
 
-export const useAdminDeleteCategory = () => {
+export const useAdminToggleCategoryStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.delete(`/categories/${id}`);
+      const { data } = await api.patch(`/categories/${id}/toggle-status`);
+      return data.category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+    },
+  });
+};
+
+export const useAdminToggleCategoryFeatured = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.patch(`/categories/${id}/toggle-featured`);
+      return data.category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+    },
+  });
+};
+
+export const useAdminDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (arg: { id: string; force?: boolean } | string) => {
+      const id = typeof arg === 'string' ? arg : arg.id;
+      const isForce = typeof arg === 'object' && arg.force;
+      const url = isForce ? `/categories/${id}?force=true` : `/categories/${id}`;
+      const { data } = await api.delete(url);
       return data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+    },
+  });
+};
+
+export const useAdminBulkDeleteCategories = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ids, force }: { ids: string[]; force?: boolean }) => {
+      const { data } = await api.post('/categories/bulk-delete', { ids, force });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+    },
+  });
+};
+
+export const useAdminSeedDefaultCategories = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post('/categories/seed-defaults');
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
     },
   });
 };

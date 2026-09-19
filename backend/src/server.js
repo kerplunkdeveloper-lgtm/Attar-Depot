@@ -20,10 +20,24 @@ import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js
 
 dotenv.config();
 
-// Connect to MongoDB
-connectDB().then(() => {
-  seedDefaultTaxonomyIfNeeded();
+// Safety listeners for process resilience
+process.on('uncaughtException', (err) => {
+  console.error('[Process Uncaught Exception]:', err.message);
 });
+process.on('unhandledRejection', (reason) => {
+  console.error('[Process Unhandled Rejection]:', reason);
+});
+
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    seedDefaultTaxonomyIfNeeded().catch((err) => {
+      console.error('[Taxonomy Init Error]:', err.message);
+    });
+  })
+  .catch((err) => {
+    console.error('[Database Connect Error]:', err.message);
+  });
 
 const app = express();
 
@@ -89,6 +103,14 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`[Attar Depot API] Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[Server Port Error] Port ${PORT} is already in use. Please terminate existing process on port ${PORT} or restart.`);
+  } else {
+    console.error('[Server Error]:', err.message);
+  }
 });
 
 export default app;

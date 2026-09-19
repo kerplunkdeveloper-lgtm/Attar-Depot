@@ -3,7 +3,6 @@ import Category from '../models/Category.js';
 import Collection from '../models/Collection.js';
 import FragranceNote from '../models/FragranceNote.js';
 import Occasion from '../models/Occasion.js';
-import { seedDefaultTaxonomyIfNeeded } from './taxonomyController.js';
 import { uploadToCloudinary } from '../middleware/uploadMiddleware.js';
 
 // @desc    Get all products with filtering, search, sorting & pagination
@@ -140,8 +139,6 @@ export const getProducts = async (req, res, next) => {
 // @access  Public
 export const getFilterOptions = async (req, res, next) => {
   try {
-    await seedDefaultTaxonomyIfNeeded();
-
     const [
       taxonomyCollections,
       taxonomyNotes,
@@ -315,9 +312,9 @@ export const createProduct = async (req, res, next) => {
 
     // Parse fragrance notes
     const parsedNotes = {
-      topNotes: typeof topNotes === 'string' ? topNotes.split(',').map(s => s.trim()) : topNotes || [],
-      heartNotes: typeof heartNotes === 'string' ? heartNotes.split(',').map(s => s.trim()) : heartNotes || [],
-      baseNotes: typeof baseNotes === 'string' ? baseNotes.split(',').map(s => s.trim()) : baseNotes || [],
+      topNotes: typeof topNotes === 'string' ? topNotes.split(',').map(s => s.trim()).filter(Boolean) : topNotes || [],
+      heartNotes: typeof heartNotes === 'string' ? heartNotes.split(',').map(s => s.trim()).filter(Boolean) : heartNotes || [],
+      baseNotes: typeof baseNotes === 'string' ? baseNotes.split(',').map(s => s.trim()).filter(Boolean) : baseNotes || [],
     };
 
     // Parse filter notes
@@ -346,16 +343,10 @@ export const createProduct = async (req, res, next) => {
       }
     }
 
-    // Parse sizes
+    // Parse sizes — always come from the form payload (no auto-generation)
     let parsedSizes = [];
     if (sizes) {
       parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
-    } else {
-      parsedSizes = [
-        { size: '3ml', price: Number(price) * 0.55, stock: 20 },
-        { size: '6ml', price: Number(price), stock: 30 },
-        { size: '12ml', price: Number(price) * 1.8, stock: 15 },
-      ];
     }
 
     const product = await Product.create({
@@ -416,9 +407,9 @@ export const updateProduct = async (req, res, next) => {
 
     if (updates.topNotes || updates.heartNotes || updates.baseNotes) {
       updates.fragranceNotes = {
-        topNotes: typeof updates.topNotes === 'string' ? updates.topNotes.split(',').map(s => s.trim()) : product.fragranceNotes.topNotes,
-        heartNotes: typeof updates.heartNotes === 'string' ? updates.heartNotes.split(',').map(s => s.trim()) : product.fragranceNotes.heartNotes,
-        baseNotes: typeof updates.baseNotes === 'string' ? updates.baseNotes.split(',').map(s => s.trim()) : product.fragranceNotes.baseNotes,
+        topNotes: typeof updates.topNotes === 'string' ? updates.topNotes.split(',').map(s => s.trim()).filter(Boolean) : product.fragranceNotes.topNotes,
+        heartNotes: typeof updates.heartNotes === 'string' ? updates.heartNotes.split(',').map(s => s.trim()).filter(Boolean) : product.fragranceNotes.heartNotes,
+        baseNotes: typeof updates.baseNotes === 'string' ? updates.baseNotes.split(',').map(s => s.trim()).filter(Boolean) : product.fragranceNotes.baseNotes,
       };
     }
 
