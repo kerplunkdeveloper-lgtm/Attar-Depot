@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Product } from '@/types';
 
@@ -51,7 +51,8 @@ export const useProducts = (params: ProductQueryParams = {}) => {
       const { data } = await api.get(`/products?${query.toString()}`);
       return data;
     },
-    staleTime: 2 * 60 * 1000,
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -69,7 +70,9 @@ export const useFeaturedProducts = () => {
   });
 };
 
-export const useProductDetails = (idOrSlug: string) => {
+export const useProductDetails = (idOrSlug: string, initialProduct?: Product) => {
+  const queryClient = useQueryClient();
+
   return useQuery<{ product: Product; relatedProducts: Product[] }>({
     queryKey: ['product', idOrSlug],
     queryFn: async () => {
@@ -78,5 +81,30 @@ export const useProductDetails = (idOrSlug: string) => {
     },
     enabled: !!idOrSlug,
     staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => {
+      if (previousData) return previousData;
+      if (initialProduct) {
+        return { product: initialProduct, relatedProducts: [] };
+      }
+      // Instant cache search from previously loaded product lists
+      const allQueries = queryClient.getQueriesData<ProductsResponse>({ queryKey: ['products'] });
+      for (const [_, qData] of allQueries) {
+        const found = qData?.products?.find(
+          (p: Product) => p.slug === idOrSlug || p._id === idOrSlug
+        );
+        if (found) return { product: found, relatedProducts: [] };
+      }
+      const featuredData = queryClient.getQueryData<{
+        featured: Product[];
+        bestSellers: Product[];
+      }>(['featured-products']);
+      if (featuredData) {
+        const found = [...featuredData.featured, ...featuredData.bestSellers].find(
+          (p) => p.slug === idOrSlug || p._id === idOrSlug
+        );
+        if (found) return { product: found, relatedProducts: [] };
+      }
+      return undefined;
+    },
   });
 };

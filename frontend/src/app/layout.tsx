@@ -5,30 +5,15 @@ import Providers from '@/components/providers/Providers';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import RouteProgressBar from '@/components/common/RouteProgressBar';
-import fs from 'fs';
-import path from 'path';
 
-// Ensure the enhanced luxury marble background is copied to public/images
-try {
-  const src = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f549dd6a-b487-437f-9e5a-a79f1646842f\\luxury_marble_bg_1789794069156.jpg';
-  const destDir = path.join(process.cwd(), 'public', 'images');
-  const dest = path.join(destDir, 'luxury-marble-bg.jpg');
-  if (fs.existsSync(src)) {
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    if (!fs.existsSync(dest) || fs.statSync(dest).size !== fs.statSync(src).size) {
-      fs.copyFileSync(src, dest);
-    }
-  }
-} catch (e) {
-  // Silent fallback
-}
 
 const SearchModal = dynamic(() => import('@/components/search/SearchModal'), {
   ssr: false,
 });
 const CartDrawer = dynamic(() => import('@/components/layout/CartDrawer'), {
+  ssr: false,
+});
+const WishlistDrawer = dynamic(() => import('@/components/layout/WishlistDrawer'), {
   ssr: false,
 });
 const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), {
@@ -100,6 +85,7 @@ export default function RootLayout({
             </Suspense>
             <SearchModal />
             <CartDrawer />
+            <WishlistDrawer />
             <AuthModal />
             <ToastContainer />
             <FloatingActionHub />

@@ -22,6 +22,7 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
+    optimizePackageImports: ['lucide-react', '@reduxjs/toolkit', '@tanstack/react-query'],
   },
   async rewrites() {
     return [

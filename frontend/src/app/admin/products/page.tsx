@@ -86,10 +86,11 @@ export const PRESET_OCCASIONS = [
 
 // --- Size Variant type ---
 interface SizeVariant {
+  _id?: string;
   size: string;
-  price: number;
-  originalPrice: number;
-  stock: number;
+  price: number | '';
+  originalPrice?: number | '';
+  stock: number | '';
 }
 
 const emptySize = (): SizeVariant => ({ size: '', price: 0, originalPrice: 0, stock: 0 });
@@ -194,7 +195,13 @@ export default function AdminProductsPage() {
   const handleSizeChange = (index: number, field: keyof SizeVariant, value: string | number) => {
     setFormData((prev) => {
       const updated = [...prev.sizes];
-      updated[index] = { ...updated[index], [field]: field === 'size' ? value : Number(value) };
+      let val: any = value;
+      if (field === 'size') {
+        val = value;
+      } else {
+        val = value === '' ? '' : Number(value);
+      }
+      updated[index] = { ...updated[index], [field]: val };
       return { ...prev, sizes: updated };
     });
   };
@@ -356,8 +363,25 @@ export default function AdminProductsPage() {
       return;
     }
 
+    const selectedCategory = formData.category || (categories && categories.length > 0 ? categories[0]._id : null);
+    if (!selectedCategory) {
+      setStatusMessage('Please select a category for the flacon.');
+      toast.error('Please select a category.', { title: 'Category Required' });
+      setActiveTab('basic');
+      return;
+    }
+
     // Validate sizes — at least one size must have a name
-    const validSizes = formData.sizes.filter((s) => s.size.trim() !== '');
+    const validSizes = formData.sizes
+      .filter((s) => s.size.trim() !== '')
+      .map((s) => ({
+        ...s,
+        size: s.size.trim(),
+        price: s.price === '' || s.price === undefined || s.price === null ? 0 : Number(s.price),
+        originalPrice: s.originalPrice === '' || s.originalPrice === undefined || s.originalPrice === null ? undefined : Number(s.originalPrice),
+        stock: s.stock === '' || s.stock === undefined || s.stock === null ? 0 : Number(s.stock),
+      }));
+
     if (validSizes.length === 0) {
       setStatusMessage('Please add at least one size variant.');
       toast.error('Add at least one size variant with a name.', { title: 'Size Required' });
@@ -370,21 +394,21 @@ export default function AdminProductsPage() {
 
       // Derive product-level price from lowest-priced size (or from field if no sizes)
       const lowestSizePrice = validSizes.length > 0
-        ? Math.min(...validSizes.map((s) => s.price || 0))
-        : Number(formData.price);
-      const totalSizeStock = validSizes.reduce((acc, s) => acc + (s.stock || 0), 0);
+        ? Math.min(...validSizes.map((s) => s.price))
+        : Number(formData.price || 0);
+      const totalSizeStock = validSizes.reduce((acc, s) => acc + (Number(s.stock) || 0), 0);
 
       const payload = {
         name: formData.name.trim(),
         tagline: formData.tagline.trim(),
-        description: formData.description.trim(),
-        category: formData.category || categories[0]?._id,
+        description: formData.description.trim() || 'Pure concentrated royal attar of distinction.',
+        category: selectedCategory,
         fragranceFamily: formData.notes?.[0] || formData.fragranceFamily || 'Oudh',
         gender: formData.gender,
         collection: finalCollection,
         notes: formData.notes,
         occasions: formData.occasions,
-        price: lowestSizePrice,
+        price: lowestSizePrice > 0 ? lowestSizePrice : 999,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
         stock: totalSizeStock,
         images: [formData.image.trim()],
@@ -633,18 +657,21 @@ export default function AdminProductsPage() {
                         <div className="flex flex-col gap-1">
                           {p.sizes.map((s, idx) => (
                             <div key={idx} className="flex items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900 text-white whitespace-nowrap">
+                              <span
+                                className="size-badge px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900 !text-white whitespace-nowrap shadow-xs"
+                                style={{ color: '#FFFFFF', backgroundColor: '#0F172A' }}
+                              >
                                 {s.size}
                               </span>
                               {s.stock <= 0 ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
                                   <span className="w-1 h-1 rounded-full bg-rose-500" />
-                                  Out
-                                </span>
+                                  Out of stock
+                                </span> 
                               ) : (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                                  {s.stock} pcs
+                                  {s.stock} pcs Available
                                 </span>
                               )}
                             </div>
@@ -1131,7 +1158,7 @@ export default function AdminProductsPage() {
                                 type="number"
                                 min="0"
                                 placeholder="0"
-                                value={sv.price || ''}
+                                value={sv.price !== undefined && sv.price !== null ? sv.price : ''}
                                 onChange={(e) => handleSizeChange(idx, 'price', e.target.value)}
                                 className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl pl-7 pr-3 py-2 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 font-poppins font-bold text-xs"
                               />
@@ -1146,7 +1173,7 @@ export default function AdminProductsPage() {
                                 type="number"
                                 min="0"
                                 placeholder="0"
-                                value={sv.originalPrice || ''}
+                                value={sv.originalPrice !== undefined && sv.originalPrice !== null ? sv.originalPrice : ''}
                                 onChange={(e) => handleSizeChange(idx, 'originalPrice', e.target.value)}
                                 className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl pl-7 pr-3 py-2 text-white placeholder-neutral-600 focus:outline-none focus:border-amber-500/40 font-poppins text-xs"
                               />
@@ -1159,7 +1186,7 @@ export default function AdminProductsPage() {
                               type="number"
                               min="0"
                               placeholder="0"
-                              value={sv.stock || ''}
+                              value={sv.stock !== undefined && sv.stock !== null ? sv.stock : ''}
                               onChange={(e) => handleSizeChange(idx, 'stock', e.target.value)}
                               className="w-full bg-[#070D0B] border border-[#1E332B] rounded-xl px-3 py-2 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 font-bold text-xs"
                             />

@@ -15,11 +15,13 @@ import {
   Plus,
   Minus,
   Check,
+  Heart,
 } from 'lucide-react';
 import { useProductDetails } from '@/hooks/useProducts';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart } from '@/store/cartSlice';
-import { toggleCartDrawer } from '@/store/uiSlice';
+import { toggleCartDrawer, toggleWishlistDrawer } from '@/store/uiSlice';
+import { toggleWishlist } from '@/store/wishlistSlice';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
 import FragrancePyramid from '@/components/product/FragrancePyramid';
@@ -45,7 +47,10 @@ export default function ProductDetailPage({
   const [isCopied, setIsCopied] = useState(false);
   const [isMainImageLoaded, setIsMainImageLoaded] = useState(false);
 
-  if (isLoading) {
+  const wishlistItems = useAppSelector((state) => state.wishlist?.items || []);
+  const isWishlisted = product ? wishlistItems.some((item) => item.productId === product._id) : false;
+
+  if (isLoading && !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-in fade-in duration-300">
         {/* Breadcrumb Skeleton */}
@@ -163,6 +168,38 @@ export default function ProductDetailPage({
     }
   };
 
+  const handleWishlistToggle = () => {
+    if (!product) return;
+    const sizeLabel = currentSize ? currentSize.size : '100 ML';
+    dispatch(
+      toggleWishlist({
+        productId: product._id,
+        name: product.name,
+        slug: product.slug,
+        image: product.images[selectedImageIndex] || product.images[0],
+        size: sizeLabel,
+        price: currentPrice,
+        originalPrice: currentOriginalPrice,
+        stock: product.stock,
+        fragranceFamily: product.fragranceFamily,
+        tagline: product.tagline,
+        gender: product.gender,
+      })
+    );
+
+    if (!isWishlisted) {
+      toast.success(`${product.name} saved to your royal wishlist.`, {
+        title: 'Wishlist Updated',
+        action: {
+          label: 'View Wishlist',
+          onClick: () => dispatch(toggleWishlistDrawer(true)),
+        },
+      });
+    } else {
+      toast.info(`${product.name} removed from wishlist.`);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
       {/* Breadcrumbs */}
@@ -197,9 +234,7 @@ export default function ProductDetailPage({
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
               onLoad={() => setIsMainImageLoaded(true)}
-              className={`object-cover transition-all duration-700 ${
-                isMainImageLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-xs'
-              }`}
+              className="object-cover transition-transform duration-500 ease-out"
             />
           </div>
 
@@ -236,14 +271,26 @@ export default function ProductDetailPage({
                   {product.category.name}
                 </span>
               )}
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-1 text-xs text-neutral-500 hover:text-emerald-700 transition-colors font-sans"
-                title="Share link"
-              >
-                {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-                <span>{isCopied ? 'Link Copied' : 'Share'}</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleWishlistToggle}
+                  className={`flex items-center gap-1.5 text-xs font-medium font-sans transition-colors ${
+                    isWishlisted ? 'text-rose-600 font-bold' : 'text-neutral-500 hover:text-rose-600'
+                  }`}
+                  title={isWishlisted ? 'Saved in Wishlist' : 'Save to Wishlist'}
+                >
+                  <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-rose-500 text-rose-500' : ''}`} />
+                  <span>{isWishlisted ? 'Wishlisted' : 'Wishlist'}</span>
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1 text-xs text-neutral-500 hover:text-emerald-700 transition-colors font-sans"
+                  title="Share link"
+                >
+                  {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+                  <span>{isCopied ? 'Link Copied' : 'Share'}</span>
+                </button>
+              </div>
             </div>
 
             <h1 className="font-serif text-3xl sm:text-5xl font-bold text-neutral-900 uppercase tracking-tight mt-1.5 leading-tight">
@@ -351,6 +398,19 @@ export default function ProductDetailPage({
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Add to Fragrance Vault</span>
+              </button>
+
+              <button
+                onClick={handleWishlistToggle}
+                className={`p-3 rounded-xl border flex items-center justify-center transition-all ${
+                  isWishlisted
+                    ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-sm'
+                    : 'bg-white hover:bg-neutral-50 text-neutral-600 hover:text-rose-600 border-emerald-200'
+                }`}
+                aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                title={isWishlisted ? 'Remove from Royal Wishlist' : 'Save to Royal Wishlist'}
+              >
+                <Heart className={`w-5 h-5 transition-all duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
               </button>
             </div>
 

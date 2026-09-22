@@ -117,10 +117,12 @@ export const getProducts = async (req, res, next) => {
         .populate('category', 'name slug')
         .sort(sortOption)
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       Product.countDocuments(query),
     ]);
 
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
     res.status(200).json({
       success: true,
       count: products.length,
@@ -149,9 +151,9 @@ export const getFilterOptions = async (req, res, next) => {
       dbOccasions,
       priceStats,
     ] = await Promise.all([
-      Collection.find({ isActive: true }).select('name sortOrder').sort({ sortOrder: 1, name: 1 }),
-      FragranceNote.find({ isActive: true }).select('name').sort({ name: 1 }),
-      Occasion.find({ isActive: true }).select('name').sort({ name: 1 }),
+      Collection.find({ isActive: true }).select('name sortOrder').sort({ sortOrder: 1, name: 1 }).lean(),
+      FragranceNote.find({ isActive: true }).select('name').sort({ name: 1 }).lean(),
+      Occasion.find({ isActive: true }).select('name').sort({ name: 1 }).lean(),
       Product.distinct('notes', { isActive: true }),
       Product.distinct('gender', { isActive: true }),
       Product.distinct('collection', { isActive: true, collection: { $ne: '' } }),
@@ -186,6 +188,7 @@ export const getFilterOptions = async (req, res, next) => {
       new Set([...defaultGenders, ...dbGenders.filter(Boolean)])
     );
 
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
     res.status(200).json({
       success: true,
       filterOptions: {
@@ -207,14 +210,18 @@ export const getFilterOptions = async (req, res, next) => {
 // @access  Public
 export const getFeaturedProducts = async (req, res, next) => {
   try {
-    const featured = await Product.find({ isActive: true, isFeatured: true })
-      .populate('category', 'name slug')
-      .limit(8);
+    const [featured, bestSellers] = await Promise.all([
+      Product.find({ isActive: true, isFeatured: true })
+        .populate('category', 'name slug')
+        .limit(8)
+        .lean(),
+      Product.find({ isActive: true, isBestSeller: true })
+        .populate('category', 'name slug')
+        .limit(8)
+        .lean(),
+    ]);
 
-    const bestSellers = await Product.find({ isActive: true, isBestSeller: true })
-      .populate('category', 'name slug')
-      .limit(8);
-
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=180');
     res.status(200).json({
       success: true,
       featured,
@@ -235,7 +242,9 @@ export const getProductByIdOrSlug = async (req, res, next) => {
 
     const product = await Product.findOne(
       isObjectId ? { _id: idOrSlug } : { slug: idOrSlug }
-    ).populate('category', 'name slug description');
+    )
+      .populate('category', 'name slug description')
+      .lean();
 
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
@@ -250,9 +259,11 @@ export const getProductByIdOrSlug = async (req, res, next) => {
         isActive: true,
       })
         .limit(4)
-        .select('name slug price originalPrice images ratings category fragranceFamily');
+        .select('name slug price originalPrice images ratings category fragranceFamily')
+        .lean();
     }
 
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     res.status(200).json({
       success: true,
       product,
@@ -289,11 +300,32 @@ export const createProduct = async (req, res, next) => {
       isBestSeller,
     } = req.body;
 
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Product name is required' });
+    }
 
-    const existingProduct = await Product.findOne({ slug });
-    if (existingProduct) {
-      return res.status(400).json({ success: false, message: 'Product with this name already exists' });
+    // Auto-generate unique slug (never crash or reject with 400 on duplicate name)
+    const baseSlug = name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '') || 'product';
+
+    let slug = baseSlug;
+    let counter = 1;
+    while (await Product.exists({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Resolve category (fallback to active category if invalid or missing)
+    let finalCategory = category;
+    if (!finalCategory || !finalCategory.toString().match(/^[0-9a-fA-F]{24}$/)) {
+      const defaultCat = await Category.findOne({ isActive: true });
+      finalCategory = defaultCat ? defaultCat._id : null;
+    }
+    if (!finalCategory) {
+      return res.status(400).json({ success: false, message: 'Please select a valid category' });
     }
 
     let images = [];
@@ -304,11 +336,11 @@ export const createProduct = async (req, res, next) => {
       }
     } else if (req.body.images) {
       images = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
-    } else {
-      images = [
-        'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800',
-      ];
     }
+    const validImages = images.filter((img) => typeof img === 'string' && img.trim() !== '');
+    const finalImages = validImages.length > 0 ? validImages : [
+      'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800',
+    ];
 
     // Parse fragrance notes
     const parsedNotes = {
@@ -343,18 +375,44 @@ export const createProduct = async (req, res, next) => {
       }
     }
 
-    // Parse sizes — always come from the form payload (no auto-generation)
+    // Parse sizes
     let parsedSizes = [];
     if (sizes) {
       parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
     }
 
+    let finalPrice = Number(price);
+    if (isNaN(finalPrice) || finalPrice <= 0) {
+      if (Array.isArray(parsedSizes) && parsedSizes.length > 0 && Number(parsedSizes[0].price) > 0) {
+        finalPrice = Number(parsedSizes[0].price);
+      } else {
+        finalPrice = 999;
+      }
+    }
+
+    if (Array.isArray(parsedSizes) && parsedSizes.length > 0) {
+      parsedSizes = parsedSizes.map((s) => ({
+        size: s.size ? String(s.size).trim() : '12ml',
+        price: Number(s.price) > 0 ? Number(s.price) : finalPrice,
+        originalPrice: s.originalPrice !== undefined && s.originalPrice !== null && s.originalPrice !== '' && !isNaN(Number(s.originalPrice)) ? Number(s.originalPrice) : null,
+        stock: s.stock !== undefined && s.stock !== null && s.stock !== '' && !isNaN(Number(s.stock)) ? Number(s.stock) : 20,
+      }));
+    }
+
+    const calculatedStock = (stock !== undefined && stock !== null && stock !== '' && !isNaN(Number(stock)))
+      ? Number(stock)
+      : (parsedSizes.length > 0 ? parsedSizes.reduce((acc, s) => acc + (Number(s.stock) || 0), 0) : 25);
+
+    const finalDescription = description && description.trim() !== ''
+      ? description.trim()
+      : 'Pure concentrated royal attar handcrafted using time-honored distillation traditions.';
+
     const product = await Product.create({
-      name,
+      name: name.trim(),
       slug,
-      tagline,
-      description,
-      category,
+      tagline: tagline ? tagline.trim() : 'Pure concentrated attar of royal distinction',
+      description: finalDescription,
+      category: finalCategory,
       fragranceFamily: fragranceFamily || (parsedFilterNotes[0] ? parsedFilterNotes[0] : 'Oudh'),
       fragranceNotes: parsedNotes,
       gender: req.body.gender || 'Unisex',
@@ -362,21 +420,25 @@ export const createProduct = async (req, res, next) => {
       collection: req.body.collection || '',
       occasions: parsedOccasions,
       sizes: parsedSizes,
-      price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : null,
-      images,
-      stock: stock ? Number(stock) : 25,
-      concentration,
-      origin,
-      longevityHours,
-      projection,
+      price: finalPrice,
+      originalPrice: originalPrice && !isNaN(Number(originalPrice)) ? Number(originalPrice) : null,
+      images: finalImages,
+      stock: calculatedStock,
+      concentration: concentration || '100% Pure Perfume Oil (Non-Alcoholic Attar)',
+      origin: origin || '',
+      longevityHours: longevityHours || '',
+      projection: projection || '',
       isFeatured: isFeatured === 'true' || isFeatured === true,
       isBestSeller: isBestSeller === 'true' || isBestSeller === true,
     });
 
     res.status(201).json({ success: true, product });
   } catch (error) {
-    next(error);
+    console.error('[Create Product Error]:', error);
+    res.status(400).json({
+      success: false,
+      message: error.message || 'Failed to create product',
+    });
   }
 };
 
@@ -413,8 +475,28 @@ export const updateProduct = async (req, res, next) => {
       };
     }
 
-    if (updates.sizes && typeof updates.sizes === 'string') {
-      updates.sizes = JSON.parse(updates.sizes);
+    if (updates.sizes) {
+      if (typeof updates.sizes === 'string') {
+        try {
+          updates.sizes = JSON.parse(updates.sizes);
+        } catch {
+          // ignore
+        }
+      }
+      if (Array.isArray(updates.sizes)) {
+        updates.sizes = updates.sizes.map((s) => ({
+          ...s,
+          price: Number(s.price) || 0,
+          originalPrice: s.originalPrice !== undefined && s.originalPrice !== null && s.originalPrice !== '' ? Number(s.originalPrice) : null,
+          stock: (s.stock !== undefined && s.stock !== null && s.stock !== '') ? Number(s.stock) : 0,
+        }));
+      }
+    }
+
+    if (updates.stock !== undefined && updates.stock !== null && updates.stock !== '') {
+      updates.stock = Number(updates.stock);
+    } else if (Array.isArray(updates.sizes) && updates.sizes.length > 0) {
+      updates.stock = updates.sizes.reduce((acc, s) => acc + (Number(s.stock) || 0), 0);
     }
 
     if (updates.notes && typeof updates.notes === 'string') {

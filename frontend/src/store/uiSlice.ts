@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UiState {
   isCartDrawerOpen: boolean;
+  isWishlistDrawerOpen: boolean;
   isMobileMenuOpen: boolean;
   isSearchOpen: boolean;
   isAuthModalOpen: boolean;
@@ -11,6 +12,7 @@ interface UiState {
 
 const initialState: UiState = {
   isCartDrawerOpen: false,
+  isWishlistDrawerOpen: false,
   isMobileMenuOpen: false,
   isSearchOpen: false,
   isAuthModalOpen: false,
@@ -24,6 +26,15 @@ export const uiSlice = createSlice({
   reducers: {
     toggleCartDrawer: (state, action: PayloadAction<boolean | undefined>) => {
       state.isCartDrawerOpen = action.payload !== undefined ? action.payload : !state.isCartDrawerOpen;
+      if (state.isCartDrawerOpen) {
+        state.isWishlistDrawerOpen = false;
+      }
+    },
+    toggleWishlistDrawer: (state, action: PayloadAction<boolean | undefined>) => {
+      state.isWishlistDrawerOpen = action.payload !== undefined ? action.payload : !state.isWishlistDrawerOpen;
+      if (state.isWishlistDrawerOpen) {
+        state.isCartDrawerOpen = false;
+      }
     },
     toggleMobileMenu: (state, action: PayloadAction<boolean | undefined>) => {
       state.isMobileMenuOpen = action.payload !== undefined ? action.payload : !state.isMobileMenuOpen;
@@ -51,6 +62,7 @@ export const uiSlice = createSlice({
 
 export const {
   toggleCartDrawer,
+  toggleWishlistDrawer,
   toggleMobileMenu,
   toggleSearch,
   openAuthModal,

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal, ArrowUpDown, X, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
@@ -8,7 +9,6 @@ import { useCategories } from '@/hooks/useCategories';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import ProductCard from '@/components/product/ProductCard';
 import ProductGridSkeleton from '@/components/product/ProductCardSkeleton';
-
 
 // ─── Collapsible filter section ───────────────────────────────────────────────
 function FilterSection({
@@ -61,6 +61,15 @@ export default function ShopClient() {
   const [selectedPriceRange, setSelectedPriceRange] = useState(searchParams.get('priceRange') || '');
   const [maxPrice, setMaxPrice] = useState<number>(12000);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchKeyword);
+
+  // Debounce search input by 250ms to prevent laggy keystrokes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchKeyword);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchKeyword]);
 
   // Sync from URL
   useEffect(() => {
@@ -87,16 +96,15 @@ export default function ShopClient() {
     { label: '₹4000 – ₹4999', value: '4000-4999' },
     { label: '₹5000 – ₹5999', value: '5000-5999' },
   ];
-  // Gender with display label
   const GENDER_OPTIONS = (filterOptions?.genders ?? ['Men', 'Women', 'Unisex']).map((g) => ({
     value: g,
     label: g === 'Men' ? "Men's Perfumes" : g === 'Women' ? "Women's Perfumes" : 'Unisex Perfumes',
   }));
   const maxPriceFromDB = filterOptions?.priceStats?.maxPrice ?? 12000;
 
-  const { data: productsData, isLoading } = useProducts({
+  const { data: productsData, isLoading, isFetching } = useProducts({
     category: selectedCategory,
-    search: searchKeyword,
+    search: debouncedSearch,
     maxPrice: !selectedPriceRange && maxPrice < maxPriceFromDB ? maxPrice : undefined,
     priceRange: selectedPriceRange || undefined,
     sort: sortBy,
@@ -108,7 +116,6 @@ export default function ShopClient() {
 
   const products = productsData?.products || [];
 
-  // ─── URL push helper ─────────────────────────────────────────────────────────
   const buildAndPush = (updates: Record<string, string | string[] | null>) => {
     const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     Object.entries(updates).forEach(([key, val]) => {
@@ -118,10 +125,9 @@ export default function ShopClient() {
         params.set(key, Array.isArray(val) ? val.join(',') : val);
       }
     });
-    router.push(`/shop?${params.toString()}`);
+    router.replace(`/shop?${params.toString()}`, { scroll: false });
   };
 
-  // ─── Filter handlers ──────────────────────────────────────────────────────────
   const handleCategorySelect = (slug: string) => {
     const next = slug === selectedCategory ? '' : slug;
     setSelectedCategory(next);
@@ -259,7 +265,6 @@ export default function ShopClient() {
         </div>
       </FilterSection>
 
-
       {/* Price */}
       <FilterSection title="Price">
         <div className="space-y-1.5 pt-1">
@@ -276,7 +281,6 @@ export default function ShopClient() {
               {pr.label}
             </button>
           ))}
-          {/* Manual slider (only shown when no preset selected) */}
           {!selectedPriceRange && (
             <div className="pt-2 border-t border-neutral-100 mt-2">
               <div className="flex justify-between text-[10px] text-neutral-500 mb-1.5">
@@ -367,198 +371,222 @@ export default function ShopClient() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 font-sans">
-      {/* Header */}
-      <div className="border-b border-emerald-100 pb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-           
-            {/* Active filter chips */}
-            {activeFilterCount > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {selectedGender && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
-                    {selectedGender}
-                    <button onClick={() => handleGenderSelect(selectedGender)} className="ml-0.5 hover:text-emerald-950">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {selectedNotes.map((n) => (
-                  <span key={n} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
-                    {n}
-                    <button onClick={() => handleNoteToggle(n)} className="ml-0.5 hover:text-emerald-950">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-                {selectedCollection && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
-                    {selectedCollection}
-                    <button onClick={() => handleCollectionSelect(selectedCollection)} className="ml-0.5 hover:text-emerald-950">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {selectedPriceRange && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
-                    {PRICE_RANGES.find((p) => p.value === selectedPriceRange)?.label}
-                    <button onClick={() => handlePriceRangeSelect(selectedPriceRange)} className="ml-0.5 hover:text-emerald-950">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {selectedOccasions.map((o) => (
-                  <span key={o} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
-                    {o}
-                    <button onClick={() => handleOccasionToggle(o)} className="ml-0.5 hover:text-emerald-950">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+    <>
+      {/* Hero Shop Banner */}
+      <section className="relative w-full overflow-hidden">
+        <div className="relative w-full aspect-[21/9] sm:aspect-auto sm:h-[320px] md:h-[400px] lg:h-[480px]">
+          <Image
+            src="/images/shopbanner.png"
+            alt="Attar Depot Royal Shop Collection"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-top sm:object-center"
+          />
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+        </div>
+      </section>
 
-          {/* Controls */}
-          <div className="flex items-center gap-3 self-start md:self-auto font-sans">
-            {/* Mobile filter toggle */}
-            <button
-              onClick={() => setIsFilterDrawerOpen(!isFilterDrawerOpen)}
-              className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-semibold text-emerald-800 shadow-sm relative"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              <span>Filters</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 font-sans">
+        {/* Header */}
+        <div className="border-b border-emerald-100 pb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-3xl font-bold text-neutral-900 tracking-tight">
+                All Fragrances
+              </h1>
+              {/* Active filter chips */}
               {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-700 text-white text-[9px] font-bold flex items-center justify-center">
-                  {activeFilterCount}
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {selectedGender && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {selectedGender}
+                      <button onClick={() => handleGenderSelect(selectedGender)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {selectedNotes.map((n) => (
+                    <span key={n} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {n}
+                      <button onClick={() => handleNoteToggle(n)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                  {selectedCollection && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {selectedCollection}
+                      <button onClick={() => handleCollectionSelect(selectedCollection)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {selectedPriceRange && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {PRICE_RANGES.find((p) => p.value === selectedPriceRange)?.label}
+                      <button onClick={() => handlePriceRangeSelect(selectedPriceRange)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {selectedOccasions.map((o) => (
+                    <span key={o} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {o}
+                      <button onClick={() => handleOccasionToggle(o)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-3 self-start md:self-auto font-sans">
+              {/* Mobile filter toggle */}
+              <button
+                onClick={() => setIsFilterDrawerOpen(!isFilterDrawerOpen)}
+                className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-semibold text-emerald-800 shadow-sm relative"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-700 text-white text-[9px] font-bold flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2 bg-white border border-emerald-200 rounded-xl px-3.5 py-2 text-xs shadow-sm font-sans">
+                <ArrowUpDown className="w-3.5 h-3.5 text-emerald-700" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent text-neutral-800 focus:outline-none cursor-pointer font-sans"
+                >
+                  <option value="popular">Most Revered</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+          {/* Desktop Sidebar Filters */}
+          <aside className="hidden lg:block space-y-0 sticky top-24 bg-white p-5 rounded-2xl border border-emerald-100 shadow-xs max-h-[calc(100vh-7rem)] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-emerald-50">
+              <h3 className="font-serif text-base font-bold text-neutral-900 uppercase tracking-wider">
+                Filter By
+              </h3>
+              {activeFilterCount > 0 && (
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  {activeFilterCount} active
                 </span>
               )}
-            </button>
-
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2 bg-white border border-emerald-200 rounded-xl px-3.5 py-2 text-xs shadow-sm font-sans">
-              <ArrowUpDown className="w-3.5 h-3.5 text-emerald-700" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent text-neutral-800 focus:outline-none cursor-pointer font-sans"
-              >
-                <option value="popular">Most Revered</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
             </div>
-          </div>
-        </div>
-      </div>
+            <FilterContent />
+          </aside>
 
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        {/* Desktop Sidebar Filters */}
-        <aside className="hidden lg:block space-y-0 sticky top-24 bg-white p-5 rounded-2xl border border-emerald-100 shadow-xs max-h-[calc(100vh-7rem)] overflow-y-auto">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-emerald-50">
-            <h3 className="font-serif text-base font-bold text-neutral-900 uppercase tracking-wider">
-              Filter By
-            </h3>
-            {activeFilterCount > 0 && (
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">
-                {activeFilterCount} active
-              </span>
+          {/* Mobile Filter Drawer */}
+          {isFilterDrawerOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden flex">
+              <div
+                className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+                onClick={() => setIsFilterDrawerOpen(false)}
+              />
+              <div className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col z-10 font-sans">
+                <div className="flex items-center justify-between pb-4 border-b border-neutral-100 mb-2">
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-neutral-900 uppercase">
+                      Filter By
+                    </h3>
+                    {activeFilterCount > 0 && (
+                      <span className="text-[10px] text-emerald-700 font-semibold">{activeFilterCount} active filters</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setIsFilterDrawerOpen(false)}
+                    className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="flex-1">
+                  <FilterContent />
+                </div>
+
+                <div className="pt-4 border-t border-neutral-100 space-y-2">
+                  <button
+                    onClick={() => setIsFilterDrawerOpen(false)}
+                    className="w-full py-2.5 rounded-xl bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider"
+                  >
+                    Apply Filters ({activeFilterCount})
+                  </button>
+                  <button
+                    onClick={() => {
+                      clearFilters();
+                      setIsFilterDrawerOpen(false);
+                    }}
+                    className="w-full py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-900"
+                  >
+                    Reset All
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Product Grid */}
+          <div className="lg:col-span-3 space-y-6">
+            {isLoading && products.length === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <ProductGridSkeleton count={6} />
+              </div>
+            ) : products.length === 0 ? (
+              <div className="rounded-2xl glass-card p-12 text-center space-y-4 bg-white border border-emerald-100 font-sans">
+                <Search className="w-12 h-12 text-emerald-400 mx-auto opacity-70" />
+                <h3 className="font-serif text-2xl font-bold text-neutral-800">
+                  No Fragrances Found
+                </h3>
+                <p className="font-sans text-xs text-neutral-500 max-w-sm mx-auto">
+                  No bottles matched your criteria. Try adjusting your filters or clearing all selections.
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="btn-emerald px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm text-white"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-neutral-500 font-sans">
+                    <span className="font-bold text-neutral-800">{productsData?.total || products.length}</span> fragrances found
+                    {isFetching && (
+                      <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold animate-pulse">
+                        • Updating...
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
+                  {products.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
+                </div>
+              </>
             )}
           </div>
-          <FilterContent />
-        </aside>
-
-        {/* Mobile Filter Drawer */}
-        {isFilterDrawerOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
-            <div
-              className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-              onClick={() => setIsFilterDrawerOpen(false)}
-            />
-            <div className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col z-10 font-sans">
-              <div className="flex items-center justify-between pb-4 border-b border-neutral-100 mb-2">
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-neutral-900 uppercase">
-                    Filter By
-                  </h3>
-                  {activeFilterCount > 0 && (
-                    <span className="text-[10px] text-emerald-700 font-semibold">{activeFilterCount} active filters</span>
-                  )}
-                </div>
-                <button
-                  onClick={() => setIsFilterDrawerOpen(false)}
-                  className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1">
-                <FilterContent />
-              </div>
-
-              <div className="pt-4 border-t border-neutral-100 space-y-2">
-                <button
-                  onClick={() => setIsFilterDrawerOpen(false)}
-                  className="w-full py-2.5 rounded-xl bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider"
-                >
-                  Apply Filters ({activeFilterCount})
-                </button>
-                <button
-                  onClick={() => {
-                    clearFilters();
-                    setIsFilterDrawerOpen(false);
-                  }}
-                  className="w-full py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-900"
-                >
-                  Reset All
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Product Grid */}
-        <div className="lg:col-span-3 space-y-6">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <ProductGridSkeleton count={6} />
-            </div>
-          ) : products.length === 0 ? (
-            <div className="rounded-2xl glass-card p-12 text-center space-y-4 bg-white border border-emerald-100 font-sans">
-              <Search className="w-12 h-12 text-emerald-400 mx-auto opacity-70" />
-              <h3 className="font-serif text-2xl font-bold text-neutral-800">
-                No Fragrances Found
-              </h3>
-              <p className="font-sans text-xs text-neutral-500 max-w-sm mx-auto">
-                No bottles matched your criteria. Try adjusting your filters or clearing all selections.
-              </p>
-              <button
-                onClick={clearFilters}
-                className="btn-emerald px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm text-white"
-              >
-                Reset All Filters
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-neutral-500 font-sans">
-                  <span className="font-bold text-neutral-800">{productsData?.total || products.length}</span> fragrances found
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
-              </div>
-            </>
-          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

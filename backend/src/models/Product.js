@@ -39,7 +39,7 @@ const productSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, 'Product description is required'],
+      default: 'Pure concentrated attar of royal distinction',
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -131,6 +131,15 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Performance Indexes for fast queries & catalog navigation
+productSchema.index({ isActive: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, category: 1 });
+productSchema.index({ isActive: 1, isFeatured: 1 });
+productSchema.index({ isActive: 1, isBestSeller: 1 });
+productSchema.index({ isActive: 1, price: 1 });
+productSchema.index({ isActive: 1, gender: 1 });
+productSchema.index({ isActive: 1, collection: 1 });
 
 const Product = mongoose.model('Product', productSchema);
 export default Product;

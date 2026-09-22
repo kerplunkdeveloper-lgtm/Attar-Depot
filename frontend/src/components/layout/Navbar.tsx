@@ -31,15 +31,18 @@ import {
   ArrowRight,
   Gift,
   LocateFixed,
+  Heart,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
   toggleCartDrawer,
+  toggleWishlistDrawer,
   openAuthModal,
   toggleSearch,
 } from '@/store/uiSlice';
 import { logout, hydrateAuth } from '@/store/authSlice';
 import { hydrateCart } from '@/store/cartSlice';
+import { hydrateWishlist } from '@/store/wishlistSlice';
 import { useCategories } from '@/hooks/useCategories';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { usePublicTaxonomy } from '@/hooks/useTaxonomy';
@@ -53,6 +56,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { itemsCount } = useAppSelector((state) => state.cart);
+  const { itemsCount: wishlistCount } = useAppSelector((state) => state.wishlist);
   const { user, isAuthenticated, isAdmin } = useAppSelector((state) => state.auth);
   const { isSearchOpen } = useAppSelector((state) => state.ui);
 
@@ -133,6 +137,7 @@ export default function Navbar() {
     setMounted(true);
     dispatch(hydrateAuth());
     dispatch(hydrateCart());
+    dispatch(hydrateWishlist());
     // Silently detect city for delivery badge (won't trigger permission popup on its own)
     detectCityForNavbar()
       .then((city) => { if (city) setDeliveryCity(city); })
@@ -440,6 +445,22 @@ export default function Navbar() {
                   </kbd>
                 </button>
 
+                {/* Wishlist Vault Trigger */}
+                <button
+                  onClick={() => dispatch(toggleWishlistDrawer(true))}
+                  className="relative p-1.5 sm:p-2 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-colors rounded-full hover:bg-white/10 border border-transparent hover:border-white/10 group cursor-pointer"
+                  aria-label="Royal Wishlist Vault"
+                  title={`Royal Wishlist (${wishlistCount})`}
+                  suppressHydrationWarning
+                >
+                  <Heart className="w-5 h-5 transition-transform duration-200 group-hover:scale-110 group-active:scale-90" />
+                  {mounted && wishlistCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[9px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520] animate-in zoom-in-50">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </button>
+
                 {/* User Profile / Auth Modal Trigger */}
                 <div className="relative" ref={userDropdownRef}>
                   <button
@@ -507,6 +528,25 @@ export default function Navbar() {
                             <UserIcon className="w-4 h-4 text-emerald-700" />
                             <span>My Profile & Addresses</span>
                           </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsUserMenuOpen(false);
+                              dispatch(toggleWishlistDrawer(true));
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-neutral-700 hover:bg-emerald-50 hover:text-emerald-900 font-medium transition-colors text-left"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Heart className="w-4 h-4 text-rose-500" />
+                              <span>Saved Wishlist</span>
+                            </div>
+                            {mounted && wishlistCount > 0 && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700">
+                                {wishlistCount}
+                              </span>
+                            )}
+                          </button>
 
                           <Link
                             href="/orders"
@@ -943,6 +983,7 @@ export default function Navbar() {
                   {[
                     { name: 'Home', href: '/', icon: Home },
                     { name: 'All Perfumes', href: '/shop', icon: ShoppingBag },
+                    { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
                     { name: 'Gifting', href: '/gifting', icon: Gift },
                     { name: 'About Us', href: '/about', icon: Sparkles },
                     { name: 'Track Order', href: '/orders', icon: PackageCheck },
@@ -950,11 +991,18 @@ export default function Navbar() {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
                     return (
-                      <Link
+                      <button
                         key={item.name}
-                        href={item.href}
-                        onClick={() => setIsMobileNavOpen(false)}
-                        className={`flex items-center justify-between p-2.5 rounded-2xl text-xs transition-all ${
+                        type="button"
+                        onClick={() => {
+                          setIsMobileNavOpen(false);
+                          if (item.isWishlist) {
+                            dispatch(toggleWishlistDrawer(true));
+                          } else {
+                            router.push(item.href);
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-xs transition-all text-left ${
                           isActive
                             ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200/90 shadow-2xs'
                             : 'text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50/70 font-semibold border border-transparent'
@@ -963,7 +1011,9 @@ export default function Navbar() {
                         <div className="flex items-center gap-2.5">
                           <div
                             className={`w-7 h-7 rounded-xl flex items-center justify-center ${
-                              isActive
+                              item.isWishlist
+                                ? 'bg-rose-50 text-rose-600'
+                                : isActive
                                 ? 'bg-emerald-700 text-white shadow-2xs'
                                 : 'bg-emerald-50 text-emerald-800'
                             }`}
@@ -972,12 +1022,19 @@ export default function Navbar() {
                           </div>
                           <span>{item.name}</span>
                         </div>
-                        <ChevronRight
-                          className={`w-3.5 h-3.5 ${
-                            isActive ? 'text-emerald-700' : 'text-neutral-400'
-                          }`}
-                        />
-                      </Link>
+                        <div className="flex items-center gap-2">
+                          {item.isWishlist && mounted && wishlistCount > 0 && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
+                              {wishlistCount}
+                            </span>
+                          )}
+                          <ChevronRight
+                            className={`w-3.5 h-3.5 ${
+                              isActive ? 'text-emerald-700' : 'text-neutral-400'
+                            }`}
+                          />
+                        </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -1209,22 +1266,38 @@ export default function Navbar() {
                         <p className="text-[10px] text-emerald-700 truncate">{user?.email}</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="grid grid-cols-3 gap-2 pt-1">
                       <Link
                         href="/profile"
                         onClick={() => setIsMobileNavOpen(false)}
-                        className="flex items-center justify-center gap-1.5 py-2 px-2 text-center text-xs font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
+                        className="flex flex-col items-center justify-center gap-1 py-2 px-1 text-center text-[11px] font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
                       >
                         <UserIcon className="w-3.5 h-3.5 text-emerald-700" />
-                        <span>My Profile</span>
+                        <span className="truncate">Profile</span>
                       </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMobileNavOpen(false);
+                          dispatch(toggleWishlistDrawer(true));
+                        }}
+                        className="flex flex-col items-center justify-center gap-1 py-2 px-1 text-center text-[11px] font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs relative"
+                      >
+                        <Heart className="w-3.5 h-3.5 text-rose-500" />
+                        <span className="truncate">Wishlist</span>
+                        {mounted && wishlistCount > 0 && (
+                          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-white">
+                            {wishlistCount}
+                          </span>
+                        )}
+                      </button>
                       <Link
                         href="/orders"
                         onClick={() => setIsMobileNavOpen(false)}
-                        className="flex items-center justify-center gap-1.5 py-2 px-2 text-center text-xs font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
+                        className="flex flex-col items-center justify-center gap-1 py-2 px-1 text-center text-[11px] font-semibold text-emerald-900 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors shadow-2xs"
                       >
                         <PackageCheck className="w-3.5 h-3.5 text-emerald-700" />
-                        <span>My Orders</span>
+                        <span className="truncate">Orders</span>
                       </Link>
                     </div>
                     {isAdmin && (

@@ -4,11 +4,14 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Heart, Check } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart } from '@/store/cartSlice';
-import { toggleCartDrawer } from '@/store/uiSlice';
+import { toggleCartDrawer, toggleWishlistDrawer } from '@/store/uiSlice';
+import { toggleWishlist } from '@/store/wishlistSlice';
 import { toast } from '@/lib/toast';
 
 const FALLBACK_IMAGE =
@@ -20,9 +23,36 @@ interface ProductCardProps {
 
 function ProductCardComponent({ product }: ProductCardProps) {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState(product.images?.[0] || FALLBACK_IMAGE);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const handlePrefetch = () => {
+    // 1. Instant Cache Seeding: Makes product page load with 0ms delay!
+    queryClient.setQueryData(['product', product.slug], (existing: any) => {
+      if (existing?.product) return existing;
+      return { product, relatedProducts: [] };
+    });
+
+    // 2. Prefetch full product details with reviews and related items
+    queryClient.prefetchQuery({
+      queryKey: ['product', product.slug],
+      queryFn: async () => {
+        const { data } = await api.get(`/products/${product.slug}`);
+        return data;
+      },
+      staleTime: 5 * 60 * 1000,
+    });
+
+    // 3. Preload the flacon image into browser memory cache
+    if (typeof window !== 'undefined' && product.images?.[0]) {
+      const img = new window.Image();
+      img.src = product.images[0];
+    }
+  };
+  const isWishlisted = useAppSelector((state) =>
+    state.wishlist.items.some((item) => item.productId === product._id)
+  );
   const [isAdding, setIsAdding] = useState(false);
 
   const defaultSizeObj = product.sizes && product.sizes.length > 0 ? product.sizes[0] : null;
@@ -71,12 +101,30 @@ function ProductCardComponent({ product }: ProductCardProps) {
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const nextState = !isWishlisted;
-    setIsWishlisted(nextState);
 
-    if (nextState) {
-      toast.success(`${product.name} saved to wishlist.`, {
+    dispatch(
+      toggleWishlist({
+        productId: product._id,
+        name: product.name,
+        slug: product.slug,
+        image: imageSrc,
+        size: sizeName,
+        price: itemPrice,
+        originalPrice: originalPrice,
+        stock: product.stock,
+        fragranceFamily: product.fragranceFamily,
+        tagline: product.tagline,
+        gender: product.gender,
+      })
+    );
+
+    if (!isWishlisted) {
+      toast.success(`${product.name} saved to your royal wishlist.`, {
         title: 'Wishlist Updated',
+        action: {
+          label: 'View Wishlist',
+          onClick: () => dispatch(toggleWishlistDrawer(true)),
+        },
       });
     } else {
       toast.info(`${product.name} removed from wishlist.`);
@@ -89,27 +137,57 @@ function ProductCardComponent({ product }: ProductCardProps) {
       ? product.fragranceNotes.topNotes.slice(0, 3).join(' • ').toUpperCase()
       : product.fragranceFamily
       ? `${product.fragranceFamily.toUpperCase()} ACCORD`
-      : product.tagline
-      ? product.tagline.toUpperCase()
-      : 'FRESH FRUITY MUSK WITH WARM AMBER';
+      : product.category?.name
+      ? `${product.category.name.toUpperCase()} ACCORD`
+      : 'ROYAL ARTISANAL ACCORD';
 
-  // Target subtitle (matching reference "For Men And Women")
-  const targetAudience =
-    product.gender === 'Unisex'
-      ? 'For Men And Women'
-      : product.gender === 'Men'
-      ? 'For Men'
-      : product.gender === 'Women'
-      ? 'For Women'
-      : product.gender
-      ? `For ${product.gender}`
-      : 'For Men And Women';
+  // Dynamic Subtitle / Target Audience (Prioritizes tagline from database, with smart dynamic gender fallback)
+  const targetAudience = (() => {
+    // 1. If product has a custom tagline from database, display it dynamically
+    if (product.tagline && product.tagline.trim() !== '') {
+      return product.tagline;
+    }
+
+    // 2. Dynamic gender formatting (handles case-insensitive and custom values)
+    if (product.gender && product.gender.trim() !== '') {
+      const g = product.gender.trim();
+      const lower = g.toLowerCase();
+
+      if (lower === 'unisex' || lower === 'both' || lower === 'all') {
+        return 'For Men And Women';
+      }
+      if (lower === 'men' || lower === 'male') {
+        return 'For Men';
+      }
+      if (lower === 'women' || lower === 'female') {
+        return 'For Women';
+      }
+      if (lower.startsWith('for ')) {
+        return g;
+      }
+      return `For ${g}`;
+    }
+
+    // 3. Fallback to royal collection or category if available
+    if (product.collection && product.collection.trim() !== '') {
+      return `${product.collection} Edition`;
+    }
+    if (product.category?.name) {
+      return `Pure ${product.category.name}`;
+    }
+
+    return 'For Men And Women';
+  })();
 
   const reviewCount = product.ratings?.count || 9;
   const starCount = 5;
 
   return (
-    <div className="group relative flex flex-col pt-10 sm:pt-12 transition-all duration-300">
+    <div
+      onMouseEnter={handlePrefetch}
+      onTouchStart={handlePrefetch}
+      className="group relative flex flex-col pt-10 sm:pt-12 transition-all duration-300"
+    >
       {/* ── Outer Card Box with Warm Ivory/Cream Background (matching reference #FAF6F0) ── */}
       <div className="relative flex-1 flex flex-col justify-between bg-[#FAF6F0] border border-[#ECE5D8] transition-all duration-300 ">
         {/* Top Badges / Wishlist (Clean & Minimalist) */}
@@ -119,11 +197,18 @@ function ProductCardComponent({ product }: ProductCardProps) {
           <button
             onClick={handleWishlistToggle}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-            className="pointer-events-auto w-7 h-7 bg-white/70 hover:bg-white text-stone-600 hover:text-rose-600 border border-stone-200/60 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 ml-auto"
+            title={isWishlisted ? 'Remove from royal wishlist' : 'Save to royal wishlist'}
+            className={`pointer-events-auto w-8 h-8 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90 ml-auto border ${
+              isWishlisted
+                ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
+                : 'bg-white/80 hover:bg-white text-stone-500 hover:text-rose-600 border-stone-200/80 shadow-2xs'
+            }`}
           >
             <Heart
-              className={`w-3.5 h-3.5 transition-colors duration-200 ${
-                isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-stone-500 hover:text-stone-800'
+              className={`w-3.5 h-3.5 transition-all duration-300 ${
+                isWishlisted
+                  ? 'fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_4px_rgba(244,63,94,0.4)]'
+                  : 'text-stone-500 stroke-[1.8]'
               }`}
             />
           </button>
@@ -133,6 +218,8 @@ function ProductCardComponent({ product }: ProductCardProps) {
         <Link
           href={`/product/${product.slug}`}
           prefetch={true}
+          onMouseEnter={handlePrefetch}
+          onFocus={handlePrefetch}
           className="relative -mt-10 sm:-mt-20 w-full h-56 sm:h-64 flex items-center justify-center p-4 overflow-visible group/img"
         >
           {/* Skeleton Shimmer */}
@@ -152,9 +239,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               onLoad={() => setIsImageLoaded(true)}
               onError={() => setImageSrc(FALLBACK_IMAGE)}
-              className={`object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1.5 ${
-                isImageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1.5"
             />
           </div>
         </Link>
@@ -168,7 +253,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
             </p>
 
             {/* 2. Product Name (Cyan Oud Perfume 100 ML) */}
-            <Link href={`/product/${product.slug}`} prefetch={true} className="block group/title">
+            <Link
+              href={`/product/${product.slug}`}
+              prefetch={true}
+              onMouseEnter={handlePrefetch}
+              onFocus={handlePrefetch}
+              className="block group/title"
+            >
               <h3 className="font-serif text-lg sm:text-[21px] font-normal text-stone-900 group-hover/title:text-emerald-950 transition-colors line-clamp-1 leading-snug">
                 {product.name}
               </h3>
