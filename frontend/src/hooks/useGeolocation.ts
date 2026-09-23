@@ -122,10 +122,32 @@ export function useGeolocation() {
  * Uses cached result in sessionStorage to avoid repeated API calls.
  */
 export async function detectCityForNavbar(): Promise<string | null> {
-  const cached = sessionStorage.getItem('attar_user_city');
-  if (cached) return cached;
+  if (typeof window === 'undefined') return null;
 
-  if (!navigator.geolocation) return null;
+  try {
+    const cached = sessionStorage.getItem('attar_user_city');
+    if (cached) return cached;
+  } catch {
+    // Ignore storage restrictions
+  }
+
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return null;
+
+  // Only auto-detect if the user has ALREADY granted location permission.
+  // Never trigger an unrequested permission prompt on initial page load, which
+  // causes browsers to penalize and auto-block geolocation.
+  if (typeof navigator.permissions !== 'undefined' && navigator.permissions.query) {
+    try {
+      const status = await navigator.permissions.query({ name: 'geolocation' });
+      if (status.state !== 'granted') {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+  } else {
+    return null;
+  }
 
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition(
@@ -133,7 +155,11 @@ export async function detectCityForNavbar(): Promise<string | null> {
         try {
           const data = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
           const city = data.city || data.suburb || null;
-          if (city) sessionStorage.setItem('attar_user_city', city);
+          if (city) {
+            try {
+              sessionStorage.setItem('attar_user_city', city);
+            } catch {}
+          }
           resolve(city);
         } catch {
           resolve(null);

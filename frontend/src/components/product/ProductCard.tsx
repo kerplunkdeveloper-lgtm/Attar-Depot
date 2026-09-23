@@ -186,26 +186,25 @@ function ProductCardComponent({ product }: ProductCardProps) {
     <div
       onMouseEnter={handlePrefetch}
       onTouchStart={handlePrefetch}
-      className="group relative flex flex-col pt-10 sm:pt-12 transition-all duration-300"
+      className="group relative flex flex-col pt-7 sm:pt-12 transition-all duration-300"
     >
       {/* ── Outer Card Box with Warm Ivory/Cream Background (matching reference #FAF6F0) ── */}
-      <div className="relative flex-1 flex flex-col justify-between bg-[#FAF6F0] border border-[#ECE5D8] transition-all duration-300 ">
+      <div className="relative flex-1 flex flex-col justify-between bg-[#FAF6F0] border border-[#ECE5D8] rounded-xs sm:rounded-none transition-all duration-300 hover:border-stone-300/80 hover:shadow-xs">
         {/* Top Badges / Wishlist (Clean & Minimalist) */}
-        <div className="absolute top-2.5 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
-         
-
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-3 z-20 flex items-center justify-end pointer-events-none">
           <button
+            type="button"
             onClick={handleWishlistToggle}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
             title={isWishlisted ? 'Remove from royal wishlist' : 'Save to royal wishlist'}
-            className={`pointer-events-auto w-8 h-8 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90 ml-auto border ${
+            className={`pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90 border rounded-full ${
               isWishlisted
                 ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
                 : 'bg-white/80 hover:bg-white text-stone-500 hover:text-rose-600 border-stone-200/80 shadow-2xs'
             }`}
           >
             <Heart
-              className={`w-3.5 h-3.5 transition-all duration-300 ${
+              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-all duration-300 ${
                 isWishlisted
                   ? 'fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_4px_rgba(244,63,94,0.4)]'
                   : 'text-stone-500 stroke-[1.8]'
@@ -220,23 +219,23 @@ function ProductCardComponent({ product }: ProductCardProps) {
           prefetch={true}
           onMouseEnter={handlePrefetch}
           onFocus={handlePrefetch}
-          className="relative -mt-10 sm:-mt-20 w-full h-56 sm:h-64 flex items-center justify-center p-4 overflow-visible group/img"
+          className="relative -mt-7 sm:-mt-20 w-full h-40 sm:h-64 flex items-center justify-center p-2 sm:p-4 overflow-visible group/img"
         >
           {/* Skeleton Shimmer */}
           {!isImageLoaded && (
-            <div className="absolute inset-x-8 top-10 bottom-6 bg-stone-200/40 animate-pulse rounded-md z-0" />
+            <div className="absolute inset-x-4 sm:inset-x-8 top-6 sm:top-10 bottom-4 sm:bottom-6 bg-stone-200/40 animate-pulse rounded-md z-0" />
           )}
 
           {/* Soft 3D Pedestal Shadow directly under bottle base */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 sm:w-32 h-3.5 bg-stone-900/10 rounded-[100%] blur-[5px] pointer-events-none group-hover:scale-95 group-hover:opacity-75 transition-all duration-500" />
+          <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 w-16 sm:w-32 h-2 sm:h-3.5 bg-stone-900/10 rounded-[100%] blur-[4px] sm:blur-[5px] pointer-events-none group-hover:scale-95 group-hover:opacity-75 transition-all duration-500" />
 
           {/* Flacon Image (Pop-out, with seamless blend) */}
-          <div className="relative w-full h-full max-h-[220px] sm:max-h-[240px] flex items-center justify-center">
+          <div className="relative w-full h-full max-h-[145px] sm:max-h-[240px] flex items-center justify-center">
             <Image
               src={imageSrc}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               onLoad={() => setIsImageLoaded(true)}
               onError={() => setImageSrc(FALLBACK_IMAGE)}
               className="object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1.5"
@@ -245,10 +244,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
         </Link>
 
         {/* ── Product Information & Centered Details ── */}
-        <div className="px-5 pt-2 pb-6 flex-1 flex flex-col justify-between text-center space-y-4">
-          <div className="space-y-1.5">
+        <div className="px-2.5 sm:px-5 pt-1 sm:pt-2 pb-3.5 sm:pb-6 flex-1 flex flex-col justify-between text-center space-y-2 sm:space-y-4">
+          <div className="space-y-1 sm:space-y-1.5">
             {/* 1. Fragrance Notes / Accord (FRESH FRUITY MUSK WITH WARM...) */}
-            <p className="font-sans text-[10.5px] sm:text-[11px] font-medium uppercase tracking-[0.14em] text-stone-500 truncate max-w-[95%] mx-auto">
+            <p className="font-sans text-[9px] sm:text-[11px] font-medium uppercase tracking-[0.08em] sm:tracking-[0.14em] text-stone-500 truncate max-w-full mx-auto px-0.5">
               {notesHeader}
             </p>
 
@@ -260,43 +259,43 @@ function ProductCardComponent({ product }: ProductCardProps) {
               onFocus={handlePrefetch}
               className="block group/title"
             >
-              <h3 className="font-serif text-lg sm:text-[21px] font-normal text-stone-900 group-hover/title:text-emerald-950 transition-colors line-clamp-1 leading-snug">
+              <h3 className="font-serif text-sm sm:text-[21px] font-medium sm:font-normal text-stone-900 group-hover/title:text-emerald-950 transition-colors line-clamp-1 leading-snug">
                 {product.name}
               </h3>
             </Link>
 
             {/* 3. Subtitle / Target Audience (For Men And Women) */}
-            <p className="font-serif text-sm sm:text-base text-stone-700 line-clamp-1 leading-tight">
+            <p className="font-serif text-[11px] sm:text-base text-stone-700 line-clamp-1 leading-tight">
               {targetAudience}
             </p>
 
             {/* 4. Star Ratings + Review Count (★★★★★ 9 reviews) */}
-            <div className="flex items-center justify-center gap-1.5 pt-1 font-sans">
+            <div className="flex items-center justify-center gap-1 sm:gap-1.5 pt-0.5 sm:pt-1 font-sans">
               <div className="flex items-center gap-0.5 text-amber-500">
                 {[...Array(starCount)].map((_, i) => (
                   <Star
                     key={i}
-                    className="w-3.5 h-3.5 fill-[#E5A118] text-[#E5A118]"
+                    className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 fill-[#E5A118] text-[#E5A118]"
                   />
                 ))}
               </div>
-              <span className="text-stone-700 text-xs font-normal">
+              <span className="text-stone-700 text-[10px] sm:text-xs font-normal">
                 {reviewCount} reviews
               </span>
             </div>
 
             {/* 5. Pricing Row: ₹2,250 ₹2,500 10% Off */}
-            <div className="flex items-baseline justify-center gap-2 pt-1 font-sans">
-              <span className="text-base sm:text-lg font-bold text-stone-900">
+            <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2 pt-0.5 sm:pt-1 font-sans">
+              <span className="text-sm sm:text-lg font-bold text-stone-900">
                 {formatPrice(itemPrice)}
               </span>
               {originalPrice && originalPrice > itemPrice && (
-                <span className="text-xs sm:text-sm text-stone-400 line-through">
+                <span className="text-[10px] sm:text-sm text-stone-400 line-through">
                   {formatPrice(originalPrice)}
                 </span>
               )}
               {discountPercent && discountPercent > 0 && (
-                <span className="text-xs sm:text-sm font-bold text-[#16A34A]">
+                <span className="text-[10px] sm:text-sm font-bold text-[#16A34A]">
                   {discountPercent}% Off
                 </span>
               )}
@@ -304,11 +303,12 @@ function ProductCardComponent({ product }: ProductCardProps) {
           </div>
 
           {/* 6. Outline Action Button: ADD TO CART */}
-          <div className="pt-2">
+          <div className="pt-1 sm:pt-2">
             <button
+              type="button"
               onClick={handleAddToCart}
               disabled={isAdding}
-              className={`w-full py-3.5 px-4 border text-xs font-bold uppercase tracking-[0.2em] rounded-none transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] ${
+              className={`w-full py-2.5 sm:py-3.5 px-1 sm:px-4 border text-[9.5px] sm:text-xs font-bold uppercase tracking-[0.08em] sm:tracking-[0.2em] rounded-none transition-all duration-300 flex items-center justify-center gap-1.5 active:scale-[0.98] ${
                 isAdding
                   ? 'bg-stone-900 text-[#FAF6F0] border-stone-900'
                   : 'border-stone-800 text-stone-900 bg-transparent hover:bg-stone-900 hover:text-[#FAF6F0] hover:border-stone-900 shadow-2xs'
@@ -316,8 +316,9 @@ function ProductCardComponent({ product }: ProductCardProps) {
             >
               {isAdding ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Added To Cart</span>
+                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" />
+                  <span className="sm:hidden">Added</span>
+                  <span className="hidden sm:inline">Added To Cart</span>
                 </>
               ) : (
                 <span>Add To Cart</span>
