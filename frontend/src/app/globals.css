@@ -170,6 +170,46 @@ button, input, select, textarea, .font-sans, .font-inter {
   animation: pulseGlowDot 1.6s ease-in-out infinite;
 }
 
+/* Add to Cart Premium Emerald Blinking Glow Animation */
+@keyframes cartBtnBlinkGlow {
+  0%, 100% {
+    border-color: #046A5A;
+    box-shadow: 0 2px 8px rgba(4, 106, 90, 0.15), 0 0 0 0 rgba(4, 106, 90, 0.20);
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  50% {
+    border-color: #10B981;
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35), 0 0 12px 2px rgba(52, 211, 153, 0.40);
+    background-color: rgba(240, 253, 244, 0.95);
+  }
+}
+
+.cart-btn-blink {
+  animation: cartBtnBlinkGlow 2.2s ease-in-out infinite;
+}
+
+.cart-btn-blink:hover {
+  animation: none;
+}
+
+/* Out of Stock Warning Red Blinking Glow Animation */
+@keyframes outOfStockBlink {
+  0%, 100% {
+    border-color: rgba(244, 63, 94, 0.6);
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.15), 0 0 0 0 rgba(225, 29, 72, 0.2);
+    background-color: rgba(255, 241, 242, 0.90);
+  }
+  50% {
+    border-color: rgba(225, 29, 72, 0.95);
+    box-shadow: 0 4px 16px rgba(225, 29, 72, 0.38), 0 0 14px 2px rgba(244, 63, 94, 0.45);
+    background-color: rgba(255, 228, 230, 0.98);
+  }
+}
+
+.out-of-stock-btn-blink {
+  animation: outOfStockBlink 1.8s ease-in-out infinite;
+}
+
 /* Luxury Royal Skeleton Shimmer Effect */
 @keyframes royalShimmer {
   0% {

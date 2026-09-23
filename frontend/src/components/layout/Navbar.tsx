@@ -258,6 +258,7 @@ export default function Navbar() {
   const isGifting = pathname === '/gifting';
   const isContact = pathname === '/contact';
   const isCart = pathname === '/cart';
+  const isProductDetail = pathname.startsWith('/product/');
 
   return (
     <>
@@ -1414,6 +1415,7 @@ export default function Navbar() {
       {/* ========================================================================= */}
       {/* 3. MOBILE THUMB BOTTOM BAR (SOLID ROYAL EMERALD GREEN EXPERIENCE)          */}
       {/* ========================================================================= */}
+      {!isProductDetail && (
       <nav
         className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] border-t border-[#C9A227]/40 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] rounded-t-[20px] pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1.5 transition-all duration-300 select-none"
         aria-label="Mobile Bottom Navigation"
@@ -1599,6 +1601,7 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+      )}
     </>
   );
 }
