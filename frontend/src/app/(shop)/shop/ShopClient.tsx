@@ -451,7 +451,7 @@ export default function ShopClient() {
     onMaxPriceChange: setMaxPrice,
     collections: COLLECTIONS,
     selectedCollection,
-    onSelectCollection: handleCollectionSelect,
+    onSelectCollection: handleCollectionSelect, 
     occasions: OCCASIONS,
     selectedOccasions,
     onToggleOccasion: handleOccasionToggle,
@@ -465,7 +465,7 @@ export default function ShopClient() {
     <>
       {/* Hero Shop Banner */}
       <section className="relative w-full overflow-hidden">
-        <div className="relative w-full h-[140px] sm:h-[200px] md:h-[240px] lg:h-[280px]">
+        <div className="relative w-full h-[175px] sm:h-[260px] md:h-[320px] lg:h-[380px]">
           <Image
             src="/images/shopbanner.png"
             alt="Attar Depot Royal Shop Collection"
@@ -474,7 +474,7 @@ export default function ShopClient() {
             sizes="100vw"
             className="object-cover object-center"
           />
-          <div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
         </div>
       </section>
 

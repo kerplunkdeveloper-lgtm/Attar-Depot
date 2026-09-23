@@ -5,13 +5,32 @@ import { Droplet, Sparkles, Award, Shield, ArrowRight } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="space-y-20 py-12 pb-24 font-sans">
-      {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
+    <div className="space-y-10 sm:space-y-16 md:space-y-20 pb-24 font-sans">
+      {/* ── Hero Banner Section ─────────────────────────────────────────────────── */}
+      <section className="relative w-full overflow-hidden bg-[#012520]">
+        <div className="relative w-full">
+          <Image
+            src="/images/aboutbanners1.png"
+            alt="About Attar Depot - Sacred Heritage & Artisanal Distillation"
+            width={1920}
+            height={800}
+            priority
+            sizes="100vw"
+            className="w-full h-auto object-cover block"
+          />
+          {/* Subtle royal emerald tint overlay */}
+          <div className="absolute inset-0 bg-emerald-950/10 pointer-events-none" />
+          {/* Elegant bottom gradient fade to page background */}
+          <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-14 md:h-20 bg-gradient-to-t from-white via-white/30 to-transparent pointer-events-none" />
+        </div>
+      </section>
+
+      {/* Hero Intro */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-4 sm:space-y-6 pt-2 sm:pt-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100/80 border border-emerald-200 text-xs font-bold text-emerald-800 uppercase tracking-widest font-sans">
           <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Generational Olfactory Alchemy
         </div>
-        <h1 className="font-serif text-4xl sm:text-6xl font-bold uppercase tracking-tight text-neutral-900">
+        <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold uppercase tracking-tight text-neutral-900">
           The Sacred Heritage of Attar Depot
         </h1>
         <p className="font-sans text-sm sm:text-base text-neutral-600 font-normal leading-relaxed max-w-2xl mx-auto">

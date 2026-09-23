@@ -170,7 +170,7 @@ export default function HeroBannerCarousel() {
 
   return (
     <section
-      className="relative w-full overflow-hidden select-none group bg-neutral-900"
+      className="relative w-full overflow-hidden select-none group bg-[#012520]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -231,6 +231,16 @@ export default function HeroBannerCarousel() {
           </div>
         ))}
       </div>
+
+      {/* Royal Emerald Green Color Overlay */}
+      <div
+        className="absolute inset-0 bg-emerald-950/30 pointer-events-none z-10 mix-blend-multiply"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-[#012520]/65 via-[#046A5A]/20 to-[#012520]/35 pointer-events-none z-10"
+        aria-hidden="true"
+      />
 
       {/* Navigation Arrow - Left */}
       <button

@@ -70,7 +70,7 @@ export default function Footer() {
       {/* ========================================================================= */}
       {/* 1. ROYAL HERITAGE VALUE BADGES                                            */}
       {/* ========================================================================= */}
-      <div className="border-b border-[#F5B418]/20 bg-[#031e14]/70 backdrop-blur-md py-10 px-4 sm:px-6 lg:px-8">
+      <div className="border-b border-[#F5B418]/20 bg-[#031e14] backdrop-blur-md py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Badge 1 */}
           <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/60 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)] group">
