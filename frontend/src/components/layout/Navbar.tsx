@@ -32,6 +32,7 @@ import {
   Gift,
   LocateFixed,
   Heart,
+  Phone,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -65,6 +66,7 @@ export default function Navbar() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>('categories');
   const [deliveryCity, setDeliveryCity] = useState<string | null>(null);
 
@@ -184,6 +186,8 @@ export default function Navbar() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
+      setIsAtTop(currentScrollY < 15);
+
       if (currentScrollY < 30) {
         setIsNavVisible(true);
       } else if (
@@ -252,6 +256,7 @@ export default function Navbar() {
   const isAbout = pathname === '/about';
   const isOrders = pathname === '/orders';
   const isGifting = pathname === '/gifting';
+  const isContact = pathname === '/contact';
   const isCart = pathname === '/cart';
 
   return (
@@ -264,6 +269,31 @@ export default function Navbar() {
           isNavVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
+        {/* TOP UTILITY & PROMO ANNOUNCEMENT BAR (ONLY VISIBLE AT THE VERY TOP OF THE PAGE) */}
+        <div
+          className={`w-full bg-[#EBEBEB] text-neutral-800 select-none transition-all duration-300 ease-in-out overflow-hidden ${
+            isAtTop
+              ? 'max-h-10 opacity-100 border-b border-neutral-300'
+              : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-8 sm:h-9 flex items-center justify-center text-center">
+            <div className="flex items-center justify-center text-[11.5px] sm:text-[12px] font-medium text-neutral-800 tracking-wide">
+              <span>Celebrate. Gift. Delight.</span>
+              <span className="mx-1 text-sm select-none" role="img" aria-label="gift">🎁</span>
+              <span className="text-neutral-400 mx-1.5 sm:mx-2 font-normal">|</span>
+              <Link
+                href="/gifting"
+                className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline"
+              >
+                <span className="hidden sm:inline">Explore Our Gifting Collection</span>
+                <span className="sm:hidden">Explore Gifting</span>
+                <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* MAIN NAVIGATION BAR */}
         <div className="w-full bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl border-b border-[#C9A227]/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
           {/* Subtle top & bottom gold ambient glow lines */}
@@ -271,7 +301,7 @@ export default function Navbar() {
           <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20 gap-2 sm:gap-4">
+            <div className="flex items-center justify-between h-[68px] sm:h-[76px] lg:h-[88px] gap-2 sm:gap-4">
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Mobile Trigger & Official Brand Logo             */}
               {/* ================================================================= */}
@@ -279,7 +309,7 @@ export default function Navbar() {
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-9 h-9 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10"
+                  className="w-10 h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
@@ -292,16 +322,17 @@ export default function Navbar() {
                 {/* Brand Official Logo Image (Positioned First on Left) */}
                 <Link
                   href="/"
-                  className="group flex items-center justify-start py-1 select-none"
+                  className="group flex items-center justify-start py-1 select-none transition-transform duration-300 active:scale-[0.98]"
                   aria-label="Attar Depot Home"
                 >
                   <Image
-                    src="/images/logo.png"
+                    src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
-                    width={320}
-                    height={100}
+                    width={400}
+                    height={120}
                     priority
-                    className="h-9 sm:h-11 md:h-13 lg:h-15 w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:brightness-110 transition-all duration-300"
+                    quality={95}
+                    className="h-[46px] sm:h-[56px] md:h-[62px] lg:h-[68px] xl:h-[74px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
                   />
                 </Link>
               </div>
@@ -310,13 +341,13 @@ export default function Navbar() {
               {/* 2. CENTER SECTION: Desktop Navigation Menu Bar                    */}
               {/* ================================================================= */}
               <div className="hidden lg:flex items-center justify-center flex-1 px-2 xl:px-4">
-                <nav className="flex items-center space-x-1 xl:space-x-1.5 bg-black/25 py-1.5 px-3 rounded-full border border-emerald-500/20 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+                <nav className="flex items-center space-x-1 xl:space-x-1.5 bg-black/30 py-2 px-3.5 xl:px-4 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
                   {/* Home Link */}
                   <Link
                     href="/"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[11px] xl:text-xs font-semibold tracking-[0.1em] uppercase py-1.5 px-3.5 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isHome
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
@@ -337,7 +368,7 @@ export default function Navbar() {
                   >
                     <button
                       onClick={toggleShopDropdown}
-                      className={`relative flex items-center gap-1.5 text-[11px] xl:text-xs font-semibold tracking-[0.1em] uppercase py-1.5 px-3.5 rounded-full transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center gap-1.5 text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 cursor-pointer ${
                         isShop || isShopOpen
                           ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                           : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
@@ -365,7 +396,7 @@ export default function Navbar() {
                     href="/gifting"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[11px] xl:text-xs font-semibold tracking-[0.1em] uppercase py-1.5 px-3.5 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isGifting
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
@@ -374,7 +405,7 @@ export default function Navbar() {
                     {isGifting && (
                       <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <Gift className="w-3 h-3 text-[#F5B418]/80 group-hover:text-[#F5B418]" />
+                    <Gift className="w-3.5 h-3.5 text-[#F5B418]/80 group-hover:text-[#F5B418]" />
                     <span>Gifting</span>
                   </Link>
 
@@ -383,7 +414,7 @@ export default function Navbar() {
                     href="/about"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[11px] xl:text-xs font-semibold tracking-[0.1em] uppercase py-1.5 px-3.5 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isAbout
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
@@ -395,21 +426,22 @@ export default function Navbar() {
                     <span>About Us</span>
                   </Link>
 
-                  {/* Orders Link */}
+                  {/* Contact Us Link */}
                   <Link
-                    href="/orders"
+                    href="/contact"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[11px] xl:text-xs font-semibold tracking-[0.1em] uppercase py-1.5 px-3.5 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      isOrders
+                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                      isContact
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
                     }`}
                   >
-                    {isOrders && (
+                    {isContact && (
                       <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <span>Orders</span>
+                    <Phone className="w-3.5 h-3.5 text-[#F5B418]/80 group-hover:text-[#F5B418]" />
+                    <span>Contact Us</span>
                   </Link>
                 </nav>
               </div>
@@ -432,29 +464,20 @@ export default function Navbar() {
                   </div>
                 )}
 
-                {/* Responsive Luxury Search Bar / Modal Trigger */}
+                {/* Search Modal Trigger (Icon Only) */}
                 <button
                   onClick={() => dispatch(toggleSearch(true))}
-                  className="flex items-center justify-center sm:justify-between w-9 h-9 sm:w-36 md:w-44 lg:w-52 xl:w-60 sm:h-9.5 sm:px-3 rounded-full text-[#FAF8F2]/80 hover:text-[#FAF8F2] bg-white/[0.06] sm:bg-black/30 hover:bg-black/45 border border-white/10 sm:border-emerald-500/30 sm:hover:border-[#F5B418]/60 transition-all shadow-2xs group cursor-pointer backdrop-blur-md"
+                  className="relative w-9.5 h-9.5 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="Search Fragrance Vault"
                   title="Search pure attars & flacons (Ctrl+K)"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Search className="w-4 h-4 text-[#F5B418] group-hover:scale-110 transition-transform shrink-0 drop-shadow-[0_0_6px_rgba(245,180,24,0.4)]" />
-                    <span className="hidden sm:inline-block text-[11px] text-[#FAF8F2]/60 group-hover:text-[#FAF8F2]/90 transition-colors truncate font-normal">
-                      <span className="hidden xl:inline">Search pure attars, oudh...</span>
-                      <span className="xl:hidden">Search scents...</span>
-                    </span>
-                  </div>
-                  <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono font-bold text-[#F5B418] bg-white/10 border border-white/15 rounded shadow-2xs group-hover:border-[#F5B418]/50 group-hover:text-[#F5B418] transition-colors shrink-0 ml-1">
-                    ⌘K
-                  </kbd>
+                  <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-200 group-hover:scale-110 group-active:scale-90" />
                 </button>
 
                 {/* Wishlist Vault Trigger */}
                 <button
                   onClick={() => dispatch(toggleWishlistDrawer(true))}
-                  className="relative w-9 h-9 sm:w-9.5 sm:h-9.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
+                  className="relative w-9.5 h-9.5 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="Royal Wishlist Vault"
                   title={`Royal Wishlist (${wishlistCount})`}
                   suppressHydrationWarning
@@ -477,7 +500,7 @@ export default function Navbar() {
                         setIsUserMenuOpen(!isUserMenuOpen);
                       }
                     }}
-                    className="flex items-center gap-1.5 h-9 sm:h-9.5 px-2.5 sm:px-3 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 backdrop-blur-md active:scale-95 shadow-2xs cursor-pointer"
+                    className="flex items-center gap-2 h-9.5 sm:h-10 px-3 sm:px-3.5 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 backdrop-blur-md active:scale-95 shadow-2xs cursor-pointer"
                     aria-label="User Account"
                     suppressHydrationWarning
                   >
@@ -494,11 +517,11 @@ export default function Navbar() {
                       <UserIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     )}
                     {mounted && isAuthenticated && user ? (
-                      <span className="hidden md:inline-block text-[11px] font-semibold text-[#FAF8F2] max-w-[80px] truncate">
+                      <span className="hidden md:inline-block text-xs font-semibold text-[#FAF8F2] max-w-[85px] truncate">
                         {user.name.split(' ')[0]}
                       </span>
                     ) : (
-                      <span className="hidden md:inline-block text-[11px] font-semibold text-[#FAF8F2]/80 uppercase tracking-wider">
+                      <span className="hidden md:inline-block text-xs font-semibold text-[#FAF8F2]/80 uppercase tracking-wider">
                         Sign In
                       </span>
                     )}
@@ -606,10 +629,10 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* Cart Drawer Trigger */}
+                {/* Cart Drawer Trigger — Hidden in mobile view, visible on sm and up */}
                 <button
                   onClick={() => dispatch(toggleCartDrawer(true))}
-                  className="relative w-9 h-9 sm:w-9.5 sm:h-9.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
+                  className="relative hidden sm:flex w-9.5 h-9.5 sm:w-10 sm:h-10 items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="View Shopping Cart"
                   suppressHydrationWarning
                 >
@@ -637,7 +660,11 @@ export default function Navbar() {
           >
             {/* Dark Frosted Luxury Backdrop */}
             <div
-              className="fixed inset-0 top-16 sm:top-18 lg:top-20 bg-neutral-950/65 backdrop-blur-xs -z-10 transition-opacity"
+              className={`fixed inset-0 bg-neutral-950/65 backdrop-blur-xs -z-10 transition-all duration-300 ${
+                isAtTop
+                  ? 'top-[100px] sm:top-[112px] lg:top-[124px]'
+                  : 'top-[68px] sm:top-[76px] lg:top-[88px]'
+              }`}
               onClick={() => {
                 if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
                 setIsShopOpen(false);
@@ -646,7 +673,13 @@ export default function Navbar() {
             />
 
             {/* Edge-to-Edge Mega Menu Panel */}
-            <div className="w-full bg-white border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.35)] overflow-y-auto max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-4.5rem)] lg:max-h-[calc(100vh-5rem)]">
+            <div
+              className={`w-full bg-white border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.35)] overflow-y-auto transition-all duration-300 ${
+                isAtTop
+                  ? 'max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-112px)] lg:max-h-[calc(100vh-124px)]'
+                  : 'max-h-[calc(100vh-68px)] sm:max-h-[calc(100vh-76px)] lg:max-h-[calc(100vh-88px)]'
+              }`}
+            >
               {/* Top Vault Bar */}
               <div className="w-full border-b border-[#C9A227]/25 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
@@ -913,7 +946,7 @@ export default function Navbar() {
       </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
-      <div className="h-16 sm:h-18 lg:h-20 w-full shrink-0" aria-hidden="true" />
+      <div className="h-[100px] sm:h-[112px] lg:h-[124px] w-full shrink-0" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
@@ -945,6 +978,7 @@ export default function Navbar() {
               {/* Drawer Top Header */}
               <div className="shrink-0 p-3.5 sm:p-4 border-b border-[#C9A227]/30 flex items-center justify-between bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] text-white shadow-xs relative">
                 <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
+                {/* Mobile Drawer Brand Logo */}
                 <Link
                   href="/"
                   onClick={() => setIsMobileNavOpen(false)}
@@ -952,12 +986,13 @@ export default function Navbar() {
                   aria-label="Attar Depot Home"
                 >
                   <Image
-                    src="/images/logo.png"
+                    src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
-                    width={180}
-                    height={55}
+                    width={280}
+                    height={80}
                     priority
-                    className="h-10 sm:h-11 w-auto object-contain drop-shadow-[0_2px_10px_rgba(245,180,24,0.35)] group-hover:scale-105 transition-transform"
+                    quality={95}
+                    className="h-12 sm:h-14 w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
                   />
                 </Link>
                 <button
@@ -994,9 +1029,11 @@ export default function Navbar() {
                   {[
                     { name: 'Home', href: '/', icon: Home },
                     { name: 'All Perfumes', href: '/shop', icon: ShoppingBag },
+                    { name: 'My Cart', href: '/cart', icon: ShoppingBag, isCart: true },
+                    { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
                     { name: 'Gifting', href: '/gifting', icon: Gift },
                     { name: 'About Us', href: '/about', icon: Sparkles },
-                    { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
+                    { name: 'Contact Us', href: '/contact', icon: Phone },
                     { name: 'Track Order', href: '/orders', icon: PackageCheck },
                   ].map((item) => {
                     const Icon = item.icon;
@@ -1009,6 +1046,8 @@ export default function Navbar() {
                           setIsMobileNavOpen(false);
                           if (item.isWishlist) {
                             dispatch(toggleWishlistDrawer(true));
+                          } else if (item.isCart) {
+                            dispatch(toggleCartDrawer(true));
                           } else {
                             router.push(item.href);
                           }
@@ -1024,6 +1063,8 @@ export default function Navbar() {
                             className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
                               item.isWishlist
                                 ? 'bg-rose-50 text-rose-600'
+                                : item.isCart
+                                ? 'bg-[#F5B418]/20 text-[#B8860B]'
                                 : isActive
                                 ? 'bg-[#F5B418] text-[#012520] shadow-2xs font-bold'
                                 : 'bg-emerald-50 text-emerald-800'
@@ -1037,6 +1078,11 @@ export default function Navbar() {
                           {item.isWishlist && mounted && wishlistCount > 0 && (
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
                               {wishlistCount}
+                            </span>
+                          )}
+                          {item.isCart && mounted && itemsCount > 0 && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5B418]/20 text-[#B8860B] border border-[#F5B418]/40">
+                              {itemsCount}
                             </span>
                           )}
                           <ChevronRight

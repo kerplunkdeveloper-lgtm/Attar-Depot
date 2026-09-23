@@ -27,8 +27,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/logo.png',
-        destination: '/images/logo.png',
+        source: '/logonew.png',
+        destination: '/images/logonew.png',
       },
     ];
   },

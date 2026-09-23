@@ -451,7 +451,7 @@ function AdminLayoutInner({
               {!isSidebarCollapsed ? (
                 <div className="flex items-center justify-center w-full py-2 px-1">
                   <Image
-                    src="/images/logo.png"
+                    src="/images/logonew.png"
                     alt="The Attar Depot"
                     width={220}
                     height={90}
@@ -462,7 +462,7 @@ function AdminLayoutInner({
               ) : (
                 <div className="flex items-center justify-center py-2">
                   <Image
-                    src="/images/logo.png"
+                    src="/images/logonew.png"
                     alt="The Attar Depot"
                     width={52}
                     height={52}

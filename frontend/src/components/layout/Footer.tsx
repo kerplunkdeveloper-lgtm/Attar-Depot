@@ -139,7 +139,7 @@ export default function Footer() {
             <Link href="/" className="inline-block group" aria-label="Attar Depot Home">
               <div className="relative">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/logonew.png"
                   alt="Attar Depot - Pure Essence of Royalty"
                   width={280}
                   height={80}
@@ -296,6 +296,15 @@ export default function Footer() {
                 >
                   <ArrowRight className="w-3 h-3 text-[#F5B418]/70" />
                   <span>Track Consignment</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="flex items-center gap-1.5 hover:text-[#F5B418] hover:translate-x-1 transition-all duration-200"
+                >
+                  <ArrowRight className="w-3 h-3 text-[#F5B418]/70" />
+                  <span>Contact Royal Concierge</span>
                 </Link>
               </li>
               <li>

@@ -20,6 +20,7 @@ import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import Faq from '@/components/home/Faq';
 
 const HOME_CATEGORY_TABS = [
+  { id: 'all', label: 'All' },
   { id: 'men', label: 'Men' },
   { id: 'women', label: 'Women' },
   { id: 'unisex', label: 'Unisex' },
@@ -27,7 +28,7 @@ const HOME_CATEGORY_TABS = [
 ];
 
 export default function HomePage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('men');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -151,7 +152,7 @@ export default function HomePage() {
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
-    const scrollAmount = 340;
+    const scrollAmount = Math.max(220, scrollContainerRef.current.clientWidth * 0.75);
     scrollContainerRef.current.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
@@ -159,54 +160,77 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-24 pb-20 emerald-overlay-bg">
+    <div className="space-y-16  emerald-overlay-bg">
       {/* 1. Hero Banner Carousel */}
       <HeroBannerCarousel />
 
       {/* 2. Featured Sovereign Attars with Category Tabs & Smooth Scroll Carousel */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
         {/* Header with Title, Tagline and Scroll Controls */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-1.5">
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight">
+        <div className="flex items-end justify-between gap-3">
+          <div className="space-y-1 sm:space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <Sparkles className="w-3 h-3 text-[#C9A227]" />
+              <span>Royal Artisanal Flacons</span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight">
               Our Bestsellers
             </h2>
           </div>
 
-          {/* Smooth Scroll Navigation Arrows */}
-          <div className="hidden sm:flex items-center gap-2">
-            <button
-              onClick={() => handleScroll('left')}
-              disabled={!canScrollLeft}
-              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
-                canScrollLeft
-                  ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
-                  : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
-              }`}
-              aria-label="Scroll left"
-              title="Previous flacons"
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Quick Mobile "View All" Pill */}
+            <Link
+              href={
+                selectedCategory === 'all'
+                  ? '/shop'
+                  : matchedCategory
+                  ? `/shop?category=${matchedCategory.slug}`
+                  : ['men', 'women', 'unisex'].includes(selectedCategory)
+                  ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
+                  : '/shop?occasion=Gifting'
+              }
+              className="sm:hidden inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider py-1.5 px-3 rounded-full bg-emerald-50 border border-emerald-200/80 transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => handleScroll('right')}
-              disabled={!canScrollRight}
-              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
-                canScrollRight
-                  ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
-                  : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
-              }`}
-              aria-label="Scroll right"
-              title="Next flacons"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+              <span>View All</span>
+              <ArrowRight className="w-3 h-3 text-[#C9A227]" />
+            </Link>
+
+            {/* Smooth Scroll Navigation Arrows (Desktop) */}
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => handleScroll('left')}
+                disabled={!canScrollLeft}
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
+                  canScrollLeft
+                    ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
+                    : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
+                }`}
+                aria-label="Scroll left"
+                title="Previous flacons"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleScroll('right')}
+                disabled={!canScrollRight}
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
+                  canScrollRight
+                    ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
+                    : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
+                }`}
+                aria-label="Scroll right"
+                title="Next flacons"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Category Tabs Bar (Only All Bestsellers, Men, Women, Unisex, Gifted) */}
-        <div className="relative pt-1">
-          <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-2 px-0.5">
+        <div className="relative pt-0.5">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 px-0.5 overscroll-x-contain">
             {HOME_CATEGORY_TABS.map((tab) => {
               const isSelected = selectedCategory === tab.id;
               return (
@@ -214,7 +238,7 @@ export default function HomePage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setSelectedCategory(tab.id)}
-                  className={`px-5 py-2.5 rounded-full font-bold uppercase tracking-wider text-[11px] whitespace-nowrap transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+                  className={`px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
                     isSelected
                       ? 'bg-[#012520] text-[#F5B418] border border-[#F5B418]/50 shadow-[0_4px_16px_rgba(1,37,32,0.3)] scale-[1.02]'
                       : 'bg-white/90 text-stone-700 hover:text-stone-900 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
@@ -231,13 +255,13 @@ export default function HomePage() {
         </div>
 
         {/* Product Cards Smooth Scroll View Container */}
-        <div className="relative group/carousel">
+        <div className="relative group/carousel -mx-4 px-4 sm:mx-0 sm:px-0">
           {isLoading ? (
-            <div className="flex gap-5 sm:gap-6 overflow-hidden py-4">
+            <div className="flex gap-3 sm:gap-6 overflow-hidden py-3 sm:py-4">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-[280px] sm:w-[305px] md:w-[325px] flex-shrink-0"
+                  className="w-[185px] xs:w-[210px] sm:w-[280px] md:w-[315px] flex-shrink-0"
                 >
                   <ProductCardSkeleton />
                 </div>
@@ -264,12 +288,12 @@ export default function HomePage() {
           ) : (
             <div
               ref={scrollContainerRef}
-              className="flex gap-5 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-1 pb-6 px-1 no-scrollbar overscroll-x-contain"
+              className="flex gap-3 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-1 pb-5 sm:pb-6 px-0.5 no-scrollbar overscroll-x-contain"
             >
               {displayedProducts.map((product) => (
                 <div
                   key={product._id}
-                  className="w-[280px] sm:w-[305px] md:w-[325px] flex-shrink-0 snap-start flex flex-col"
+                  className="w-[185px] xs:w-[210px] sm:w-[280px] md:w-[315px] flex-shrink-0 snap-start flex flex-col"
                 >
                   <ProductCard product={product} />
                 </div>
@@ -279,22 +303,22 @@ export default function HomePage() {
         </div>
 
         {/* Smooth Scroll Bottom Bar: Progress Tracker & Collection Link */}
-        <div className="flex items-center justify-between pt-1 border-t border-stone-200/70 text-xs font-sans text-stone-600">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-stone-700">
-              Showing <span className="font-bold text-stone-900">{displayedProducts.length}</span> artisanal perfumes
+        <div className="flex items-center justify-between pt-1 border-t border-stone-200/70 text-xs font-sans text-stone-600 gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="text-[11px] sm:text-xs font-medium text-stone-700">
+              Showing <span className="font-bold text-stone-900">{displayedProducts.length}</span> perfumes
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-3">
-            <div className="w-28 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-20 sm:w-28 h-1 sm:h-1.5 bg-stone-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-[#F5B418] rounded-full transition-all duration-200"
                 style={{ width: `${Math.max(15, scrollProgress)}%` }}
               />
             </div>
-            <span className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">
-              Swipe to explore
+            <span className="text-[9px] sm:text-[10px] text-stone-500 font-medium uppercase tracking-wider whitespace-nowrap">
+              Swipe
             </span>
           </div>
 
@@ -308,10 +332,10 @@ export default function HomePage() {
                 ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
                 : '/shop?occasion=Gifting'
             }
-            className="inline-flex items-center gap-1.5 font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider transition-colors group"
+            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider transition-colors group whitespace-nowrap"
           >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            <span>Explore All</span>
+            <ArrowRight className="w-3 sm:w-3.5 h-3 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>

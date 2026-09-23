@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
         <div className="text-center">
           <Link href="/" className="inline-flex items-center justify-center group">
             <Image
-              src="/images/logo.png"
+              src="/images/logonew.png"
               alt="The Attar Depot"
               width={260}
               height={160}
