@@ -186,8 +186,8 @@ function ProductCardComponent({ product }: ProductCardProps) {
     return 'For Men And Women';
   })();
 
-  const reviewCount = product.ratings?.count || 9;
-  const starCount = 5;
+  const reviewCount = product.ratings?.count || 0;
+  const averageRating = product.ratings?.average || 0;
 
   return (
     <div
@@ -305,15 +305,19 @@ function ProductCardComponent({ product }: ProductCardProps) {
             {/* 4. Star Ratings + Review Count */}
             <div className="flex items-center justify-center gap-1 sm:gap-1.5 pt-0.5 sm:pt-1 font-sans">
               <div className="flex items-center gap-0.5 text-amber-500">
-                {[...Array(starCount)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 fill-[#E5A118] text-[#E5A118]"
+                    className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ${
+                      i < Math.round(averageRating)
+                        ? 'fill-[#E5A118] text-[#E5A118]'
+                        : 'fill-transparent text-stone-300'
+                    }`}
                   />
                 ))}
               </div>
               <span className="text-stone-600 text-[10px] sm:text-xs font-normal">
-                {reviewCount} reviews
+                {reviewCount > 0 ? `${reviewCount} reviews` : 'No reviews'}
               </span>
             </div>
 

@@ -10,6 +10,9 @@ import {
   ChevronRight,
   Sparkles,
   ShoppingBag,
+  Clock,
+  Droplet,
+  Globe,
 } from 'lucide-react';
 import { useFeaturedProducts, useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
@@ -356,70 +359,137 @@ export default function HomePage() {
 
 
 
-      {/* 5. The Art of Distillation Banner */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
+      {/* gifthomebanner */}
+      <motion.section 
+        className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-0"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+      >
+        <Link href="/gifting" className="block w-full cursor-pointer group">
+          <div className="w-full relative bg-[#0A1917]  overflow-hidden shadow-lg transition-transform duration-500 group-hover:shadow-2xl group-hover:scale-[1.01]">
+            <img 
+              src="/images/gifthome.png" 
+              alt="Attar Gifting Collection" 
+              className="w-full h-auto sm:h-[350px] md:h-[450px] object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent transition-opacity duration-500"></div>
+          </div>
+        </Link>
+      </motion.section>
+
+            
+
+      {/* Shop By Occasions */}
+      <motion.section 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.65, ease: luxuryEase }}
-        className="relative overflow-hidden py-20 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/60 to-[#ECFDF5] border-y border-emerald-200/80"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100/80 border border-emerald-200 text-xs font-bold text-emerald-800 uppercase tracking-widest font-sans">
-                <Flame className="w-3.5 h-3.5 text-emerald-600" /> Deg & Bhapka Hydro-Distillation
-              </div>
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-3">Shop by Occasion</h2>
+         
+        </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-neutral-900 leading-tight uppercase">
-                Centuries of Sacred Perfumery in Every Drop
-              </h2>
-
-              <p className="font-sans text-xs sm:text-sm text-neutral-700 leading-relaxed">
-                In a modern world saturated with alcohol sprays that evaporate within hours, Attar Depot resurrects the timeless art of pure concentrated perfume oils.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="p-4 rounded-2xl bg-white border border-emerald-100 shadow-emerald-sm space-y-1">
-                  <div className="text-emerald-800 font-bold text-base font-serif">100% Alcohol Free</div>
-                  <p className="font-sans text-xs text-neutral-600">Safe on sensitive skin, prayer-approved (Halal), undiluted pure oils.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              title: "Office Wear",
+              desc: "Rich, warm & traditional blends",
+              img: "/images/o1.png",
+              link: "/shop?occasion=Office%20Wear",
+            },
+            {
+              title: "Date Night",
+              desc: "Elegant & unforgettable signatures",
+              img: "/images/o2.png",
+              link: "/shop?occasion=Date",
+            },
+            {
+              title: "Everyday Casual Wear",
+              desc: "Fresh, subtle & long-lasting",
+              img: "/images/o3.png",
+              link: "/shop?occasion=Casual%20Wear",
+            },
+            {
+              title: "Corporate & Formal",
+              desc: "Sophisticated & commanding",
+              img: "/images/o4.png",
+              link: "/shop?occasion=party%2CParty",
+            }
+          ].map((occasion, idx) => (
+            <Link href={occasion.link} key={idx} className="group cursor-pointer">
+              <div className="relative h-[280px] md:h-[320px] overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500">
+                <div className="absolute inset-0 bg-[#0A1917]">
+                  <img 
+                    src={occasion.img} 
+                    alt={occasion.title}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/placeholder-attar.jpg';
+                    }}
+                  />
                 </div>
-
-                <div className="p-4 rounded-2xl bg-white border border-emerald-100 shadow-emerald-sm space-y-1">
-                  <div className="text-emerald-800 font-bold text-base font-serif">24+ Hour Sillage</div>
-                  <p className="font-sans text-xs text-neutral-600">Blends with body warmth to radiate alluring intimacy all day.</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full p-5 text-white flex flex-col justify-end h-full">
+                  <h3 className="text-xl font-serif font-semibold mb-1 group-hover:text-emerald-300 transition-colors">{occasion.title}</h3>
+                  <p className="text-xs text-neutral-300 mb-3 font-sans opacity-90">{occasion.desc}</p>
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white group-hover:text-emerald-300 transition-colors">
+                    Explore <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </div>
-
-              <div className="pt-2">
-                <Link
-                  href="/about"
-                  className="btn-emerald inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-emerald-sm text-white font-sans"
-                >
-                  <span>Learn the Distillation Secrets</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden border border-emerald-200 shadow-xl">
-              <Image
-                src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=1000"
-                alt="Ancient distillation of pure attars"
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-emerald-100 shadow-lg">
-                <p className="font-serif text-sm font-medium italic text-emerald-950">
-                  "No chemical fixatives, no aerosols. Just pristine botanical soul captured in pure sandalwood bases."
-                </p>
-              </div>
-            </div>
-          </div>
+            </Link>
+          ))}
         </div>
       </motion.section>
+
+
+
+      {/* Brand Values / Legacy Section (newsection 3) */}
+      <motion.section 
+        className="max-w-9xl mx-auto py-16 my-8 border-y border-stone-200/60 bg-[#146e02]"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 md:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-stone-200">
+          
+          <div className="flex flex-col items-center text-center px-4 pt-4 sm:pt-0">
+            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300">
+              <Clock className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
+              75 YEARS LEGACY
+            </h3>
+          </div>
+
+          <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
+            <div className="w-20 h-20 rounded-full border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300" style={{ borderWidth: '1px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}>
+              <Droplet className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
+              FARM TO FRAGRANCE
+            </h3>
+          </div>
+
+          <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
+            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300">
+              <Globe className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
+              LOVED WORLDWIDE
+            </h3>
+          </div>
+
+        </div>
+      </motion.section>
+
+
+
+
+
 
       {/* 5. Customer Testimonials Reviews Carousel */}
       <TestimonialCarousel />

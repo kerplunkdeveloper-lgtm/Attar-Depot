@@ -727,6 +727,7 @@ export default function AuthModal() {
             <a
               href="/admin/login"
               onClick={() => dispatch(closeAuthModal())}
+            target="_blank"
               className="hover:text-neutral-800 transition-colors inline-flex items-center gap-1.5"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />

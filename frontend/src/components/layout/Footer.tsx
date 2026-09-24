@@ -67,64 +67,8 @@ export default function Footer() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#F5B418]/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#10B981]/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* ========================================================================= */}
-      {/* 1. ROYAL HERITAGE VALUE BADGES                                            */}
-      {/* ========================================================================= */}
-      <div className="border-b border-[#F5B418]/20 bg-[#031e14] backdrop-blur-md py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Badge 1 */}
-          <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/60 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)] group">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F5B418]/25 to-[#042419] border border-[#F5B418]/50 flex items-center justify-center text-[#F5B418] shadow-[0_0_15px_rgba(245,180,24,0.25)] group-hover:scale-110 transition-transform duration-300 mb-3">
-              <Droplet className="w-6 h-6 text-[#F5B418]" />
-            </div>
-            <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-[#F5B418] mb-1.5">
-              100% Pure & Alcohol-Free
-            </h4>
-            <p className="text-xs text-[#FAF8F2]/75 leading-relaxed">
-              Hand-distilled concentrated perfume oils with zero synthetic fillers or alcohol.
-            </p>
-          </div>
 
-          {/* Badge 2 */}
-          <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/60 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)] group">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F5B418]/25 to-[#042419] border border-[#F5B418]/50 flex items-center justify-center text-[#F5B418] shadow-[0_0_15px_rgba(245,180,24,0.25)] group-hover:scale-110 transition-transform duration-300 mb-3">
-              <Clock className="w-6 h-6 text-[#F5B418]" />
-            </div>
-            <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-[#F5B418] mb-1.5">
-              24h Eternal Sillage
-            </h4>
-            <p className="text-xs text-[#FAF8F2]/75 leading-relaxed">
-              Aged resinous heartwoods and pure botanicals that mature exquisitely on the skin.
-            </p>
-          </div>
 
-          {/* Badge 3 */}
-          <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/60 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)] group">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F5B418]/25 to-[#042419] border border-[#F5B418]/50 flex items-center justify-center text-[#F5B418] shadow-[0_0_15px_rgba(245,180,24,0.25)] group-hover:scale-110 transition-transform duration-300 mb-3">
-              <ShieldCheck className="w-6 h-6 text-[#F5B418]" />
-            </div>
-            <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-[#F5B418] mb-1.5">
-              Deg & Bhapka Distillation
-            </h4>
-            <p className="text-xs text-[#FAF8F2]/75 leading-relaxed">
-              Traditional 400-year copper still hydro-distillation from Kannauj & Assam.
-            </p>
-          </div>
-
-          {/* Badge 4 */}
-          <div className="flex flex-col items-center text-center p-5 rounded-2xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/60 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.25)] group">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F5B418]/25 to-[#042419] border border-[#F5B418]/50 flex items-center justify-center text-[#F5B418] shadow-[0_0_15px_rgba(245,180,24,0.25)] group-hover:scale-110 transition-transform duration-300 mb-3">
-              <Crown className="w-6 h-6 text-[#F5B418]" />
-            </div>
-            <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-[#F5B418] mb-1.5">
-              Royal Velvet Presentation
-            </h4>
-            <p className="text-xs text-[#FAF8F2]/75 leading-relaxed">
-              Encased in artisanal crystal flacons and heirloom velvet presentation boxes.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* ========================================================================= */}
       {/* 2. MAIN FOOTER CONTENT GRID                                               */}
@@ -144,15 +88,12 @@ export default function Footer() {
                   width={280}
                   height={80}
                   priority
-                  className="h-14 sm:h-16 w-auto object-contain drop-shadow-[0_4px_20px_rgba(245,180,24,0.45)] group-hover:scale-105 group-hover:brightness-110 transition-all duration-300"
+                  className="h-14 sm:h-40 w-auto object-contain drop-shadow-[0_4px_20px_rgba(245,180,24,0.45)] group-hover:scale-105 group-hover:brightness-110 transition-all duration-300"
                 />
               </div>
             </Link>
 
-            <p className="text-xs sm:text-sm text-[#FAF8F2]/80 leading-relaxed font-sans pr-2">
-              Curators of royal heritage, timeless agarwoods, and pure non-alcoholic artisanal attars.
-              Distilled with ancient reverence for discerning collectors who cherish true olfactory mastery.
-            </p>
+
 
             <div className="p-3.5 rounded-xl bg-white/[0.04] border border-[#F5B418]/25 backdrop-blur-sm">
               <p className="font-serif text-xs text-[#F5B418] italic flex items-center gap-2">
@@ -459,18 +400,24 @@ export default function Footer() {
         {/* ======================================================================= */}
         {/* 4. COPYRIGHT & ROYAL ASSURANCE BAR                                      */}
         {/* ======================================================================= */}
-        <div className="mt-12 pt-6 border-t border-[#F5B418]/20 flex flex-col md:flex-row items-center justify-between text-xs text-[#FAF8F2]/65 gap-4">
+        <div className="mt-12 pt-6 border-t border-[#F5B418]/20 text-center flex flex-col md:flex-row items-center justify-between text-xs text-[#FAF8F2]/65 gap-4">
           <p>© {currentYear} Attar Depot Inc. Handcrafted in India. All Rights Reserved.</p>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs">
-            <span className="flex items-center gap-1.5 text-[#F5B418] font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-[#F5B418]" />
-              <span>100% Halal & Non-Alcoholic Formulations</span>
-            </span>
-            <span className="flex items-center gap-1.5 text-[#FAF8F2]/75">
-              <Compass className="w-3.5 h-3.5 text-[#F5B418]" />
-              <span>Direct Kannauj & Assam Distillation</span>
-            </span>
+            <a 
+              href="https://kerplunkmedia.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="relative inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#031e14] border border-[#F5B418]/40 hover:border-[#F5B418] group overflow-hidden transition-all duration-300 shadow-[0_0_10px_rgba(245,180,24,0.1)]"
+            >
+              {/* Blinking border glow effect */}
+              <span className="absolute inset-0 border border-[#F5B418] rounded-full animate-pulse opacity-60 pointer-events-none"></span>
+              <span className="absolute inset-0 bg-[#F5B418]/5 group-hover:bg-[#F5B418]/15 transition-colors duration-300 pointer-events-none"></span>
+              
+              <span className="relative z-10 text-[#FAF8F2]/80 group-hover:text-white transition-colors font-sans tracking-wide">
+                Developed by <strong className="text-[#F5B418] font-bold tracking-wider drop-shadow-sm">Kerplunk Media</strong>
+              </span>
+            </a>
           </div>
 
           <div className="flex items-center space-x-4 text-[11px] text-[#FAF8F2]/60">

@@ -240,7 +240,7 @@ export default function TestimonialCarousel() {
                 key={item.id}
                 className="w-[84vw] sm:w-[360px] md:w-[350px] lg:w-[calc((100%-48px)/3.18)] shrink-0 snap-start"
               >
-                <div className="bg-[#FAF3E8] border border-[#EADBCA] rounded-xs p-6 sm:p-7 md:p-8 flex flex-col justify-between h-full min-h-[300px] sm:min-h-[320px] transition-shadow duration-300 hover:shadow-sm">
+                <div className="bg-[#047d1ea7] border border-[#EADBCA] rounded-xs p-6 sm:p-7 md:p-8 flex flex-col justify-between h-full min-h-[300px] sm:min-h-[320px] transition-shadow duration-300 hover:shadow-sm">
                   {/* Top: 5 Stars */}
                   <div>
                     <div className="flex items-center gap-1 mb-5">
