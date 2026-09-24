@@ -18,6 +18,8 @@ import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
 import HeroBannerCarousel from '@/components/home/HeroBannerCarousel';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import Faq from '@/components/home/Faq';
+import { motion, AnimatePresence } from 'framer-motion';
+import { luxuryEase, popSpring } from '@/lib/animations';
 
 const HOME_CATEGORY_TABS = [
   { id: 'all', label: 'All' },
@@ -165,7 +167,13 @@ export default function HomePage() {
       <HeroBannerCarousel />
 
       {/* 2. Featured Sovereign Attars with Category Tabs & Smooth Scroll Carousel */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.6, ease: luxuryEase }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6"
+      >
         {/* Header with Title, Tagline and Scroll Controls */}
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1 sm:space-y-1.5">
@@ -225,7 +233,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Category Tabs Bar (Only All Bestsellers, Men, Women, Unisex, Gifted) */}
+        {/* Category Tabs Bar with Framer Motion Sliding Active Pill */}
         <div className="relative pt-0.5">
           <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 px-0.5 overscroll-x-contain">
             {HOME_CATEGORY_TABS.map((tab) => {
@@ -235,16 +243,25 @@ export default function HomePage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setSelectedCategory(tab.id)}
-                  className={`px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
+                  className={`relative px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#012520] text-[#F5B418] border border-[#F5B418]/50 shadow-[0_4px_16px_rgba(1,37,32,0.3)] scale-[1.02]'
+                      ? 'text-[#F5B418]'
                       : 'bg-white/90 text-stone-700 hover:text-stone-900 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
                   }`}
                 >
                   {isSelected && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_8px_#F5B418] shrink-0" />
+                    <motion.div
+                      layoutId="activeCategoryPill"
+                      className="absolute inset-0 bg-[#012520] rounded-full border border-[#F5B418]/50 shadow-[0_4px_16px_rgba(1,37,32,0.3)] -z-0"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
                   )}
-                  <span>{tab.label}</span>
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    {isSelected && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_8px_#F5B418] shrink-0" />
+                    )}
+                    <span>{tab.label}</span>
+                  </span>
                 </button>
               );
             })}
@@ -335,12 +352,18 @@ export default function HomePage() {
             <ArrowRight className="w-3 sm:w-3.5 h-3 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-      </section>
+      </motion.section>
 
 
 
       {/* 5. The Art of Distillation Banner */}
-      <section className="relative overflow-hidden py-20 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/60 to-[#ECFDF5] border-y border-emerald-200/80">
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.65, ease: luxuryEase }}
+        className="relative overflow-hidden py-20 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5]/60 to-[#ECFDF5] border-y border-emerald-200/80"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-left">
@@ -396,7 +419,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* 5. Customer Testimonials Reviews Carousel */}
       <TestimonialCarousel />

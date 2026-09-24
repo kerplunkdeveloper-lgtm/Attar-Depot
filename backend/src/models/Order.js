@@ -47,6 +47,11 @@ const orderSchema = new mongoose.Schema(
       default: 'Pending',
     },
     itemsPrice: { type: Number, required: true, default: 0 },
+    discountPrice: { type: Number, default: 0 },
+    coupon: {
+      code: { type: String, default: '' },
+      discount: { type: Number, default: 0 },
+    },
     shippingPrice: { type: Number, required: true, default: 0 },
     taxPrice: { type: Number, default: 0 },
     totalPrice: { type: Number, required: true, default: 0 },

@@ -15,11 +15,20 @@ import {
   KeyRound,
   ShieldCheck,
   Sparkles,
+  Copy,
+  Check,
 } from 'lucide-react';
+import { useBannerCoupons } from '@/hooks/useCoupons';
+import { motion, AnimatePresence } from 'framer-motion';
+import { backdropVariants, modalVariants, luxuryEase } from '@/lib/animations';
 
 export default function AuthModal() {
   const dispatch = useAppDispatch();
   const { isAuthModalOpen } = useAppSelector((state) => state.ui);
+
+  const { data: bannerData } = useBannerCoupons();
+  const featuredCoupon = bannerData?.coupons?.[0] || null;
+  const [isCopiedCode, setIsCopiedCode] = useState(false);
 
   // Flow steps: 'phone' (Image 1) -> 'otp' (Image 2) -> 'missing_fields' (Image 3)
   const [step, setStep] = useState<'phone' | 'otp' | 'missing_fields'>('phone');
@@ -83,8 +92,6 @@ export default function AuthModal() {
     }, 1000);
     return () => clearInterval(interval);
   }, [step, secondsRemaining]);
-
-  if (!isAuthModalOpen) return null;
 
   // Format seconds to mm:ss (e.g. 02:57)
   const formatTimer = (totalSecs: number) => {
@@ -327,15 +334,59 @@ export default function AuthModal() {
     }
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTitle(e.target.value);
+    if (e.target.value) setTitleError(false);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (e.target.value.includes('@')) setEmailError(false);
+  };
+
+  const handleCopyCoupon = () => {
+    if (featuredCoupon?.code) {
+      navigator.clipboard.writeText(featuredCoupon.code);
+      setIsCopiedCode(true);
+      toast.info(`Promo code '${featuredCoupon.code}' copied!`, { title: 'Code Copied' });
+      setTimeout(() => setIsCopiedCode(false), 2000);
+    }
+  };
+
+  let discountDisplay = '25%';
+  if (featuredCoupon) {
+    if (featuredCoupon.discountType === 'percentage') {
+      discountDisplay = `${featuredCoupon.discountValue}%`;
+    } else {
+      discountDisplay = `₹${featuredCoupon.discountValue}`;
+    }
+  }
+
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-neutral-950/70 backdrop-blur-xs animate-in fade-in duration-200"
-      onMouseDown={handleBackdropMouseDown}
-      onMouseUp={handleBackdropMouseUp}
-    >
+    <AnimatePresence>
+      {isAuthModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5"
+          onMouseDown={handleBackdropMouseDown}
+          onMouseUp={handleBackdropMouseUp}
+        >
+      {/* Backdrop with smooth fade */}
+      <motion.div
+        variants={backdropVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="absolute inset-0 bg-neutral-950/70 backdrop-blur-xs"
+        onClick={() => dispatch(closeAuthModal())}
+      />
+
       {/* 2-Column Luxury Modal Card matching Reference Screenshot */}
-      <div
-        className="relative w-full max-w-4xl bg-white rounded-md shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 animate-in zoom-in-95 duration-200 min-h-[500px]"
+      <motion.div
+        variants={modalVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="relative w-full max-w-4xl bg-white rounded-md shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 min-h-[500px] z-10"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
@@ -424,12 +475,12 @@ export default function AuthModal() {
                   <div className="text-center space-y-1.5 text-[11px] text-neutral-600 leading-relaxed pt-2">
                     <p>
                       This site is protected by reCAPTCHA and the Google{' '}
-                      <span className="underline cursor-pointer">Privacy Policy</span> &{' '}
+                      <span className="underline cursor-pointer">Privacy Policy</span> &amp;{' '}
                       <span className="underline cursor-pointer">Terms of Service</span> apply.
                     </p>
                     <p>
                       By continuing, I agree to{' '}
-                      <span className="underline cursor-pointer">Terms of Use</span> &{' '}
+                      <span className="underline cursor-pointer">Terms of Use</span> &amp;{' '}
                       <span className="underline cursor-pointer">Privacy Notice</span>
                     </p>
                   </div>
@@ -529,7 +580,7 @@ export default function AuthModal() {
                   {/* Terms */}
                   <div className="text-center text-[11px] text-neutral-600 pt-1">
                     By continuing, I agree to{' '}
-                    <span className="underline cursor-pointer">Terms of Use</span> &{' '}
+                    <span className="underline cursor-pointer">Terms of Use</span> &amp;{' '}
                     <span className="underline cursor-pointer">Privacy Notice</span>
                   </div>
 
@@ -578,10 +629,7 @@ export default function AuthModal() {
                       </span>
                       <select
                         value={title}
-                        onChange={(e) => {
-                          setTitle(e.target.value);
-                          if (e.target.value) setTitleError(false);
-                        }}
+                        onChange={handleTitleChange}
                         className="w-full text-sm text-neutral-800 bg-transparent focus:outline-none appearance-none cursor-pointer"
                       >
                         <option value="">Select</option>
@@ -642,10 +690,7 @@ export default function AuthModal() {
                         type="email"
                         required
                         value={email}
-                        onChange={(e) => {
-                          setEmail(e.target.value);
-                          if (e.target.value.includes('@')) setEmailError(false);
-                        }}
+                        onChange={handleEmailChange}
                         placeholder="Enter Email ID"
                         className="w-full text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none bg-transparent"
                       />
@@ -658,7 +703,7 @@ export default function AuthModal() {
                   {/* Terms */}
                   <div className="text-center text-[11px] text-neutral-600 pt-1">
                     By continuing, I agree to{' '}
-                    <span className="underline cursor-pointer">Terms of Use</span> &{' '}
+                    <span className="underline cursor-pointer">Terms of Use</span> &amp;{' '}
                     <span className="underline cursor-pointer">Privacy Notice</span>
                   </div>
 
@@ -733,42 +778,58 @@ export default function AuthModal() {
 
             <div className="pt-2">
               <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
-                UPTO
+                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-serif font-bold text-white">25%</span>
+                <span className="text-4xl font-serif font-bold text-white">
+                  {discountDisplay}
+                </span>
                 <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
                   OFF
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-200/80">on selected fragrances.</p>
+              <p className="text-[11px] text-emerald-200/80">
+                {featuredCoupon?.description || 'on royal discovery flacons.'}
+              </p>
             </div>
           </div>
 
-          {/* Bottom Offer Voucher Card matching Step 3 screenshot */}
-          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded border border-white/20 space-y-2 mt-auto">
+          {/* Bottom Dynamic Offer Voucher Card */}
+          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
             <p className="text-xs font-serif text-white font-medium leading-snug">
-              Find the perfect fragrance that you fall in love with.
+              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
             </p>
             <p className="text-xs text-emerald-200 font-semibold">
-              Get ₹200 off on Discovery Sets
+              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
             </p>
 
-            <div className="pt-1 flex items-center justify-between text-xs">
-              <div className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/5">
-                DKIT22
-              </div>
+            <div className="pt-1 flex items-center justify-between text-xs gap-2">
+              <button
+                type="button"
+                onClick={handleCopyCoupon}
+                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
+                title="Click to copy voucher code"
+              >
+                <span>{featuredCoupon?.code || 'DKIT22'}</span>
+                {isCopiedCode ? (
+                  <Check className="w-3 h-3 text-emerald-300" />
+                ) : (
+                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
+                )}
+              </button>
               <a
-                href="/products"
+                href="/shop"
                 onClick={() => dispatch(closeAuthModal())}
-                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider"
+                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
               >
                 Shop Now
               </a>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
-  );
+  )}
+</AnimatePresence>
+);
 }

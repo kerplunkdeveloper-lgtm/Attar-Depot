@@ -9,18 +9,25 @@ import {
   KeyRound,
   ShieldCheck,
   ArrowLeft,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useAppDispatch } from '@/store';
 import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { authenticateWithGoogle } from '@/lib/googleAuth';
+import { useBannerCoupons } from '@/hooks/useCoupons';
 
 function RegisterFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const redirect = searchParams.get('redirect') || '/';
+
+  const { data: bannerData } = useBannerCoupons();
+  const featuredCoupon = bannerData?.coupons?.[0] || null;
+  const [isCopiedCode, setIsCopiedCode] = useState(false);
 
   // 3-step state: 'phone' -> 'otp' -> 'missing_fields'
   const [step, setStep] = useState<'phone' | 'otp' | 'missing_fields'>('phone');
@@ -608,33 +615,54 @@ function RegisterFormContent() {
 
             <div className="pt-2">
               <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
-                UPTO
+                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-serif font-bold text-white">25%</span>
+                <span className="text-4xl font-serif font-bold text-white">
+                  {featuredCoupon ? (featuredCoupon.discountType === 'percentage' ? `${featuredCoupon.discountValue}%` : `₹${featuredCoupon.discountValue}`) : '25%'}
+                </span>
                 <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
                   OFF
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-200/80">on selected fragrances.</p>
+              <p className="text-[11px] text-emerald-200/80">
+                {featuredCoupon?.description || 'on royal discovery flacons.'}
+              </p>
             </div>
           </div>
 
-          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded border border-white/20 space-y-2 mt-auto">
+          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
             <p className="text-xs font-serif text-white font-medium leading-snug">
-              Find the perfect fragrance that you fall in love with.
+              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
             </p>
             <p className="text-xs text-emerald-200 font-semibold">
-              Get ₹200 off on Discovery Sets
+              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
             </p>
 
-            <div className="pt-1 flex items-center justify-between text-xs">
-              <div className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/5">
-                DKIT22
-              </div>
+            <div className="pt-1 flex items-center justify-between text-xs gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (featuredCoupon?.code) {
+                    navigator.clipboard.writeText(featuredCoupon.code);
+                    setIsCopiedCode(true);
+                    toast.info(`Promo code '${featuredCoupon.code}' copied!`, { title: 'Code Copied' });
+                    setTimeout(() => setIsCopiedCode(false), 2000);
+                  }
+                }}
+                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
+                title="Click to copy voucher code"
+              >
+                <span>{featuredCoupon?.code || 'DKIT22'}</span>
+                {isCopiedCode ? (
+                  <Check className="w-3 h-3 text-emerald-300" />
+                ) : (
+                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
+                )}
+              </button>
               <Link
-                href="/products"
-                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider"
+                href="/shop"
+                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
               >
                 Shop Now
               </Link>

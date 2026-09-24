@@ -10,6 +10,15 @@ import { useFilterOptions } from '@/hooks/useFilterOptions';
 import ProductCard from '@/components/product/ProductCard';
 import ProductGridSkeleton from '@/components/product/ProductCardSkeleton';
 import { Category } from '@/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  accordionVariants,
+  backdropVariants,
+  drawerRightVariants,
+  staggerContainerVariants,
+  fadeInUpVariants,
+  luxuryEase,
+} from '@/lib/animations';
 
 // ─── Collapsible filter section ───────────────────────────────────────────────
 function FilterSection({
@@ -23,22 +32,36 @@ function FilterSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-neutral-100 pb-4" suppressHydrationWarning>
+    <div className="border-b border-neutral-100 pb-2" suppressHydrationWarning>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-3 text-left group"
+        className="w-full flex items-center justify-between py-3 text-left group cursor-pointer"
       >
         <span className="font-serif text-sm font-bold text-neutral-900 uppercase tracking-wider">
           {title}
         </span>
-        {open ? (
-          <ChevronUp className="w-4 h-4 text-emerald-700 transition-transform" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-neutral-400 group-hover:text-emerald-700 transition-colors" />
-        )}
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: luxuryEase }}
+          className="text-neutral-400 group-hover:text-emerald-700 p-0.5"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </motion.span>
       </button>
-      {open && <div className="mt-1">{children}</div>}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            variants={accordionVariants}
+            initial="collapsed"
+            animate="expanded"
+            exit="collapsed"
+            className="overflow-hidden"
+          >
+            <div className="mt-1 pb-2">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -446,7 +469,7 @@ export default function ShopClient() {
     onSelectGender: handleGenderSelect,
     priceRanges: PRICE_RANGES,
     selectedPriceRange,
-    onPriceRangeSelect: handlePriceRangeSelect,
+    onSelectPriceRange: handlePriceRangeSelect,
     maxPrice,
     onMaxPriceChange: setMaxPrice,
     collections: COLLECTIONS,
@@ -586,57 +609,69 @@ export default function ShopClient() {
           </aside>
 
           {/* Mobile Filter Drawer */}
-          {isFilterDrawerOpen && (
-            <div className="fixed inset-0 z-50 lg:hidden flex">
-              <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-                onClick={() => setIsFilterDrawerOpen(false)}
-              />
-              <div className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col z-10 font-sans">
-                <div className="flex items-center justify-between pb-4 border-b border-neutral-100 mb-2">
-                  <div>
-                    <h3 className="font-serif text-lg font-bold text-neutral-900 uppercase">
-                      Filter By
-                    </h3>
-                    {activeFilterCount > 0 && (
-                      <span className="text-[10px] text-emerald-700 font-semibold">{activeFilterCount} active filters</span>
-                    )}
+          <AnimatePresence>
+            {isFilterDrawerOpen && (
+              <div className="fixed inset-0 z-50 lg:hidden flex">
+                <motion.div
+                  variants={backdropVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+                  onClick={() => setIsFilterDrawerOpen(false)}
+                />
+                <motion.div
+                  variants={drawerRightVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col z-10 font-sans"
+                >
+                  <div className="flex items-center justify-between pb-4 border-b border-neutral-100 mb-2">
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-neutral-900 uppercase">
+                        Filter By
+                      </h3>
+                      {activeFilterCount > 0 && (
+                        <span className="text-[10px] text-emerald-700 font-semibold">{activeFilterCount} active filters</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterDrawerOpen(false)}
+                      className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsFilterDrawerOpen(false)}
-                    className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
 
-                <div className="flex-1">
-                  <FilterContent {...filterContentProps} />
-                </div>
+                  <div className="flex-1">
+                    <FilterContent {...filterContentProps} />
+                  </div>
 
-                <div className="pt-4 border-t border-neutral-100 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsFilterDrawerOpen(false)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider"
-                  >
-                    Apply Filters ({activeFilterCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearFilters();
-                      setIsFilterDrawerOpen(false);
-                    }}
-                    className="w-full py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-900"
-                  >
-                    Reset All
-                  </button>
-                </div>
+                  <div className="pt-4 border-t border-neutral-100 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterDrawerOpen(false)}
+                      className="w-full py-2.5 rounded-xl bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider"
+                    >
+                      Apply Filters ({activeFilterCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearFilters();
+                        setIsFilterDrawerOpen(false);
+                      }}
+                      className="w-full py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-900"
+                    >
+                      Reset All
+                    </button>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          )}
+            )}
+          </AnimatePresence>
 
           {/* Product Grid */}
           <div className="lg:col-span-3 space-y-4 sm:space-y-6">
@@ -673,11 +708,19 @@ export default function ShopClient() {
                     )}
                   </p>
                 </div>
-                <div className={`grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 transition-opacity duration-200 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
+                <motion.div
+                  key={sortBy + selectedCategory}
+                  variants={staggerContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className={`grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 transition-opacity duration-200 ${isFetching ? 'opacity-80' : 'opacity-100'}`}
+                >
                   {products.map((product) => (
-                    <ProductCard key={product._id} product={product} />
+                    <motion.div key={product._id} variants={fadeInUpVariants}>
+                      <ProductCard product={product} />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </>
             )}
           </div>

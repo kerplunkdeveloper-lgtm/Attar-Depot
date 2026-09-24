@@ -36,6 +36,7 @@ import {
   Trash2,
   Loader2,
   Upload,
+  TicketPercent,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout, hydrateAuth } from '@/store/authSlice';
@@ -332,6 +333,11 @@ function AdminLayoutInner({
           name: 'Customers',
           href: '/admin/customers',
           icon: Users,
+        },
+        {
+          name: 'Coupons & Offers',
+          href: '/admin/coupons',
+          icon: TicketPercent,
         },
       ],
     },

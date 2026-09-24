@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
+import { accordionVariants, luxuryEase } from '@/lib/animations';
 
 interface FaqItem {
   id: string;
@@ -70,10 +72,16 @@ export default function Faq() {
   return (
     <section className="w-full bg-white py-14 sm:py-20 lg:py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Title */}
-        <h2 className="text-center font-sans text-xl sm:text-2xl font-bold tracking-wider text-neutral-900 mb-8 sm:mb-12 uppercase">
+        {/* Title with subtle reveal */}
+        <motion.h2
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, ease: luxuryEase }}
+          className="text-center font-sans text-xl sm:text-2xl font-bold tracking-wider text-neutral-900 mb-8 sm:mb-12 uppercase"
+        >
           FAQ
-        </h2>
+        </motion.h2>
 
         {/* Minimalist Accordion */}
         <div className="border-t border-[#EAE3D6] divide-y divide-[#EAE3D6]">
@@ -92,25 +100,36 @@ export default function Faq() {
                     {item.question}
                   </span>
 
-                  <span className="text-neutral-900 shrink-0 p-1 flex items-center justify-center transition-transform duration-300">
+                  <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.25, ease: luxuryEase }}
+                    className="text-neutral-900 shrink-0 p-1 flex items-center justify-center"
+                  >
                     {isOpen ? (
                       <Minus className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                     ) : (
-                      <Plus className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5] group-hover:rotate-90 transition-transform duration-200" />
+                      <Plus className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                     )}
-                  </span>
+                  </motion.span>
                 </button>
 
-                {/* Collapsible Answer */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-96 opacity-100 pb-6' : 'max-h-0 opacity-0 pb-0'
-                  }`}
-                >
-                  <p className="font-sans text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-3xl pr-6 sm:pr-10">
-                    {item.answer}
-                  </p>
-                </div>
+                {/* Collapsible Answer with Framer Motion AnimatePresence */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="content"
+                      variants={accordionVariants}
+                      initial="collapsed"
+                      animate="expanded"
+                      exit="collapsed"
+                      className="overflow-hidden"
+                    >
+                      <p className="font-sans text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-3xl pr-6 sm:pr-10 pb-6">
+                        {item.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}

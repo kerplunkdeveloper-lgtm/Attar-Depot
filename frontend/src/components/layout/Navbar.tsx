@@ -33,6 +33,9 @@ import {
   LocateFixed,
   Heart,
   Phone,
+  Copy,
+  Check,
+  TicketPercent,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -47,10 +50,19 @@ import { hydrateWishlist } from '@/store/wishlistSlice';
 import { useCategories } from '@/hooks/useCategories';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { usePublicTaxonomy } from '@/hooks/useTaxonomy';
+import { useBannerCoupons } from '@/hooks/useCoupons';
 import { toast } from '@/lib/toast';
 import api from '@/lib/api';
 import { getQueryClient } from '@/components/providers/Providers';
 import { detectCityForNavbar } from '@/hooks/useGeolocation';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  backdropVariants,
+  drawerLeftVariants,
+  accordionVariants,
+  luxuryEase,
+  popSpring,
+} from '@/lib/animations';
 
 export default function Navbar() {
   const router = useRouter();
@@ -69,6 +81,33 @@ export default function Navbar() {
   const [isAtTop, setIsAtTop] = useState(true);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>('categories');
   const [deliveryCity, setDeliveryCity] = useState<string | null>(null);
+
+  // Dynamic promo banner coupons
+  const { data: bannerCouponsData } = useBannerCoupons();
+  const bannerCoupons = bannerCouponsData?.coupons || [];
+  const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+  const [isBannerCopied, setIsBannerCopied] = useState(false);
+
+  useEffect(() => {
+    if (bannerCoupons.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveBannerIdx((prev) => (prev + 1) % bannerCoupons.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [bannerCoupons.length]);
+
+  const currentBannerCoupon = bannerCoupons[activeBannerIdx] || bannerCoupons[0] || null;
+
+  const handleCopyBannerCoupon = (code: string) => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(code);
+      setIsBannerCopied(true);
+      toast.info(`Promo code '${code}' copied! Apply at checkout for discount.`, {
+        title: 'Voucher Copied',
+      });
+      setTimeout(() => setIsBannerCopied(false), 2500);
+    }
+  };
 
   const lastScrollY = useRef(0);
   const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -279,19 +318,53 @@ export default function Navbar() {
           }`}
         >
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-8 sm:h-9 flex items-center justify-center text-center">
-            <div className="flex items-center justify-center text-[11.5px] sm:text-[12px] font-medium text-neutral-800 tracking-wide">
-              <span>Celebrate. Gift. Delight.</span>
-              <span className="mx-1 text-sm select-none" role="img" aria-label="gift">🎁</span>
-              <span className="text-neutral-400 mx-1.5 sm:mx-2 font-normal">|</span>
-              <Link
-                href="/gifting"
-                className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline"
-              >
-                <span className="hidden sm:inline">Explore Our Gifting Collection</span>
-                <span className="sm:hidden">Explore Gifting</span>
-                <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
-              </Link>
-            </div>
+            {currentBannerCoupon ? (
+              <div className="flex items-center justify-center text-[11px] sm:text-[12px] font-medium text-neutral-800 tracking-wide gap-1 sm:gap-2 flex-wrap">
+                <span className="font-semibold text-neutral-900 line-clamp-1">
+                  {currentBannerCoupon.bannerText ||
+                    `Special Offer: Get ${
+                      currentBannerCoupon.discountType === 'percentage'
+                        ? `${currentBannerCoupon.discountValue}% OFF`
+                        : `₹${currentBannerCoupon.discountValue} OFF`
+                    } on your order!`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyBannerCoupon(currentBannerCoupon.code)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#012520] text-[#F5B418] font-mono font-bold text-[10.5px] border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                  title="Click to copy voucher code"
+                >
+                  <span>{currentBannerCoupon.code}</span>
+                  {isBannerCopied ? (
+                    <Check className="w-2.5 h-2.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-2.5 h-2.5 text-[#F5B418]" />
+                  )}
+                </button>
+                <span className="text-neutral-400 mx-0.5 sm:mx-1 font-normal hidden xs:inline">|</span>
+                <Link
+                  href="/offers"
+                  className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline text-[11px]"
+                >
+                  <span>All Offers</span>
+                  <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center text-[11.5px] sm:text-[12px] font-medium text-neutral-800 tracking-wide">
+                <span>Celebrate. Gift. Delight.</span>
+                <span className="mx-1 text-sm select-none" role="img" aria-label="gift">🎁</span>
+                <span className="text-neutral-400 mx-1.5 sm:mx-2 font-normal">|</span>
+                <Link
+                  href="/offers"
+                  className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline"
+                >
+                  <span className="hidden sm:inline">Explore Exclusive Offers</span>
+                  <span className="sm:hidden">Special Offers</span>
+                  <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -342,20 +415,20 @@ export default function Navbar() {
               {/* 2. CENTER SECTION: Desktop Navigation Menu Bar                    */}
               {/* ================================================================= */}
               <div className="hidden lg:flex items-center justify-center flex-1 px-2 xl:px-4">
-                <nav className="flex items-center space-x-1 xl:space-x-1.5 bg-black/30 py-2 px-3.5 xl:px-4 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
+                <nav className="flex items-center space-x-1 xl:space-x-1 bg-black/30 py-1.5 px-2.5 xl:px-3 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
                   {/* Home Link */}
                   <Link
                     href="/"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isHome
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
                     }`}
                   >
                     {isHome && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
                     <span>Home</span>
                   </Link>
@@ -369,7 +442,7 @@ export default function Navbar() {
                   >
                     <button
                       onClick={toggleShopDropdown}
-                      className={`relative flex items-center gap-1.5 text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
                         isShop || isShopOpen
                           ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                           : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
@@ -377,11 +450,11 @@ export default function Navbar() {
                       aria-expanded={isShopOpen}
                     >
                       {(isShop || isShopOpen) && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                       )}
                       <span>Shop</span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-250 ${
+                        className={`w-3 h-3 transition-transform duration-250 ${
                           isShopOpen
                             ? 'rotate-180 text-[#F5B418]'
                             : isShop
@@ -397,17 +470,33 @@ export default function Navbar() {
                     href="/gifting"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isGifting
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
                     }`}
                   >
                     {isGifting && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <Gift className="w-3.5 h-3.5 text-[#F5B418]/80 group-hover:text-[#F5B418]" />
                     <span>Gifting</span>
+                  </Link>
+
+                  {/* Offers Link */}
+                  <Link
+                    href="/offers"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                      pathname === '/offers'
+                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                    }`}
+                  >
+                    {pathname === '/offers' && (
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                    )}
+                    <span>Offers</span>
                   </Link>
 
                   {/* About Us Link */}
@@ -415,14 +504,14 @@ export default function Navbar() {
                     href="/about"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isAbout
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
                     }`}
                   >
                     {isAbout && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
                     <span>About Us</span>
                   </Link>
@@ -432,16 +521,15 @@ export default function Navbar() {
                     href="/contact"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-xs xl:text-[12.5px] font-semibold tracking-[0.1em] uppercase py-2 px-4 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
                       isContact
                         ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
                         : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
                     }`}
                   >
                     {isContact && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <Phone className="w-3.5 h-3.5 text-[#F5B418]/80 group-hover:text-[#F5B418]" />
                     <span>Contact Us</span>
                   </Link>
                 </nav>
@@ -529,8 +617,16 @@ export default function Navbar() {
                   </button>
 
                   {/* Desktop User Dropdown Menu */}
-                  {isUserMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl glass-panel p-2.5 shadow-2xl border border-emerald-100/90 text-xs animate-in fade-in duration-150 bg-white/98 z-50">
+                  <AnimatePresence>
+                    {isUserMenuOpen && (
+                      <motion.div
+                        key="user-dropdown"
+                        initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                        transition={{ duration: 0.18, ease: luxuryEase }}
+                        className="absolute right-0 top-full mt-2 w-64 rounded-2xl glass-panel p-2.5 shadow-2xl border border-emerald-100/90 text-xs bg-white/98 z-50"
+                      >
                       {isAuthenticated && user ? (
                         <>
                           <div className="px-3 py-2.5 border-b border-emerald-100 bg-emerald-50/50 rounded-xl mb-1.5">
@@ -626,9 +722,10 @@ export default function Navbar() {
                           </button>
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </AnimatePresence>
+              </div>
 
                 {/* Cart Drawer Trigger — Hidden in mobile view, visible on sm and up */}
                 <button
@@ -652,13 +749,19 @@ export default function Navbar() {
         {/* ========================================================================= */}
         {/* 1.1 EDGE-TO-EDGE FULL-WIDTH MEGA MENU DROPDOWN PANEL (100% VIEWPORT)      */}
         {/* ========================================================================= */}
-        {isShopOpen && (
-          <div
-            ref={megaMenuRef}
-            className="w-full left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
-            onMouseEnter={openShopDropdown}
-            onMouseLeave={() => closeShopDropdown(250)}
-          >
+        <AnimatePresence>
+          {isShopOpen && (
+            <motion.div
+              key="mega-menu"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.22, ease: luxuryEase }}
+              ref={megaMenuRef}
+              className="w-full left-0 right-0 z-50"
+              onMouseEnter={openShopDropdown}
+              onMouseLeave={() => closeShopDropdown(250)}
+            >
             {/* Dark Frosted Luxury Backdrop */}
             <div
               className={`fixed inset-0 bg-neutral-950/65 backdrop-blur-xs -z-10 transition-all duration-300 ${
@@ -942,9 +1045,10 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
-      </header>
+      </AnimatePresence>
+    </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
       <div className="h-[100px] sm:h-[112px] lg:h-[124px] w-full shrink-0" aria-hidden="true" />
@@ -952,26 +1056,27 @@ export default function Navbar() {
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
       {/* ========================================================================= */}
-      <div
-        className={`fixed inset-0 z-[80] lg:hidden transition-all duration-300 ${
-          isMobileNavOpen ? 'visible pointer-events-auto' : 'invisible pointer-events-none'
-        }`}
-        aria-hidden={!isMobileNavOpen}
-      >
+      <AnimatePresence>
+        {isMobileNavOpen && (
+          <div className="fixed inset-0 z-[80] lg:hidden" aria-hidden={!isMobileNavOpen}>
             {/* Dark Frosted Luxury Backdrop */}
-            <div
-              className={`fixed inset-0 bg-neutral-950/70 backdrop-blur-sm transition-opacity duration-300 ease-out ${
-                isMobileNavOpen ? 'opacity-100' : 'opacity-0'
-              }`}
+            <motion.div
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 bg-neutral-950/70 backdrop-blur-xs"
               onClick={() => setIsMobileNavOpen(false)}
               aria-hidden="true"
             />
 
             {/* Aside Navigation Drawer */}
-            <aside
-              className={`fixed inset-y-0 left-0 w-[86vw] max-w-[360px] h-[100dvh] bg-white z-[85] shadow-2xl flex flex-col justify-between border-r border-emerald-100/90 transform transition-transform duration-300 ease-out overscroll-contain ${
-                isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'
-              }`}
+            <motion.aside
+              variants={drawerLeftVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-y-0 left-0 w-[86vw] max-w-[360px] h-[100dvh] bg-white z-[85] shadow-2xl flex flex-col justify-between border-r border-emerald-100/90 overscroll-contain"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation Menu"
@@ -1123,21 +1228,31 @@ export default function Navbar() {
                       />
                     </button>
 
-                    {mobileAccordion === 'categories' && (
-                      <div className="p-2 space-y-1 bg-white animate-in fade-in duration-150">
-                        {categories.map((c) => (
-                          <Link
-                            key={c._id}
-                            href={`/shop?category=${c.slug}`}
-                            onClick={() => setIsMobileNavOpen(false)}
-                            className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                          >
-                            <span>{c.name}</span>
-                            <ChevronRight className="w-3 h-3 text-neutral-400" />
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {mobileAccordion === 'categories' && (
+                        <motion.div
+                          variants={accordionVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          className="overflow-hidden"
+                        >
+                          <div className="p-2 space-y-1 bg-white">
+                            {categories.map((c) => (
+                              <Link
+                                key={c._id}
+                                href={`/shop?category=${c.slug}`}
+                                onClick={() => setIsMobileNavOpen(false)}
+                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
+                              >
+                                <span>{c.name}</span>
+                                <ChevronRight className="w-3 h-3 text-neutral-400" />
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 2. Occasions Accordion */}
@@ -1158,24 +1273,34 @@ export default function Navbar() {
                       />
                     </button>
 
-                    {mobileAccordion === 'occasions' && (
-                      <div className="p-2 space-y-1 bg-white animate-in fade-in duration-150">
-                        {(megaOccasions.length > 0
-                          ? megaOccasions
-                          : ['Daily Wear', 'Special Occasion', 'Evening Wear', 'Gifting']
-                        ).map((occ) => (
-                          <Link
-                            key={occ}
-                            href={`/shop?occasion=${encodeURIComponent(occ)}`}
-                            onClick={() => setIsMobileNavOpen(false)}
-                            className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                          >
-                            <span>{occ}</span>
-                            <ChevronRight className="w-3 h-3 text-neutral-400" />
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {mobileAccordion === 'occasions' && (
+                        <motion.div
+                          variants={accordionVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          className="overflow-hidden"
+                        >
+                          <div className="p-2 space-y-1 bg-white">
+                            {(megaOccasions.length > 0
+                              ? megaOccasions
+                              : ['Daily Wear', 'Special Occasion', 'Evening Wear', 'Gifting']
+                            ).map((occ) => (
+                              <Link
+                                key={occ}
+                                href={`/shop?occasion=${encodeURIComponent(occ)}`}
+                                onClick={() => setIsMobileNavOpen(false)}
+                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
+                              >
+                                <span>{occ}</span>
+                                <ChevronRight className="w-3 h-3 text-neutral-400" />
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 3. Fragrance Notes Accordion */}
@@ -1196,20 +1321,30 @@ export default function Navbar() {
                       />
                     </button>
 
-                    {mobileAccordion === 'notes' && (
-                      <div className="p-2.5 flex flex-wrap gap-1.5 bg-white animate-in fade-in duration-150">
-                        {megaNotes.slice(0, 12).map((note) => (
-                          <Link
-                            key={note}
-                            href={`/shop?notes=${encodeURIComponent(note)}`}
-                            onClick={() => setIsMobileNavOpen(false)}
-                            className="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-lg font-medium border border-emerald-200/70 transition-colors"
-                          >
-                            {note}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {mobileAccordion === 'notes' && (
+                        <motion.div
+                          variants={accordionVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          className="overflow-hidden"
+                        >
+                          <div className="p-2.5 flex flex-wrap gap-1.5 bg-white">
+                            {megaNotes.slice(0, 12).map((note) => (
+                              <Link
+                                key={note}
+                                href={`/shop?notes=${encodeURIComponent(note)}`}
+                                onClick={() => setIsMobileNavOpen(false)}
+                                className="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-lg font-medium border border-emerald-200/70 transition-colors"
+                              >
+                                {note}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 4. Price Ranges Accordion */}
@@ -1230,22 +1365,48 @@ export default function Navbar() {
                       />
                     </button>
 
-                    {mobileAccordion === 'price' && (
-                      <div className="p-2 space-y-1 bg-white animate-in fade-in duration-150">
-                        {megaPriceRanges.map(({ label, value }) => (
-                          <Link
-                            key={value}
-                            href={`/shop?priceRange=${value}`}
-                            onClick={() => setIsMobileNavOpen(false)}
-                            className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                          >
-                            <span>{label}</span>
-                            <ChevronRight className="w-3 h-3 text-neutral-400" />
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {mobileAccordion === 'price' && (
+                        <motion.div
+                          variants={accordionVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          className="overflow-hidden"
+                        >
+                          <div className="p-2 space-y-1 bg-white">
+                            {megaPriceRanges.map(({ label, value }) => (
+                              <Link
+                                key={value}
+                                href={`/shop?priceRange=${value}`}
+                                onClick={() => setIsMobileNavOpen(false)}
+                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
+                              >
+                                <span>{label}</span>
+                                <ChevronRight className="w-3 h-3 text-neutral-400" />
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
+
+                  {/* Offers & Vouchers Link */}
+                  <Link
+                    href="/offers"
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-50 to-emerald-50 border border-amber-200/80 text-xs font-bold text-emerald-950 hover:border-amber-400 transition-all shadow-2xs"
+                  >
+                    <span className="flex items-center gap-2">
+                      <TicketPercent className="w-4 h-4 text-[#C9A227]" />
+                      <span>Offers & Vouchers</span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#C9A227] text-white text-[9px] uppercase font-bold tracking-wide">
+                        Special
+                      </span>
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-amber-700" />
+                  </Link>
                 </div>
 
                 {/* Direct Fragrance Concierge Card */}
@@ -1409,8 +1570,10 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-            </aside>
-      </div>
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ========================================================================= */}
       {/* 3. MOBILE THUMB BOTTOM BAR (SOLID ROYAL EMERALD GREEN EXPERIENCE)          */}

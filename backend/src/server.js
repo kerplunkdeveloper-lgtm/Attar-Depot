@@ -16,7 +16,9 @@ import adminRoutes from './routes/adminRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import taxonomyRoutes from './routes/taxonomyRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
+import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
 
 dotenv.config();
 
@@ -33,6 +35,9 @@ connectDB()
   .then(() => {
     seedDefaultTaxonomyIfNeeded().catch((err) => {
       console.error('[Taxonomy Init Error]:', err.message);
+    });
+    seedDefaultCouponsIfNeeded().catch((err) => {
+      console.error('[Coupon Init Error]:', err.message);
     });
   })
   .catch((err) => {
@@ -95,6 +100,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/taxonomy', taxonomyRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Error Handling
 app.use(notFound);

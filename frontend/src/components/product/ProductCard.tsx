@@ -13,6 +13,8 @@ import { addToCart } from '@/store/cartSlice';
 import { toggleCartDrawer, toggleWishlistDrawer } from '@/store/uiSlice';
 import { toggleWishlist } from '@/store/wishlistSlice';
 import { toast } from '@/lib/toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { softSpring, popSpring, luxuryEase } from '@/lib/animations';
 
 const FALLBACK_IMAGE =
   'https://scentira.in/cdn/shop/files/ajmal-cyan-oud-eau-de-parfum-perfume-8349662.png?v=1782869421&width=1000';
@@ -194,7 +196,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
       className="group relative flex flex-col pt-7 sm:pt-12 transition-all duration-300"
     >
       {/* ── Outer Card Box with Luxury Light Gradient Green Background & Emerald Glow ── */}
-      <div className="relative flex-1 flex flex-col justify-between bg-gradient-to-b from-[#F0FAF5] via-[#F8FCFA] to-[#E9F6F0] border border-emerald-100/90 rounded-2xl transition-all duration-300 hover:border-emerald-300 hover:shadow-[0_12px_28px_-6px_rgba(4,106,90,0.12)]">
+      <motion.div
+        whileHover={{ y: -6 }}
+        transition={softSpring}
+        className="relative flex-1 flex flex-col justify-between bg-gradient-to-b from-[#F0FAF5] via-[#F8FCFA] to-[#E9F6F0] border border-emerald-100/90 rounded-2xl transition-colors duration-300 hover:border-emerald-300 shadow-xs hover:shadow-[0_16px_32px_-6px_rgba(4,106,90,0.14)]"
+      >
         
         {/* Top Badges: Out of Stock (Red) OR Discount Badge */}
         {isOutOfStock ? (
@@ -214,12 +220,15 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
         {/* Top Right: Wishlist Button */}
         <div className="absolute top-2 right-2 sm:top-2.5 sm:right-3 z-20 flex items-center justify-end pointer-events-none">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.85 }}
+            transition={popSpring}
             type="button"
             onClick={handleWishlistToggle}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
             title={isWishlisted ? 'Remove from royal wishlist' : 'Save to royal wishlist'}
-            className={`pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90 border rounded-full ${
+            className={`pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border rounded-full transition-colors ${
               isWishlisted
                 ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
                 : 'bg-white/85 hover:bg-white text-stone-500 hover:text-rose-600 border-emerald-100 shadow-2xs'
@@ -232,7 +241,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                   : 'text-stone-500 stroke-[1.8]'
               }`}
             />
-          </button>
+          </motion.button>
         </div>
 
         {/* ── Perfume Bottle Showcase with Top Pop-out Effect ── */}
@@ -345,37 +354,55 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 <span>Out Of Stock</span>
               </button>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.96 }}
+                transition={popSpring}
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className={`group/btn cart-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-[#046A5A] text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.97] ${
+                className={`group/btn cart-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-[#046A5A] text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-colors duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isAdding
                     ? 'bg-[#046A5A] text-white border-[#046A5A] shadow-emerald-sm !animate-none'
                     : 'text-[#046A5A] hover:bg-gradient-to-r hover:from-[#046A5A] hover:via-[#035346] hover:to-[#023F36] hover:text-white hover:border-[#023F36] shadow-2xs hover:shadow-emerald-sm'
                 }`}
               >
-                {isAdding ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-300 shrink-0 stroke-[3]" />
-                    <span className="sm:hidden">Added</span>
-                    <span className="hidden sm:inline">Added To Cart</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#046A5A] group-hover/btn:bg-white" />
-                    </span>
-                    <ShoppingBag className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
-                    <span>Add To Cart</span>
-                  </>
-                )}
-              </button>
+                <AnimatePresence mode="wait">
+                  {isAdding ? (
+                    <motion.span
+                      key="added"
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      <Check className="w-3.5 h-3.5 text-emerald-300 shrink-0 stroke-[3]" />
+                      <span className="sm:hidden">Added</span>
+                      <span className="hidden sm:inline">Added To Cart</span>
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="idle"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#046A5A] group-hover/btn:bg-white" />
+                      </span>
+                      <ShoppingBag className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
+                      <span>Add To Cart</span>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import Order from '../models/Order.js';
+import Coupon from '../models/Coupon.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -10,6 +11,8 @@ export const createOrder = async (req, res, next) => {
       shippingAddress,
       paymentMethod,
       itemsPrice,
+      discountPrice,
+      coupon,
       shippingPrice,
       taxPrice,
       totalPrice,
@@ -34,12 +37,37 @@ export const createOrder = async (req, res, next) => {
       shippingAddress,
       paymentMethod: paymentMethod || 'COD',
       itemsPrice,
+      discountPrice: Number(discountPrice) || 0,
+      coupon: {
+        code: coupon?.code ? String(coupon.code).trim().toUpperCase() : '',
+        discount: Number(coupon?.discount) || Number(discountPrice) || 0,
+      },
       shippingPrice,
       taxPrice: taxPrice || 0,
       totalPrice,
       notes: notes || '',
       paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Completed',
     });
+
+    // If coupon was applied, increment usage count and register in Coupon.usedBy
+    if (coupon?.code) {
+      const normalizedCode = String(coupon.code).trim().toUpperCase();
+      await Coupon.findOneAndUpdate(
+        { code: normalizedCode },
+        {
+          $inc: { usageCount: 1 },
+          $push: {
+            usedBy: {
+              user: req.user._id,
+              order: order._id,
+              usedAt: new Date(),
+            },
+          },
+        }
+      ).catch((err) => {
+        console.error('[Coupon Usage Increment Error]:', err.message);
+      });
+    }
 
     res.status(201).json({
       success: true,

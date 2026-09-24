@@ -30,6 +30,9 @@ const FloatingActionHub = dynamic(
 const AiChatDrawer = dynamic(() => import('@/components/ai/AiChatDrawer'), {
   ssr: false,
 });
+const Preloader = dynamic(() => import('@/components/common/Preloader'), {
+  ssr: false,
+});
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -76,6 +79,7 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen text-neutral-900 font-sans selection:bg-[#046A5A] selection:text-white antialiased`}
         suppressHydrationWarning
       >
+        <Preloader />
         <Providers>
           {children}
           {/* Global application modals & floating interactive hubs */}

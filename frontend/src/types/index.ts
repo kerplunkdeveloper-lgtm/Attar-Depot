@@ -200,6 +200,11 @@ export interface Order {
   paymentMethod: 'COD' | 'Online' | 'Card' | 'UPI';
   paymentStatus: 'Pending' | 'Completed' | 'Failed';
   itemsPrice: number;
+  discountPrice?: number;
+  coupon?: {
+    code?: string;
+    discount?: number;
+  };
   shippingPrice: number;
   taxPrice: number;
   totalPrice: number;
@@ -209,3 +214,37 @@ export interface Order {
   deliveredAt?: string;
   createdAt: string;
 }
+
+export interface Coupon {
+  _id: string;
+  code: string;
+  title: string;
+  description?: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minOrderValue: number;
+  maxDiscount?: number | null;
+  startDate?: string;
+  expiryDate?: string | null;
+  usageLimit?: number;
+  usageCount: number;
+  perUserLimit?: number;
+  isActive: boolean;
+  showInBanner: boolean;
+  bannerText?: string;
+  createdAt?: string;
+}
+
+export interface AppliedCoupon {
+  _id?: string;
+  code: string;
+  title: string;
+  description?: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minOrderValue?: number;
+  maxDiscount?: number | null;
+  discountAmount: number;
+  finalTotal?: number;
+}
+

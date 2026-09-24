@@ -17,6 +17,8 @@ import {
   ChevronRight,
   Compass,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { backdropVariants, popSpring, luxuryEase } from '@/lib/animations';
 
 const QUICK_INSPIRATIONS = [
   { label: 'Woody & Oudh', query: 'Woody long-lasting attar for daily wear' },
@@ -93,36 +95,56 @@ export default function AiChatDrawer() {
 
   return (
     <>
-      {/* Floating Launcher Button (Hidden when drawer is open to prevent mobile overlap) */}
-      {!isAiChatOpen && (
-        <div className="fixed bottom-20 left-4 sm:bottom-6 sm:right-24 z-40 pointer-events-auto">
-          <button
-            onClick={() => dispatch(toggleAiChat(true))}
-            className="flex items-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-400/40 group focus:outline-none focus:ring-2 focus:ring-[#046A5A]/50 backdrop-blur-md"
-            aria-label="Open Fragrance AI Consultant"
+      {/* Floating Launcher Button */}
+      <AnimatePresence>
+        {!isAiChatOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.7 }}
+            transition={popSpring}
+            className="fixed bottom-20 left-4 sm:bottom-6 sm:right-24 z-40 pointer-events-auto"
           >
-            <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-400" />
-            </span>
+            <motion.button
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => dispatch(toggleAiChat(true))}
+              className="flex items-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white shadow-xl hover:shadow-2xl transition-shadow border border-emerald-400/40 group focus:outline-none focus:ring-2 focus:ring-[#046A5A]/50 backdrop-blur-md"
+              aria-label="Open Fragrance AI Consultant"
+            >
+              <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-400" />
+              </span>
 
-            <Sparkles className="w-3.5 h-3.5 text-[#C9A227] animate-pulse" />
-
-          </button>
-        </div>
-      )}
+              <Sparkles className="w-3.5 h-3.5 text-[#C9A227] animate-pulse" />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Responsive Chat Drawer / Modal */}
-      {isAiChatOpen && (
-        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 flex flex-col justify-end sm:justify-start items-end pointer-events-auto">
-          {/* Mobile backdrop with smooth touch dismiss */}
-          <div
-            className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs sm:hidden z-0 transition-opacity"
-            onClick={() => dispatch(toggleAiChat(false))}
-          />
+      <AnimatePresence>
+        {isAiChatOpen && (
+          <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 flex flex-col justify-end sm:justify-start items-end pointer-events-auto">
+            {/* Mobile backdrop with smooth touch dismiss */}
+            <motion.div
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs sm:hidden z-0"
+              onClick={() => dispatch(toggleAiChat(false))}
+            />
 
-          {/* Chat Container: Full dynamic viewport height on mobile, luxury card on desktop */}
-          <div className="relative z-10 w-full h-[100dvh] sm:h-[650px] sm:max-h-[88vh] sm:w-[420px] bg-white sm:rounded-3xl shadow-2xl border-0 sm:border sm:border-emerald-100/90 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+            {/* Chat Container: Full dynamic viewport height on mobile, luxury card on desktop */}
+            <motion.div
+              initial={{ opacity: 0, y: 35, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 35, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+              className="relative z-10 w-full h-[100dvh] sm:h-[650px] sm:max-h-[88vh] sm:w-[420px] bg-white sm:rounded-3xl shadow-2xl border-0 sm:border sm:border-emerald-100/90 flex flex-col overflow-hidden"
+            >
             {/* Luxury Chat Header */}
             <div className="pt-[max(0.6rem,env(safe-area-inset-top,0px))] pb-3 px-4 bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white flex flex-col shadow-md relative z-10 shrink-0">
               {/* Mobile grab handle to hint dismissal */}
@@ -355,9 +377,10 @@ export default function AiChatDrawer() {
                 <span className="text-emerald-800 font-semibold shrink-0 ml-1">Attar Depot AI</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
-    </>
-  );
+    </AnimatePresence>
+  </>
+);
 }

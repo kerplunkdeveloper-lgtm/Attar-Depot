@@ -1,34 +1,74 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CartItem } from '@/types';
+import { CartItem, AppliedCoupon } from '@/types';
 
 interface CartState {
   items: CartItem[];
   itemsCount: number;
   subtotal: number;
+  discount: number;
+  appliedCoupon: AppliedCoupon | null;
   shipping: number;
   total: number;
 }
 
-const calculateTotals = (items: CartItem[]) => {
+const calculateTotals = (items: CartItem[], currentCoupon?: AppliedCoupon | null) => {
   const itemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shipping = subtotal > 1999 || subtotal === 0 ? 0 : 150;
-  const total = subtotal + shipping;
-  return { itemsCount, subtotal, shipping, total };
+
+  let discount = 0;
+  let activeCoupon = currentCoupon || null;
+
+  if (activeCoupon && items.length > 0) {
+    if (activeCoupon.minOrderValue && subtotal < activeCoupon.minOrderValue) {
+      // Subtotal dropped below minimum requirement -> revoke coupon
+      activeCoupon = null;
+      discount = 0;
+    } else if (activeCoupon.discountType === 'fixed') {
+      discount = Math.min(activeCoupon.discountValue, subtotal);
+    } else if (activeCoupon.discountType === 'percentage') {
+      discount = Math.round((subtotal * activeCoupon.discountValue) / 100);
+      if (activeCoupon.maxDiscount && activeCoupon.maxDiscount > 0) {
+        discount = Math.min(discount, activeCoupon.maxDiscount);
+      }
+    }
+
+    if (activeCoupon) {
+      activeCoupon = {
+        ...activeCoupon,
+        discountAmount: discount,
+      };
+    }
+  } else {
+    activeCoupon = null;
+    discount = 0;
+  }
+
+  const effectiveTotal = Math.max(0, subtotal - discount);
+  const shipping = effectiveTotal > 1999 || items.length === 0 ? 0 : 150;
+  const total = effectiveTotal + shipping;
+
+  return { itemsCount, subtotal, discount, appliedCoupon: activeCoupon, shipping, total };
 };
 
 const initialState: CartState = {
   items: [],
   itemsCount: 0,
   subtotal: 0,
+  discount: 0,
+  appliedCoupon: null,
   shipping: 0,
   total: 0,
 };
 
-const saveToLocalStorage = (items: CartItem[]) => {
+const saveToLocalStorage = (items: CartItem[], coupon: AppliedCoupon | null) => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem('attar_cart', JSON.stringify(items));
+      if (coupon) {
+        localStorage.setItem('attar_coupon', JSON.stringify(coupon));
+      } else {
+        localStorage.removeItem('attar_coupon');
+      }
     } catch (e) {
       console.error('Failed to save cart to localStorage', e);
     }
@@ -42,15 +82,27 @@ export const cartSlice = createSlice({
     hydrateCart: (state) => {
       if (typeof window !== 'undefined') {
         try {
-          const saved = localStorage.getItem('attar_cart');
-          if (saved) {
-            state.items = JSON.parse(saved);
-            const totals = calculateTotals(state.items);
-            state.itemsCount = totals.itemsCount;
-            state.subtotal = totals.subtotal;
-            state.shipping = totals.shipping;
-            state.total = totals.total;
+          const savedItems = localStorage.getItem('attar_cart');
+          const savedCoupon = localStorage.getItem('attar_coupon');
+
+          let items: CartItem[] = [];
+          let coupon: AppliedCoupon | null = null;
+
+          if (savedItems) {
+            items = JSON.parse(savedItems);
           }
+          if (savedCoupon) {
+            coupon = JSON.parse(savedCoupon);
+          }
+
+          state.items = items;
+          const totals = calculateTotals(items, coupon);
+          state.itemsCount = totals.itemsCount;
+          state.subtotal = totals.subtotal;
+          state.discount = totals.discount;
+          state.appliedCoupon = totals.appliedCoupon;
+          state.shipping = totals.shipping;
+          state.total = totals.total;
         } catch (e) {
           console.error('Failed to hydrate cart', e);
         }
@@ -70,12 +122,14 @@ export const cartSlice = createSlice({
         state.items.push(action.payload);
       }
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.appliedCoupon);
       state.itemsCount = totals.itemsCount;
       state.subtotal = totals.subtotal;
+      state.discount = totals.discount;
+      state.appliedCoupon = totals.appliedCoupon;
       state.shipping = totals.shipping;
       state.total = totals.total;
-      saveToLocalStorage(state.items);
+      saveToLocalStorage(state.items, state.appliedCoupon);
     },
 
     updateQuantity: (
@@ -95,12 +149,14 @@ export const cartSlice = createSlice({
         }
       }
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.appliedCoupon);
       state.itemsCount = totals.itemsCount;
       state.subtotal = totals.subtotal;
+      state.discount = totals.discount;
+      state.appliedCoupon = totals.appliedCoupon;
       state.shipping = totals.shipping;
       state.total = totals.total;
-      saveToLocalStorage(state.items);
+      saveToLocalStorage(state.items, state.appliedCoupon);
     },
 
     removeFromCart: (
@@ -115,24 +171,59 @@ export const cartSlice = createSlice({
           )
       );
 
-      const totals = calculateTotals(state.items);
+      const totals = calculateTotals(state.items, state.appliedCoupon);
       state.itemsCount = totals.itemsCount;
       state.subtotal = totals.subtotal;
+      state.discount = totals.discount;
+      state.appliedCoupon = totals.appliedCoupon;
       state.shipping = totals.shipping;
       state.total = totals.total;
-      saveToLocalStorage(state.items);
+      saveToLocalStorage(state.items, state.appliedCoupon);
+    },
+
+    applyCoupon: (state, action: PayloadAction<AppliedCoupon>) => {
+      const totals = calculateTotals(state.items, action.payload);
+      state.itemsCount = totals.itemsCount;
+      state.subtotal = totals.subtotal;
+      state.discount = totals.discount;
+      state.appliedCoupon = totals.appliedCoupon;
+      state.shipping = totals.shipping;
+      state.total = totals.total;
+      saveToLocalStorage(state.items, state.appliedCoupon);
+    },
+
+    removeCoupon: (state) => {
+      const totals = calculateTotals(state.items, null);
+      state.itemsCount = totals.itemsCount;
+      state.subtotal = totals.subtotal;
+      state.discount = 0;
+      state.appliedCoupon = null;
+      state.shipping = totals.shipping;
+      state.total = totals.total;
+      saveToLocalStorage(state.items, null);
     },
 
     clearCart: (state) => {
       state.items = [];
       state.itemsCount = 0;
       state.subtotal = 0;
+      state.discount = 0;
+      state.appliedCoupon = null;
       state.shipping = 0;
       state.total = 0;
-      saveToLocalStorage([]);
+      saveToLocalStorage([], null);
     },
   },
 });
 
-export const { hydrateCart, addToCart, updateQuantity, removeFromCart, clearCart } = cartSlice.actions;
+export const {
+  hydrateCart,
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  applyCoupon,
+  removeCoupon,
+  clearCart,
+} = cartSlice.actions;
+
 export default cartSlice.reducer;

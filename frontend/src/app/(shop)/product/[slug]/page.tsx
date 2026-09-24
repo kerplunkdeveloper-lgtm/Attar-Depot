@@ -26,8 +26,12 @@ import {
   Shield,
   BadgePercent,
   Flame,
+  Tag,
+  Copy,
+  TicketPercent,
 } from 'lucide-react';
 import { useProductDetails } from '@/hooks/useProducts';
+import { useCoupons } from '@/hooks/useCoupons';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart } from '@/store/cartSlice';
 import { toggleCartDrawer, toggleWishlistDrawer } from '@/store/uiSlice';
@@ -50,6 +54,10 @@ export default function ProductDetailPage({
   const { data, isLoading } = useProductDetails(slug);
   const product = data?.product;
   const relatedProducts = data?.relatedProducts || [];
+
+  const { data: couponsData } = useCoupons();
+  const availableCoupons = couponsData?.coupons || [];
+  const [copiedPromoCode, setCopiedPromoCode] = useState<string | null>(null);
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
@@ -524,6 +532,70 @@ export default function ProductDetailPage({
               <span className="text-neutral-500">Free Express Delivery Across India</span>
             </div>
           </div>
+
+          {/* Dynamic Available Offers & Coupons Card */}
+          {availableCoupons.length > 0 && (
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-50/70 to-[#FAF8F5] border border-emerald-200/70 shadow-xs space-y-2 font-sans">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <TicketPercent className="w-3.5 h-3.5 text-emerald-700" />
+                  Available Offers & Vouchers
+                </span>
+                <Link
+                  href="/offers"
+                  className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 underline"
+                >
+                  View All Offers
+                </Link>
+              </div>
+              <div className="space-y-1.5">
+                {availableCoupons.slice(0, 2).map((cpn) => (
+                  <div
+                    key={cpn._id}
+                    className="p-2 sm:p-2.5 rounded-xl bg-white border border-emerald-100 flex items-center justify-between text-xs gap-2"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-[11px] text-[#012520] bg-emerald-100/60 px-2 py-0.5 rounded">
+                          {cpn.code}
+                        </span>
+                        <span className="font-bold text-emerald-800 text-[11px]">
+                          {cpn.discountType === 'percentage'
+                            ? `${cpn.discountValue}% OFF`
+                            : `₹${cpn.discountValue} OFF`}
+                        </span>
+                      </div>
+                      <p className="text-[10.5px] text-neutral-600 line-clamp-1 mt-0.5">
+                        {cpn.description || cpn.title}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(cpn.code);
+                        setCopiedPromoCode(cpn.code);
+                        toast.info(`Promo code '${cpn.code}' copied!`, { title: 'Code Copied' });
+                        setTimeout(() => setCopiedPromoCode(null), 2000);
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 text-[10.5px] font-bold text-emerald-800 hover:bg-emerald-50 transition-colors shrink-0 uppercase tracking-wider cursor-pointer"
+                    >
+                      {copiedPromoCode === cpn.code ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-emerald-600" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-sans">

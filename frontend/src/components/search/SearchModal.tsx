@@ -18,6 +18,8 @@ import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { backdropVariants, modalVariants, luxuryEase } from '@/lib/animations';
 
 export default function SearchModal() {
   const router = useRouter();
@@ -81,8 +83,6 @@ export default function SearchModal() {
   const products: Product[] = data?.products || [];
   const hasSearched = debouncedQuery.length > 0 || selectedCategory !== 'all';
 
-  if (!isSearchOpen) return null;
-
   const handleClose = () => dispatch(toggleSearch(false));
 
   const handleProductSelect = (slug: string) => {
@@ -100,16 +100,22 @@ export default function SearchModal() {
   };
 
   return (
-    <>
-      {/* ========================================================== */}
-      {/* MOBILE: Full-screen overlay (< lg)                         */}
-      {/* ========================================================== */}
-      <div
-        className="fixed inset-0 z-[105] flex flex-col bg-white lg:hidden animate-in slide-in-from-top duration-250"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Search"
-      >
+    <AnimatePresence>
+      {isSearchOpen && (
+        <>
+          {/* ========================================================== */}
+          {/* MOBILE: Full-screen overlay (< lg)                         */}
+          {/* ========================================================== */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.25, ease: luxuryEase }}
+            className="fixed inset-0 z-[105] flex flex-col bg-white lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search"
+          >
         {/* Mobile Header — matches Navbar brand colours */}
         <div className="shrink-0 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] pt-[max(0.75rem,env(safe-area-inset-top))]">
           {/* Search input row */}
@@ -357,23 +363,36 @@ export default function SearchModal() {
               </div>
             </div>
           )}
-        </div>
-      </div>
+          </div>
+        </motion.div>
 
-      {/* ========================================================== */}
-      {/* DESKTOP: Centred modal overlay (≥ lg)                      */}
-      {/* ========================================================== */}
-      <div
-        className="hidden lg:flex fixed inset-0 z-[105] items-start justify-center p-6 pt-20 bg-neutral-950/75 backdrop-blur-md animate-in fade-in duration-200"
-        onClick={handleClose}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Fragrance Search Vault"
-      >
-        <div
-          className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-emerald-100/90 overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-200"
-          onClick={(e) => e.stopPropagation()}
-        >
+        {/* ========================================================== */}
+          {/* DESKTOP: Centred modal overlay (≥ lg)                      */}
+          {/* ========================================================== */}
+          <div
+            className="hidden lg:flex fixed inset-0 z-[105] items-start justify-center p-6 pt-20"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Fragrance Search Vault"
+          >
+            {/* Backdrop */}
+            <motion.div
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="absolute inset-0 bg-neutral-950/75 backdrop-blur-md"
+              onClick={handleClose}
+            />
+
+            <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-emerald-100/90 overflow-hidden flex flex-col max-h-[80vh] z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
           {/* Desktop Search Header */}
           <div className="p-5 border-b border-emerald-100/90 bg-gradient-to-r from-[#ECFDF5]/90 via-white to-[#ECFDF5]/60">
             <form onSubmit={handleSearchAll} className="relative flex items-center">
@@ -618,8 +637,10 @@ export default function SearchModal() {
               to search
             </span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
+  )}
+</AnimatePresence>
   );
 }

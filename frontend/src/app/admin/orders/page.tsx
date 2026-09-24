@@ -339,7 +339,15 @@ export default function AdminOrdersPage() {
                     </td>
 
                     <td className={`p-4 font-poppins font-bold text-sm ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
-                      {formatPrice(ord.totalPrice)}
+                      <div>{formatPrice(ord.totalPrice)}</div>
+                      {ord.coupon?.code && (
+                        <div className="inline-flex items-center gap-1 mt-0.5 text-[10px] font-mono text-emerald-800 bg-emerald-100/70 px-1.5 py-0.5 rounded">
+                          <span>{ord.coupon.code}</span>
+                          {(ord.discountPrice || ord.coupon?.discount) > 0 && (
+                            <span>(-{formatPrice(ord.discountPrice || ord.coupon?.discount)})</span>
+                          )}
+                        </div>
+                      )}
                     </td>
 
                     <td className="p-4">
