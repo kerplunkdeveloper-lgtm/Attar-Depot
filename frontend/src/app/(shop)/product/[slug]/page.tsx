@@ -466,10 +466,17 @@ export default function ProductDetailPage({
               )}
 
               {/* Stock Status Badge */}
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50/70 border border-emerald-200/60 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Handcrafted Batch in Stock</span>
-              </div>
+              {product.stock > 0 ? (
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50/70 border border-emerald-200/60 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Handcrafted Batch in Stock</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-700 bg-rose-50/70 border border-rose-200/60 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  <span>Out of Stock</span>
+                </div>
+              )}
             </div>
 
             {/* Product Title */}
@@ -639,60 +646,76 @@ export default function ProductDetailPage({
 
           {/* Purchase Actions (Quantity & CTAs) */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-3">
-              {/* Quantity Stepper */}
-              <div className="flex items-center border border-emerald-200 rounded-2xl bg-white shadow-2xs h-12 flex-shrink-0">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center text-xs font-bold text-neutral-900">
-                  {quantity}
+            {product.stock <= 0 ? (
+              <button
+                type="button"
+                disabled
+                className="w-full py-3.5 sm:py-4 px-4 sm:px-6 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95 h-12"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-200" />
                 </span>
+                <span>Out Of Stock</span>
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  {/* Quantity Stepper */}
+                  <div className="flex items-center border border-emerald-200 rounded-2xl bg-white shadow-2xs h-12 flex-shrink-0">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="w-8 text-center text-xs font-bold text-neutral-900">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Add to Cart CTA */}
+                  <button
+                    onClick={() => handleAddToCart(true)}
+                    className="flex-1 btn-emerald h-12 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-emerald-sm text-white active:scale-98 transition-transform"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Fragrance Vault</span>
+                  </button>
+
+                  {/* Desktop Wishlist Button */}
+                  <button
+                    onClick={handleWishlistToggle}
+                    className={`hidden sm:flex w-12 h-12 rounded-2xl border items-center justify-center transition-all flex-shrink-0 active:scale-95 ${
+                      isWishlisted
+                        ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-sm'
+                        : 'bg-white hover:bg-neutral-50 text-neutral-600 hover:text-rose-600 border-emerald-200 shadow-2xs'
+                    }`}
+                    aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                    title={isWishlisted ? 'Remove from Royal Wishlist' : 'Save to Royal Wishlist'}
+                  >
+                    <Heart className={`w-5 h-5 transition-all duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Instant Express Checkout Button */}
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
-                  aria-label="Increase quantity"
+                  onClick={handleBuyNow}
+                  className="w-full h-12 px-6 rounded-2xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:brightness-105 active:scale-98 transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Sparkles className="w-4 h-4" />
+                  <span>Instant Express Checkout</span>
                 </button>
-              </div>
-
-              {/* Add to Cart CTA */}
-              <button
-                onClick={() => handleAddToCart(true)}
-                className="flex-1 btn-emerald h-12 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-emerald-sm text-white active:scale-98 transition-transform"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span>Add to Fragrance Vault</span>
-              </button>
-
-              {/* Desktop Wishlist Button */}
-              <button
-                onClick={handleWishlistToggle}
-                className={`hidden sm:flex w-12 h-12 rounded-2xl border items-center justify-center transition-all flex-shrink-0 active:scale-95 ${
-                  isWishlisted
-                    ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-sm'
-                    : 'bg-white hover:bg-neutral-50 text-neutral-600 hover:text-rose-600 border-emerald-200 shadow-2xs'
-                }`}
-                aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                title={isWishlisted ? 'Remove from Royal Wishlist' : 'Save to Royal Wishlist'}
-              >
-                <Heart className={`w-5 h-5 transition-all duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
-              </button>
-            </div>
-
-            {/* Instant Express Checkout Button */}
-            <button
-              onClick={handleBuyNow}
-              className="w-full h-12 px-6 rounded-2xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:brightness-105 active:scale-98 transition-all shadow-md flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Instant Express Checkout</span>
-            </button>
+              </>
+            )}
           </div>
 
           {/* Luxury Specifications Grid */}

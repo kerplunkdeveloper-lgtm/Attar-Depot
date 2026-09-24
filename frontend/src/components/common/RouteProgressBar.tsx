@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export default function RouteProgressBar() {
   const pathname = usePathname();
@@ -22,6 +23,9 @@ export default function RouteProgressBar() {
   // Listen to clicks on internal Next.js links to show instant feedback
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
+      // If another event handler prevented default, don't show loading
+      if (e.defaultPrevented) return;
+
       const target = (e.target as HTMLElement)?.closest('a');
       if (!target) return;
 
@@ -41,11 +45,16 @@ export default function RouteProgressBar() {
 
           const p1 = setTimeout(() => setProgress(65), 150);
           const p2 = setTimeout(() => setProgress(85), 350);
+          // Fallback to clear loading state in case navigation is aborted or gets stuck
+          const fallback = setTimeout(() => {
+            setLoading(false);
+            setProgress(0);
+          }, 8000);
 
-          return () => {
-            clearTimeout(p1);
-            clearTimeout(p2);
-          };
+          // We don't want to clear timeouts here in the click handler itself,
+          // because if we do, it clears immediately. Wait, the previous code returned a cleanup 
+          // function inside the click handler, which was wrong because addEventListener 
+          // doesn't use the return value.
         }
       }
     };

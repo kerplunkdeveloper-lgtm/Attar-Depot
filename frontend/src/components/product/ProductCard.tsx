@@ -296,7 +296,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 {product.name}
               </h3>
             </Link>
-
+              
             {/* 3. Subtitle / Target Audience */}
             <p className="font-serif text-[11px] sm:text-base text-stone-600 line-clamp-1 leading-tight">
               {targetAudience}
@@ -345,11 +345,11 @@ function ProductCardComponent({ product }: ProductCardProps) {
               <button
                 type="button"
                 disabled
-                className="out-of-stock-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-rose-400/90 text-rose-800 bg-rose-50/90 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-2xs select-none transition-all"
+                className="w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95"
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-200" />
                 </span>
                 <span>Out Of Stock</span>
               </button>
@@ -361,10 +361,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className={`group/btn cart-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-[#046A5A] text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-colors duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`group/btn cart-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isAdding
                     ? 'bg-[#046A5A] text-white border-[#046A5A] shadow-emerald-sm !animate-none'
-                    : 'text-[#046A5A] hover:bg-gradient-to-r hover:from-[#046A5A] hover:via-[#035346] hover:to-[#023F36] hover:text-white hover:border-[#023F36] shadow-2xs hover:shadow-emerald-sm'
+                    : 'bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white border-transparent shadow-2xs hover:shadow-emerald-sm hover:brightness-110'
                 }`}
               >
                 <AnimatePresence mode="wait">
@@ -390,10 +390,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
                       className="inline-flex items-center gap-1.5"
                     >
                       <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#046A5A] group-hover/btn:bg-white" />
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-200" />
                       </span>
-                      <ShoppingBag className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
+                      <ShoppingBag className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110 text-white" />
                       <span>Add To Cart</span>
                     </motion.span>
                   )}

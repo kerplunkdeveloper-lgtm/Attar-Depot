@@ -313,14 +313,14 @@ export default function Navbar() {
         <div
           className={`w-full bg-[#EBEBEB] text-neutral-800 select-none transition-all duration-300 ease-in-out overflow-hidden ${
             isAtTop
-              ? 'max-h-10 opacity-100 border-b border-neutral-300'
+              ? 'max-h-16 opacity-100 border-b border-neutral-300'
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
           }`}
         >
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-8 sm:h-9 flex items-center justify-center text-center">
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[40px] sm:h-10 py-1.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
             {currentBannerCoupon ? (
-              <div className="flex items-center justify-center text-[11px] sm:text-[12px] font-medium text-neutral-800 tracking-wide gap-1 sm:gap-2 flex-wrap">
-                <span className="font-semibold text-neutral-900 line-clamp-1">
+              <div className="flex items-center justify-center w-full text-[11px] sm:text-[13px] font-medium text-neutral-800 tracking-wide gap-1.5 sm:gap-2 whitespace-nowrap overflow-hidden">
+                <span className="font-semibold text-neutral-900 truncate flex-shrink">
                   {currentBannerCoupon.bannerText ||
                     `Special Offer: Get ${
                       currentBannerCoupon.discountType === 'percentage'
@@ -331,7 +331,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => handleCopyBannerCoupon(currentBannerCoupon.code)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#012520] text-[#F5B418] font-mono font-bold text-[10.5px] border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-[#012520] text-[#F5B418] font-mono font-bold text-[11px] sm:text-[11.5px] border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 cursor-pointer shadow-2xs flex-shrink-0"
                   title="Click to copy voucher code"
                 >
                   <span>{currentBannerCoupon.code}</span>
@@ -341,27 +341,28 @@ export default function Navbar() {
                     <Copy className="w-2.5 h-2.5 text-[#F5B418]" />
                   )}
                 </button>
-                <span className="text-neutral-400 mx-0.5 sm:mx-1 font-normal hidden xs:inline">|</span>
+                <span className="text-neutral-400 mx-1 sm:mx-1 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
                   href="/offers"
-                  className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline text-[11px]"
+                  className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline text-[11px] sm:text-[12px] flex-shrink-0"
                 >
-                  <span>All Offers</span>
-                  <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                  <span className="hidden sm:inline">All Offers</span>
+                  <span className="sm:hidden">Offers</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center justify-center text-[11.5px] sm:text-[12px] font-medium text-neutral-800 tracking-wide">
-                <span>Celebrate. Gift. Delight.</span>
-                <span className="mx-1 text-sm select-none" role="img" aria-label="gift">🎁</span>
-                <span className="text-neutral-400 mx-1.5 sm:mx-2 font-normal">|</span>
+              <div className="flex items-center justify-center w-full text-[12px] sm:text-[13px] font-medium text-neutral-800 tracking-wide whitespace-nowrap overflow-hidden gap-1.5">
+                <span className="truncate flex-shrink">Celebrate. Gift. Delight.</span>
+                <span className="text-sm sm:text-base select-none flex-shrink-0" role="img" aria-label="gift">🎁</span>
+                <span className="text-neutral-400 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
                   href="/offers"
-                  className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline"
+                  className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline flex-shrink-0"
                 >
                   <span className="hidden sm:inline">Explore Exclusive Offers</span>
-                  <span className="sm:hidden">Special Offers</span>
-                  <ArrowRight className="w-3 h-3 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
+                  <span className="sm:hidden text-[11.5px]">Special Offers</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
                 </Link>
               </div>
             )}
@@ -375,7 +376,7 @@ export default function Navbar() {
           <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-[68px] sm:h-[76px] lg:h-[88px] gap-2 sm:gap-4">
+            <div className="flex items-center justify-between h-[60px] sm:h-[72px] lg:h-[88px] gap-2 sm:gap-4">
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Mobile Trigger & Official Brand Logo             */}
               {/* ================================================================= */}
@@ -383,7 +384,7 @@ export default function Navbar() {
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-10 h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
@@ -406,7 +407,7 @@ export default function Navbar() {
                     height={120}
                     priority
                     quality={95}
-                    className="h-[46px] sm:h-[56px] md:h-[62px] lg:h-[68px] xl:h-[74px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
+                    className="h-[46px] sm:h-[54px] md:h-[56px] lg:h-[64px] xl:h-[70px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
                   />
                 </Link>
               </div>
@@ -556,7 +557,7 @@ export default function Navbar() {
                 {/* Search Modal Trigger (Icon Only) */}
                 <button
                   onClick={() => dispatch(toggleSearch(true))}
-                  className="relative w-9.5 h-9.5 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
+                  className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="Search Fragrance Vault"
                   title="Search pure attars & flacons (Ctrl+K)"
                 >
@@ -566,7 +567,7 @@ export default function Navbar() {
                 {/* Wishlist Vault Trigger */}
                 <button
                   onClick={() => dispatch(toggleWishlistDrawer(true))}
-                  className="relative w-9.5 h-9.5 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
+                  className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="Royal Wishlist Vault"
                   title={`Royal Wishlist (${wishlistCount})`}
                   suppressHydrationWarning
@@ -589,7 +590,7 @@ export default function Navbar() {
                         setIsUserMenuOpen(!isUserMenuOpen);
                       }
                     }}
-                    className="flex items-center gap-2 h-9.5 sm:h-10 px-3 sm:px-3.5 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 backdrop-blur-md active:scale-95 shadow-2xs cursor-pointer"
+                    className="flex items-center gap-2 h-9 sm:h-10 px-2.5 sm:px-3.5 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 backdrop-blur-md active:scale-95 shadow-2xs cursor-pointer"
                     aria-label="User Account"
                     suppressHydrationWarning
                   >
@@ -727,10 +728,9 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
 
-                {/* Cart Drawer Trigger — Hidden in mobile view, visible on sm and up */}
                 <button
                   onClick={() => dispatch(toggleCartDrawer(true))}
-                  className="relative hidden sm:flex w-9.5 h-9.5 sm:w-10 sm:h-10 items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
+                  className="relative hidden sm:flex w-9 sm:w-10 h-9 sm:h-10 items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
                   aria-label="View Shopping Cart"
                   suppressHydrationWarning
                 >

@@ -61,6 +61,7 @@ export default function Preloader() {
                 height={190}
                 priority
                 className="object-contain drop-shadow-[0_0_25px_rgba(245,180,24,0.6)] relative z-10"
+                style={{ width: 'auto', height: 'auto' }}
               />
             </div>
             
