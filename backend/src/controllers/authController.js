@@ -244,13 +244,14 @@ export const completeProfile = async (req, res, next) => {
     const cleanPhone = normalizePhone(phone);
     const cleanEmail = email.trim().toLowerCase();
 
-    // Find user first by phone (supporting all formats)
+    // Find user first by phone (supporting all formats) or email
     let user = await User.findOne({
       $or: [
         { phone: cleanPhone },
         { phone: `+91 ${cleanPhone}` },
         { phone: `+91${cleanPhone}` },
         { phone: new RegExp(cleanPhone + '$') },
+        { email: cleanEmail },
       ],
     });
 
@@ -264,6 +265,24 @@ export const completeProfile = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'This email is already registered with another account.',
+      });
+    }
+
+    // Check if phone is already taken by ANOTHER account
+    const existingPhone = await User.findOne({
+      $or: [
+        { phone: cleanPhone },
+        { phone: `+91 ${cleanPhone}` },
+        { phone: `+91${cleanPhone}` },
+        { phone: new RegExp(cleanPhone + '$') },
+      ],
+      ...(user ? { _id: { $ne: user._id } } : {}),
+    });
+
+    if (existingPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'This phone number is already registered with another account.',
       });
     }
 
@@ -368,6 +387,13 @@ export const googleAuth = async (req, res, next) => {
       if (name && (!user.name || user.name === 'Google Patron')) {
         user.name = name;
       }
+
+      if (!user.phone || !user.title) {
+        user.isProfileComplete = false;
+      } else {
+        user.isProfileComplete = true;
+      }
+
       await user.save();
       return sendTokenResponse(user, 200, res);
     }
@@ -379,7 +405,7 @@ export const googleAuth = async (req, res, next) => {
       googleId: googleId || '',
       avatar: avatar || '',
       role: 'user',
-      isProfileComplete: true,
+      isProfileComplete: false,
     });
 
     sendTokenResponse(user, 201, res);

@@ -47,6 +47,7 @@ function RegisterFormContent() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isGoogleAuth, setIsGoogleAuth] = useState(false);
 
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -258,9 +259,20 @@ function RegisterFormContent() {
 
     try {
       const { user, token } = await authenticateWithGoogle();
-      dispatch(setCredentials({ user, token }));
-      toast.success(`Welcome to Attar Depot, ${user.name}! Registered with Google.`);
-      router.push(redirect);
+      
+      if (!user.isProfileComplete) {
+        setIsGoogleAuth(true);
+        if (user.name && user.name !== 'Google Patron') setFullName(user.name);
+        if (user.email) setEmail(user.email);
+        if (user.title) setTitle(user.title);
+        if (user.phone) setPhone(user.phone);
+        setStep('missing_fields');
+      } else {
+        getQueryClient().clear();
+        dispatch(setCredentials({ user, token }));
+        toast.success(`Welcome to Attar Depot, ${user.name}! Registered with Google.`);
+        router.push(redirect);
+      }
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg === 'POPUP_CLOSED') {
@@ -520,13 +532,24 @@ function RegisterFormContent() {
                       <span className="text-sm font-medium text-neutral-700">IN</span>
                     </div>
 
-                    <div className="relative flex-1 border border-neutral-300 rounded-sm pt-2 pb-2 px-3 bg-neutral-50">
+                    <div className={`relative flex-1 border rounded-sm pt-2 pb-2 px-3 ${isGoogleAuth ? 'border-neutral-300 bg-white' : 'border-neutral-300 bg-neutral-50'}`}>
                       <span className="absolute -top-2.5 left-2 bg-white px-1 text-[11px] text-neutral-500">
                         Enter Mobile Number
                       </span>
-                      <span className="text-sm font-medium text-neutral-700 tracking-wider">
-                        {phone.replace(/\D/g, '').slice(-10)}
-                      </span>
+                      {isGoogleAuth ? (
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full text-sm font-medium text-neutral-700 tracking-wider focus:outline-none bg-transparent"
+                          placeholder="Mobile Number"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium text-neutral-700 tracking-wider">
+                          {phone.replace(/\D/g, '').slice(-10)}
+                        </span>
+                      )}
                     </div>
                   </div>
 

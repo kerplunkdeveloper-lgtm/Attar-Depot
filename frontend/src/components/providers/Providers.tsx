@@ -4,6 +4,8 @@ import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
+import GlobalAuthTimer from '@/components/auth/GlobalAuthTimer';
+import AosLenisProvider from './AosLenisProvider';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -35,7 +37,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <AosLenisProvider>
+          <GlobalAuthTimer />
+          {children}
+        </AosLenisProvider>
       </QueryClientProvider>
     </ReduxProvider>
   );

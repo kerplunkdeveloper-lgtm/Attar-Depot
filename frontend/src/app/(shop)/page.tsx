@@ -367,11 +367,13 @@ export default function HomePage() {
         viewport={{ once: true }}
       >
         <Link href="/gifting" className="block w-full cursor-pointer group">
-          <div className="w-full relative bg-[#0A1917]  overflow-hidden shadow-lg transition-transform duration-500 group-hover:shadow-2xl group-hover:scale-[1.01]">
-            <img 
+          <div className="w-full relative bg-[#0A1917] h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden shadow-lg transition-transform duration-500 group-hover:shadow-2xl group-hover:scale-[1.01]">
+            <Image 
               src="/images/gifthome.png" 
               alt="Attar Gifting Collection" 
-              className="w-full h-auto sm:h-[350px] md:h-[450px] object-cover object-center"
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent transition-opacity duration-500"></div>
           </div>
@@ -419,16 +421,21 @@ export default function HomePage() {
               link: "/shop?occasion=party%2CParty",
             }
           ].map((occasion, idx) => (
-            <Link href={occasion.link} key={idx} className="group cursor-pointer">
+            <Link 
+              href={occasion.link} 
+              key={idx} 
+              className="group cursor-pointer"
+              data-aos="fade-up"
+              data-aos-delay={idx * 100}
+            >
               <div className="relative h-[280px] md:h-[320px] overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-[#0A1917]">
-                  <img 
+                  <Image 
                     src={occasion.img} 
                     alt={occasion.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/placeholder-attar.jpg';
-                    }}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>

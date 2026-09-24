@@ -541,7 +541,7 @@ export default function ProductDetailPage({
           </div>
 
           {/* Dynamic Available Offers & Coupons Card */}
-          {availableCoupons.length > 0 && (
+          {availableCoupons.length > 0 && product.stock > 0 && (
             <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-50/70 to-[#FAF8F5] border border-emerald-200/70 shadow-xs space-y-2 font-sans">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -855,19 +855,31 @@ export default function ProductDetailPage({
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onClick={() => handleAddToCart(true)}
-              className="btn-emerald px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-emerald-sm text-white active:scale-95 transition-transform"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Add</span>
-            </button>
-            <button
-              onClick={handleBuyNow}
-              className="px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-sm active:scale-95 transition-transform font-sans"
-            >
-              Buy Now
-            </button>
+            {product.stock <= 0 ? (
+              <button
+                type="button"
+                disabled
+                className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-rose-600 to-rose-700 text-white shadow-sm cursor-not-allowed opacity-90 font-sans"
+              >
+                Out of Stock
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleAddToCart(true)}
+                  className="btn-emerald px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-emerald-sm text-white active:scale-95 transition-transform"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Add</span>
+                </button>
+                <button
+                  onClick={handleBuyNow}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-sm active:scale-95 transition-transform font-sans"
+                >
+                  Buy Now
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

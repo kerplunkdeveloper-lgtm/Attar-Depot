@@ -52,6 +52,7 @@ export default function AuthModal() {
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isGoogleAuth, setIsGoogleAuth] = useState(false);
 
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const mouseDownOnBackdrop = useRef(false);
@@ -80,6 +81,7 @@ export default function AuthModal() {
       setEmailError(false);
       setApiError(null);
       setTestOtp(null);
+      setIsGoogleAuth(false);
       setSecondsRemaining(177);
     }
   }, [isAuthModalOpen]);
@@ -316,10 +318,20 @@ export default function AuthModal() {
 
     try {
       const { user, token } = await authenticateWithGoogle();
-      getQueryClient().clear();
-      dispatch(setCredentials({ user, token }));
-      toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
-      dispatch(closeAuthModal());
+      
+      if (!user.isProfileComplete) {
+        setIsGoogleAuth(true);
+        if (user.name && user.name !== 'Google Patron') setFullName(user.name);
+        if (user.email) setEmail(user.email);
+        if (user.title) setTitle(user.title);
+        if (user.phone) setPhone(user.phone);
+        setStep('missing_fields');
+      } else {
+        getQueryClient().clear();
+        dispatch(setCredentials({ user, token }));
+        toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
+        dispatch(closeAuthModal());
+      }
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg === 'POPUP_CLOSED') {
@@ -393,6 +405,118 @@ export default function AuthModal() {
         onMouseDown={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
       >
+
+
+
+        {/* ========================================================================= */}
+        {/* RIGHT COLUMN: Luxury Perfume Promotional Showcase (Reference Banner)     */}
+        {/* ========================================================================= */}
+        <div className="hidden md:flex md:w-5/12 relative bg-[#023F36] text-white flex-col justify-between overflow-hidden p-6 sm:p-8">
+          {/* Background perfume image */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=85&w=800"
+              alt="Attar Depot Royal Gift Box"
+              fill
+              priority
+              sizes="40vw"
+              className="object-cover object-center brightness-75 scale-105"
+            />
+            {/* Deep Royal Emerald Gradient Overlay matching Attar Depot */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#012620]/95 via-[#023F36]/85 to-[#046A5A]/85" />
+            <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#012620]/30 to-[#012620]/80 pointer-events-none" />
+          </div>
+
+          {/* Top Right Close Button (Square Black with White X like Screenshot) */}
+          <button
+            type="button"
+            onClick={() => dispatch(closeAuthModal())}
+            className="absolute top-3 right-3 z-20 w-8 h-8 bg-black flex items-center justify-center text-white hover:bg-neutral-900 transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Top Headline Copy */}
+          <div className="relative z-10 space-y-3 pt-2">
+            <div>
+              <h3 className="text-2xl font-serif font-bold tracking-tight leading-none text-white">
+                Gift ATTAR
+              </h3>
+              <p className="text-sm font-serif italic text-emerald-100 font-light tracking-wide">
+                to the one you know by heart
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
+                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-serif font-bold text-white">
+                  {discountDisplay}
+                </span>
+                <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
+                  OFF
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-200/80">
+                {featuredCoupon?.description || 'on royal discovery flacons.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Dynamic Offer Voucher Card */}
+          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
+            <p className="text-xs font-serif text-white font-medium leading-snug">
+              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
+            </p>
+            <p className="text-xs text-emerald-200 font-semibold">
+              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
+            </p>
+
+            <div className="pt-1 flex items-center justify-between text-xs gap-2">
+              <button
+                type="button"
+                onClick={handleCopyCoupon}
+                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
+                title="Click to copy voucher code"
+              >
+                <span>{featuredCoupon?.code || 'DKIT22'}</span>
+                {isCopiedCode ? (
+                  <Check className="w-3 h-3 text-emerald-300" />
+                ) : (
+                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
+                )}
+              </button>
+              <a
+                href="/shop"
+                onClick={() => dispatch(closeAuthModal())}
+                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
+              >
+                Shop Now
+              </a>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         {/* ========================================================================= */}
         {/* LEFT COLUMN: Clean Form Area (Titan SKINN exact layout)                  */}
         {/* ========================================================================= */}
@@ -669,13 +793,24 @@ export default function AuthModal() {
                       <span className="text-sm font-medium text-neutral-700">IN</span>
                     </div>
 
-                    <div className="relative flex-1 border border-neutral-300 rounded-sm pt-2 pb-2 px-3 bg-neutral-50">
+                    <div className={`relative flex-1 border rounded-sm pt-2 pb-2 px-3 ${isGoogleAuth ? 'border-neutral-300 bg-white' : 'border-neutral-300 bg-neutral-50'}`}>
                       <span className="absolute -top-2.5 left-2 bg-white px-1 text-[11px] text-neutral-500">
                         Enter Mobile Number
                       </span>
-                      <span className="text-sm font-medium text-neutral-700 tracking-wider">
-                        {phone.replace(/\D/g, '').slice(-10)}
-                      </span>
+                      {isGoogleAuth ? (
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full text-sm font-medium text-neutral-700 tracking-wider focus:outline-none bg-transparent"
+                          placeholder="Mobile Number"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium text-neutral-700 tracking-wider">
+                          {phone.replace(/\D/g, '').slice(-10)}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -737,97 +872,6 @@ export default function AuthModal() {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* RIGHT COLUMN: Luxury Perfume Promotional Showcase (Reference Banner)     */}
-        {/* ========================================================================= */}
-        <div className="hidden md:flex md:w-5/12 relative bg-[#023F36] text-white flex-col justify-between overflow-hidden p-6 sm:p-8">
-          {/* Background perfume image */}
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=85&w=800"
-              alt="Attar Depot Royal Gift Box"
-              fill
-              priority
-              sizes="40vw"
-              className="object-cover object-center brightness-75 scale-105"
-            />
-            {/* Deep Royal Emerald Gradient Overlay matching Attar Depot */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#012620]/95 via-[#023F36]/85 to-[#046A5A]/85" />
-            <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#012620]/30 to-[#012620]/80 pointer-events-none" />
-          </div>
-
-          {/* Top Right Close Button (Square Black with White X like Screenshot) */}
-          <button
-            type="button"
-            onClick={() => dispatch(closeAuthModal())}
-            className="absolute top-3 right-3 z-20 w-8 h-8 bg-black flex items-center justify-center text-white hover:bg-neutral-900 transition-colors"
-            aria-label="Close modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* Top Headline Copy */}
-          <div className="relative z-10 space-y-3 pt-2">
-            <div>
-              <h3 className="text-2xl font-serif font-bold tracking-tight leading-none text-white">
-                Gift ATTAR
-              </h3>
-              <p className="text-sm font-serif italic text-emerald-100 font-light tracking-wide">
-                to the one you know by heart
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
-                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-serif font-bold text-white">
-                  {discountDisplay}
-                </span>
-                <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
-                  OFF
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-200/80">
-                {featuredCoupon?.description || 'on royal discovery flacons.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Dynamic Offer Voucher Card */}
-          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
-            <p className="text-xs font-serif text-white font-medium leading-snug">
-              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
-            </p>
-            <p className="text-xs text-emerald-200 font-semibold">
-              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
-            </p>
-
-            <div className="pt-1 flex items-center justify-between text-xs gap-2">
-              <button
-                type="button"
-                onClick={handleCopyCoupon}
-                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
-                title="Click to copy voucher code"
-              >
-                <span>{featuredCoupon?.code || 'DKIT22'}</span>
-                {isCopiedCode ? (
-                  <Check className="w-3 h-3 text-emerald-300" />
-                ) : (
-                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
-                )}
-              </button>
-              <a
-                href="/shop"
-                onClick={() => dispatch(closeAuthModal())}
-                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
-              >
-                Shop Now
-              </a>
-            </div>
-          </div>
-        </div>
       </motion.div>
     </div>
   )}

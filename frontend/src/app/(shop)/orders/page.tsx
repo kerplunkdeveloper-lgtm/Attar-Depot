@@ -62,14 +62,12 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className=" px-5 py-12 space-y-8">
       <div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 uppercase">
-          Your Royal Orders
+          Your Orders
         </h1>
-        <p className="font-sans text-xs sm:text-sm text-neutral-600 mt-1">
-          Track the journey of your hand-poured pure attars from our atelier to your door.
-        </p>
+
       </div>
 
       {isLoading ? (

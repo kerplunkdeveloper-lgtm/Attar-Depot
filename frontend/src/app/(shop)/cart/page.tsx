@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, TicketPercent, Tag, X, Sparkles } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { updateQuantity, removeFromCart, clearCart, applyCoupon, removeCoupon } from '@/store/cartSlice';
+import { openAuthModal } from '@/store/uiSlice';
 import { useValidateCoupon, useCoupons } from '@/hooks/useCoupons';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
@@ -17,6 +18,7 @@ export default function CartPage() {
   const { items, itemsCount, subtotal, discount, appliedCoupon, shipping, total } = useAppSelector(
     (state) => state.cart
   );
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [couponInput, setCouponInput] = useState('');
   const validateCouponMutation = useValidateCoupon();
@@ -304,7 +306,13 @@ export default function CartPage() {
             </div>
 
             <button
-              onClick={() => router.push('/checkout')}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  dispatch(openAuthModal('login'));
+                } else {
+                  router.push('/checkout');
+                }
+              }}
               className="w-full btn-emerald py-3.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-emerald-sm text-white font-sans"
             >
               <span>Proceed to Checkout</span>

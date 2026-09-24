@@ -38,31 +38,14 @@ export default function OffersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 font-sans">
-      {/* 1. Regal Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#012620] via-[#023830] to-[#012620] text-white p-8 sm:p-12 border border-[#C9A227]/40 shadow-xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-radial-at-c from-[#F5B418]/15 via-transparent to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF8F5]/10 border border-[#F5B418]/40 text-[#F5B418] text-xs font-bold uppercase tracking-widest font-sans">
-            <Crown className="w-3.5 h-3.5" />
-            Imperial Privileges & Deals
-          </div>
-
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#FAF8F2] uppercase">
-            Exclusive Vouchers & Offers
-          </h1>
-
-          <p className="font-sans text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-            Discover active seasonal discounts, royal privileges, and special promotional codes for our rare, alcohol-free pure attar distillations.
-          </p>
-        </div>
-      </div>
+    
 
       {/* 2. Active Coupons Grid */}
       <div className="space-y-6">
         <div className="flex items-center justify-between border-b border-emerald-100 pb-3">
           <div>
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900 uppercase">
-              Current Available Privileges ({coupons.length})
+              Current Available Offers ({coupons.length})
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">
               Copy any code below and paste it during checkout to claim your royal discount.
