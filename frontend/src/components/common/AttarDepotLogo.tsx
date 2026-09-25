@@ -10,11 +10,6 @@ interface AttarDepotLogoProps {
   accentColor?: string;
 }
 
-/**
- * Official "The Attar Depot" Royal Emblem & Logomark
- * Faithfully recreating the calligraphic teardrop/flame essence emblem
- * and the iconic luxury typography with the signature flacon-seal dots.
- */
 export default function AttarDepotLogo({
   variant = 'full',
   className = '',
