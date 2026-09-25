@@ -61,6 +61,12 @@ const orderSchema = new mongoose.Schema(
       enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Pending',
     },
+    codDetails: {
+      isCod: { type: Boolean, default: false },
+      distanceKm: { type: Number, default: 0 },
+      chargePerKm: { type: Number, default: 7 },
+      totalCodCharge: { type: Number, default: 0 },
+    },
     trackingNumber: { type: String, default: '' },
     notes: { type: String, default: '' },
     deliveredAt: { type: Date },

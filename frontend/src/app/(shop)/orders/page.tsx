@@ -123,6 +123,18 @@ export default function OrdersPage() {
                 </div>
 
                 <div>
+                  <span className="text-neutral-500 block text-[11px]">Payment Mode</span>
+                  <span className="font-medium text-neutral-800 text-xs">
+                    {order.paymentMethod === 'COD' ? 'Cash on Delivery' : order.paymentMethod}
+                    {order.codDetails?.distanceKm ? (
+                      <span className="text-[10px] text-emerald-700 block font-mono">
+                        {order.codDetails.distanceKm} km @ ₹7/km (+{formatPrice(order.codDetails.totalCodCharge)})
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
+
+                <div>
                   <span className="text-neutral-500 block text-[11px] mb-1">Status</span>
                   {getStatusBadge(order.orderStatus)}
                 </div>

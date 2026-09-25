@@ -17,6 +17,7 @@ export const createOrder = async (req, res, next) => {
       taxPrice,
       totalPrice,
       notes,
+      codDetails,
     } = req.body;
 
     if (!orderItems || orderItems.length === 0) {
@@ -45,6 +46,12 @@ export const createOrder = async (req, res, next) => {
       shippingPrice,
       taxPrice: taxPrice || 0,
       totalPrice,
+      codDetails: codDetails || {
+        isCod: paymentMethod === 'COD',
+        distanceKm: 0,
+        chargePerKm: 7,
+        totalCodCharge: 0,
+      },
       notes: notes || '',
       paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Completed',
     });

@@ -687,3 +687,81 @@ nav button:active {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ========================================================================= */
+/* Premium Green Animated Tick & Confirmation Animation System               */
+/* ========================================================================= */
+@keyframes checkmarkCircleDraw {
+  0% {
+    stroke-dashoffset: 260;
+    transform: rotate(-90deg);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes checkmarkCheckDraw {
+  0% {
+    stroke-dashoffset: 60;
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes successPulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+    transform: scale(0.96);
+  }
+  50% {
+    box-shadow: 0 0 32px 10px rgba(16, 185, 129, 0.28);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkleSpin {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-6px) rotate(18deg) scale(1.18);
+    opacity: 1;
+  }
+}
+
+.anim-checkmark-circle {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  transform-origin: center;
+  animation: checkmarkCircleDraw 0.7s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.anim-checkmark-check {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: checkmarkCheckDraw 0.5s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+}
+
+.anim-success-pulse {
+  animation: successPulseGlow 2.2s ease-out infinite;
+}
+
+.anim-sparkle {
+  animation: sparkleSpin 3s ease-in-out infinite;
+}
+

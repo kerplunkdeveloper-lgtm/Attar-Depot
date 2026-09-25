@@ -308,7 +308,7 @@ export default function CartPage() {
             <button
               onClick={() => {
                 if (!isAuthenticated) {
-                  dispatch(openAuthModal('login'));
+                  dispatch(openAuthModal({ mode: 'login', redirectUrl: '/checkout' }));
                 } else {
                   router.push('/checkout');
                 }

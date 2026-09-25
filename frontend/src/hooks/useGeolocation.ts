@@ -10,6 +10,8 @@ export interface LocationData {
   suburb: string;
   country: string;
   displayName: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface GeolocationState {
@@ -55,7 +57,107 @@ async function reverseGeocode(lat: number, lon: number): Promise<LocationData> {
     ]
       .filter(Boolean)
       .join(', '),
+    latitude: lat,
+    longitude: lon,
   };
+}
+
+/**
+ * IP-based geolocation fallback for desktop devices or when browser GPS permission is denied.
+ */
+async function fetchIpLocation(): Promise<LocationData | null> {
+  // Strategy 1: ipwho.is (fast, HTTPS, provides lat, lon, city, region, postal)
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch('https://ipwho.is/', { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const d = await res.json();
+      if (d.success !== false && (d.city || d.region)) {
+        if (d.latitude && d.longitude) {
+          try {
+            const detailed = await reverseGeocode(d.latitude, d.longitude);
+            if (detailed.city || detailed.state) {
+              return detailed;
+            }
+          } catch {}
+        }
+        return {
+          city: d.city || '',
+          state: d.region || '',
+          postalCode: d.postal || '',
+          street: '',
+          suburb: '',
+          country: d.country || 'India',
+          displayName: [d.city, d.region].filter(Boolean).join(', '),
+          latitude: d.latitude ? Number(d.latitude) : undefined,
+          longitude: d.longitude ? Number(d.longitude) : undefined,
+        };
+      }
+    }
+  } catch {}
+
+  // Strategy 2: freeipapi.com
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch('https://freeipapi.com/api/json', { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const d = await res.json();
+      if (d.cityName || d.regionName) {
+        if (d.latitude && d.longitude) {
+          try {
+            const detailed = await reverseGeocode(d.latitude, d.longitude);
+            if (detailed.city || detailed.state) {
+              return detailed;
+            }
+          } catch {}
+        }
+        return {
+          city: d.cityName || '',
+          state: d.regionName || '',
+          postalCode: d.zipCode || '',
+          street: '',
+          suburb: '',
+          country: d.countryName || 'India',
+          displayName: [d.cityName, d.regionName].filter(Boolean).join(', '),
+          latitude: d.latitude ? Number(d.latitude) : undefined,
+          longitude: d.longitude ? Number(d.longitude) : undefined,
+        };
+      }
+    }
+  } catch {}
+
+  // Strategy 3: ipapi.co
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch('https://ipapi.co/json/', {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (res.ok) {
+      const d = await res.json();
+      if (d.city || d.region) {
+        return {
+          city: d.city || '',
+          state: d.region || '',
+          postalCode: d.postal || '',
+          street: '',
+          suburb: '',
+          country: d.country_name || 'India',
+          displayName: [d.city, d.region].filter(Boolean).join(', '),
+          latitude: d.latitude ? Number(d.latitude) : undefined,
+          longitude: d.longitude ? Number(d.longitude) : undefined,
+        };
+      }
+    }
+  } catch {}
+
+  return null;
 }
 
 export function useGeolocation() {
@@ -67,16 +169,26 @@ export function useGeolocation() {
 
   const fetchLocation = useCallback((): Promise<LocationData | null> => {
     return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        setState((prev) => ({
-          ...prev,
-          error: 'Geolocation is not supported by your browser.',
-        }));
+      setState({ locationData: null, isLocating: true, error: null });
+
+      const fallbackToIp = async () => {
+        try {
+          const ipData = await fetchIpLocation();
+          if (ipData) {
+            setState({ locationData: ipData, isLocating: false, error: null });
+            resolve(ipData);
+            return;
+          }
+        } catch {}
+
+        setState({ locationData: null, isLocating: false, error: null });
         resolve(null);
+      };
+
+      if (typeof window === 'undefined' || !navigator?.geolocation) {
+        fallbackToIp();
         return;
       }
-
-      setState({ locationData: null, isLocating: true, error: null });
 
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -85,21 +197,15 @@ export function useGeolocation() {
             const locationData = await reverseGeocode(latitude, longitude);
             setState({ locationData, isLocating: false, error: null });
             resolve(locationData);
-          } catch (err: any) {
-            const msg = err.message || 'Failed to fetch location. Please enter address manually.';
-            setState({ locationData: null, isLocating: false, error: msg });
-            resolve(null);
+          } catch {
+            await fallbackToIp();
           }
         },
-        (err) => {
-          let msg = 'Unable to retrieve your location.';
-          if (err.code === 1) msg = 'Location access denied. Please allow location permission and try again.';
-          else if (err.code === 2) msg = 'Location unavailable. Please enter address manually.';
-          else if (err.code === 3) msg = 'Location request timed out. Please try again.';
-          setState({ locationData: null, isLocating: false, error: msg });
-          resolve(null);
+        async () => {
+          // If browser location permission is denied or unavailable, seamlessly fallback to IP
+          await fallbackToIp();
         },
-        { timeout: 10000, maximumAge: 60000, enableHighAccuracy: false }
+        { timeout: 5000, maximumAge: 60000, enableHighAccuracy: false }
       );
     });
   }, []);
@@ -127,46 +233,18 @@ export async function detectCityForNavbar(): Promise<string | null> {
   try {
     const cached = sessionStorage.getItem('attar_user_city');
     if (cached) return cached;
-  } catch {
-    // Ignore storage restrictions
-  }
+  } catch {}
 
-  if (typeof navigator === 'undefined' || !navigator.geolocation) return null;
-
-  // Only auto-detect if the user has ALREADY granted location permission.
-  // Never trigger an unrequested permission prompt on initial page load, which
-  // causes browsers to penalize and auto-block geolocation.
-  if (typeof navigator.permissions !== 'undefined' && navigator.permissions.query) {
-    try {
-      const status = await navigator.permissions.query({ name: 'geolocation' });
-      if (status.state !== 'granted') {
-        return null;
-      }
-    } catch {
-      return null;
+  try {
+    const ipData = await fetchIpLocation();
+    const city = ipData?.city || null;
+    if (city) {
+      try {
+        sessionStorage.setItem('attar_user_city', city);
+      } catch {}
+      return city;
     }
-  } else {
-    return null;
-  }
+  } catch {}
 
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const data = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
-          const city = data.city || data.suburb || null;
-          if (city) {
-            try {
-              sessionStorage.setItem('attar_user_city', city);
-            } catch {}
-          }
-          resolve(city);
-        } catch {
-          resolve(null);
-        }
-      },
-      () => resolve(null),
-      { timeout: 8000, maximumAge: 300000, enableHighAccuracy: false }
-    );
-  });
+  return null;
 }

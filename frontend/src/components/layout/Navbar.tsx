@@ -343,11 +343,11 @@ export default function Navbar() {
                 </button>
                 <span className="text-neutral-400 mx-1 sm:mx-1 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
-                  href="/offers"
+                  href="/shop"
                   className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline text-[11px] sm:text-[12px] flex-shrink-0"
                 >
-                  <span className="hidden sm:inline">All Offers</span>
-                  <span className="sm:hidden">Offers</span>
+                  <span className="hidden sm:inline">Shop Now</span>
+                  <span className="sm:hidden">Shop</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
@@ -357,11 +357,11 @@ export default function Navbar() {
                 <span className="text-sm sm:text-base select-none flex-shrink-0" role="img" aria-label="gift">🎁</span>
                 <span className="text-neutral-400 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
-                  href="/offers"
+                  href="/shop"
                   className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline flex-shrink-0"
                 >
-                  <span className="hidden sm:inline">Explore Exclusive Offers</span>
-                  <span className="sm:hidden text-[11.5px]">Special Offers</span>
+                  <span className="hidden sm:inline">Explore Pure Attars</span>
+                  <span className="sm:hidden text-[11.5px]">Shop Now</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
                 </Link>
               </div>
@@ -481,23 +481,6 @@ export default function Navbar() {
                       <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
                     <span>Gifting</span>
-                  </Link>
-
-                  {/* Offers Link */}
-                  <Link
-                    href="/offers"
-                    prefetch={true}
-                    onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      pathname === '/offers'
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                    }`}
-                  >
-                    {pathname === '/offers' && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Offers</span>
                   </Link>
 
                   {/* About Us Link */}
@@ -1392,21 +1375,6 @@ export default function Navbar() {
                     </AnimatePresence>
                   </div>
 
-                  {/* Offers & Vouchers Link */}
-                  <Link
-                    href="/offers"
-                    onClick={() => setIsMobileNavOpen(false)}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-50 to-emerald-50 border border-amber-200/80 text-xs font-bold text-emerald-950 hover:border-amber-400 transition-all shadow-2xs"
-                  >
-                    <span className="flex items-center gap-2">
-                      <TicketPercent className="w-4 h-4 text-[#C9A227]" />
-                      <span>Offers & Vouchers</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-[#C9A227] text-white text-[9px] uppercase font-bold tracking-wide">
-                        Special
-                      </span>
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-amber-700" />
-                  </Link>
                 </div>
 
                 {/* Direct Fragrance Concierge Card */}

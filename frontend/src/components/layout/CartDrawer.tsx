@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { toggleCartDrawer } from '@/store/uiSlice';
+import { toggleCartDrawer, openAuthModal } from '@/store/uiSlice';
 import { updateQuantity, removeFromCart } from '@/store/cartSlice';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
@@ -21,6 +21,7 @@ export default function CartDrawer() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isCartDrawerOpen } = useAppSelector((state) => state.ui);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { items, itemsCount, subtotal, discount, appliedCoupon, shipping, total } = useAppSelector(
     (state) => state.cart
   );
@@ -34,7 +35,11 @@ export default function CartDrawer() {
 
   const handleCheckoutClick = () => {
     dispatch(toggleCartDrawer(false));
-    router.push('/checkout');
+    if (!isAuthenticated) {
+      dispatch(openAuthModal({ mode: 'login', redirectUrl: '/checkout' }));
+    } else {
+      router.push('/checkout');
+    }
   };
 
   return (

@@ -34,7 +34,7 @@ import { useProductDetails } from '@/hooks/useProducts';
 import { useCoupons } from '@/hooks/useCoupons';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart } from '@/store/cartSlice';
-import { toggleCartDrawer, toggleWishlistDrawer } from '@/store/uiSlice';
+import { toggleCartDrawer, toggleWishlistDrawer, openAuthModal } from '@/store/uiSlice';
 import { toggleWishlist } from '@/store/wishlistSlice';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
@@ -71,6 +71,7 @@ export default function ProductDetailPage({
   const touchEndX = useRef<number | null>(null);
 
   const wishlistItems = useAppSelector((state) => state.wishlist?.items || []);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const isWishlisted = product ? wishlistItems.some((item) => item.productId === product._id) : false;
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -226,7 +227,11 @@ export default function ProductDetailPage({
 
   const handleBuyNow = () => {
     handleAddToCart(false);
-    router.push('/checkout');
+    if (!isAuthenticated) {
+      dispatch(openAuthModal({ mode: 'login', redirectUrl: '/checkout' }));
+    } else {
+      router.push('/checkout');
+    }
   };
 
   const handleShare = () => {

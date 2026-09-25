@@ -7,6 +7,7 @@ interface UiState {
   isSearchOpen: boolean;
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'signup';
+  authRedirectUrl: string | null;
   isAiChatOpen: boolean;
 }
 
@@ -17,6 +18,7 @@ const initialState: UiState = {
   isSearchOpen: false,
   isAuthModalOpen: false,
   authModalMode: 'login',
+  authRedirectUrl: null,
   isAiChatOpen: false,
 };
 
@@ -42,17 +44,34 @@ export const uiSlice = createSlice({
     toggleSearch: (state, action: PayloadAction<boolean | undefined>) => {
       state.isSearchOpen = action.payload !== undefined ? action.payload : !state.isSearchOpen;
     },
-    openAuthModal: (state, action: PayloadAction<'login' | 'signup' | undefined>) => {
+    openAuthModal: (
+      state,
+      action: PayloadAction<
+        'login' | 'signup' | { mode?: 'login' | 'signup'; redirectUrl?: string | null } | undefined
+      >
+    ) => {
       state.isAuthModalOpen = true;
-      if (action.payload) {
+      if (typeof action.payload === 'string') {
         state.authModalMode = action.payload;
+        state.authRedirectUrl = null;
+      } else if (action.payload) {
+        if (action.payload.mode) {
+          state.authModalMode = action.payload.mode;
+        }
+        state.authRedirectUrl = action.payload.redirectUrl ?? null;
+      } else {
+        state.authRedirectUrl = null;
       }
     },
     closeAuthModal: (state) => {
       state.isAuthModalOpen = false;
+      state.authRedirectUrl = null;
     },
     setAuthModalMode: (state, action: PayloadAction<'login' | 'signup'>) => {
       state.authModalMode = action.payload;
+    },
+    setAuthRedirectUrl: (state, action: PayloadAction<string | null>) => {
+      state.authRedirectUrl = action.payload;
     },
     toggleAiChat: (state, action: PayloadAction<boolean | undefined>) => {
       state.isAiChatOpen = action.payload !== undefined ? action.payload : !state.isAiChatOpen;
@@ -68,6 +87,7 @@ export const {
   openAuthModal,
   closeAuthModal,
   setAuthModalMode,
+  setAuthRedirectUrl,
   toggleAiChat,
 } = uiSlice.actions;
 export default uiSlice.reducer;

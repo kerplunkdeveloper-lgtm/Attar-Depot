@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { closeAuthModal } from '@/store/uiSlice';
 import { setCredentials } from '@/store/authSlice';
@@ -23,8 +24,26 @@ import { backdropVariants, modalVariants, luxuryEase } from '@/lib/animations';
 import WelcomePromoBanner from '@/components/auth/WelcomePromoBanner';
 
 export default function AuthModal() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthModalOpen } = useAppSelector((state) => state.ui);
+  const { isAuthModalOpen, authRedirectUrl } = useAppSelector((state) => state.ui);
+
+  const finishAuth = (delay = 0) => {
+    const target = authRedirectUrl;
+    if (delay > 0) {
+      setTimeout(() => {
+        dispatch(closeAuthModal());
+        if (target) {
+          router.push(target);
+        }
+      }, delay);
+    } else {
+      dispatch(closeAuthModal());
+      if (target) {
+        router.push(target);
+      }
+    }
+  };
 
   // Flow steps: 'phone' (Image 1) -> 'otp' (Image 2) -> 'missing_fields' (Image 3)
   const [step, setStep] = useState<'phone' | 'otp' | 'missing_fields'>('phone');
@@ -175,7 +194,7 @@ export default function AuthModal() {
         getQueryClient().clear();
         dispatch(setCredentials({ user: data.user, token: data.token }));
         toast.success(`Welcome back, ${data.user.name}!`, { title: 'Login Successful' });
-        setTimeout(() => dispatch(closeAuthModal()), 500);
+        finishAuth(500);
       } else {
         // Proceed to Step 3: Almost there! Please Fill The Missing Fields
         if (data.user?.name && !data.user.name.startsWith('Patron ')) {
@@ -262,7 +281,7 @@ export default function AuthModal() {
       toast.success(`Welcome to Attar Depot, ${title} ${fullName}!`, {
         title: 'Registration Complete',
       });
-      setTimeout(() => dispatch(closeAuthModal()), 600);
+      finishAuth(600);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Failed to complete registration. Email may already be in use.';
       setApiError(msg);
@@ -326,7 +345,7 @@ export default function AuthModal() {
         getQueryClient().clear();
         dispatch(setCredentials({ user, token }));
         toast.success(`Welcome back, ${user.name}! Authenticated with Google.`);
-        dispatch(closeAuthModal());
+        finishAuth(0);
       }
     } catch (err: any) {
       const msg = err?.message || '';
