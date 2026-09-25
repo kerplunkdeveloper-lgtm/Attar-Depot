@@ -311,7 +311,7 @@ export default function Navbar() {
       >
         {/* TOP UTILITY & PROMO ANNOUNCEMENT BAR (ONLY VISIBLE AT THE VERY TOP OF THE PAGE) */}
         <div
-          className={`w-full bg-[#EBEBEB] text-neutral-800 select-none transition-all duration-300 ease-in-out overflow-hidden ${
+          className={`w-full bg-[#FBF4E3] text-neutral-800 select-none transition-all duration-300 ease-in-out overflow-hidden ${
             isAtTop
               ? 'max-h-16 opacity-100 border-b border-neutral-300'
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
@@ -612,7 +612,7 @@ export default function Navbar() {
                       </span>
                     ) : (
                       <span className="hidden md:inline-block text-xs font-semibold text-[#FAF8F2]/80 uppercase tracking-wider">
-                        Sign In
+                        Sign In / Register
                       </span>
                     )}
                   </button>

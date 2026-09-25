@@ -361,21 +361,22 @@ export default function HomePage() {
 
       {/* gifthomebanner */}
       <motion.section 
-        className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-0"
+        className="w-full"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
         <Link href="/gifting" className="block w-full cursor-pointer group">
-          <div className="w-full relative bg-[#0A1917] h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden shadow-lg transition-transform duration-500 group-hover:shadow-2xl group-hover:scale-[1.01]">
+          <div className="w-full relative bg-[#0A1917] overflow-hidden shadow-md transition-shadow duration-500 group-hover:shadow-2xl">
             <Image 
-              src="/images/gifthome.png" 
+              src="/images/gifthomenew.png" 
               alt="Attar Gifting Collection" 
-              fill
+              width={1920}
+              height={720}
               sizes="100vw"
-              className="object-cover object-center"
+              priority
+              className="w-full h-auto block object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent transition-opacity duration-500"></div>
           </div>
         </Link>
       </motion.section>
@@ -456,7 +457,7 @@ export default function HomePage() {
 
       {/* Brand Values / Legacy Section (newsection 3) */}
       <motion.section 
-        className="max-w-9xl mx-auto py-16 my-8 border-y border-stone-200/60 bg-[#146e02]"
+        className="max-w-9xl mx-auto py-16 my-8 border-y border-stone-200/60 bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
@@ -464,29 +465,29 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 md:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-stone-200">
           
           <div className="flex flex-col items-center text-center px-4 pt-4 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300">
+            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300">
               <Clock className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
               75 YEARS LEGACY
             </h3>
           </div>
 
           <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300" style={{ borderWidth: '1px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}>
+            <div className="w-20 h-20 rounded-full border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300" style={{ borderWidth: '1px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}>
               <Droplet className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
               FARM TO FRAGRANCE
             </h3>
           </div>
 
           <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-white shadow-sm transition-transform hover:scale-110 duration-300">
+            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300">
               <Globe className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-500 uppercase font-sans">
-              LOVED WORLDWIDE
+            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
+              LOVED WORLDWIDE6
             </h3>
           </div>
 

@@ -17,17 +17,13 @@ import { setCredentials } from '@/store/authSlice';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { authenticateWithGoogle } from '@/lib/googleAuth';
-import { useBannerCoupons } from '@/hooks/useCoupons';
+import WelcomePromoBanner from '@/components/auth/WelcomePromoBanner';
 
 function RegisterFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const redirect = searchParams.get('redirect') || '/';
-
-  const { data: bannerData } = useBannerCoupons();
-  const featuredCoupon = bannerData?.coupons?.[0] || null;
-  const [isCopiedCode, setIsCopiedCode] = useState(false);
 
   // 3-step state: 'phone' -> 'otp' -> 'missing_fields'
   const [step, setStep] = useState<'phone' | 'otp' | 'missing_fields'>('phone');
@@ -288,10 +284,10 @@ function RegisterFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5F0] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="w-full max-w-4xl bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 rounded-md min-h-[520px]">
+    <div className="min-h-screen bg-[#FBF4E3] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="w-full max-w-5xl bg-[#FBF4E3] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 rounded-xl min-h-[540px]">
         {/* Left Form Area */}
-        <div className="w-full md:w-7/12 p-8 sm:p-12 flex flex-col justify-between bg-white relative">
+        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-[#FBF4E3] relative">
           <div>
             {apiError && (
               <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-xs">
@@ -346,18 +342,7 @@ function RegisterFormContent() {
                     </button>
                   </div>
 
-                  <div className="text-center space-y-1.5 text-[11px] text-neutral-600 leading-relaxed pt-2">
-                    <p>
-                      This site is protected by reCAPTCHA and the Google{' '}
-                      <span className="underline cursor-pointer">Privacy Policy</span> &{' '}
-                      <span className="underline cursor-pointer">Terms of Service</span> apply.
-                    </p>
-                    <p>
-                      By continuing, I agree to{' '}
-                      <span className="underline cursor-pointer">Terms of Use</span> &{' '}
-                      <span className="underline cursor-pointer">Privacy Notice</span>
-                    </p>
-                  </div>
+
 
                   <div className="pt-2 flex justify-center">
                     <button
@@ -444,11 +429,7 @@ function RegisterFormContent() {
                     )}
                   </div>
 
-                  <div className="text-center text-[11px] text-neutral-600 pt-1">
-                    By continuing, I agree to{' '}
-                    <span className="underline cursor-pointer">Terms of Use</span> &{' '}
-                    <span className="underline cursor-pointer">Privacy Notice</span>
-                  </div>
+
 
                   <div className="flex justify-center pt-2">
                     <button
@@ -611,86 +592,9 @@ function RegisterFormContent() {
           </div>
         </div>
 
-        {/* Right Promotional Banner */}
-        <div className="hidden md:flex md:w-5/12 relative bg-[#023F36] text-white flex-col justify-between overflow-hidden p-6 sm:p-8">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=85&w=800"
-              alt="Attar Depot Royal Gift Box"
-              fill
-              priority
-              sizes="40vw"
-              className="object-cover object-center brightness-75 scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#012620]/95 via-[#023F36]/85 to-[#046A5A]/85" />
-            <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#012620]/30 to-[#012620]/80 pointer-events-none" />
-          </div>
-
-          <div className="relative z-10 space-y-3 pt-2">
-            <div>
-              <h3 className="text-2xl font-serif font-bold tracking-tight leading-none text-white">
-                Gift ATTAR
-              </h3>
-              <p className="text-sm font-serif italic text-emerald-100 font-light tracking-wide">
-                to the one you know by heart
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
-                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-serif font-bold text-white">
-                  {featuredCoupon ? (featuredCoupon.discountType === 'percentage' ? `${featuredCoupon.discountValue}%` : `₹${featuredCoupon.discountValue}`) : '25%'}
-                </span>
-                <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
-                  OFF
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-200/80">
-                {featuredCoupon?.description || 'on royal discovery flacons.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
-            <p className="text-xs font-serif text-white font-medium leading-snug">
-              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
-            </p>
-            <p className="text-xs text-emerald-200 font-semibold">
-              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
-            </p>
-
-            <div className="pt-1 flex items-center justify-between text-xs gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (featuredCoupon?.code) {
-                    navigator.clipboard.writeText(featuredCoupon.code);
-                    setIsCopiedCode(true);
-                    toast.info(`Promo code '${featuredCoupon.code}' copied!`, { title: 'Code Copied' });
-                    setTimeout(() => setIsCopiedCode(false), 2000);
-                  }
-                }}
-                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
-                title="Click to copy voucher code"
-              >
-                <span>{featuredCoupon?.code || 'DKIT22'}</span>
-                {isCopiedCode ? (
-                  <Check className="w-3 h-3 text-emerald-300" />
-                ) : (
-                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
-                )}
-              </button>
-              <Link
-                href="/shop"
-                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
-              >
-                Shop Now
-              </Link>
-            </div>
-          </div>
+        {/* Right Promotional Showcase - Welcome to The Attar Depot */}
+        <div className="hidden md:flex md:w-1/2 relative">
+          <WelcomePromoBanner />
         </div>
       </div>
     </div>

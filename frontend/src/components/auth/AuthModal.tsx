@@ -18,17 +18,13 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
-import { useBannerCoupons } from '@/hooks/useCoupons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { backdropVariants, modalVariants, luxuryEase } from '@/lib/animations';
+import WelcomePromoBanner from '@/components/auth/WelcomePromoBanner';
 
 export default function AuthModal() {
   const dispatch = useAppDispatch();
   const { isAuthModalOpen } = useAppSelector((state) => state.ui);
-
-  const { data: bannerData } = useBannerCoupons();
-  const featuredCoupon = bannerData?.coupons?.[0] || null;
-  const [isCopiedCode, setIsCopiedCode] = useState(false);
 
   // Flow steps: 'phone' (Image 1) -> 'otp' (Image 2) -> 'missing_fields' (Image 3)
   const [step, setStep] = useState<'phone' | 'otp' | 'missing_fields'>('phone');
@@ -356,24 +352,6 @@ export default function AuthModal() {
     if (e.target.value.includes('@')) setEmailError(false);
   };
 
-  const handleCopyCoupon = () => {
-    if (featuredCoupon?.code) {
-      navigator.clipboard.writeText(featuredCoupon.code);
-      setIsCopiedCode(true);
-      toast.info(`Promo code '${featuredCoupon.code}' copied!`, { title: 'Code Copied' });
-      setTimeout(() => setIsCopiedCode(false), 2000);
-    }
-  };
-
-  let discountDisplay = '25%';
-  if (featuredCoupon) {
-    if (featuredCoupon.discountType === 'percentage') {
-      discountDisplay = `${featuredCoupon.discountValue}%`;
-    } else {
-      discountDisplay = `₹${featuredCoupon.discountValue}`;
-    }
-  }
-
   return (
     <AnimatePresence>
       {isAuthModalOpen && (
@@ -398,129 +376,36 @@ export default function AuthModal() {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="relative w-full max-w-4xl bg-white rounded-md shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 min-h-[500px] z-10"
+        className="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-neutral-200 min-h-[520px] z-10"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
       >
-
-
+        {/* ========================================================================= */}
+        {/* RIGHT COLUMN: Luxury Welcome Showcase (Image 2)                           */}
+        {/* ========================================================================= */}
+        <div className="hidden md:flex md:w-1/2 relative">
+          <WelcomePromoBanner
+            showCloseButton
+            onClose={() => dispatch(closeAuthModal())}
+          />
+        </div>
 
         {/* ========================================================================= */}
-        {/* RIGHT COLUMN: Luxury Perfume Promotional Showcase (Reference Banner)     */}
+        {/* LEFT COLUMN: Clean Form Area                                              */}
         {/* ========================================================================= */}
-        <div className="hidden md:flex md:w-5/12 relative bg-[#023F36] text-white flex-col justify-between overflow-hidden p-6 sm:p-8">
-          {/* Background perfume image */}
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=85&w=800"
-              alt="Attar Depot Royal Gift Box"
-              fill
-              priority
-              sizes="40vw"
-              className="object-cover object-center brightness-75 scale-105"
-            />
-            {/* Deep Royal Emerald Gradient Overlay matching Attar Depot */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#012620]/95 via-[#023F36]/85 to-[#046A5A]/85" />
-            <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#012620]/30 to-[#012620]/80 pointer-events-none" />
-          </div>
-
-          {/* Top Right Close Button (Square Black with White X like Screenshot) */}
+        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-white relative">
+          {/* Mobile Close Button */}
           <button
             type="button"
             onClick={() => dispatch(closeAuthModal())}
-            className="absolute top-3 right-3 z-20 w-8 h-8 bg-black flex items-center justify-center text-white hover:bg-neutral-900 transition-colors"
+            className="md:hidden absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-600 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
-
-          {/* Top Headline Copy */}
-          <div className="relative z-10 space-y-3 pt-2">
-            <div>
-              <h3 className="text-2xl font-serif font-bold tracking-tight leading-none text-white">
-                Gift ATTAR
-              </h3>
-              <p className="text-sm font-serif italic text-emerald-100 font-light tracking-wide">
-                to the one you know by heart
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-200 block">
-                {featuredCoupon?.discountType === 'percentage' ? 'UPTO' : 'FLAT'}
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-serif font-bold text-white">
-                  {discountDisplay}
-                </span>
-                <span className="text-xs uppercase tracking-widest font-semibold text-emerald-200">
-                  OFF
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-200/80">
-                {featuredCoupon?.description || 'on royal discovery flacons.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Dynamic Offer Voucher Card */}
-          <div className="relative z-10 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 space-y-2 mt-auto">
-            <p className="text-xs font-serif text-white font-medium leading-snug">
-              {featuredCoupon?.title || 'Find the perfect fragrance that you fall in love with.'}
-            </p>
-            <p className="text-xs text-emerald-200 font-semibold">
-              {featuredCoupon?.minOrderValue ? `Valid on orders above ₹${featuredCoupon.minOrderValue.toLocaleString('en-IN')}` : 'Special Connoisseur Privilege'}
-            </p>
-
-            <div className="pt-1 flex items-center justify-between text-xs gap-2">
-              <button
-                type="button"
-                onClick={handleCopyCoupon}
-                className="border border-dashed border-white/60 px-2.5 py-1 text-white font-mono font-bold tracking-wider text-[11px] bg-white/10 rounded flex items-center gap-1.5 hover:bg-white/20 transition-all cursor-pointer"
-                title="Click to copy voucher code"
-              >
-                <span>{featuredCoupon?.code || 'DKIT22'}</span>
-                {isCopiedCode ? (
-                  <Check className="w-3 h-3 text-emerald-300" />
-                ) : (
-                  <Copy className="w-3 h-3 text-emerald-200 opacity-80" />
-                )}
-              </button>
-              <a
-                href="/shop"
-                onClick={() => dispatch(closeAuthModal())}
-                className="px-3 py-1 bg-black text-white text-[11px] font-medium hover:bg-neutral-900 transition-colors uppercase tracking-wider rounded"
-              >
-                Shop Now
-              </a>
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        {/* ========================================================================= */}
-        {/* LEFT COLUMN: Clean Form Area (Titan SKINN exact layout)                  */}
-        {/* ========================================================================= */}
-        <div className="w-full md:w-7/12 p-8 sm:p-12 flex flex-col justify-between bg-white relative">
           <div>
             {/* Top error message */}
             {apiError && (
@@ -595,19 +480,6 @@ export default function AuthModal() {
                     </button>
                   </div>
 
-                  {/* Terms text matching reference */}
-                  <div className="text-center space-y-1.5 text-[11px] text-neutral-600 leading-relaxed pt-2">
-                    <p>
-                      This site is protected by reCAPTCHA and the Google{' '}
-                      <span className="underline cursor-pointer">Privacy Policy</span> &amp;{' '}
-                      <span className="underline cursor-pointer">Terms of Service</span> apply.
-                    </p>
-                    <p>
-                      By continuing, I agree to{' '}
-                      <span className="underline cursor-pointer">Terms of Use</span> &amp;{' '}
-                      <span className="underline cursor-pointer">Privacy Notice</span>
-                    </p>
-                  </div>
 
                   {/* Primary Button matching reference */}
                   <div className="pt-2 flex justify-center">

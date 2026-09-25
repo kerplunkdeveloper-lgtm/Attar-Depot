@@ -244,11 +244,9 @@ export default function CheckoutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 uppercase">
-          Royal Checkout & Dispatch
+           Checkout & Dispatch
         </h1>
-        <p className="font-sans text-xs sm:text-sm text-neutral-600 mt-1">
-          Provide your courier destination for insured parcel delivery.
-        </p>
+        
       </div>
 
       {!isAuthenticated && (
