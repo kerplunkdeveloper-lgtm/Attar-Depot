@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { useBanners } from '@/hooks/useBanners';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BannerSlide {
   id: string;
@@ -13,7 +12,7 @@ interface BannerSlide {
   link?: string;
 }
 
-const STATIC_BANNER_SLIDES: BannerSlide[] = [
+const BANNER_SLIDES: BannerSlide[] = [
   {
     id: 'banner-1',
     image: '/images/banner1.png',
@@ -30,24 +29,6 @@ const SLIDE_DURATION = 5000; // 5 seconds per slide
 const TRANSITION_DURATION = 700; // 700ms smooth ease
 
 export default function HeroBannerCarousel() {
-  const { data: bannerData, isLoading } = useBanners();
-
-  // Map dynamic banners or fallback to static
-  const BANNER_SLIDES = useMemo(() => {
-    if (bannerData?.banners && bannerData.banners.length > 0) {
-      const activeBanners = bannerData.banners.filter((b) => b.isActive);
-      if (activeBanners.length > 0) {
-        return activeBanners.map((banner) => ({
-          id: banner._id,
-          image: banner.image,
-          alt: banner.title,
-          link: banner.link || undefined,
-        }));
-      }
-    }
-    return STATIC_BANNER_SLIDES;
-  }, [bannerData]);
-
   const realCount = BANNER_SLIDES.length;
 
   // Extended slides for seamless infinite loop: [last, ...slides, first]
@@ -209,9 +190,9 @@ export default function HeroBannerCarousel() {
         onTransitionEnd={handleTransitionEnd}
       >
         {extendedSlides.map((slide, index) => (
-            <div
+          <div
             key={`${slide.id}-${index}`}
-            className="w-full flex-shrink-0 relative aspect-[1/1] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[24/9] bg-slate-100"
+            className="w-full flex-shrink-0 relative"
           >
             {slide.link ? (
               <Link
@@ -222,26 +203,28 @@ export default function HeroBannerCarousel() {
                     touchMovedRef.current = false;
                   }
                 }}
-                className="block w-full h-full cursor-pointer select-none"
+                className="block w-full cursor-pointer select-none"
               >
                 <Image
                   src={slide.image}
                   alt={slide.alt}
-                  fill
+                  width={1920}
+                  height={800}
                   priority={index <= 2}
                   sizes="100vw"
-                  className="object-cover object-center"
+                  className="w-full h-auto object-cover"
                 />
               </Link>
             ) : (
-              <div className="block w-full h-full select-none">
+              <div className="block w-full select-none">
                 <Image
                   src={slide.image}
                   alt={slide.alt}
-                  fill
+                  width={1920}
+                  height={800}
                   priority={index <= 2}
                   sizes="100vw"
-                  className="object-cover object-center"
+                  className="w-full h-auto object-cover"
                 />
               </div>
             )}

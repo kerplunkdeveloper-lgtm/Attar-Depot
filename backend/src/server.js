@@ -18,7 +18,6 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import taxonomyRoutes from './routes/taxonomyRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import bannerRoutes from './routes/bannerRoutes.js';
 import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
 import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
 
@@ -104,7 +103,6 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/taxonomy', taxonomyRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
-app.use('/api/banners', bannerRoutes);
 
 // Error Handling
 app.use(notFound);

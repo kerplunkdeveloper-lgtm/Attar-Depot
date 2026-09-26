@@ -44,7 +44,6 @@ import {
   CheckCheck,
   Check,
   RefreshCw,
-  ImageIcon,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout, hydrateAuth } from '@/store/authSlice';
@@ -388,11 +387,6 @@ function AdminLayoutInner({
       name: 'Coupons & Offers',
       href: '/admin/coupons',
       icon: TicketPercent,
-    },
-    {
-      name: 'Banners',
-      href: '/admin/banners',
-      icon: ImageIcon,
     },
     {
       name: 'Profile',
