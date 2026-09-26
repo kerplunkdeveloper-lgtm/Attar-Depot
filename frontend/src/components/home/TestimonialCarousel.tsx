@@ -187,8 +187,8 @@ export default function TestimonialCarousel() {
     <section className="py-14 sm:py-20  relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading matching reference design */}
-        <div className="text-center mb-10 sm:mb-14 relative">
-          <h2 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold tracking-[0.2em] text-neutral-900 uppercase">
+        <div className=" mb-10 sm:mb-10 relative">
+          <h2 className=" text-xl sm:text-xl font-bold tracking-[0.2em] text-neutral-900 uppercase">
             TESTIMONIALS
           </h2>
         </div>
@@ -198,7 +198,7 @@ export default function TestimonialCarousel() {
           className="relative group/carousel"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          onTouchStart={() => setIsPaused(true)}
+          onTouchStart={() => setIsPaused(true)} 
           onTouchEnd={() => setIsPaused(false)}
         >
           {/* Navigation Arrow - Left */}

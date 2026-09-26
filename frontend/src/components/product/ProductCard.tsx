@@ -199,24 +199,10 @@ function ProductCardComponent({ product }: ProductCardProps) {
       <motion.div
         whileHover={{ y: -6 }}
         transition={softSpring}
-        className="relative flex-1 flex flex-col justify-between bg-gradient-to-b from-[#F0FAF5] via-[#F8FCFA] to-[#E9F6F0] border border-emerald-100/90 rounded-2xl transition-colors duration-300 hover:border-emerald-300 shadow-xs hover:shadow-[0_16px_32px_-6px_rgba(4,106,90,0.14)]"
+        className="relative flex-1 flex flex-col justify-between bg-[#f6efdf] border border-emerald-100/90 rounded-2xl transition-colors duration-300 hover:border-emerald-300 shadow-xs hover:shadow-[0_16px_32px_-6px_rgba(4,106,90,0.14)]"
       >
         
-        {/* Top Badges: Out of Stock (Red) OR Discount Badge */}
-        {isOutOfStock ? (
-          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 pointer-events-none">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-rose-600 to-red-600 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm border border-rose-300/40">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-              Out of Stock
-            </span>
-          </div>
-        ) : discountPercent && discountPercent > 0 ? (
-          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 pointer-events-none">
-            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-800 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-2xs">
-              {discountPercent}% Off
-            </span>
-          </div>
-        ) : null}
+       
 
         {/* Top Right: Wishlist Button */}
         <div className="absolute top-2 right-2 sm:top-2.5 sm:right-3 z-20 flex items-center justify-end pointer-events-none">

@@ -180,8 +180,8 @@ export default function HomePage() {
         {/* Header with Title, Tagline and Scroll Controls */}
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1 sm:space-y-1.5">
-           
-            <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight">
+          
+            <h2 className="font-serif text-xl sm:text-2xl  uppercase font-medium text-neutral-900 tracking-tight">
               Our Bestsellers
             </h2>
           </div>
@@ -319,26 +319,8 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Smooth Scroll Bottom Bar: Progress Tracker & Collection Link */}
-        <div className="flex items-center justify-between pt-1 border-t border-stone-200/70 text-xs font-sans text-stone-600 gap-2">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="text-[11px] sm:text-xs font-medium text-stone-700">
-              Showing <span className="font-bold text-stone-900">{displayedProducts.length}</span> perfumes
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-20 sm:w-28 h-1 sm:h-1.5 bg-stone-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-[#F5B418] rounded-full transition-all duration-200"
-                style={{ width: `${Math.max(15, scrollProgress)}%` }}
-              />
-            </div>
-            <span className="text-[9px] sm:text-[10px] text-stone-500 font-medium uppercase tracking-wider whitespace-nowrap">
-              Swipe
-            </span>
-          </div>
-
+        {/* Explore All Collection Link */}
+        <div className="flex items-center justify-center pt-4 sm:pt-6">
           <Link
             href={
               selectedCategory === 'all'
@@ -349,10 +331,10 @@ export default function HomePage() {
                 ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
                 : '/shop?occasion=Gifting'
             }
-            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider transition-colors group whitespace-nowrap"
+            className="group inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 rounded-full bg-[#012520] text-white text-xs sm:text-sm font-bold uppercase tracking-widest border border-[#F5B418]/30 hover:border-[#F5B418]/70 shadow-[0_4px_20px_rgba(1,37,32,0.25)] hover:shadow-[0_8px_32px_rgba(1,37,32,0.35)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
           >
             <span>Explore All</span>
-            <ArrowRight className="w-3 sm:w-3.5 h-3 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-[#F5B418] group-hover:translate-x-1.5 transition-transform duration-300" />
           </Link>
         </div>
       </motion.section>
@@ -390,8 +372,8 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
       >
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-3">Shop by Occasion</h2>
+        <div className=" mb-5">
+          <h2 className="text-xl md:text-2xl uppercase  text-emerald-950 mb-3">Shop by Occasions</h2>
          
         </div>
 
