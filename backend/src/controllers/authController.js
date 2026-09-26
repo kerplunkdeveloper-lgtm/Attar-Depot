@@ -9,6 +9,7 @@ import {
   dispatchSmsOtp,
 } from '../services/otpService.js';
 import { uploadToCloudinary } from '../middleware/uploadMiddleware.js';
+import { sendAdminNotification } from '../utils/notificationEmitter.js';
 
 // @desc    Send OTP to customer phone number for login / register (Twilio SMS)
 // @route   POST /api/auth/send-otp
@@ -147,7 +148,7 @@ export const verifyOtp = async (req, res, next) => {
       // Create partial user record (Pending Step 3 profile completion)
       user = await User.create({
         phone: cleanPhone,
-        name: `Patron ${cleanPhone.slice(-4)}`,
+        name: `Customers ${cleanPhone.slice(-4)}`,
         role: 'user',
         country: 'IN',
         isProfileComplete: false,
@@ -161,8 +162,8 @@ export const verifyOtp = async (req, res, next) => {
     // Check if user has completed all mandatory fields (Name, Email)
     const hasValidName =
       Boolean(user.name && user.name.trim()) &&
-      user.name !== 'Patron' &&
-      !user.name.startsWith(`Patron ${cleanPhone.slice(-4)}`);
+      user.name !== 'Customers' &&
+      !user.name.startsWith(`Customers ${cleanPhone.slice(-4)}`);
     const hasValidEmail = Boolean(user.email && user.email.trim());
 
     // Profile is complete if explicitly flagged, or if they already have real name and email
@@ -183,6 +184,18 @@ export const verifyOtp = async (req, res, next) => {
     };
 
     res.cookie('token', token, cookieOptions);
+
+    // Send Real-Time Admin Notification on Customer Login
+    if (user.role === 'user') {
+      sendAdminNotification({
+        type: 'customer_login',
+        title: 'Customer Logged In',
+        message: `${user.name || 'Customer'} (+91 ${cleanPhone}) signed in to customer website.`,
+        customerName: user.name || 'Customer',
+        userId: user._id,
+        priority: 'normal',
+      }).catch((e) => console.error('[Notification Trigger Error]:', e.message));
+    }
 
     return res.status(200).json({
       success: true,
@@ -206,7 +219,7 @@ export const verifyOtp = async (req, res, next) => {
   }
 };
 
-// @desc    Complete patron profile (Step 3: Title, Name, Email)
+// @desc    CompleteCustomers profile (Step 3: Title, Name, Email)
 // @route   POST /api/auth/complete-profile
 // @access  Public / Private
 export const completeProfile = async (req, res, next) => {
@@ -299,6 +312,16 @@ export const completeProfile = async (req, res, next) => {
 
     await user.save();
 
+    // Send Real-Time Admin Notification on New Customer Registration
+    sendAdminNotification({
+      type: 'customer_register',
+      title: 'New Customer Registered',
+      message: `${user.title ? user.title + '. ' : ''}${user.name} (+91 ${user.phone}) completed account registration!`,
+      customerName: user.name,
+      userId: user._id,
+      priority: 'success',
+    }).catch((e) => console.error('[Notification Trigger Error]:', e.message));
+
     sendTokenResponse(user, 200, res);
   } catch (error) {
     next(error);
@@ -384,7 +407,7 @@ export const googleAuth = async (req, res, next) => {
       if (avatar && !user.avatar) {
         user.avatar = avatar;
       }
-      if (name && (!user.name || user.name === 'Google Patron')) {
+      if (name && (!user.name || user.name === 'GoogleCustomers')) {
         user.name = name;
       }
 
@@ -395,18 +418,39 @@ export const googleAuth = async (req, res, next) => {
       }
 
       await user.save();
+
+      // Trigger Real-Time Notification for Google Customer Login
+      sendAdminNotification({
+        type: 'customer_login',
+        title: 'Customer Logged In 🔑',
+        message: `${user.name || 'Customer'} (${user.email}) signed in via Google.`,
+        customerName: user.name || 'Customer',
+        userId: user._id,
+        priority: 'normal',
+      }).catch((e) => console.error('[Google Login Notification Error]:', e.message));
+
       return sendTokenResponse(user, 200, res);
     }
 
     // Create new user via Google
     user = await User.create({
-      name: name || 'Google Patron',
+      name: name || 'GoogleCustomers',
       email: cleanEmail,
       googleId: googleId || '',
       avatar: avatar || '',
       role: 'user',
       isProfileComplete: false,
     });
+
+    // Trigger Real-Time Notification for New Google Customer Registration
+    sendAdminNotification({
+      type: 'customer_register',
+      title: 'New Customer Registered 🎉',
+      message: `${user.name} (${user.email}) registered a new account via Google!`,
+      customerName: user.name,
+      userId: user._id,
+      priority: 'success',
+    }).catch((e) => console.error('[Google Register Notification Error]:', e.message));
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
@@ -586,7 +630,7 @@ export const updateProfile = async (req, res, next) => {
     }
 
     // Set profile as complete if valid name and email are present
-    if (user.name && user.name !== 'Patron' && user.email) {
+    if (user.name && user.name !== 'Customers' && user.email) {
       user.isProfileComplete = true;
     }
 
@@ -881,3 +925,71 @@ export const uploadAvatar = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Delete user profile avatar
+// @route   DELETE /api/auth/avatar
+// @access  Private
+export const deleteAvatar = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found',
+      });
+    }
+
+    user.avatar = '';
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile photo removed successfully',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete user account and profile
+// @route   DELETE /api/auth/profile
+// @access  Private
+export const deleteAccount = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found',
+      });
+    }
+
+    if (user.role === 'admin' && user.email === 'admin@attardepot.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Master Administrator account cannot be deleted',
+      });
+    }
+
+    await User.findByIdAndDelete(req.user._id);
+
+    const cookieOptions = {
+      expires: new Date(0),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    };
+
+    res.cookie('token', '', cookieOptions);
+    res.clearCookie('token', cookieOptions);
+
+    res.status(200).json({
+      success: true,
+      message: 'Your account and profile have been permanently deleted.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

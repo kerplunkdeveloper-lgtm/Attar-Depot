@@ -17,6 +17,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import taxonomyRoutes from './routes/taxonomyRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
 import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
 
@@ -101,6 +102,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/taxonomy', taxonomyRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/admin/notifications', notificationRoutes);
 
 // Error Handling
 app.use(notFound);

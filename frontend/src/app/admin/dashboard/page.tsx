@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -24,6 +24,8 @@ import {
   X,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  Calendar,
   Mail,
   Phone,
   MapPin,
@@ -37,15 +39,131 @@ import {
   Zap,
   ArrowUp,
 } from 'lucide-react';
-import { useAdminStats, useAdminCustomers } from '@/hooks/useAdmin';
+import { useAdminStats, useAdminCustomers, useAdminOrders } from '@/hooks/useAdmin';
 import { formatPrice, formatDate } from '@/lib/utils';
 export default function AdminDashboardPage() {
   const { data, isLoading } = useAdminStats();
   const stats = data?.stats;
   const recentOrders = data?.recentOrders || [];
 
+  const { data: allOrdersData } = useAdminOrders('All');
+  const allOrders = allOrdersData?.orders && allOrdersData.orders.length > 0 ? allOrdersData.orders : recentOrders;
+
   const { data: customersData, isLoading: isCustomersLoading } = useAdminCustomers();
   const customers = customersData?.customers || [];
+
+  // Date filter state (Exact reference UI: All Dates | Today | 📅 Select Date ˅ | < | >)
+  const [dateFilterMode, setDateFilterMode] = useState<'all' | 'today' | 'custom'>('all');
+  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const formatDisplayDate = (dateStr: string) => {
+    if (!dateStr) return 'Select Date';
+    try {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const handleDateFilterChange = (mode: 'all' | 'today') => {
+    setDateFilterMode(mode);
+    if (mode === 'today') {
+      setSelectedDate(new Date().toISOString().split('T')[0]);
+    }
+  };
+
+  const handleCustomDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      setSelectedDate(e.target.value);
+      setDateFilterMode('custom');
+    }
+  };
+
+  const handleOpenDatePicker = () => {
+    if (dateInputRef.current) {
+      if ('showPicker' in HTMLInputElement.prototype) {
+        try {
+          dateInputRef.current.showPicker();
+        } catch {
+          dateInputRef.current.focus();
+        }
+      } else {
+        dateInputRef.current.focus();
+      }
+    }
+  };
+
+  const handleStepPrev = () => {
+    const baseDate = dateFilterMode === 'all' || !selectedDate ? new Date() : new Date(selectedDate);
+    baseDate.setDate(baseDate.getDate() - 1);
+    const newDateStr = baseDate.toISOString().split('T')[0];
+    setSelectedDate(newDateStr);
+    setDateFilterMode('custom');
+  };
+
+  const handleStepNext = () => {
+    const baseDate = dateFilterMode === 'all' || !selectedDate ? new Date() : new Date(selectedDate);
+    baseDate.setDate(baseDate.getDate() + 1);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const newDateStr = baseDate.toISOString().split('T')[0];
+    setSelectedDate(newDateStr);
+    if (newDateStr === todayStr) {
+      setDateFilterMode('today');
+    } else {
+      setDateFilterMode('custom');
+    }
+  };
+
+  // Filtered stats based on active date filter
+  const displayedMetrics = useMemo(() => {
+    if (dateFilterMode === 'all') {
+      return {
+        revenue: stats?.totalRevenue || 0,
+        ordersCount: stats?.totalOrders || 0,
+        pendingCount: stats?.pendingOrdersCount || 0,
+        customersCount: customers.length || stats?.totalUsers || 0,
+        subtextRevenue: 'lifetime revenue',
+        subtextOrders: 'lifetime queue',
+        badgeRevenue: '+18.4%',
+      };
+    }
+
+    // Target date string (YYYY-MM-DD)
+    const targetDateStr =
+      dateFilterMode === 'today'
+        ? new Date().toISOString().split('T')[0]
+        : selectedDate;
+
+    // Filter orders matching target date
+    const dayOrders = allOrders.filter((ord) => {
+      if (!ord.createdAt) return false;
+      const ordDate = new Date(ord.createdAt).toISOString().split('T')[0];
+      return ordDate === targetDateStr;
+    });
+
+    const dayRevenue = dayOrders.reduce((sum, ord) => sum + (ord.totalPrice || 0), 0);
+    const dayPending = dayOrders.filter((ord) => ord.orderStatus === 'Pending').length;
+
+    // Filter new customers on target date
+    const dayCustomers = customers.filter((c) => {
+      if (!c.createdAt) return false;
+      return new Date(c.createdAt).toISOString().split('T')[0] === targetDateStr;
+    });
+
+    return {
+      revenue: dayRevenue,
+      ordersCount: dayOrders.length,
+      pendingCount: dayPending,
+      customersCount: dayCustomers.length,
+      subtextRevenue: dateFilterMode === 'today' ? 'today total' : `on ${formatDisplayDate(targetDateStr)}`,
+      subtextOrders: dateFilterMode === 'today' ? 'today dispatches' : `on ${formatDisplayDate(targetDateStr)}`,
+      badgeRevenue: dayOrders.length > 0 ? `${dayOrders.length} order(s)` : '0 orders',
+    };
+  }, [dateFilterMode, selectedDate, stats, allOrders, customers]);
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -133,12 +251,101 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 pb-10">
       {/* ========================================================================= */}
-     
+      {/* 1. EXECUTIVE DATE FILTER TOOLBAR (Matches Reference Image)                */}
+      {/* ========================================================================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-serif">
+            Dashboard
+          </h1>
+          
+        </div>
+
+        {/* Date Filter Toolbar (Exact Match with Reference Image) */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* All Dates Button */}
+          <button
+            type="button"
+            onClick={() => handleDateFilterChange('all')}
+            className={`px-4 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilterMode === 'all'
+                ? 'bg-[#E1ECF7] text-slate-950 font-black shadow-2xs ring-1 ring-slate-300/80'
+                : 'bg-[#F0F5FA] text-slate-800 hover:bg-[#E4EDF7]'
+            }`}
+          >
+            All Dates
+          </button>
+
+          {/* Today Button */}
+          <button
+            type="button"
+            onClick={() => handleDateFilterChange('today')}
+            className={`px-4 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilterMode === 'today'
+                ? 'bg-[#E1ECF7] text-slate-950 font-black shadow-2xs ring-1 ring-slate-300/80'
+                : 'bg-[#F0F5FA] text-slate-800 hover:bg-[#E4EDF7]'
+            }`}
+          >
+            Today
+          </button>
+
+          {/* Select Date Button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={handleOpenDatePicker}
+              className={`px-3.5 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                dateFilterMode === 'custom'
+                  ? 'bg-[#E1ECF7] text-slate-950 font-black shadow-2xs ring-1 ring-slate-300/80'
+                  : 'bg-[#F0F5FA] text-slate-800 hover:bg-[#E4EDF7]'
+              }`}
+            >
+              <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>
+                {dateFilterMode === 'custom' && selectedDate
+                  ? formatDisplayDate(selectedDate)
+                  : 'Select Date'}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            </button>
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={selectedDate}
+              onChange={handleCustomDateChange}
+              className="absolute inset-0 opacity-0 pointer-events-auto cursor-pointer w-full h-full"
+            />
+          </div>
+
+          {/* Stepper (< | >) */}
+          <div className="bg-[#F0F5FA] rounded-2xl px-2.5 py-1.5 flex items-center shadow-2xs">
+            <button
+              type="button"
+              onClick={handleStepPrev}
+              className="p-1 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              title="Previous Day"
+              aria-label="Previous Day"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="w-px h-3.5 bg-slate-300 mx-1.5" />
+            <button
+              type="button"
+              onClick={handleStepNext}
+              className="p-1 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              title="Next Day"
+              aria-label="Next Day"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ========================================================================= */}
       {/* 2. REFINED KPI METRIC CARDS GRID (Modern Vibrant Luxury Gradients)        */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* Gross Revenue - Sunlit Amber / Gold Luxury Gradient */}
         <div
           className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white shadow-xl shadow-amber-600/20 ring-1 ring-white/20 transition-all duration-300 relative overflow-hidden group hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-amber-600/30"
@@ -155,15 +362,15 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-4">
             <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              {isLoading ? '...' : formatPrice(stats?.totalRevenue || 0)}
+              {isLoading ? '...' : formatPrice(displayedMetrics.revenue)}
             </p>
           </div>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
-              <TrendingUp className="w-3 h-3" /> +18.4%
+              <TrendingUp className="w-3 h-3" /> {displayedMetrics.badgeRevenue}
             </span>
             <span className="text-[11px] font-medium text-amber-100/90">
-              vs previous month
+              {displayedMetrics.subtextRevenue}
             </span>
           </div>
         </div>
@@ -175,7 +382,7 @@ export default function AdminDashboardPage() {
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-emerald-200/50 to-transparent" />
           <div className="flex items-center justify-between">
             <span className="uppercase tracking-widest text-[11px] font-bold text-emerald-100">
-              Consignments
+              Total Orders
             </span>
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
               <ShoppingBag className="w-5 h-5 drop-shadow-xs" />
@@ -183,14 +390,14 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-4">
             <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              {isLoading ? '...' : stats?.totalOrders || 0}
+              {isLoading ? '...' : displayedMetrics.ordersCount}
             </p>
           </div>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
-            {stats?.pendingOrdersCount && stats.pendingOrdersCount > 0 ? (
+            {displayedMetrics.pendingCount > 0 ? (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-amber-300 animate-pulse" />
-                {stats.pendingOrdersCount} pending dispatch
+                {displayedMetrics.pendingCount} pending dispatch
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
@@ -199,35 +406,7 @@ export default function AdminDashboardPage() {
               </span>
             )}
             <span className="text-[11px] font-medium text-emerald-100/90">
-              lifetime queue
-            </span>
-          </div>
-        </div>
-
-        {/* Average Order Value (AOV) - Imperial Indigo & Deep Royal Violet Gradient */}
-        <div
-          className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-700 text-white shadow-xl shadow-indigo-700/20 ring-1 ring-white/20 transition-all duration-300 relative overflow-hidden group hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-700/30"
-        >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-purple-200/50 to-transparent" />
-          <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-indigo-100">
-              Avg Order Value
-            </span>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-5 h-5 drop-shadow-xs" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              {isLoading ? '...' : formatPrice(aov)}
-            </p>
-          </div>
-          <div className="mt-3 flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
-              High Tier Basket
-            </span>
-            <span className="text-[11px] font-medium text-indigo-100/90">
-              luxury basket avg
+              {displayedMetrics.subtextOrders}
             </span>
           </div>
         </div>
@@ -248,9 +427,11 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              {isCustomersLoading ? '...' : customers.length || stats?.totalUsers || 0}
+              {isCustomersLoading ? '...' : displayedMetrics.customersCount}
             </p>
-            <span className="text-xs font-semibold text-rose-100">customers</span>
+            <span className="text-xs font-semibold text-rose-100">
+              {dateFilterMode === 'all' ? 'customers' : 'newCustomers'}
+            </span>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
@@ -407,6 +588,8 @@ export default function AdminDashboardPage() {
           ) : (
             paginatedCustomers.map((cust) => {
               const isVip = (cust.totalSpent || 0) >= 5000 || (cust.ordersCount || 0) >= 5;
+              const addr =
+                cust.latestShippingAddress || (cust.addresses && cust.addresses[0]) || null;
               return (
                 <div
                   key={`mcust-${cust._id}`}
@@ -443,6 +626,21 @@ export default function AdminDashboardPage() {
                     </Link>
                   </div>
 
+                  {/* Customer Address Details */}
+                  {addr && (
+                    <div className="pt-2 border-t border-slate-100 flex items-start gap-1.5 text-[11px] text-slate-600">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-medium text-slate-800">
+                          {addr.street || addr.address ? `${addr.street || addr.address}, ` : ''}
+                        </span>
+                        <span>
+                          {addr.city}{addr.state ? `, ${addr.state}` : ''}{addr.postalCode ? ` - ${addr.postalCode}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
                     <div>
                       <span className="text-slate-400 block text-[10px]">Total Orders</span>
@@ -468,7 +666,7 @@ export default function AdminDashboardPage() {
               <tr className="border-b border-slate-200/80 bg-slate-50/90 text-[10px] uppercase tracking-wider font-bold text-slate-600">
                 <th className="py-3 px-4 sm:px-6">Customer</th>
                 <th className="py-3 px-4">Contact Channels</th>
-                <th className="py-3 px-4">Location</th>
+                <th className="py-3 px-4">Address</th>
                 <th className="py-3 px-4">Orders</th>
                 <th className="py-3 px-4">Total Spend</th>
                 <th className="py-3 px-4">Member Since</th>
@@ -558,17 +756,22 @@ export default function AdminDashboardPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        {addr?.city ? (
-                          <div className="flex items-center gap-1 text-[11px]">
-                            <MapPin className="w-3 h-3 flex-shrink-0 text-amber-500" />
-                            <span className="truncate max-w-[120px] text-slate-700">
-                              {addr.city}
-                              {addr.state ? `, ${addr.state}` : ''}
-                            </span>
+                        {addr ? (
+                          <div className="space-y-0.5 max-w-[200px]">
+                            <div className="flex items-start gap-1.5 text-[11px] text-slate-800">
+                              <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600 mt-0.5" />
+                              <span className="line-clamp-1 font-medium" title={addr.street || addr.address || ''}>
+                                {addr.street || addr.address || `${addr.city}, ${addr.state}`}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 pl-5">
+                              {addr.city}{addr.state ? `, ${addr.state}` : ''}{addr.postalCode ? ` - ${addr.postalCode}` : ''}
+                            </p>
                           </div>
                         ) : (
-                          <span className="text-[10px] italic text-slate-400">
-                            Not provided
+                          <span className="text-[10px] italic text-slate-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-slate-300" />
+                            <span>No address saved</span>
                           </span>
                         )}
                       </td>
@@ -664,413 +867,7 @@ export default function AdminDashboardPage() {
         )}
       </div>
 
-      {/* ========================================================================= */}
-      {/* 6. ANIMATED REPRESENTATION CHART & TELEMETRY GRAPH (VISUAL ANALYTICS)     */}
-      {/* ========================================================================= */}
-      <div className="rounded-3xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl shadow-slate-900/5 p-5 sm:p-6 space-y-6 transition-all">
-        {/* Analytics Header & Interactive View Toggles */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center shadow-sm">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <h3 className="font-poppins text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                Customer Analytics & Growth Representation
-              </h3>
-             
-            </div>
-           
-          </div>
-
-          {/* Interactive Chart Mode Toggles */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200/80 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setChartMode('acquisition')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                chartMode === 'acquisition'
-                  ? 'bg-white text-emerald-800 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Acquisition</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setChartMode('spend')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                chartMode === 'spend'
-                  ? 'bg-white text-emerald-800 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <span className="font-poppins text-xs font-bold">₹</span>
-              <span>Spend Volume</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setChartMode('retention')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                chartMode === 'retention'
-                  ? 'bg-white text-emerald-800 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <PieChart className="w-3.5 h-3.5" />
-              <span>Retention</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 4 Summary Telemetry Badges */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0">
-              ₹
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium truncate">Total Lifetime Spend</p>
-              <p className="text-base sm:text-lg font-bold font-poppins text-slate-900 truncate">
-                {formatPrice(customerAnalytics.totalRevenue)}
-              </p>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
-              <Users className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium truncate">Active Patrons</p>
-              <div className="flex items-center gap-1.5">
-                <p className="text-base sm:text-lg font-bold text-slate-900">
-                  {customerAnalytics.withOrdersCount}
-                </p>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
-                  {customerAnalytics.activeRate}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-              <Crown className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium truncate">VIP & Repeat Buyers</p>
-              <div className="flex items-center gap-1.5">
-                <p className="text-base sm:text-lg font-bold text-slate-900">
-                  {customerAnalytics.repeatBuyersCount}
-                </p>
-                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
-                  {customerAnalytics.repeatRate}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium truncate">Avg Customer Value</p>
-              <p className="text-base sm:text-lg font-bold font-poppins text-slate-900 truncate">
-                {formatPrice(customerAnalytics.avgCustSpend)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Interactive Visualization Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Main Animated SVG Chart Area (7 Cols) */}
-          <div className="lg:col-span-8 p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-xs relative">
-            <div className="flex items-center justify-between mb-3 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-800">
-                  {chartMode === 'spend'
-                    ? 'Monthly Customer Spend Trajectory'
-                    : chartMode === 'retention'
-                    ? 'Customer Retention Distribution'
-                    : 'Customer Signups & Inflow Curve'}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono">Last 6 Months</span>
-              </div>
-
-              {hoveredPointIndex !== null && customerAnalytics.monthsData[hoveredPointIndex] && (
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-xl bg-white border border-emerald-300 shadow-xs font-medium text-slate-800 animate-in fade-in duration-150">
-                  <span className="font-bold text-emerald-700">
-                    {customerAnalytics.monthsData[hoveredPointIndex].month}:
-                  </span>
-                  <span>
-                    {chartMode === 'spend'
-                      ? formatPrice(customerAnalytics.monthsData[hoveredPointIndex].spend)
-                      : `${customerAnalytics.monthsData[hoveredPointIndex].users} Customers`}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* SVG Visual Canvas */}
-            <div className="relative w-full h-56 sm:h-64">
-              {/* Dynamic SVG Curves & Wave */}
-              {(() => {
-                const data = customerAnalytics.monthsData;
-                const maxValue = Math.max(
-                  1,
-                  ...data.map((d) => (chartMode === 'spend' ? d.spend : d.users))
-                );
-
-                // Coordinates computation
-                const points = data.map((d, idx) => {
-                  const x = 50 + idx * 115;
-                  const val = chartMode === 'spend' ? d.spend : d.users;
-                  const y = 180 - Math.round((val / maxValue) * 135);
-                  return { x, y, val, month: d.month };
-                });
-
-                // Path string generator for smooth bezier curve
-                const pathD = points.reduce((acc, pt, i, arr) => {
-                  if (i === 0) return `M ${pt.x} ${pt.y}`;
-                  const prev = arr[i - 1];
-                  const cp1x = prev.x + (pt.x - prev.x) / 2;
-                  const cp1y = prev.y;
-                  const cp2x = prev.x + (pt.x - prev.x) / 2;
-                  const cp2y = pt.y;
-                  return `${acc} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${pt.x} ${pt.y}`;
-                }, '');
-
-                const areaD = `${pathD} L ${points[points.length - 1].x} 200 L ${points[0].x} 200 Z`;
-
-                return (
-                  <svg
-                    viewBox="0 0 680 220"
-                    className="w-full h-full overflow-visible select-none"
-                  >
-                    <defs>
-                      <linearGradient id="emeraldWave" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#059669" stopOpacity="0.45" />
-                        <stop offset="50%" stopColor="#10B981" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
-                      </linearGradient>
-                      <linearGradient id="amberWave" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.45" />
-                        <stop offset="50%" stopColor="#FBBF24" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="#FBBF24" stopOpacity="0.0" />
-                      </linearGradient>
-                      <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#059669" floodOpacity="0.35" />
-                      </filter>
-                    </defs>
-
-                    {/* Horizontal Reference Grid Lines */}
-                    <line x1="40" y1="50" x2="640" y2="50" stroke="#E2E8F0" strokeDasharray="4 4" strokeWidth="1" />
-                    <line x1="40" y1="115" x2="640" y2="115" stroke="#E2E8F0" strokeDasharray="4 4" strokeWidth="1" />
-                    <line x1="40" y1="180" x2="640" y2="180" stroke="#CBD5E1" strokeWidth="1.5" />
-
-                    {/* Animated Bar Columns behind curve */}
-                    {points.map((pt, i) => {
-                      const barHeight = 180 - pt.y;
-                      const isHovered = hoveredPointIndex === i;
-                      return (
-                        <g key={`bar-${i}`} onMouseEnter={() => setHoveredPointIndex(i)}>
-                          <rect
-                            x={pt.x - 18}
-                            y={pt.y}
-                            width="36"
-                            height={Math.max(4, barHeight)}
-                            rx="6"
-                            className={`transition-all duration-500 cursor-pointer ${
-                              isHovered
-                                ? chartMode === 'spend'
-                                  ? 'fill-amber-400/40 stroke-amber-500'
-                                  : 'fill-emerald-500/40 stroke-emerald-600'
-                                : 'fill-emerald-500/10 hover:fill-emerald-500/25'
-                            }`}
-                          />
-                        </g>
-                      );
-                    })}
-
-                    {/* Animated Area Wave Fill */}
-                    <path
-                      d={areaD}
-                      fill={chartMode === 'spend' ? 'url(#amberWave)' : 'url(#emeraldWave)'}
-                      className="transition-all duration-700 ease-out"
-                    />
-
-                    {/* Glowing Stroke Curve Line */}
-                    <path
-                      d={pathD}
-                      fill="none"
-                      stroke={chartMode === 'spend' ? '#D97706' : '#059669'}
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      filter="url(#glowEffect)"
-                      className="transition-all duration-700 ease-out"
-                    />
-
-                    {/* Interactive Points Nodes */}
-                    {points.map((pt, i) => {
-                      const isHovered = hoveredPointIndex === i;
-                      return (
-                        <g
-                          key={`node-${i}`}
-                          className="cursor-pointer transition-transform"
-                          onMouseEnter={() => setHoveredPointIndex(i)}
-                        >
-                          {/* Animated Pulse Ring on Hover/Active */}
-                          {isHovered && (
-                            <circle
-                              cx={pt.x}
-                              cy={pt.y}
-                              r="12"
-                              className={`animate-ping ${
-                                chartMode === 'spend' ? 'fill-amber-400/50' : 'fill-emerald-400/50'
-                              }`}
-                            />
-                          )}
-                          <circle
-                            cx={pt.x}
-                            cy={pt.y}
-                            r={isHovered ? '7' : '5'}
-                            fill="#FFFFFF"
-                            stroke={chartMode === 'spend' ? '#D97706' : '#059669'}
-                            strokeWidth="3"
-                            className="shadow-md transition-all duration-200"
-                          />
-                          {/* Month Label */}
-                          <text
-                            x={pt.x}
-                            y="202"
-                            textAnchor="middle"
-                            className={`text-[11px] font-bold ${
-                              isHovered ? 'fill-emerald-900 font-extrabold' : 'fill-slate-500'
-                            }`}
-                          >
-                            {pt.month}
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-                );
-              })()}
-            </div>
-
-            {/* Bottom Graph Legend */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200/60 mt-1">
-              <span className="flex items-center gap-1.5 font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block" />
-                Customer Growth Curve
-              </span>
-              <span className="flex items-center gap-1.5 font-medium">
-                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/20 inline-block" />
-                Volume Activity
-              </span>
-              <span className="text-slate-400 hidden sm:inline">
-                Hover columns to inspect data
-              </span>
-            </div>
-          </div>
-
-          {/* Right Column: Customer Segments Radial Ring & Top Patrons (4 Cols) */}
-          <div className="lg:col-span-4 space-y-4">
-            {/* Radial Retention Gauge Card */}
-            <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 shadow-xs flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold text-slate-900">Patron Retention Rate</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  Direct engagement across accounts
-                </p>
-                <div className="flex items-center gap-1 text-emerald-700 font-bold text-xs mt-2">
-                  <ArrowUp className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>+14% vs last quarter</span>
-                </div>
-              </div>
-
-              {/* Radial Donut Gauge SVG */}
-              <div className="relative w-18 h-18 shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                  {/* Background Track */}
-                  <path
-                    className="text-slate-200 stroke-current"
-                    strokeWidth="3.5"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  {/* Animated Foreground Progress */}
-                  <path
-                    className="text-emerald-600 stroke-current transition-all duration-1000 ease-out"
-                    strokeWidth="3.5"
-                    strokeDasharray={`${Math.max(15, customerAnalytics.activeRate)}, 100`}
-                    strokeLinecap="round"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="font-extrabold text-xs text-slate-900 font-poppins">
-                    {customerAnalytics.activeRate}%
-                  </span>
-                  <span className="text-[8px] font-bold uppercase text-slate-400">Active</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Top Customer Contributors Leaderboard */}
-            <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-xs font-bold text-slate-900">Top Patron Telemetry</span>
-                </div>
-                <span className="text-[10px] font-mono text-slate-400">Ranked by Value</span>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                {customerAnalytics.topSpenders.length === 0 ? (
-                  <p className="text-slate-400 text-center text-xs py-2">No patrons logged</p>
-                ) : (
-                  customerAnalytics.topSpenders.map((patron, i) => {
-                    const maxTopSpend = customerAnalytics.topSpenders[0]?.totalSpent || 1;
-                    const percent = Math.min(100, Math.round(((patron.totalSpent || 0) / maxTopSpend) * 100));
-
-                    return (
-                      <div key={patron._id} className="space-y-1">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="font-bold text-slate-800 truncate max-w-[120px]">
-                            {patron.name || 'Patron'}
-                          </span>
-                          <span className="font-poppins font-bold text-emerald-700">
-                            {formatPrice(patron.totalSpent || 0)}
-                          </span>
-                        </div>
-                        {/* Animated Progress Bar */}
-                        <div className="w-full h-1.5 rounded-full bg-slate-200/80 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${
-                              i === 0
-                                ? 'bg-gradient-to-r from-amber-500 to-yellow-400'
-                                : 'bg-gradient-to-r from-emerald-600 to-teal-500'
-                            }`}
-                            style={{ width: `${Math.max(12, percent)}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
 
 
@@ -1094,7 +891,7 @@ export default function AdminDashboardPage() {
       {/* 4. RECENT CONSIGNMENTS LIVE ACTIVITY TABLE CONSOLE                        */}
       {/* ========================================================================= */}
       <div
-        className=" overflow-hidden  transition-all"
+        className=" overflow-hidden  bg-white  rounded-3xl  transition-all"
       >
         {/* Table Header & Interactive Filter Controls */}
         <div
@@ -1197,6 +994,26 @@ export default function AdminDashboardPage() {
                     </span>
                   </div>
 
+                  {/* Delivery Address in Mobile Card */}
+                  {ord.shippingAddress && (
+                    <div className="pt-2 border-t border-slate-100 flex items-start gap-1.5 text-[11px] text-slate-600">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-medium text-slate-800">
+                          {ord.shippingAddress.address ? `${ord.shippingAddress.address}, ` : ''}
+                        </span>
+                        <span>
+                          {ord.shippingAddress.city}, {ord.shippingAddress.state} - {ord.shippingAddress.postalCode}
+                        </span>
+                        {ord.shippingAddress.phone && (
+                          <span className="text-[10px] text-slate-400 block font-mono">
+                            Ph: +91 {ord.shippingAddress.phone}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
                     <div>
                       <p className="font-bold text-slate-900">{CustomerName}</p>
@@ -1223,13 +1040,14 @@ export default function AdminDashboardPage() {
 
         {/* Desktop View: Full Data-Dense Consignment Table */}
         <div className="hidden md:block overflow-x-auto scrollbar-thin">
-          <table className="w-full text-left text-xs min-w-[700px]">
+          <table className="w-full text-left text-xs min-w-[850px]">
             <thead
               className="uppercase tracking-wider font-bold border-b border-slate-200/80 bg-slate-50/90 text-[11px] text-slate-600"
             >
               <tr>
                 <th className="p-4 pl-6">Order ID & Date</th>
                 <th className="p-4">Customer Details</th>
+                <th className="p-4">Delivery Address</th>
                 <th className="p-4">Flacons Ordered</th>
                 <th className="p-4">Total Amount</th>
                 <th className="p-4">Fulfillment Status</th>
@@ -1239,7 +1057,7 @@ export default function AdminDashboardPage() {
             <tbody className="divide-y divide-slate-100 text-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-slate-500">
+                  <td colSpan={7} className="p-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                       <span className="text-slate-500">
@@ -1250,7 +1068,7 @@ export default function AdminDashboardPage() {
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-neutral-400">
+                  <td colSpan={7} className="p-12 text-center text-neutral-400">
                     <div className="max-w-xs mx-auto space-y-2">
                       <ShoppingBag className="w-8 h-8 mx-auto text-slate-300" />
                       <p className="font-semibold text-xs text-slate-800">
@@ -1298,57 +1116,157 @@ export default function AdminDashboardPage() {
                             <p className="font-bold text-slate-900">
                               {CustomerName}
                             </p>
-                            <p className="text-[10px] text-slate-500">
-                              {ord.shippingAddress?.city || 'Local'},{' '}
-                              {ord.shippingAddress?.state || 'India'}
+                            {ord.shippingAddress?.phone && (
+                              <p className="text-[10px] text-slate-400 font-mono">
+                                +91 {ord.shippingAddress.phone}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-4">
+                        {ord.shippingAddress ? (
+                          <div className="space-y-0.5 max-w-[210px]">
+                            <div className="flex items-start gap-1.5 text-[11px] text-slate-800">
+                              <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600 mt-0.5" />
+                              <span
+                                className="font-medium line-clamp-1"
+                                title={ord.shippingAddress.address || ''}
+                              >
+                                {ord.shippingAddress.address || 'Standard Address'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 pl-5">
+                              {ord.shippingAddress.city}, {ord.shippingAddress.state} - {ord.shippingAddress.postalCode}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] italic text-slate-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-slate-300" />
+                            <span>No address specified</span>
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-4 min-w-[200px]">
+                        <div className="flex items-center gap-2.5">
+                          {/* Image Thumbnail */}
+                          {(() => {
+                            const firstItem = ord.orderItems?.[0];
+                            const imgUrl =
+                              firstItem?.image ||
+                              firstItem?.product?.images?.[0] ||
+                              'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=300';
+                            return (
+                              <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-white shadow-2xs">
+                                <img
+                                  src={imgUrl}
+                                  alt={firstItem?.name || 'Product'}
+                                  className="w-full h-full object-cover"
+                                />
+                                {(ord.orderItems?.length || 0) > 1 && (
+                                  <span className="absolute bottom-0 right-0 bg-slate-900/90 text-white font-mono text-[8px] font-bold px-1 rounded-tl-sm">
+                                    +{(ord.orderItems?.length || 0) - 1}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
+
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className="text-xs font-bold text-slate-900 truncate"
+                              title={ord.orderItems?.map((i: any) => i.name).join(', ')}
+                            >
+                              {ord.orderItems?.[0]?.name || `${ord.orderItems?.length || 0} items`}
+                            </p>
+                            <p className="text-[10px] text-slate-500 font-medium">
+                              {ord.orderItems?.[0]?.size ? `${ord.orderItems[0].size} • ` : ''}Qty: {ord.orderItems?.[0]?.quantity || 1}
+                              {(ord.orderItems?.length || 0) > 1 ? ` (+${(ord.orderItems?.length || 0) - 1} more)` : ''}
                             </p>
                           </div>
                         </div>
                       </td>
 
                       <td className="p-4">
-                        <span className="font-semibold text-slate-800">
-                          {ord.orderItems?.length || 0} flacon item(s)
-                        </span>
-                        <p className="text-[10px] truncate max-w-xs text-slate-500">
-                          {ord.orderItems?.map((i: any) => i.name).join(', ')}
-                        </p>
-                      </td>
-
-                      <td className="p-4">
-                        <span className="font-poppins font-bold text-sm text-emerald-700">
+                        <span className="font-poppins font-bold text-sm text-emerald-700 block">
                           {formatPrice(ord.totalPrice)}
                         </span>
-                        <p className="text-[10px] text-slate-400">
-                          {ord.paymentMethod || 'Prepaid'}
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[10px] text-slate-500 font-semibold">
+                            {ord.paymentMethod || 'Prepaid'}
+                          </span>
+                          <span
+                            className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold border ${
+                              ord.paymentStatus === 'Completed'
+                                ? 'bg-emerald-100 text-emerald-950 border-emerald-300'
+                                : 'bg-amber-100 text-amber-950 border-amber-300'
+                            }`}
+                          >
+                            <span
+                              className={`w-1 h-1 rounded-full ${
+                                ord.paymentStatus === 'Completed' ? 'bg-emerald-600' : 'bg-amber-500 animate-pulse'
+                              }`}
+                            />
+                            {ord.paymentStatus === 'Completed' ? 'Paid' : 'Pending'}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="p-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-xs ${
-                            ord.orderStatus === 'Delivered'
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : ord.orderStatus === 'Shipped'
-                              ? 'bg-purple-50 text-purple-800 border-purple-200'
-                              : ord.orderStatus === 'Processing'
-                              ? 'bg-blue-50 text-blue-800 border-blue-200'
-                              : 'bg-amber-50 text-amber-800 border-amber-200'
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              ord.orderStatus === 'Delivered'
-                                ? 'bg-emerald-500'
-                                : ord.orderStatus === 'Shipped'
-                                ? 'bg-purple-500'
-                                : ord.orderStatus === 'Processing'
-                                ? 'bg-blue-500'
-                                : 'bg-amber-500 animate-pulse'
-                            }`}
-                          />
-                          {ord.orderStatus}
-                        </span>
+                        {(() => {
+                          const status = ord.orderStatus;
+                          const config =
+                            status === 'Delivered'
+                              ? {
+                                  label: 'Delivered',
+                                  bg: 'bg-emerald-100 text-emerald-950 border-emerald-300',
+                                  dot: 'bg-emerald-600',
+                                  dispatchText: 'Delivered',
+                                }
+                              : status === 'Shipped'
+                              ? {
+                                  label: 'Dispatched',
+                                  bg: 'bg-purple-100 text-purple-950 border-purple-300 font-bold',
+                                  dot: 'bg-purple-600 animate-pulse',
+                                  dispatchText: 'In Transit',
+                                }
+                              : status === 'Processing'
+                              ? {
+                                  label: 'Processing',
+                                  bg: 'bg-sky-100 text-sky-950 border-sky-300',
+                                  dot: 'bg-sky-500',
+                                  dispatchText: 'Packing',
+                                }
+                              : status === 'Cancelled'
+                              ? {
+                                  label: 'Cancelled',
+                                  bg: 'bg-rose-100 text-rose-950 border-rose-300',
+                                  dot: 'bg-rose-600',
+                                  dispatchText: 'Voided',
+                                }
+                              : {
+                                  label: 'Pending',
+                                  bg: 'bg-amber-100 text-amber-950 border-amber-300',
+                                  dot: 'bg-amber-500 animate-pulse',
+                                  dispatchText: 'Awaiting',
+                                };
+
+                          return (
+                            <div className="space-y-1">
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-2xs ${config.bg}`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+                                {config.label}
+                              </span>
+                              <p className="text-[10px] text-slate-500 font-medium">
+                                Dispatch: {config.dispatchText}
+                              </p>
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       <td className="p-4 pr-6 text-right">

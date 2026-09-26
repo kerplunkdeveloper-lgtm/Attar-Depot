@@ -554,44 +554,76 @@ export default function AdminCatalogTaxonomyPage() {
     <div className="space-y-6 animate-in fade-in duration-300">
      
 
-      {/* ─── 2. TELEMETRY BADGES BAR ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-3.5">
+      {/* ─── 2. TELEMETRY BADGES BAR (Premium Luxury Themed Cards) ─── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {[
           {
             title: 'Categories',
             count: totalCategoriesCount,
             sub: `${totalProductsLinked} Products linked`,
             icon: Layers,
-            color: 'text-emerald-400',
-            bg: isLight ? 'bg-white border-slate-200' : 'bg-[#0E1715] border-[#1E332B]',
             tab: 'categories' as TabType,
+            activeClass:
+              'bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/25 ring-2 ring-white/30',
+            inactiveClass:
+              'bg-gradient-to-br from-[#EBF7F2] via-white to-[#E1F3EA] border-[#A8DAC5] text-[#022D24] shadow-xs hover:border-emerald-500/60',
+            activeSub: 'text-emerald-100',
+            inactiveSub: 'text-[#046A5A]',
+            inactiveTitle: 'text-emerald-800',
+            inactiveCount: 'text-emerald-950',
+            iconBgActive: 'bg-white/20 text-white border-white/30',
+            iconBgInactive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
           },
           {
             title: 'Collections',
             count: collections.length,
             sub: 'Featured royal series',
             icon: Sparkles,
-            color: 'text-amber-400',
-            bg: isLight ? 'bg-white border-slate-200' : 'bg-[#0E1715] border-[#1E332B]',
             tab: 'collections' as TabType,
+            activeClass:
+              'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white shadow-xl shadow-amber-600/25 ring-2 ring-white/30',
+            inactiveClass:
+              'bg-gradient-to-br from-[#FEF8EC] via-white to-[#FDF1DA] border-[#F2D7A5] text-[#4A2E00] shadow-xs hover:border-amber-500/60',
+            activeSub: 'text-amber-100',
+            inactiveSub: 'text-amber-800',
+            inactiveTitle: 'text-amber-800',
+            inactiveCount: 'text-amber-950',
+            iconBgActive: 'bg-white/20 text-white border-white/30',
+            iconBgInactive: 'bg-amber-100 text-amber-800 border-amber-200',
           },
           {
             title: 'Fragrance Notes',
             count: notes.length,
             sub: 'Olfactory accords in vault',
             icon: Droplets,
-            color: 'text-teal-400',
-            bg: isLight ? 'bg-white border-slate-200' : 'bg-[#0E1715] border-[#1E332B]',
             tab: 'notes' as TabType,
+            activeClass:
+              'bg-gradient-to-br from-teal-600 via-cyan-700 to-emerald-800 text-white shadow-xl shadow-teal-800/25 ring-2 ring-white/30',
+            inactiveClass:
+              'bg-gradient-to-br from-[#EDFBFB] via-white to-[#DCF7F7] border-[#A5E7E7] text-[#003B46] shadow-xs hover:border-teal-500/60',
+            activeSub: 'text-teal-100',
+            inactiveSub: 'text-teal-800',
+            inactiveTitle: 'text-teal-800',
+            inactiveCount: 'text-teal-950',
+            iconBgActive: 'bg-white/20 text-white border-white/30',
+            iconBgInactive: 'bg-teal-100 text-teal-800 border-teal-200',
           },
           {
             title: 'Occasions',
             count: occasions.length,
             sub: 'Scent pairing moments',
             icon: Calendar,
-            color: 'text-sky-400',
-            bg: isLight ? 'bg-white border-slate-200' : 'bg-[#0E1715] border-[#1E332B]',
             tab: 'occasions' as TabType,
+            activeClass:
+              'bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-800 text-white shadow-xl shadow-indigo-700/25 ring-2 ring-white/30',
+            inactiveClass:
+              'bg-gradient-to-br from-[#F5F2FC] via-white to-[#EAE3F9] border-[#CFBEF5] text-[#2E1065] shadow-xs hover:border-purple-500/60',
+            activeSub: 'text-purple-100',
+            inactiveSub: 'text-purple-800',
+            inactiveTitle: 'text-purple-800',
+            inactiveCount: 'text-purple-950',
+            iconBgActive: 'bg-white/20 text-white border-white/30',
+            iconBgInactive: 'bg-purple-100 text-purple-800 border-purple-200',
           },
         ].map((item) => {
           const Icon = item.icon;
@@ -603,36 +635,50 @@ export default function AdminCatalogTaxonomyPage() {
                 setActiveTab(item.tab);
                 setSearchTerm('');
               }}
-              className={`p-3.5 rounded-2xl border text-left transition-all ${item.bg} ${
+              className={`p-4 sm:p-4.5 rounded-3xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
                 isCurrent
-                  ? 'ring-2 ring-emerald-500 shadow-md scale-[1.01]'
-                  : 'hover:border-emerald-500/40 hover:scale-[1.01]'
+                  ? `${item.activeClass} scale-[1.02]`
+                  : `${item.inactiveClass} hover:scale-[1.01]`
               }`}
             >
+              {isCurrent && (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-white/40 to-transparent" />
+              )}
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-[11px] font-semibold truncate ${
-                    isLight ? 'text-slate-500' : 'text-neutral-400'
+                  className={`text-xs font-bold uppercase tracking-wider truncate ${
+                    isCurrent ? 'text-white/90' : item.inactiveTitle
                   }`}
                 >
                   {item.title}
                 </span>
-                <Icon className={`w-4 h-4 flex-shrink-0 ${item.color}`} />
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-xs transition-transform group-hover:scale-110 ${
+                    isCurrent ? item.iconBgActive : item.iconBgInactive
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                </div>
               </div>
               <p
-                className={`text-xl font-bold font-serif mt-1 ${
-                  isLight ? 'text-slate-900' : 'text-white'
+                className={`text-2xl sm:text-3xl font-black font-serif mt-2 tracking-tight ${
+                  isCurrent ? 'text-white drop-shadow-sm' : item.inactiveCount
                 }`}
               >
                 {item.count}
               </p>
-              <p
-                className={`text-[10px] mt-0.5 truncate ${
-                  isLight ? 'text-slate-500' : 'text-neutral-500'
-                }`}
-              >
-                {item.sub}
-              </p>
+              <div className="mt-1.5 flex items-center gap-1.5">
+                {isCurrent && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                )}
+                <p
+                  className={`text-[11px] font-semibold truncate ${
+                    isCurrent ? item.activeSub : item.inactiveSub
+                  }`}
+                >
+                  {item.sub}
+                </p>
+              </div>
             </button>
           );
         })}

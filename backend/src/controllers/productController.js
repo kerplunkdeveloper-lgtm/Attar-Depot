@@ -4,6 +4,7 @@ import Collection from '../models/Collection.js';
 import FragranceNote from '../models/FragranceNote.js';
 import Occasion from '../models/Occasion.js';
 import { uploadToCloudinary } from '../middleware/uploadMiddleware.js';
+import { sendAdminNotification } from '../utils/notificationEmitter.js';
 
 // @desc    Get all products with filtering, search, sorting & pagination
 // @route   GET /api/products
@@ -519,6 +520,34 @@ export const updateProduct = async (req, res, next) => {
       new: true,
       runValidators: true,
     }).populate('category', 'name slug');
+
+    // Trigger Real-Time Inventory Notifications if stock is 0 or low
+    if (updatedProduct) {
+      const stockLevel = Number(updatedProduct.stock);
+      if (stockLevel === 0) {
+        sendAdminNotification({
+          type: 'stock_empty',
+          title: `Out of Stock Alert! 🚨`,
+          message: `Product "${updatedProduct.name}" stock is at 0 units! Re-order required immediately.`,
+          productName: updatedProduct.name,
+          stockRemaining: 0,
+          priority: 'high',
+          link: '/admin/products',
+          metadata: { productId: updatedProduct._id },
+        }).catch((err) => console.error('[Stock Empty Notification Error]:', err.message));
+      } else if (stockLevel > 0 && stockLevel <= 5) {
+        sendAdminNotification({
+          type: 'stock_low',
+          title: `Low Stock Warning ⚠️`,
+          message: `Product "${updatedProduct.name}" is running low on stock! Only ${stockLevel} units remaining.`,
+          productName: updatedProduct.name,
+          stockRemaining: stockLevel,
+          priority: 'medium',
+          link: '/admin/products',
+          metadata: { productId: updatedProduct._id },
+        }).catch((err) => console.error('[Stock Low Notification Error]:', err.message));
+      }
+    }
 
     res.status(200).json({ success: true, product: updatedProduct });
   } catch (error) {

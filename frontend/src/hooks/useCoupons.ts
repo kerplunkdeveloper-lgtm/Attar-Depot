@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Coupon, AppliedCoupon } from '@/types';
 
-// Fetch active coupons for store patrons
+// Fetch active coupons for storeCustomers
 export const useCoupons = (params?: { limit?: number }) => {
   return useQuery<{
     success: boolean;

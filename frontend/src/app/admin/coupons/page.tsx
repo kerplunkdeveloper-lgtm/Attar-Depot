@@ -218,24 +218,14 @@ export default function AdminCouponsPage() {
     <div className="space-y-6 animate-in fade-in duration-300 font-sans">
       {/* 1. Header Banner */}
       <div
-        className="p-6 sm:p-7 rounded-3xl border flex flex-col lg:flex-row lg:items-center justify-between gap-4 backdrop-blur-xl shadow-lg transition-all bg-gradient-to-r from-[#EBF7F2] via-[#E4F4EC] to-[#DCF1E6] border-[#B2DFD0] text-[#022D24] shadow-emerald-950/5"
+        className="p-2 sm:p-3 rounded-3xl border flex flex-col lg:flex-row lg:items-center justify-between gap-4 backdrop-blur-xl shadow-lg transition-all bg-gradient-to-r from-[#EBF7F2] via-[#E4F4EC] to-[#DCF1E6] border-[#B2DFD0] text-[#022D24] shadow-emerald-950/5"
       >
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-              Marketing & Promotions Console
-            </span>
-            <span className="text-neutral-400">&bull;</span>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-emerald-100 text-emerald-900 border-emerald-300">
-              Live Discounts Engine
-            </span>
-          </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
+
+          <h1 className="font-serif text-xl sm:text-xl font-bold tracking-tight text-neutral-900">
             Coupons, Promo Codes & Offers
           </h1>
-          <p className="text-xs sm:text-sm text-neutral-600 mt-1 max-w-xl">
-            Configure dynamic voucher codes, percentage discounts, minimum spend thresholds, and top utility bar announcements.
-          </p>
+
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
@@ -259,47 +249,75 @@ export default function AdminCouponsPage() {
         </div>
       </div>
 
-      {/* 2. Stats KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-emerald-100/90 shadow-emerald-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">
+      {/* 2. Stats KPI Row - Premium Luxury Gradients */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        {/* Total Coupons - Royal Emerald */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-emerald-200/50 to-transparent" />
+          <div className="flex items-center justify-between">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-emerald-100">
               Total Coupons
-            </p>
-            <p className="text-2xl font-serif font-black text-neutral-900 mt-1">
+            </span>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
+              <TicketPercent className="w-5 h-5 drop-shadow-xs" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
               {stats.totalCoupons}
             </p>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center">
-            <TicketPercent className="w-5 h-5" />
+          <div className="mt-3 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
+              Configured Promotions
+            </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-emerald-100/90 shadow-emerald-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">
+        {/* Active Offers - Sunlit Amber */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white shadow-xl shadow-amber-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-amber-200/50 to-transparent" />
+          <div className="flex items-center justify-between">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-amber-100">
               Active Offers
-            </p>
-            <p className="text-2xl font-serif font-black text-emerald-800 mt-1">
+            </span>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
+              <Sparkles className="w-5 h-5 drop-shadow-xs" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
               {stats.activeCoupons}
             </p>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center">
-            <Sparkles className="w-5 h-5" />
+          <div className="mt-3 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+              Live forCustomers
+            </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-emerald-100/90 shadow-emerald-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">
+        {/* Total Redemptions - Imperial Indigo */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 text-white shadow-xl shadow-indigo-700/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-purple-200/50 to-transparent" />
+          <div className="flex items-center justify-between">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-indigo-100">
               Total Redemptions
-            </p>
-            <p className="text-2xl font-serif font-black text-neutral-900 mt-1">
-              {stats.totalUsages} orders
+            </span>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-5 h-5 drop-shadow-xs" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+              {stats.totalUsages} <span className="text-sm font-semibold text-indigo-200">orders</span>
             </p>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5" />
+          <div className="mt-3 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
+              Successfully applied
+            </span>
           </div>
         </div>
       </div>
@@ -334,7 +352,7 @@ export default function AdminCouponsPage() {
               onClick={() => setStatusFilter(st)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all capitalize ${
                 statusFilter === st
-                  ? 'bg-[#012520] text-[#F5B418] shadow-xs'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xs'
                   : 'bg-emerald-50/60 text-neutral-600 hover:bg-emerald-100/60'
               }`}
             >
@@ -422,14 +440,14 @@ export default function AdminCouponsPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleCopyCode(coupon.code)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#012520] text-[#F5B418] font-mono font-bold tracking-wider text-xs border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-300 hover:bg-amber-400 text-emerald-950 font-mono font-extrabold tracking-wider text-xs border border-amber-400/90 transition-all active:scale-95 shadow-2xs cursor-pointer"
                             title="Click to copy promo code"
                           >
                             <span>{coupon.code}</span>
                             {copiedCode === coupon.code ? (
-                              <Check className="w-3 h-3 text-emerald-400" />
+                              <Check className="w-3 h-3 text-emerald-900" />
                             ) : (
-                              <Copy className="w-3 h-3 text-neutral-400 group-hover:text-[#F5B418]" />
+                              <Copy className="w-3 h-3 text-emerald-900/70 group-hover:text-emerald-950" />
                             )}
                           </button>
                         </div>
@@ -729,7 +747,7 @@ export default function AdminCouponsPage() {
                   <div>
                     <p className="text-xs font-bold text-neutral-900">Show in Top Website Announcement</p>
                     <p className="text-[11px] text-neutral-500">
-                      Features this offer in the top utility bar and patron login/register banners.
+                      Features this offer in the top utility bar andCustomers login/register banners.
                     </p>
                   </div>
                   <input
@@ -810,7 +828,7 @@ export default function AdminCouponsPage() {
                 <strong className="text-neutral-800 font-mono font-bold">
                   {couponToDelete.code}
                 </strong>
-                ? Patrons will no longer be able to apply this discount.
+                ?Customers will no longer be able to apply this discount.
               </p>
             </div>
             <div className="flex justify-center gap-3 pt-2">

@@ -219,7 +219,7 @@ export const getCustomerDetails = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select('-password').lean();
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Patron not found' });
+      return res.status(404).json({ success: false, message: 'Customers not found' });
     }
 
     const orders = await Order.find({ user: user._id })

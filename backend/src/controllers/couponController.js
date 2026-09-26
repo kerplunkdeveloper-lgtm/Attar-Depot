@@ -40,7 +40,7 @@ export const DEFAULT_INITIAL_COUPONS = [
   },
   {
     code: 'WELCOME10',
-    title: 'New Patron Welcome Token',
+    title: 'NewCustomers Welcome Token',
     description: 'Flat 10% OFF on your very first order at Attar Depot.',
     discountType: 'percentage',
     discountValue: 10,

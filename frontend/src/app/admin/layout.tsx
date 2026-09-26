@@ -37,16 +37,25 @@ import {
   Loader2,
   Upload,
   TicketPercent,
+  CreditCard,
+  AlertTriangle,
+  UserPlus,
+  LogIn,
+  CheckCheck,
+  Check,
+  RefreshCw,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout, hydrateAuth } from '@/store/authSlice';
 import api from '@/lib/api';
 import {
-  playOrderChime,
+  playNotificationSound,
   getSoundMuted,
   setSoundMuted,
   AdminNotification,
+  NotificationType,
 } from '@/lib/adminNotifications';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminOrders } from '@/hooks/useAdmin';
 import { useUploadAvatar, useUpdateProfile } from '@/hooks/useProfile';
 import { toast } from '@/lib/toast';
@@ -71,14 +80,11 @@ function AdminLayoutInner({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isMuted, setIsMutedState] = useState(false);
-  const [toastNotification, setToastNotification] = useState<AdminNotification | null>(null);
-
-  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+  const [notificationTab, setNotificationTab] = useState<'all' | 'orders' | 'stock' | 'customers'>('all');
+  const [showSoundTestMenu, setShowSoundTestMenu] = useState(false);
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const knownOrderIdsRef = useRef<Set<string>>(new Set());
-  const initialLoadRef = useRef(true);
 
   // Avatar upload & profile mutations
   const uploadAvatarMutation = useUploadAvatar();
@@ -156,86 +162,30 @@ function AdminLayoutInner({
     }
   }, [pathname, dispatch]);
 
+  // Real-Time SaaS Notifications Stream & Actions
+  const {
+    notifications,
+    unreadCount,
+    isConnected,
+    liveToast,
+    dismissToast,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+    triggerTest,
+  } = useAdminNotifications(!isLoginPage);
+
   // Load sound mute preference
   useEffect(() => {
     setIsMutedState(getSoundMuted());
   }, []);
-
-  // Check for incoming orders & trigger sound chime and SaaS toast notification
-  useEffect(() => {
-    if (!ordersData?.orders) return;
-
-    const orders = ordersData.orders;
-
-    // On initial mount, populate the known order IDs and seed recent database orders
-    if (initialLoadRef.current) {
-      orders.forEach((ord) => knownOrderIdsRef.current.add(ord._id));
-      initialLoadRef.current = false;
-
-      if (orders.length > 0) {
-        const initialList: AdminNotification[] = orders.slice(0, 5).map((ord) => ({
-          id: `ord-${ord._id}`,
-          type: 'order',
-          title: `Consignment #${ord.orderNumber}`,
-          message: `${ord.shippingAddress?.fullName || 'Patron'} - ${ord.orderStatus} (${formatPrice(ord.totalPrice)})`,
-          timestamp: new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          read: ord.orderStatus !== 'Pending',
-          orderId: ord._id,
-          orderNumber: ord.orderNumber,
-          amount: ord.totalPrice,
-          link: '/admin/orders',
-        }));
-        setNotifications(initialList);
-      }
-      return;
-    }
-
-    // Find any brand new orders
-    const newOrders = orders.filter((ord) => !knownOrderIdsRef.current.has(ord._id));
-
-    if (newOrders.length > 0) {
-      newOrders.forEach((newOrd) => {
-        knownOrderIdsRef.current.add(newOrd._id);
-
-        const newNotice: AdminNotification = {
-          id: `ord-${newOrd._id}-${Date.now()}`,
-          type: 'order',
-          title: `New Order #${newOrd.orderNumber}`,
-          message: `${newOrd.shippingAddress?.fullName || 'Patron'} placed an order (${formatPrice(newOrd.totalPrice)})`,
-          timestamp: 'Just now',
-          read: false,
-          orderId: newOrd._id,
-          orderNumber: newOrd.orderNumber,
-          amount: newOrd.totalPrice,
-          link: '/admin/orders',
-        };
-
-        // Add to notification list
-        setNotifications((prev) => [newNotice, ...prev]);
-
-        // Pop high visibility toast and global toastify alert
-        setToastNotification(newNotice);
-        setTimeout(() => setToastNotification(null), 6000);
-
-        toast.success(`Consignment #${newOrd.orderNumber} received for ${formatPrice(newOrd.totalPrice)}!`, {
-          title: 'New Royal Order',
-          action: {
-            label: 'View Order',
-            onClick: () => router.push('/admin/orders'),
-          },
-        });
-
-        // Play chime sound
-        playOrderChime();
-      });
-    }
-  }, [ordersData, router]);
 
   // Click outside to close notification popover or profile dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         setIsNotificationsOpen(false);
+        setShowSoundTestMenu(false);
       }
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) {
         setIsAdminDropdownOpen(false);
@@ -249,17 +199,129 @@ function AdminLayoutInner({
     const nextMuted = !isMuted;
     setIsMutedState(nextMuted);
     setSoundMuted(nextMuted);
+    if (!nextMuted) {
+      playNotificationSound('payment_received');
+    }
   };
 
-  const handleTestChime = () => {
-    playOrderChime();
+  const handleTestChime = (type: NotificationType = 'payment_received') => {
+    playNotificationSound(type);
+    triggerTest(type);
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const formatRelativeTime = (dateStr: string) => {
+    if (!dateStr) return 'Recently';
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+      if (diffSec < 60) return 'Just now';
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return 'Recently';
+    }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const getNotificationConfig = (item: AdminNotification) => {
+    switch (item.type) {
+      case 'payment_received':
+        return {
+          icon: CreditCard,
+          iconBg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+          badgeText: item.paymentMethod ? `Payment: ${item.paymentMethod}` : 'Payment Received',
+          badgeStyle: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold',
+          borderStyle: 'border-l-4 border-l-emerald-500 bg-emerald-50/20',
+          defaultLink: '/admin/orders',
+          linkText: 'Inspect Order',
+        };
+      case 'order_placed':
+        return {
+          icon: ShoppingBag,
+          iconBg: 'bg-sky-100 text-sky-800 border-sky-300',
+          badgeText: item.paymentMethod === 'COD' ? 'COD Order' : 'New Order',
+          badgeStyle: 'bg-sky-100 text-sky-800 border-sky-300 font-bold',
+          borderStyle: 'border-l-4 border-l-sky-500 bg-sky-50/20',
+          defaultLink: '/admin/orders',
+          linkText: 'Inspect Order',
+        };
+      case 'stock_empty':
+        return {
+          icon: AlertTriangle,
+          iconBg: 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse',
+          badgeText: '0 Stock • Out of Stock',
+          badgeStyle: 'bg-rose-100 text-rose-800 border-rose-300 font-extrabold',
+          borderStyle: 'border-l-4 border-l-rose-500 bg-rose-50/40',
+          defaultLink: '/admin/products',
+          linkText: 'Restock Product',
+        };
+      case 'stock_low':
+        return {
+          icon: AlertCircle,
+          iconBg: 'bg-amber-100 text-amber-800 border-amber-300',
+          badgeText: `Low Stock (${item.stockRemaining ?? '<=5'} left)`,
+          badgeStyle: 'bg-amber-100 text-amber-800 border-amber-300 font-bold',
+          borderStyle: 'border-l-4 border-l-amber-500 bg-amber-50/30',
+          defaultLink: '/admin/products',
+          linkText: 'Update Inventory',
+        };
+      case 'customer_register':
+        return {
+          icon: UserPlus,
+          iconBg: 'bg-purple-100 text-purple-800 border-purple-300',
+          badgeText: 'New Customers Registered',
+          badgeStyle: 'bg-purple-100 text-purple-800 border-purple-300 font-bold',
+          borderStyle: 'border-l-4 border-l-purple-500 bg-purple-50/20',
+          defaultLink: '/admin/customers',
+          linkText: 'View Customers',
+        };
+      case 'customer_login':
+        return {
+          icon: LogIn,
+          iconBg: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+          badgeText: 'Customer Active',
+          badgeStyle: 'bg-indigo-100 text-indigo-800 border-indigo-300 font-medium',
+          borderStyle: 'border-l-4 border-l-indigo-400 bg-indigo-50/15',
+          defaultLink: '/admin/customers',
+          linkText: 'View Activity',
+        };
+      default:
+        return {
+          icon: Bell,
+          iconBg: 'bg-slate-100 text-slate-800 border-slate-300',
+          badgeText: 'System Alert',
+          badgeStyle: 'bg-slate-100 text-slate-800 border-slate-300',
+          borderStyle: 'border-l-4 border-l-slate-400',
+          defaultLink: '/admin/dashboard',
+          linkText: 'View Details',
+        };
+    }
+  };
+
+  const filteredNotifications = notifications.filter((item) => {
+    if (notificationTab === 'orders') {
+      return item.type === 'payment_received' || item.type === 'order_placed';
+    }
+    if (notificationTab === 'stock') {
+      return item.type === 'stock_low' || item.type === 'stock_empty';
+    }
+    if (notificationTab === 'customers') {
+      return item.type === 'customer_register' || item.type === 'customer_login';
+    }
+    return true;
+  });
+
+  const handleNotificationClick = (item: AdminNotification) => {
+    const notifId = item._id || item.id || '';
+    if (notifId && (!item.read && !item.isRead)) {
+      markAsRead(notifId);
+    }
+    setIsNotificationsOpen(false);
+    const cfg = getNotificationConfig(item);
+    const destination = item.link || cfg.defaultLink || '/admin/dashboard';
+    router.push(destination);
+  };
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
@@ -293,67 +355,46 @@ function AdminLayoutInner({
 
   const pendingOrdersCount = ordersData?.orders?.filter((o) => o.orderStatus === 'Pending').length || 0;
 
-  // Grouped Navigation Modules - Compact & Professional
-  const navGroups = [
+  // Navigation Modules - Compact & Professional
+  const allNavItems = [
     {
-      label: 'Core Overview',
-      items: [
-        {
-          name: 'Dashboard',
-          href: '/admin/dashboard',
-          icon: LayoutDashboard,
-        },
-      ],
+      name: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: LayoutDashboard,
     },
     {
-      label: 'Catalog & Inventory',
-      items: [
-        {
-          name: 'Products',
-          href: '/admin/products',
-          icon: Droplets,
-        },
-        {
-          name: 'Categories',
-          href: '/admin/categories',
-          icon: Layers,
-        },
-      ],
+      name: 'Products',
+      href: '/admin/products',
+      icon: Droplets,
     },
     {
-      label: 'Sales & Patrons',
-      items: [
-        {
-          name: 'Orders',
-          href: '/admin/orders',
-          icon: ShoppingBag,
-          badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
-        },
-        {
-          name: 'Customers',
-          href: '/admin/customers',
-          icon: Users,
-        },
-        {
-          name: 'Coupons & Offers',
-          href: '/admin/coupons',
-          icon: TicketPercent,
-        },
-      ],
+      name: 'Categories',
+      href: '/admin/categories',
+      icon: Layers,
     },
     {
-      label: 'Account & Settings',
-      items: [
-        {
-          name: 'Profile',
-          href: '/admin/profile',
-          icon: UserCheck,
-        },
-      ],
+      name: 'Orders',
+      href: '/admin/orders',
+      icon: ShoppingBag,
+      badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
+    },
+    {
+      name: 'Customers',
+      href: '/admin/customers',
+      icon: Users,
+    },
+    {
+      name: 'Coupons & Offers',
+      href: '/admin/coupons',
+      icon: TicketPercent,
+    },
+    {
+      name: 'Profile',
+      href: '/admin/profile',
+      icon: UserCheck,
     },
   ];
 
-  const allNavItems = navGroups.flatMap((g) => g.items);
   const activePage = allNavItems.find((item) => pathname.startsWith(item.href)) || allNavItems[0];
   const ActiveIcon = activePage.icon;
   const isDashboard = pathname === '/admin/dashboard';
@@ -379,46 +420,102 @@ function AdminLayoutInner({
       <div className="fixed top-16 left-60 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none bg-emerald-500/10 opacity-60" />
       <div className="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none bg-amber-400/10 opacity-50" />
 
-      {/* Real-time Order Popup Toast */}
-      {toastNotification && (
-        <div className="fixed top-5 right-5 z-[80] animate-in slide-in-from-top-4 fade-in duration-300 max-w-sm w-full">
+      {/* Real-time SaaS Live Toast */}
+      {liveToast && (
+        <div className="fixed top-5 right-5 z-[80] animate-in slide-in-from-top-4 fade-in duration-300 max-w-md w-full px-3 sm:px-0">
           <div
-            className="border border-slate-200/90 bg-white/95 text-slate-900 shadow-2xl shadow-emerald-950/10 ring-1 ring-emerald-500/20 backdrop-blur-xl rounded-2xl p-4 flex items-start gap-3.5"
+            className={`border bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl rounded-2xl p-4 flex items-start gap-3.5 transition-all ${
+              liveToast.type === 'stock_empty'
+                ? 'border-rose-400 shadow-rose-950/20 ring-2 ring-rose-500/20'
+                : liveToast.type === 'stock_low'
+                ? 'border-amber-400 shadow-amber-950/20 ring-2 ring-amber-500/20'
+                : liveToast.type === 'payment_received'
+                ? 'border-emerald-400 shadow-emerald-950/20 ring-2 ring-emerald-500/20'
+                : liveToast.type === 'customer_register'
+                ? 'border-purple-400 shadow-purple-950/20 ring-2 ring-purple-500/20'
+                : 'border-slate-300 shadow-slate-950/15 ring-2 ring-slate-400/20'
+            }`}
           >
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <ShoppingBag className="w-5 h-5 animate-pulse text-emerald-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1">
-                <p className="text-xs font-bold truncate text-slate-900">
-                  {toastNotification.title}
-                </p>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-emerald-100 text-emerald-800 border-emerald-300">
-                  New
-                </span>
-              </div>
-              <p className="text-[11px] mt-0.5 leading-snug text-slate-600">
-                {toastNotification.message}
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <Link
-                  href="/admin/orders"
-                  onClick={() => setToastNotification(null)}
-                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+            {/* Dynamic Icon */}
+            {(() => {
+              const cfg = getNotificationConfig(liveToast);
+              const ToastIcon = cfg.icon;
+              return (
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xs border ${cfg.iconBg}`}
                 >
-                  View Order <ChevronRight className="w-3 h-3" />
+                  <ToastIcon className="w-5 h-5 animate-pulse" />
+                </div>
+              );
+            })()}
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${getNotificationConfig(liveToast).badgeStyle}`}>
+                    {getNotificationConfig(liveToast).badgeText}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium">Just now</span>
+              </div>
+
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+                {liveToast.title}
+              </h4>
+              <p className="text-[11px] sm:text-xs mt-1 leading-snug text-slate-600 line-clamp-2">
+                {liveToast.message}
+              </p>
+
+              {/* Extra Metadata Pill (e.g. Customer Name, Amount, Stock) */}
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                {liveToast.amount !== undefined && (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    ₹{Number(liveToast.amount).toLocaleString('en-IN')}
+                  </span>
+                )}
+                {liveToast.customerName && (
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                    👤 {liveToast.customerName}
+                  </span>
+                )}
+                {liveToast.stockRemaining !== undefined && (
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
+                    liveToast.stockRemaining === 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}>
+                    📦 {liveToast.stockRemaining} in stock
+                  </span>
+                )}
+                {liveToast.orderNumber && (
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                    #{liveToast.orderNumber}
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex items-center gap-3 pt-2 border-t border-slate-100">
+                <Link
+                  href={liveToast.link || getNotificationConfig(liveToast).defaultLink}
+                  onClick={() => dismissToast()}
+                  className="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 hover:underline"
+                >
+                  {getNotificationConfig(liveToast).linkText} <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
                 <button
-                  onClick={() => setToastNotification(null)}
-                  className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
+                  onClick={() => dismissToast()}
+                  className="text-xs text-slate-400 hover:text-slate-700 transition-colors"
                 >
                   Dismiss
                 </button>
               </div>
             </div>
+
             <button
-              onClick={() => setToastNotification(null)}
-              className="p-1 text-slate-400 hover:text-slate-700 transition-colors"
+              onClick={() => dismissToast()}
+              className="p-1 text-slate-400 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100"
             >
               <X className="w-4 h-4" />
             </button>
@@ -489,85 +586,71 @@ function AdminLayoutInner({
             </button>
           </div>
 
-          {/* Grouped Categorized Navigation */}
-          <div className="space-y-3.5">
-            {navGroups.map((group) => (
-              <div key={group.label} className="space-y-1">
-                {!isSidebarCollapsed && (
-                  <div className="flex items-center gap-1.5 px-2.5 pt-1.5 pb-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-                    <p className="text-[10px] font-bold uppercase tracking-wider !text-emerald-300/80">
-                      {group.label}
-                    </p>
-                  </div>
-                )}
-                <nav className="space-y-1 text-xs font-medium">
-                  {group.items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        onClick={() => setIsSidebarOpen(false)}
-                        title={isSidebarCollapsed ? item.name : undefined}
-                        className={`group relative flex items-center ${
-                          isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
-                        } rounded-xl transition-all duration-200 border ${
-                          isActive
-                            ? 'admin-nav-active border-emerald-400/50 translate-x-0.5'
-                            : 'admin-nav-inactive border-transparent hover:translate-x-0.5'
+          {/* Navigation Links (Clean without group labels) */}
+          <nav className="space-y-1.5 text-xs font-medium">
+            {allNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setIsSidebarOpen(false)}
+                  title={isSidebarCollapsed ? item.name : undefined}
+                  className={`group relative flex items-center ${
+                    isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
+                  } rounded-xl transition-all duration-200 border ${
+                    isActive
+                      ? 'admin-nav-active border-emerald-400/50 translate-x-0.5'
+                      : 'admin-nav-inactive border-transparent hover:translate-x-0.5'
+                  }`}
+                >
+                  {/* Active Left Indicator Bar */}
+                  {isActive && !isSidebarCollapsed && (
+                    <span className="absolute -left-1 top-2 bottom-2 w-1.5 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_10px_#F59E0B]" />
+                  )}
+
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Icon
+                      className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${
+                        isActive
+                          ? '!text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]'
+                          : '!text-emerald-300 group-hover:!text-white group-hover:scale-110'
+                      }`}
+                    />
+                    {!isSidebarCollapsed && (
+                      <span
+                        className={`truncate text-xs tracking-wide transition-colors ${
+                          isActive ? '!text-white font-bold drop-shadow-xs' : '!text-emerald-100 group-hover:!text-white'
                         }`}
                       >
-                        {/* Active Left Indicator Bar */}
-                        {isActive && !isSidebarCollapsed && (
-                          <span className="absolute -left-1 top-2 bottom-2 w-1.5 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_10px_#F59E0B]" />
-                        )}
+                        {item.name}
+                      </span>
+                    )}
+                  </div>
 
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <Icon
-                            className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${
-                              isActive
-                                ? '!text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]'
-                                : '!text-emerald-300 group-hover:!text-white group-hover:scale-110'
-                            }`}
-                          />
-                          {!isSidebarCollapsed && (
-                            <span
-                              className={`truncate text-xs tracking-wide transition-colors ${
-                                isActive ? '!text-white font-bold drop-shadow-xs' : '!text-emerald-100 group-hover:!text-white'
-                              }`}
-                            >
-                              {item.name}
-                            </span>
-                          )}
-                        </div>
-
-                        {!isSidebarCollapsed && (
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            {item.badge && item.badge > 0 && (
-                              <span
-                                className={`px-2 py-0.5 text-[9px] font-black rounded-full transition-all ${
-                                  isActive
-                                    ? 'bg-amber-400 text-slate-950 shadow-[0_2px_8px_rgba(245,158,11,0.5)]'
-                                    : 'bg-emerald-800/90 text-emerald-100 border border-emerald-600/50'
-                                }`}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                            {isActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_#F59E0B] animate-pulse" />
-                            )}
-                          </div>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-            ))}
-          </div>
+                  {!isSidebarCollapsed && (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {item.badge && item.badge > 0 && (
+                        <span
+                          className={`px-2 py-0.5 text-[9px] font-black rounded-full transition-all ${
+                            isActive
+                              ? 'bg-amber-400 text-slate-950 shadow-[0_2px_8px_rgba(245,158,11,0.5)]'
+                              : 'bg-emerald-800/90 text-emerald-100 border border-emerald-600/50'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      {isActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_#F59E0B] animate-pulse" />
+                      )}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
         {/* Sidebar Footer & User Profile Row */}
@@ -765,7 +848,10 @@ function AdminLayoutInner({
             {/* Notification Bell & Popover Trigger */}
             <div className="relative">
               <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                onClick={() => {
+                  setIsNotificationsOpen(!isNotificationsOpen);
+                  setShowSoundTestMenu(false);
+                }}
                 className={`p-2 rounded-xl border transition-all relative ${
                   isNotificationsOpen
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
@@ -775,97 +861,361 @@ function AdminLayoutInner({
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white animate-bounce">
-                    {unreadCount}
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white animate-bounce shadow-sm">
+                    {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Enhanced Notification Popover Panel */}
+              {/* Enhanced SaaS Notification Popover Panel */}
               {isNotificationsOpen && (
                 <div
-                  className="fixed inset-x-3 top-16 max-w-sm mx-auto sm:static sm:absolute sm:inset-auto sm:right-0 sm:mt-3 sm:w-96 sm:max-w-none rounded-2xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-2xl"
+                  className="fixed inset-x-3 top-16 max-w-[calc(100vw-24px)] mx-auto sm:static sm:absolute sm:inset-auto sm:right-0 sm:mt-2 sm:w-[430px] sm:max-w-none rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/18 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 flex flex-col"
+                  style={{ maxHeight: 'min(580px, calc(100vh - 85px))' }}
                 >
-                  <div className="p-3.5 border-b border-slate-200/80 bg-slate-50/90 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                        Realtime Telemetry
-                      </span>
+                  {/* Top Header Bar with Live Indicator & Action Controls */}
+                  <div className="p-3.5 border-b border-slate-200/80 bg-slate-50/95 sticky top-0 z-10 shrink-0">
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      {/* Left: Title & Unread Counter */}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-serif font-bold text-sm text-slate-900 tracking-tight flex items-center gap-1.5 truncate">
+                          <Bell className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>Notifications</span>
+                        </span>
+                        {unreadCount > 0 ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 shadow-2xs">
+                            {unreadCount} new
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 shrink-0">
+                            All read
+                          </span>
+                        )}
+                        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-slate-400 border-l border-slate-200 pl-2">
+                          <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+                          <span className="text-[9px] font-mono font-semibold">{isConnected ? 'LIVE' : 'SYNC'}</span>
+                        </span>
+                      </div>
+
+                      {/* Right Action Icons */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* Audio Chime Demo Toggle */}
+                        <button
+                          type="button"
+                          onClick={() => setShowSoundTestMenu(!showSoundTestMenu)}
+                          title="Preview Notification Audio Chimes"
+                          className={`text-[10px] px-2 py-1 rounded-lg border font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                            showSoundTestMenu
+                              ? 'bg-amber-50 text-amber-900 border-amber-300 ring-1 ring-amber-300'
+                              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 shadow-2xs'
+                          }`}
+                        >
+                          <Volume2 className="w-3 h-3 text-amber-600" />
+                          <span className="hidden xs:inline">Sound</span>
+                        </button>
+
+                        {/* Mark All As Read */}
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => markAllAsRead()}
+                            className="text-[10px] px-2 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100 font-semibold transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+                            title="Mark all as read"
+                          >
+                            <CheckCheck className="w-3 h-3 text-emerald-700" />
+                            <span className="hidden xs:inline">Read all</span>
+                          </button>
+                        )}
+
+                        {/* Clear All Notifications */}
+                        {notifications.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => clearAll()}
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Clear notification list"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {/* Close Popover (X) */}
+                        <button
+                          type="button"
+                          onClick={() => setIsNotificationsOpen(false)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer ml-0.5"
+                          title="Close"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* Sound Test Panel */}
+                    {showSoundTestMenu && (
+                      <div className="p-2.5 mb-2.5 rounded-xl border border-amber-200/90 bg-amber-50/80 animate-in fade-in slide-in-from-top-1 text-slate-800">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                            🔊 Test Audio Chimes
+                          </p>
+                          <span className="text-[9px] text-amber-700">Click to play sound</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('payment_received')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>💳 Payment</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('stock_low')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-amber-100 hover:text-amber-900 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>⚠️ Low Stock</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('stock_empty')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-rose-50 hover:text-rose-800 hover:border-rose-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>🚨 0 Stock</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('customer_register')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-purple-50 hover:text-purple-800 hover:border-purple-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>🎉 Register</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('customer_login')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-indigo-50 hover:text-indigo-800 hover:border-indigo-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>🔑 Login</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTestChime('order_placed')}
+                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-sky-50 hover:text-sky-800 hover:border-sky-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <span>📦 COD Order</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Category Filter Tabs */}
+                    <div className="flex items-center gap-1 p-0.5 rounded-xl bg-slate-200/70 text-slate-700 text-[11px] font-semibold">
                       <button
-                        onClick={handleTestChime}
-                        className="text-[10px] px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 font-semibold transition-colors shadow-xs"
+                        type="button"
+                        onClick={() => setNotificationTab('all')}
+                        className={`flex-1 py-1 px-1.5 rounded-lg transition-all text-center cursor-pointer ${
+                          notificationTab === 'all'
+                            ? 'bg-white text-slate-900 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
                       >
-                        Test Chime
+                        All ({notifications.length})
                       </button>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllAsRead}
-                          className="text-[10px] text-emerald-700 hover:text-emerald-900 hover:underline font-semibold"
-                        >
-                          Mark all read
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => setNotificationTab('orders')}
+                        className={`flex-1 py-1 px-1.5 rounded-lg transition-all text-center cursor-pointer ${
+                          notificationTab === 'orders'
+                            ? 'bg-white text-slate-900 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Payments
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNotificationTab('stock')}
+                        className={`flex-1 py-1 px-1.5 rounded-lg transition-all text-center cursor-pointer ${
+                          notificationTab === 'stock'
+                            ? 'bg-white text-slate-900 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Stock
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNotificationTab('customers')}
+                        className={`flex-1 py-1 px-1.5 rounded-lg transition-all text-center cursor-pointer ${
+                          notificationTab === 'customers'
+                            ? 'bg-white text-slate-900 shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Customers
+                      </button>
                     </div>
                   </div>
 
-                  {/* Notification Items List */}
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                    {notifications.length === 0 ? (
-                      <div className="p-8 text-center">
-                        <Clock className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                        <p className="text-xs font-medium text-slate-600">
-                          No dispatch signals logged yet
+                  {/* Notification Items List with dedicated smooth scroll */}
+                  <div className="overflow-y-auto divide-y divide-slate-100 flex-1 overscroll-contain scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300">
+                    {filteredNotifications.length === 0 ? (
+                      <div className="p-10 text-center space-y-2">
+                        <Clock className="w-9 h-9 mx-auto opacity-35 text-slate-400" />
+                        <p className="text-xs font-bold text-slate-700">
+                          No notifications in this category
                         </p>
-                        <p className="text-[10px] mt-0.5 text-slate-400">
-                          Listening for incoming orders...
+                        <p className="text-[11px] text-slate-400 max-w-xs mx-auto leading-normal">
+                          Live real-time alerts for customer payments, orders, and stock changes will appear here.
                         </p>
                       </div>
                     ) : (
-                      notifications.map((item) => (
-                        <div
-                          key={item.id}
-                          className={`p-3.5 flex items-start gap-3 transition-colors ${
-                            item.read
-                              ? 'bg-transparent opacity-65'
-                              : 'bg-emerald-50/40'
-                          }`}
-                        >
-                          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-200">
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <p className="text-xs font-bold truncate text-slate-900">
+                      filteredNotifications.map((item) => {
+                        const notifId = item._id || item.id || '';
+                        const isRead = item.read || item.isRead;
+                        const cfg = getNotificationConfig(item);
+                        const ItemIcon = cfg.icon;
+
+                        return (
+                          <div
+                            key={notifId}
+                            onClick={() => handleNotificationClick(item)}
+                            className={`group relative p-3 sm:p-3.5 flex items-start gap-3 transition-all cursor-pointer ${
+                              isRead
+                                ? 'bg-white hover:bg-slate-50'
+                                : 'bg-white hover:bg-emerald-50/60 border-l-4 border-l-emerald-500'
+                            }`}
+                            title="Click to view details in Admin Dashboard"
+                          >
+                            {/* Icon Pill */}
+                            <div
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border shadow-2xs transition-transform group-hover:scale-105 ${cfg.iconBg}`}
+                            >
+                              <ItemIcon className="w-4 h-4" />
+                            </div>
+
+                            {/* Content Block */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1.5 mb-1">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {!isRead && (
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ring-2 ring-emerald-200 animate-pulse" />
+                                  )}
+                                  <span
+                                    className={`text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.2 rounded-md border truncate ${cfg.badgeStyle}`}
+                                  >
+                                    {cfg.badgeText}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-medium text-slate-400 shrink-0">
+                                  {formatRelativeTime(item.createdAt)}
+                                </span>
+                              </div>
+
+                              <p
+                                className={`text-xs font-bold leading-snug group-hover:text-emerald-700 transition-colors ${
+                                  isRead ? 'text-slate-800' : 'text-slate-950'
+                                }`}
+                              >
                                 {item.title}
                               </p>
-                              <span className="text-[9px] text-slate-400">{item.timestamp}</span>
+
+                              {/* Metadata Badges - Only show real relevant data */}
+                              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                {/* Amount: Only for order/payment types with actual value */}
+                                {(item.type === 'payment_received' || item.type === 'order_placed') && item.amount !== undefined && item.amount > 0 && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100/90 text-emerald-950 border border-emerald-300 shadow-2xs">
+                                    ₹{Number(item.amount).toLocaleString('en-IN')}
+                                  </span>
+                                )}
+                                {/* Payment Method: Only for order/payment types */}
+                                {(item.type === 'payment_received' || item.type === 'order_placed') && item.paymentMethod && (
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-900 border border-sky-200">
+                                    💳 {item.paymentMethod}
+                                  </span>
+                                )}
+                                {/* Order Number: Only for order/payment types */}
+                                {(item.type === 'payment_received' || item.type === 'order_placed') && item.orderNumber && (
+                                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 text-sky-900 border border-sky-200">
+                                    #{item.orderNumber}
+                                  </span>
+                                )}
+                                {/* Customer Name: For order/payment and customer types */}
+                                {(item.type === 'payment_received' || item.type === 'order_placed' || item.type === 'customer_register' || item.type === 'customer_login') && item.customerName && (
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
+                                    👤 {item.customerName}
+                                  </span>
+                                )}
+                                {/* Stock: Only for stock_low/stock_empty types */}
+                                {(item.type === 'stock_low' || item.type === 'stock_empty') && item.stockRemaining !== undefined && item.stockRemaining !== null && (
+                                  <span
+                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                      item.stockRemaining === 0
+                                        ? 'bg-rose-100 text-rose-950 border-rose-300'
+                                        : 'bg-amber-100 text-amber-950 border-amber-300'
+                                    }`}
+                                  >
+                                    📦 {item.stockRemaining} units left
+                                  </span>
+                                )}
+                                {/* Product Name: Only for stock types */}
+                                {(item.type === 'stock_low' || item.type === 'stock_empty') && item.productName && (
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
+                                    🏷️ {item.productName}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-[11px] mt-0.5 leading-snug line-clamp-2 text-slate-600">
-                              {item.message}
-                            </p>
-                            {item.link && (
-                              <Link
-                                href={item.link}
-                                onClick={() => {
-                                  setIsNotificationsOpen(false);
-                                  setNotifications((prev) =>
-                                    prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
-                                  );
-                                }}
-                                className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline mt-1.5 inline-flex items-center gap-1"
-                              >
-                                <span>Inspect Consignment</span>
-                                <ChevronRight className="w-2.5 h-2.5" />
-                              </Link>
-                            )}
+
+                            {/* Chevron Click-through Arrow */}
+                            <div className="shrink-0 self-center text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all">
+                              <ChevronRight className="w-4 h-4" />
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
+                  </div>
+
+                  {/* Sticky Bottom Footer Bar with Quick Direct Links */}
+                  <div className="p-2.5 px-3.5 bg-slate-50/95 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 sticky bottom-0 z-10 shrink-0">
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span>{filteredNotifications.length} signals</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsNotificationsOpen(false);
+                          router.push('/admin/orders');
+                        }}
+                        className="text-xs font-bold text-emerald-700 hover:text-emerald-950 hover:underline cursor-pointer"
+                      >
+                        Orders →
+                      </button>
+                      <span className="text-slate-300">•</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsNotificationsOpen(false);
+                          router.push('/admin/products');
+                        }}
+                        className="text-xs font-bold text-emerald-700 hover:text-emerald-950 hover:underline cursor-pointer"
+                      >
+                        Products →
+                      </button>
+                      <span className="text-slate-300">•</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsNotificationsOpen(false);
+                          router.push('/admin/customers');
+                        }}
+                        className="text-xs font-bold text-emerald-700 hover:text-emerald-950 hover:underline cursor-pointer"
+                      >
+                        Customers →
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

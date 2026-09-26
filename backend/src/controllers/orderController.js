@@ -1,5 +1,7 @@
 import Order from '../models/Order.js';
 import Coupon from '../models/Coupon.js';
+import Product from '../models/Product.js';
+import { sendAdminNotification } from '../utils/notificationEmitter.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -76,6 +78,113 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
+    // Decrement stock for ordered items & trigger Real-Time Low/Out of Stock Alerts
+    for (const item of orderItems) {
+      try {
+        const prodId = item.product || item.productId;
+        if (!prodId) continue;
+
+        const product = await Product.findById(prodId);
+        if (product) {
+          const qty = Number(item.quantity) || 1;
+          const oldStock = Number(product.stock) || 0;
+          const newStock = Math.max(0, oldStock - qty);
+          product.stock = newStock;
+
+          // If size variation matches, decrement that size's stock as well
+          if (item.size && Array.isArray(product.sizes) && product.sizes.length > 0) {
+            const matchedSize = product.sizes.find(
+              (s) => s.size?.toLowerCase().trim() === item.size?.toLowerCase().trim()
+            );
+            if (matchedSize) {
+              matchedSize.stock = Math.max(0, (Number(matchedSize.stock) || 0) - qty);
+            }
+          }
+
+          await product.save();
+
+          // 1. Critical Out-of-Stock Alert (Stock reached 0)
+          if (newStock === 0) {
+            sendAdminNotification({
+              type: 'stock_empty',
+              title: `Out of Stock Alert! 🚨`,
+              message: `Product "${product.name}" has completely run out of stock (0 remaining)! Customer orders can no longer be fulfilled.`,
+              productName: product.name,
+              stockRemaining: 0,
+              priority: 'high',
+              link: '/admin/products',
+              metadata: {
+                productId: product._id,
+                size: item.size || null,
+              },
+            }).catch((err) => console.error('[Stock Empty Notification Error]:', err.message));
+          }
+          // 2. Low Stock Warning (Warning before empty: 1 to 5 units left)
+          else if (newStock > 0 && newStock <= 5) {
+            sendAdminNotification({
+              type: 'stock_low',
+              title: `Low Stock Warning ⚠️`,
+              message: `"${product.name}" is running low on stock! Only ${newStock} units remaining. Restock recommended soon.`,
+              productName: product.name,
+              stockRemaining: newStock,
+              priority: 'medium',
+              link: '/admin/products',
+              metadata: {
+                productId: product._id,
+                size: item.size || null,
+              },
+            }).catch((err) => console.error('[Stock Low Notification Error]:', err.message));
+          }
+        }
+      } catch (stockErr) {
+        console.error(`[Stock Decrement Error for item ${item.product}]:`, stockErr.message);
+      }
+    }
+
+    // Trigger Real-Time SaaS Order & Payment Notifications to Admin Dashboard
+    const customerDisplayName = shippingAddress.fullName || req.user.name || 'Valued Customer';
+    const formattedAmount = Number(totalPrice).toLocaleString('en-IN');
+
+    if (order.paymentStatus === 'Completed' || (paymentMethod && paymentMethod !== 'COD')) {
+      // Payment confirmed notification with full customer details and status
+      sendAdminNotification({
+        type: 'payment_received',
+        title: `Payment Received: ₹${formattedAmount} 💳`,
+        message: `Received ₹${formattedAmount} from ${customerDisplayName} via ${paymentMethod || 'Online'} for Order #${order.orderNumber}.`,
+        customerName: customerDisplayName,
+        amount: totalPrice,
+        orderNumber: order.orderNumber,
+        paymentStatus: 'Completed',
+        paymentMethod: paymentMethod || 'Online',
+        priority: 'high',
+        link: '/admin/orders',
+        metadata: {
+          orderId: order._id,
+          itemsCount: orderItems.length,
+          city: shippingAddress.city,
+        },
+      }).catch((err) => console.error('[Payment Notification Error]:', err.message));
+    } else {
+      // New COD order placed notification
+      sendAdminNotification({
+        type: 'order_placed',
+        title: `New Order Placed: #${order.orderNumber} 📦`,
+        message: `${customerDisplayName} placed a ${paymentMethod || 'COD'} order worth ₹${formattedAmount}. Payment is pending on delivery.`,
+        customerName: customerDisplayName,
+        amount: totalPrice,
+        orderNumber: order.orderNumber,
+        paymentStatus: 'Pending',
+        paymentMethod: paymentMethod || 'COD',
+        priority: 'medium',
+        link: '/admin/orders',
+        metadata: {
+          orderId: order._id,
+          itemsCount: orderItems.length,
+          city: shippingAddress.city,
+        },
+      }).catch((err) => console.error('[Order Notification Error]:', err.message));
+    }
+
     res.status(201).json({
       success: true,
       order,
@@ -144,6 +253,7 @@ export const getAllOrders = async (req, res, next) => {
     const [orders, total] = await Promise.all([
       Order.find(query)
         .populate('user', 'name email phone')
+        .populate('orderItems.product', 'name slug images price')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum),
@@ -175,6 +285,8 @@ export const updateOrderStatus = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    const prevPaymentStatus = order.paymentStatus;
+
     if (status) {
       order.orderStatus = status;
       if (status === 'Delivered') {
@@ -187,6 +299,25 @@ export const updateOrderStatus = async (req, res, next) => {
     if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
 
     await order.save();
+
+    // If order payment was marked Completed by admin or delivery
+    if (order.paymentStatus === 'Completed' && prevPaymentStatus !== 'Completed') {
+      const customerDisplayName = order.shippingAddress?.fullName || 'Customer';
+      const formattedAmount = Number(order.totalPrice || 0).toLocaleString('en-IN');
+      sendAdminNotification({
+        type: 'payment_received',
+        title: `Payment Confirmed: ₹${formattedAmount} 💳`,
+        message: `Payment of ₹${formattedAmount} for Order #${order.orderNumber} confirmed (${customerDisplayName}).`,
+        customerName: customerDisplayName,
+        amount: order.totalPrice,
+        orderNumber: order.orderNumber,
+        paymentStatus: 'Completed',
+        paymentMethod: order.paymentMethod,
+        priority: 'high',
+        link: '/admin/orders',
+      }).catch((err) => console.error('[Order Payment Status Notification Error]:', err.message));
+    }
+
     res.status(200).json({ success: true, order });
   } catch (error) {
     next(error);

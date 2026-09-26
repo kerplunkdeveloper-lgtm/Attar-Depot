@@ -197,7 +197,7 @@ export default function AuthModal() {
         finishAuth(500);
       } else {
         // Proceed to Step 3: Almost there! Please Fill The Missing Fields
-        if (data.user?.name && !data.user.name.startsWith('Patron ')) {
+        if (data.user?.name && !data.user.name.startsWith('Customers ')) {
           setFullName(data.user.name);
         }
         if (data.user?.email) {
@@ -336,7 +336,7 @@ export default function AuthModal() {
       
       if (!user.isProfileComplete) {
         setIsGoogleAuth(true);
-        if (user.name && user.name !== 'Google Patron') setFullName(user.name);
+        if (user.name && user.name !== 'GoogleCustomers') setFullName(user.name);
         if (user.email) setEmail(user.email);
         if (user.title) setTitle(user.title);
         if (user.phone) setPhone(user.phone);

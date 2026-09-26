@@ -438,9 +438,7 @@ export default function AdminCustomersPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Customers
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage your customers, view details and track their orders.
-          </p>
+         
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -457,71 +455,74 @@ export default function AdminCustomersPage() {
         </div>
       </div>
 
-      {/* ─── 2. FOUR STAT CARDS (EXACT REFERENCE UI) ─── */}
+      {/* ─── 2. FOUR STAT CARDS (Premium Luxury Gradients) ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Customers */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+        {/* Card 1: Total Customers - Royal Emerald */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-emerald-200/50 to-transparent" />
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
             <Users className="w-6 h-6" />
           </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total Customers</p>
-            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-100">Total Customers</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
               {summary.total.toLocaleString()}
             </p>
-            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
-              <ArrowUp className="w-3.5 h-3.5" />
+            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
+              <ArrowUp className="w-3 h-3 text-emerald-200" />
               <span>+12% this month</span>
             </p>
           </div>
         </div>
 
-        {/* Card 2: New Customers */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+        {/* Card 2: New Customers - Imperial Blue */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-700 text-white shadow-xl shadow-blue-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-blue-200/50 to-transparent" />
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
             <ShoppingBag className="w-6 h-6" />
           </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">New Customers</p>
-            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-blue-100">New Customers</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
               {summary.newCusts.toLocaleString()}
             </p>
-            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
-              <ArrowUp className="w-3.5 h-3.5" />
+            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
+              <ArrowUp className="w-3 h-3 text-blue-200" />
               <span>+18% this month</span>
             </p>
           </div>
         </div>
 
-        {/* Card 3: Total Spent */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-lg shrink-0">
+        {/* Card 3: Total Spent - Sunlit Amber */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white shadow-xl shadow-amber-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-amber-200/50 to-transparent" />
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-black text-xl shrink-0 shadow-inner group-hover:scale-105 transition-transform">
             ₹
           </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total Spent</p>
-            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-100">Total Spent</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
               {formatPrice(summary.totalSpent)}
             </p>
-            <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
-              <ArrowUp className="w-3.5 h-3.5" />
+            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
+              <ArrowUp className="w-3 h-3 text-amber-200" />
               <span>+22% this month</span>
             </p>
           </div>
         </div>
 
-        {/* Card 4: Active Customers */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
-            <Star className="w-6 h-6 fill-amber-400" />
+        {/* Card 4: Active Customers - Radiant Rose */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 text-white shadow-xl shadow-rose-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-rose-200/50 to-transparent" />
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+            <Star className="w-6 h-6 fill-white/90" />
           </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Active Customers</p>
-            <p className="text-2xl font-bold text-slate-900 font-poppins mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-rose-100">Active Customers</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
               {summary.active.toLocaleString()}
             </p>
-            <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5">
-              <span className="text-slate-400">⊘</span>
+            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
               <span>{summary.activePercent}% of total</span>
             </p>
           </div>
@@ -1124,7 +1125,7 @@ export default function AdminCustomersPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Account Type:</span>
-                      <span className="font-bold text-slate-800">Direct Patron</span>
+                      <span className="font-bold text-slate-800">DirectCustomers</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Account Status:</span>

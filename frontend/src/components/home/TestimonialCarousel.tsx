@@ -90,7 +90,7 @@ export default function TestimonialCarousel() {
     if (apiTestimonials && apiTestimonials.length >= 3) {
       const mappedApi: TestimonialItem[] = apiTestimonials.map((t: any, i: number) => ({
         id: t._id || `api_${i}`,
-        userName: t.userName || 'Royal Patron',
+        userName: t.userName || 'RoyalCustomers',
         subtitle: t.productName || 'Attar Special Edition',
         rating: t.rating || 5,
         comment: t.comment || 'Pure, concentrated, and enduring fragrance of unparalleled quality.',

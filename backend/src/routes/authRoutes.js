@@ -14,6 +14,8 @@ import {
   deleteAddress,
   setDefaultAddress,
   uploadAvatar,
+  deleteAvatar,
+  deleteAccount,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
@@ -35,7 +37,9 @@ router.post('/admin-login', adminLogin);
 router.post('/logout', logout);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
+router.delete('/profile', protect, deleteAccount);
 router.post('/avatar', protect, upload.single('avatar'), uploadAvatar);
+router.delete('/avatar', protect, deleteAvatar);
 
 // Address Management
 router.get('/addresses', protect, getAddresses);

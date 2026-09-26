@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      default: 'Patron',
+      default: 'Customers',
       trim: true,
       maxlength: [60, 'Name cannot exceed 60 characters'],
     },

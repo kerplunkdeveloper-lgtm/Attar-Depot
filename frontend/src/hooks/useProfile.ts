@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { updateUser } from '@/store/authSlice';
+import { updateUser, logout } from '@/store/authSlice';
 import { User, UserAddress } from '@/types';
 
 export const useProfile = (enabled: boolean = true) => {
@@ -161,4 +161,39 @@ export const useUploadAvatar = () => {
     },
   });
 };
+
+export const useDeleteAvatar = () => {
+  const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.delete('/auth/avatar');
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.user) {
+        dispatch(updateUser(data.user));
+      }
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    },
+  });
+};
+
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.delete('/auth/profile');
+      return data;
+    },
+    onSuccess: () => {
+      dispatch(logout());
+      queryClient.clear();
+    },
+  });
+};
+
 

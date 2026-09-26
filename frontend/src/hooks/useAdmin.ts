@@ -28,7 +28,7 @@ export const useAdminOrders = (status?: string, enabled = true) => {
   return useQuery<{ orders: Order[]; total: number }>({
     queryKey: ['admin-orders', status],
     queryFn: async () => {
-      const url = status && status !== 'All' ? `/orders?status=${status}` : '/orders';
+      const url = status && status !== 'All' ? `/orders?status=${status}&limit=500` : '/orders?limit=500';
       const { data } = await api.get(url);
       return data;
     },

@@ -138,19 +138,10 @@ export default function AdminProfilePage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-              Executive Credentials
-            </span>
-            <span className="text-xs text-slate-400">/</span>
-            <span className="text-xs font-semibold text-slate-600">Administrator Management</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
-            Admin Profile & Identity
+
+          <h1 className="text-xl sm:text-xl font-black text-slate-900 tracking-tight mt-1">
+            Admin Profile
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-            Curate your royal administrator credentials, photo identity, and system access.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -272,36 +263,6 @@ export default function AdminProfilePage() {
             </div>
           </div>
 
-          {/* Privileges & System Scope Card */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xl shadow-slate-900/5 p-5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2 mb-3">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Executive Privileges Scope</span>
-            </h4>
-
-            <ul className="space-y-2 text-xs text-slate-600">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Full Catalog & Inventory Authority (Assam & Kannauj attars)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Royal Consignment & Dispatch Fulfillment</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Patron Relationship & Order Verification</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Realtime Order Telemetry & Sound Chimes</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>System Security & Administrative Settings</span>
-              </li>
-            </ul>
-          </div>
         </div>
 
         {/* Right Column: Profile Form & Credentials (7 Cols) */}
@@ -310,11 +271,9 @@ export default function AdminProfilePage() {
             <div className="mb-5 pb-4 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                  Personal Information & Credentials
+                  Personal Information 
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Update your contact details and executive title.
-                </p>
+               
               </div>
               <Sparkles className="w-5 h-5 text-amber-500" />
             </div>
@@ -403,23 +362,7 @@ export default function AdminProfilePage() {
                 </div>
               </div>
 
-              {/* Security & Access Level (Readonly indicator) */}
-              <div className="pt-3">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                      <Lock className="w-4 h-4 text-emerald-700" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">Security Clearance</p>
-                      <p className="text-[10px] text-slate-500">Super Administrator Level Access</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-xs">
-                    Root Role: admin
-                  </span>
-                </div>
-              </div>
+
 
               {/* Submit Button */}
               <div className="pt-4 flex items-center justify-end gap-3">
