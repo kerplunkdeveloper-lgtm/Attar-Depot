@@ -58,8 +58,9 @@ export const dispatchSmsOtp = async (phone, otp) => {
   console.log(`⚙️  Twilio SID:    ${accountSid ? `${accountSid.slice(0, 8)}...` : 'NOT SET (Simulation Mode)'}`);
   console.log('====================================================');
 
-  // If Twilio credentials are configured in .env, execute Twilio SMS request
-  if (accountSid && authToken && fromNumber) {
+  // If Twilio credentials are configured in .env and are not placeholders, execute Twilio SMS request
+  const hasValidCreds = accountSid && authToken && fromNumber && !accountSid.startsWith('your_');
+  if (hasValidCreds) {
     try {
       const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
       const authHeader = 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64');

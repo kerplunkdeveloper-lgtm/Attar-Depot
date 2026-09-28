@@ -109,15 +109,19 @@ export default function AiChatDrawer() {
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
               onClick={() => dispatch(toggleAiChat(true))}
-              className="flex items-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white shadow-xl hover:shadow-2xl transition-shadow border border-emerald-400/40 group focus:outline-none focus:ring-2 focus:ring-[#046A5A]/50 backdrop-blur-md"
+              className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] transition-all border-2 border-emerald-50 group focus:outline-none focus:ring-4 focus:ring-[#046A5A]/20"
               aria-label="Open Fragrance AI Consultant"
             >
-              <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-400" />
-              </span>
+              {/* Logo inside */}
+              <div className="text-[#c69a38] group-hover:scale-110 transition-transform duration-300">
+                <AttarDepotLogo variant="icon" className="w-8 h-8 sm:w-10 sm:h-10" />
+              </div>
 
-              <Sparkles className="w-3.5 h-3.5 text-[#C9A227] animate-pulse" />
+              {/* Online indicator dot on bottom right */}
+              <span className="absolute bottom-0 right-0 flex h-4 w-4 sm:h-4 sm:w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1db954] opacity-75" />
+                <span className="relative inline-flex rounded-full h-full w-full bg-[#1db954] border-2 border-white" />
+              </span>
             </motion.button>
           </motion.div>
         )}
@@ -169,9 +173,7 @@ export default function AiChatDrawer() {
                         LIVE
                       </span>
                     </div>
-                    <p className="text-[11px] text-emerald-200/90 font-medium">
-                      Bespoke Royal Fragrance Concierge
-                    </p>
+                   
                   </div>
                 </div>
 

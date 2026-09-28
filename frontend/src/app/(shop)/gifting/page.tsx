@@ -212,33 +212,7 @@ export default function GiftingPage() {
         </div>
       </section>
 
-      {/* ── Why Gift Attar ───────────────────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 border-t border-neutral-200/60 mt-8">
-        <div className="text-center mb-8">
-          <h3 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900">
-            Why Gift Royal Attar?
-          </h3>
-          <p className="text-xs text-neutral-500 mt-1">
-            Pure luxury distilled into crystal flacons that make lasting impressions.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {WHY_GIFT.map((item) => (
-            <div
-              key={item.title}
-              className="bg-white rounded-2xl border border-emerald-100/80 p-4 sm:p-5 space-y-2 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 transition-all text-center sm:text-left"
-            >
-              <span className="text-2xl sm:text-3xl block">{item.icon}</span>
-              <h4 className="font-serif text-xs sm:text-sm font-bold text-neutral-900">
-                {item.title}
-              </h4>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+    
     </div>
   );
 }

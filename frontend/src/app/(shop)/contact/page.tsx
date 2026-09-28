@@ -181,18 +181,18 @@ export default function ContactPage() {
                 <MapPin className="w-5 h-5" />
               </div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-900/70">
-                Flagship Works
+                Attar Depot shop
               </p>
               <h3 className="font-serif text-xl font-bold text-neutral-900">
-                Kannauj & Mumbai
+                Puducherry
               </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Heritage Perfume Lane, Near Jama Masjid, Kannauj & Fort, Mumbai.
+                Bharathi street , MGROAD, Puducherry.
               </p>
             </div>
             <div className="pt-4 mt-3 border-t border-emerald-50">
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Kannauj+Perfume+Market+India"
+                href="https://www.google.com/maps/place/The+Attar+Depot+(Opening+Soon)/@11.9352508,79.8272356,17z/data=!4m15!1m8!3m7!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!2sThe+Attar+Depot+(Opening+Soon)!8m2!3d11.9352508!4d79.8272356!10e1!16s%2Fg%2F11nk011rzr!3m5!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!8m2!3d11.9352508!4d79.8272356!16s%2Fg%2F11nk011rzr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 group-hover:text-[#C9A227] transition-colors"
@@ -212,13 +212,13 @@ export default function ContactPage() {
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 text-emerald-800 text-xs font-bold uppercase tracking-wider">
                 <MapPin className="w-3.5 h-3.5 text-[#C9A227]" />
-                <span>Physical Flagship Works</span>
+                <span>Puducherry</span>
               </div>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900">
-                Kannauj & Mumbai Works
+                Attar Depot Shop
               </h3>
               <p className="text-xs sm:text-sm text-neutral-600">
-                Heritage Perfume Lane, Near Jama Masjid, Kannauj Distillers Quarter & Fort, South Mumbai, India - 209725.
+                Bharathi street , MGROAD, Puducherry.
               </p>
             </div>
 
@@ -228,7 +228,7 @@ export default function ContactPage() {
                 <span>Mon–Sat: 10:00 AM – 9:00 PM IST</span>
               </div>
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Kannauj+Perfume+Market+India"
+                 href="https://www.google.com/maps/place/The+Attar+Depot+(Opening+Soon)/@11.9352508,79.8272356,17z/data=!4m15!1m8!3m7!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!2sThe+Attar+Depot+(Opening+Soon)!8m2!3d11.9352508!4d79.8272356!10e1!16s%2Fg%2F11nk011rzr!3m5!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!8m2!3d11.9352508!4d79.8272356!16s%2Fg%2F11nk011rzr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition-colors border border-emerald-200 shadow-2xs"
@@ -241,16 +241,7 @@ export default function ContactPage() {
 
           {/* Interactive Google Map Embed */}
           <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden border border-emerald-100 relative shadow-inner">
-            <iframe
-              title="Attar Depot Flagship Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d113945.7483788294!2d79.8519183!3d27.0549422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399e0df39a3f29b7%3A0xe2128713d2f2c83b!2sKannauj%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: 'contrast(1.05) saturate(1.1)' }}
-              allowFullScreen={false}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.5661658908084!2d79.8272356!3d11.935250799999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5361321e7067c7%3A0x21cfed5a9498e2a5!2sThe%20Attar%20Depot%20(Opening%20Soon)!5e0!3m2!1sen!2sin!4v1790573624309!5m2!1sen!2sin" width="100%" height="100%" style={{ border: 0, filter: 'contrast(1.05) saturate(1.1)' }} allowFullScreen={false} loading="lazy" referrerPolicy="strict-origin-when-cross-origin"></iframe> 
           </div>
         </div>
 

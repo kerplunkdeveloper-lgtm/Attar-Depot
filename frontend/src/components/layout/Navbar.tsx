@@ -317,7 +317,7 @@ export default function Navbar() {
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
           }`}
         >
-          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[40px] sm:h-10 py-1.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
+          <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[40px] sm:h-10 py-1.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
             {currentBannerCoupon ? (
               <div className="flex items-center justify-center w-full text-[11px] sm:text-[13px] font-medium text-neutral-800 tracking-wide gap-1.5 sm:gap-2 whitespace-nowrap overflow-hidden">
                 <span className="font-semibold text-neutral-900 truncate flex-shrink">
@@ -375,12 +375,12 @@ export default function Navbar() {
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/25 to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
 
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-[60px] sm:h-[72px] lg:h-[88px] gap-2 sm:gap-4">
+          <div className="max-w-8xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="relative flex items-center justify-between h-[60px] sm:h-[72px] lg:h-[88px] gap-2 sm:gap-4">
               {/* ================================================================= */}
-              {/* 1. LEFT SECTION: Mobile Trigger & Official Brand Logo             */}
+              {/* 1. LEFT SECTION: Mobile Trigger & Desktop Navigation              */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-start gap-2 sm:gap-3 shrink-0">
+              <div className="flex items-center justify-start gap-2 sm:gap-3 flex-1 lg:flex-none z-10">
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
@@ -394,10 +394,120 @@ export default function Navbar() {
                   )}
                 </button>
 
-                {/* Brand Official Logo Image (Positioned First on Left) */}
+                {/* Desktop Navigation Menu Bar */}
+                <div className="hidden lg:flex items-center justify-start">
+                  <nav className="flex items-center space-x-1 xl:space-x-1 bg-black/30 py-1.5 px-2.5 xl:px-3 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
+                    {/* Home Link */}
+                    <Link
+                      href="/"
+                      prefetch={true}
+                      onMouseEnter={() => closeShopDropdown(100)}
+                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                        isHome
+                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                      }`}
+                    >
+                      {isHome && (
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      )}
+                      <span>Home</span>
+                    </Link>
+
+                    {/* Shop Dropdown Trigger */}
+                    <div
+                      className="relative py-1"
+                      ref={shopDropdownRef}
+                      onMouseEnter={openShopDropdown}
+                      onMouseLeave={() => closeShopDropdown(250)}
+                    >
+                      <button
+                        onClick={toggleShopDropdown}
+                        className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
+                          isShop || isShopOpen
+                            ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                            : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                        }`}
+                        aria-expanded={isShopOpen}
+                      >
+                        {(isShop || isShopOpen) && (
+                          <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                        )}
+                        <span>Shop</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform duration-250 ${
+                            isShopOpen
+                              ? 'rotate-180 text-[#F5B418]'
+                              : isShop
+                              ? 'text-[#F5B418]'
+                              : 'text-[#FAF8F2]/60 group-hover:text-[#F5B418]'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Gifting Link */}
+                    <Link
+                      href="/gifting"
+                      prefetch={true}
+                      onMouseEnter={() => closeShopDropdown(100)}
+                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                        isGifting
+                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                      }`}
+                    >
+                      {isGifting && (
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      )}
+                      <span>Gifting</span>
+                    </Link>
+
+                    {/* About Us Link */}
+                    <Link
+                      href="/about"
+                      prefetch={true}
+                      onMouseEnter={() => closeShopDropdown(100)}
+                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                        isAbout
+                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                      }`}
+                    >
+                      {isAbout && (
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      )}
+                      <span>About Brand</span>
+                    </Link>
+
+                    {/* Contact Us Link */}
+                    <Link
+                      href="/contact"
+                      prefetch={true}
+                      onMouseEnter={() => closeShopDropdown(100)}
+                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
+                        isContact
+                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
+                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
+                      }`}
+                    >
+                      {isContact && (
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      )}
+                      <span>Contact Us</span>
+                    </Link>
+                  </nav>
+                </div>
+              </div>
+
+              {/* ================================================================= */}
+              {/* 2. CENTER SECTION: Official Brand Logo                            */}
+              {/* ================================================================= */}
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-10 pointer-events-none">
+                {/* Brand Official Logo Image (Centered) */}
                 <Link
                   href="/"
-                  className="group flex items-center justify-start py-1 select-none transition-transform duration-300 active:scale-[0.98]"
+                  className="group flex items-center justify-center py-1 select-none transition-transform duration-300 active:scale-[0.98] pointer-events-auto"
                   aria-label="Attar Depot Home"
                 >
                   <Image
@@ -407,122 +517,15 @@ export default function Navbar() {
                     height={120}
                     priority
                     quality={95}
-                    className="h-[46px] sm:h-[54px] md:h-[56px] lg:h-[64px] xl:h-[70px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
+                    className="h-[46px] sm:h-[54px] md:h-[60px] lg:h-[76px] xl:h-[82px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
                   />
                 </Link>
               </div>
 
               {/* ================================================================= */}
-              {/* 2. CENTER SECTION: Desktop Navigation Menu Bar                    */}
-              {/* ================================================================= */}
-              <div className="hidden lg:flex items-center justify-center flex-1 px-2 xl:px-4">
-                <nav className="flex items-center space-x-1 xl:space-x-1 bg-black/30 py-1.5 px-2.5 xl:px-3 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
-                  {/* Home Link */}
-                  <Link
-                    href="/"
-                    prefetch={true}
-                    onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      isHome
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                    }`}
-                  >
-                    {isHome && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Home</span>
-                  </Link>
-
-                  {/* Shop Dropdown Trigger */}
-                  <div
-                    className="relative py-1"
-                    ref={shopDropdownRef}
-                    onMouseEnter={openShopDropdown}
-                    onMouseLeave={() => closeShopDropdown(250)}
-                  >
-                    <button
-                      onClick={toggleShopDropdown}
-                      className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
-                        isShop || isShopOpen
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                      }`}
-                      aria-expanded={isShopOpen}
-                    >
-                      {(isShop || isShopOpen) && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>Shop</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform duration-250 ${
-                          isShopOpen
-                            ? 'rotate-180 text-[#F5B418]'
-                            : isShop
-                            ? 'text-[#F5B418]'
-                            : 'text-[#FAF8F2]/60 group-hover:text-[#F5B418]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Gifting Link */}
-                  <Link
-                    href="/gifting"
-                    prefetch={true}
-                    onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      isGifting
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                    }`}
-                  >
-                    {isGifting && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Gifting</span>
-                  </Link>
-
-                  {/* About Us Link */}
-                  <Link
-                    href="/about"
-                    prefetch={true}
-                    onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      isAbout
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                    }`}
-                  >
-                    {isAbout && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>About Us</span>
-                  </Link>
-
-                  {/* Contact Us Link */}
-                  <Link
-                    href="/contact"
-                    prefetch={true}
-                    onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                      isContact
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                    }`}
-                  >
-                    {isContact && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Contact Us</span>
-                  </Link>
-                </nav>
-              </div>
-
-              {/* ================================================================= */}
               {/* 3. RIGHT SECTION: Search, User Profile, Cart (Others)             */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2 lg:gap-2.5">
+              <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2 lg:gap-2.5 flex-1 lg:flex-none z-10">
 
                 {/* 📍 Delivery City Badge — Desktop only, shown when location is detected */}
                 {mounted && deliveryCity && (
@@ -1121,7 +1124,7 @@ export default function Navbar() {
                     { name: 'My Cart', href: '/cart', icon: ShoppingBag, isCart: true },
                     { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
                     { name: 'Gifting', href: '/gifting', icon: Gift },
-                    { name: 'About Us', href: '/about', icon: Sparkles },
+                    { name: 'About Brand', href: '/about', icon: Sparkles },
                     { name: 'Contact Us', href: '/contact', icon: Phone },
                     { name: 'Track Order', href: '/orders', icon: PackageCheck },
                   ].map((item) => {

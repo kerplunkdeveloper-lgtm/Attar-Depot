@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   Copy,
   Check,
+  Clock,
+  RefreshCw,
 } from 'lucide-react';
 import { useAppDispatch } from '@/store';
 import { setCredentials } from '@/store/authSlice';
@@ -34,7 +36,7 @@ function LoginFormContent() {
   const [testOtp, setTestOtp] = useState<string | null>(null);
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [secondsRemaining, setSecondsRemaining] = useState(177); // 02:57 timer
+  const [secondsRemaining, setSecondsRemaining] = useState(60); // 1 minute timer
 
   const [title, setTitle] = useState('');
   const [fullName, setFullName] = useState('');
@@ -79,7 +81,7 @@ function LoginFormContent() {
       const { data } = await api.post('/auth/send-otp', { phone: clean });
       setMaskedPhone(data.maskedPhone || `******${clean.slice(-4)}`);
       setTestOtp(data.testOtp || null);
-      setSecondsRemaining(177);
+      setSecondsRemaining(60);
       setStep('otp');
 
       toast.success(`OTP Sent to mobile number ${data.maskedPhone || clean}`, {
@@ -153,7 +155,7 @@ function LoginFormContent() {
     try {
       const clean = phone.replace(/\D/g, '').slice(-10);
       const { data } = await api.post('/auth/send-otp', { phone: clean });
-      setSecondsRemaining(177);
+      setSecondsRemaining(60);
       setTestOtp(data.testOtp || null);
       toast.success(`New OTP sent to +91 ${clean}`);
       setOtp(['', '', '', '', '', '']);
@@ -413,20 +415,22 @@ function LoginFormContent() {
                     </div>
                   </div>
 
-                  <div className="text-center text-xs text-neutral-600 pt-1">
-                    Haven&apos;t received the OTP ?{' '}
+                  <div className="flex flex-col items-center justify-center gap-2 pt-2">
+                    <p className="text-xs text-neutral-500 font-sans">Haven&apos;t received the OTP?</p>
                     {secondsRemaining > 0 ? (
-                      <span className="font-medium text-neutral-700">
-                        <span className="underline cursor-default">Resend</span> in {formatTimer(secondsRemaining)}
-                      </span>
+                      <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-neutral-50 border border-neutral-100 text-xs font-medium text-neutral-500">
+                        <Clock className="w-3.5 h-3.5 text-neutral-400" />
+                        <span>Resend available in <span className="text-neutral-700 font-mono font-bold">{formatTimer(secondsRemaining)}</span></span>
+                      </div>
                     ) : (
                       <button
                         type="button"
                         onClick={handleResendOtp}
                         disabled={isLoading}
-                        className="text-[#046A5A] font-semibold underline cursor-pointer hover:text-[#035346]"
+                        className="group flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-semibold text-[#046A5A] transition-all"
                       >
-                        Resend
+                        <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                        {isLoading ? 'Sending...' : 'Resend OTP Now'}
                       </button>
                     )}
                   </div>
