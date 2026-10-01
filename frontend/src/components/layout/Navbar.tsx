@@ -54,7 +54,6 @@ import { useBannerCoupons } from '@/hooks/useCoupons';
 import { toast } from '@/lib/toast';
 import api from '@/lib/api';
 import { getQueryClient } from '@/components/providers/Providers';
-import { detectCityForNavbar } from '@/hooks/useGeolocation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   backdropVariants,
@@ -80,7 +79,6 @@ export default function Navbar() {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>('categories');
-  const [deliveryCity, setDeliveryCity] = useState<string | null>(null);
 
   // Dynamic promo banner coupons
   const { data: bannerCouponsData } = useBannerCoupons();
@@ -179,10 +177,6 @@ export default function Navbar() {
     dispatch(hydrateAuth());
     dispatch(hydrateCart());
     dispatch(hydrateWishlist());
-    // Silently detect city for delivery badge (won't trigger permission popup on its own)
-    detectCityForNavbar()
-      .then((city) => { if (city) setDeliveryCity(city); })
-      .catch(() => {});
   }, [dispatch]);
 
   // Lock body scroll when mobile off-canvas drawer is active
@@ -317,9 +311,9 @@ export default function Navbar() {
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
           }`}
         >
-          <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[40px] sm:h-10 py-1.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
+          <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[26px] sm:h-9 py-0.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
             {currentBannerCoupon ? (
-              <div className="flex items-center justify-center w-full text-[11px] sm:text-[13px] font-medium text-neutral-800 tracking-wide gap-1.5 sm:gap-2 whitespace-nowrap overflow-hidden">
+              <div className="flex items-center justify-center w-full text-[9px] xs:text-[10px] sm:text-[12.5px] font-medium text-neutral-800 tracking-tight sm:tracking-wide gap-1 sm:gap-2 whitespace-nowrap overflow-hidden">
                 <span className="font-semibold text-neutral-900 truncate flex-shrink">
                   {currentBannerCoupon.bannerText ||
                     `Special Offer: Get ${
@@ -331,38 +325,38 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => handleCopyBannerCoupon(currentBannerCoupon.code)}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-[#012520] text-[#F5B418] font-mono font-bold text-[11px] sm:text-[11.5px] border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 cursor-pointer shadow-2xs flex-shrink-0"
+                  className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-0.5 rounded bg-[#012520] text-[#F5B418] font-mono font-bold text-[8.5px] xs:text-[9px] sm:text-[11px] border border-[#F5B418]/40 hover:bg-emerald-950 transition-all active:scale-95 cursor-pointer shadow-2xs flex-shrink-0"
                   title="Click to copy voucher code"
                 >
                   <span>{currentBannerCoupon.code}</span>
                   {isBannerCopied ? (
-                    <Check className="w-2.5 h-2.5 text-emerald-400" />
+                    <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-emerald-400" />
                   ) : (
-                    <Copy className="w-2.5 h-2.5 text-[#F5B418]" />
+                    <Copy className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#F5B418]" />
                   )}
                 </button>
-                <span className="text-neutral-400 mx-1 sm:mx-1 font-normal hidden sm:inline flex-shrink-0">|</span>
+                <span className="text-neutral-400 mx-0.5 sm:mx-1 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
                   href="/shop"
-                  className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline text-[11px] sm:text-[12px] flex-shrink-0"
+                  className="font-bold text-emerald-800 hover:text-emerald-950 group inline-flex items-center gap-0.5 sm:gap-1 transition-colors underline-offset-4 hover:underline text-[8.5px] xs:text-[9.5px] sm:text-[12px] flex-shrink-0"
                 >
                   <span className="hidden sm:inline">Shop Now</span>
                   <span className="sm:hidden">Shop</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center justify-center w-full text-[12px] sm:text-[13px] font-medium text-neutral-800 tracking-wide whitespace-nowrap overflow-hidden gap-1.5">
+              <div className="flex items-center justify-center w-full text-[9.5px] sm:text-[13px] font-medium text-neutral-800 tracking-tight sm:tracking-wide whitespace-nowrap overflow-hidden gap-1 sm:gap-1.5">
                 <span className="truncate flex-shrink">Celebrate. Gift. Delight.</span>
-                <span className="text-sm sm:text-base select-none flex-shrink-0" role="img" aria-label="gift">🎁</span>
+                <span className="text-xs sm:text-base select-none flex-shrink-0" role="img" aria-label="gift">🎁</span>
                 <span className="text-neutral-400 font-normal hidden sm:inline flex-shrink-0">|</span>
                 <Link
                   href="/shop"
-                  className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline flex-shrink-0"
+                  className="font-bold text-neutral-900 hover:text-emerald-800 group inline-flex items-center gap-0.5 sm:gap-1 transition-colors underline-offset-4 hover:underline text-[9.5px] sm:text-[12px] flex-shrink-0"
                 >
                   <span className="hidden sm:inline">Explore Pure Attars</span>
-                  <span className="sm:hidden text-[11.5px]">Shop Now</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
+                  <span className="sm:hidden">Shop</span>
+                  <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#C9A227] group-hover:translate-x-0.5 group-hover:text-emerald-800 transition-transform" />
                 </Link>
               </div>
             )}
@@ -370,21 +364,21 @@ export default function Navbar() {
         </div>
 
         {/* MAIN NAVIGATION BAR */}
-        <div className="w-full bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl border-b border-[#C9A227]/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
+        <div className="w-full p-2 bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl border-b border-[#C9A227]/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
           {/* Subtle top & bottom gold ambient glow lines */}
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/25 to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
 
-          <div className="max-w-8xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="relative flex items-center justify-between h-[60px] sm:h-[72px] lg:h-[88px] gap-2 sm:gap-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="relative flex items-center justify-between h-[60px] sm:h-[68px] lg:h-[70px] gap-2 sm:gap-4">
               {/* ================================================================= */}
-              {/* 1. LEFT SECTION: Mobile Trigger & Desktop Navigation              */}
+              {/* 1. LEFT SECTION: Brand Logo (Desktop & Mobile) + Mobile Hamburger  */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-start gap-2 sm:gap-3 flex-1 lg:flex-none z-10">
+              <div className="flex items-center justify-start gap-2.5 sm:gap-3.5 shrink-0 z-20">
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
@@ -394,190 +388,174 @@ export default function Navbar() {
                   )}
                 </button>
 
-                {/* Desktop Navigation Menu Bar */}
-                <div className="hidden lg:flex items-center justify-start">
-                  <nav className="flex items-center space-x-1 xl:space-x-1 bg-black/30 py-1.5 px-2.5 xl:px-3 rounded-full border border-emerald-500/25 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.25)]">
-                    {/* Home Link */}
-                    <Link
-                      href="/"
-                      prefetch={true}
-                      onMouseEnter={() => closeShopDropdown(100)}
-                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                        isHome
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                      }`}
-                    >
-                      {isHome && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>Home</span>
-                    </Link>
-
-                    {/* Shop Dropdown Trigger */}
-                    <div
-                      className="relative py-1"
-                      ref={shopDropdownRef}
-                      onMouseEnter={openShopDropdown}
-                      onMouseLeave={() => closeShopDropdown(250)}
-                    >
-                      <button
-                        onClick={toggleShopDropdown}
-                        className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
-                          isShop || isShopOpen
-                            ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                            : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                        }`}
-                        aria-expanded={isShopOpen}
-                      >
-                        {(isShop || isShopOpen) && (
-                          <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                        )}
-                        <span>Shop</span>
-                        <ChevronDown
-                          className={`w-3 h-3 transition-transform duration-250 ${
-                            isShopOpen
-                              ? 'rotate-180 text-[#F5B418]'
-                              : isShop
-                              ? 'text-[#F5B418]'
-                              : 'text-[#FAF8F2]/60 group-hover:text-[#F5B418]'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {/* Gifting Link */}
-                    <Link
-                      href="/gifting"
-                      prefetch={true}
-                      onMouseEnter={() => closeShopDropdown(100)}
-                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                        isGifting
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                      }`}
-                    >
-                      {isGifting && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>Gifting</span>
-                    </Link>
-
-                    {/* About Us Link */}
-                    <Link
-                      href="/about"
-                      prefetch={true}
-                      onMouseEnter={() => closeShopDropdown(100)}
-                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                        isAbout
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                      }`}
-                    >
-                      {isAbout && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>About Brand</span>
-                    </Link>
-
-                    {/* Contact Us Link */}
-                    <Link
-                      href="/contact"
-                      prefetch={true}
-                      onMouseEnter={() => closeShopDropdown(100)}
-                      className={`relative text-[10.5px] xl:text-[11.5px] font-semibold tracking-[0.1em] uppercase py-1.5 px-3 rounded-full transition-all duration-200 group flex items-center gap-1.5 ${
-                        isContact
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_12px_rgba(245,180,24,0.25)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.08] border border-transparent'
-                      }`}
-                    >
-                      {isContact && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>Contact Us</span>
-                    </Link>
-                  </nav>
-                </div>
-              </div>
-
-              {/* ================================================================= */}
-              {/* 2. CENTER SECTION: Official Brand Logo                            */}
-              {/* ================================================================= */}
-              <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-10 pointer-events-none">
-                {/* Brand Official Logo Image (Centered) */}
+                {/* Brand Official Logo (Left-aligned for all screen sizes) */}
                 <Link
                   href="/"
-                  className="group flex items-center justify-center py-1 select-none transition-transform duration-300 active:scale-[0.98] pointer-events-auto"
+                  className="group relative flex items-center py-3 select-none transition-transform duration-300 active:scale-[0.98]"
                   aria-label="Attar Depot Home"
                 >
+                  {/* Subtle golden ambient aura behind the logo */}
+                  <div className="absolute -inset-2.5 sm:-inset-3 bg-gradient-to-r from-[#F5B418]/20 via-[#F5B418]/10 to-transparent rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
-                    width={400}
-                    height={120}
+                    width={320}
+                    height={90}
                     priority
                     quality={95}
-                    className="h-[46px] sm:h-[54px] md:h-[60px] lg:h-[76px] xl:h-[82px] w-auto object-contain drop-shadow-[0_4px_16px_rgba(245,180,24,0.35)] group-hover:scale-105 group-hover:drop-shadow-[0_6px_22px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300"
+                    className="h-[34px] sm:h-[38px] md:h-[40px] lg:h-[50px] xl:h-[80px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.35)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>
 
               {/* ================================================================= */}
+              {/* 2. CENTER SECTION: Desktop Navigation Menu (True Center Alignment) */}
+              {/* ================================================================= */}
+              <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center justify-center z-20 pointer-events-auto">
+                <nav className="flex items-center gap-0.5 xl:gap-1 bg-black/20 p-1 rounded-full border border-white/[0.08] backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.06),0_4px_14px_rgba(0,0,0,0.2)]">
+                  {/* Home Link */}
+                  <Link
+                    href="/"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                      isHome
+                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
+                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    {isHome && (
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                    )}
+                    <span>Home</span>
+                  </Link>
+
+                  {/* Shop Dropdown Trigger */}
+                  <div
+                    className="relative"
+                    ref={shopDropdownRef}
+                    onMouseEnter={openShopDropdown}
+                    onMouseLeave={() => closeShopDropdown(250)}
+                  >
+                    <button
+                      onClick={toggleShopDropdown}
+                      className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 cursor-pointer ${
+                        isShop || isShopOpen
+                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
+                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                      }`}
+                      aria-expanded={isShopOpen}
+                    >
+                      {(isShop || isShopOpen) && (
+                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      )}
+                      <span>Shop</span>
+                      <ChevronDown
+                        className={`w-2.5 h-2.5 transition-transform duration-300 ${
+                          isShopOpen
+                            ? 'rotate-180 text-[#F5B418]'
+                            : isShop
+                            ? 'text-[#F5B418]'
+                            : 'text-[#FAF8F2]/60 group-hover:text-[#F5B418]'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Gifting Link */}
+                  <Link
+                    href="/gifting"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                      isGifting
+                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
+                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    {isGifting && (
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                    )}
+                    <span>Gifting</span>
+                  </Link>
+
+                  {/* Our Brand Link */}
+                  <Link
+                    href="/about"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                      isAbout
+                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
+                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    {isAbout && (
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                    )}
+                    <span>Our Brand</span>
+                  </Link>
+
+                  {/* Contact Us Link */}
+                  <Link
+                    href="/contact"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                      isContact
+                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
+                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    {isContact && (
+                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                    )}
+                    <span>Contact</span>
+                  </Link>
+                </nav>
+              </div>
+
+              {/* ================================================================= */}
               {/* 3. RIGHT SECTION: Search, User Profile, Cart (Others)             */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2 lg:gap-2.5 flex-1 lg:flex-none z-10">
+              <div className="flex items-center justify-end shrink-0 gap-2 sm:gap-2.5 xl:gap-3 z-20">
 
-                {/* 📍 Delivery City Badge — Desktop only, shown when location is detected */}
-                {mounted && deliveryCity && (
-                  <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/30 backdrop-blur-md shadow-2xs cursor-default group transition-all hover:border-[#F5B418]/50">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                    </span>
-                    <span className="text-[10px] font-semibold text-emerald-200 whitespace-nowrap">
-                      Delivering to: <span className="text-white font-bold">{deliveryCity}</span>
-                    </span>
-                  </div>
-                )}
+                {/* Mobile Quick Action Buttons (Search, Wishlist & Sign In) */}
+                <div className="flex lg:hidden items-center gap-1.5">
+                  {/* Mobile Quick Search Button */}
+                  <button
+                    onClick={() => dispatch(toggleSearch(true))}
+                    className="relative w-9 h-9 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    aria-label="Search Fragrance Vault"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
 
-                {/* Search Modal Trigger (Icon Only) */}
-                <button
-                  onClick={() => dispatch(toggleSearch(true))}
-                  className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
-                  aria-label="Search Fragrance Vault"
-                  title="Search pure attars & flacons (Ctrl+K)"
-                >
-                  <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-200 group-hover:scale-110 group-active:scale-90" />
-                </button>
+                  <button
+                    onClick={() => dispatch(toggleWishlistDrawer(true))}
+                    className="relative w-9 h-9 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    aria-label="Royal Wishlist Vault"
+                    suppressHydrationWarning
+                  >
+                    <Heart className="w-4 h-4" />
+                    {mounted && wishlistCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[9px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520]">
+                        {wishlistCount}
+                      </span>
+                    )}
+                  </button>
 
-                {/* Wishlist Vault Trigger */}
-                <button
-                  onClick={() => dispatch(toggleWishlistDrawer(true))}
-                  className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
-                  aria-label="Royal Wishlist Vault"
-                  title={`Royal Wishlist (${wishlistCount})`}
-                  suppressHydrationWarning
-                >
-                  <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-200 group-hover:scale-110 group-active:scale-90" />
-                  {mounted && wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[9px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520] animate-in zoom-in-50">
-                      {wishlistCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* User Profile / Auth Modal Trigger */}
-                <div className="relative" ref={userDropdownRef}>
+                  {/* Mobile Sign In / User Profile Button (Replaced Cart) */}
                   <button
                     onClick={() => {
                       if (!isAuthenticated) {
                         dispatch(openAuthModal('login'));
                       } else {
-                        setIsUserMenuOpen(!isUserMenuOpen);
+                        router.push('/profile');
                       }
                     }}
-                    className="flex items-center gap-2 h-9 sm:h-10 px-2.5 sm:px-3.5 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 backdrop-blur-md active:scale-95 shadow-2xs cursor-pointer"
-                    aria-label="User Account"
+                    className="relative flex items-center gap-1.5 h-9 px-2.5 sm:px-3 text-[#FAF8F2]/95 hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-emerald-950/70 to-[#012520]/90 hover:from-emerald-900/80 hover:to-[#023830] border border-[#F5B418]/40 active:scale-95 shadow-2xs cursor-pointer"
+                    aria-label={mounted && isAuthenticated && user ? 'View Profile' : 'Sign In'}
                     suppressHydrationWarning
                   >
                     {mounted &&
@@ -587,21 +565,99 @@ export default function Navbar() {
                       <img
                         src={user.avatar}
                         alt={user.name}
-                        className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover border border-[#F5B418]"
+                        className="w-4 h-4 rounded-full object-cover border border-[#F5B418]"
                       />
                     ) : (
-                      <UserIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      <UserIcon className="w-3.5 h-3.5 text-[#F5B418]" />
                     )}
-                    {mounted && isAuthenticated && user ? (
-                      <span className="hidden md:inline-block text-xs font-semibold text-[#FAF8F2] max-w-[85px] truncate">
-                        {user.name.split(' ')[0]}
-                      </span>
-                    ) : (
-                      <span className="hidden md:inline-block text-xs font-semibold text-[#FAF8F2]/80 uppercase tracking-wider">
-                        Sign In / Register
+                    <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#FAF8F2]">
+                      {mounted && isAuthenticated && user ? user.name.split(' ')[0] : 'Sign In'}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Desktop Unified Glass Utility Dock */}
+                <div className="hidden lg:flex items-center gap-1 xl:gap-1.5 bg-black/25 p-1 rounded-full border border-white/10 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.06),0_4px_16px_rgba(0,0,0,0.25)]">
+                  {/* Search Modal Trigger */}
+                  <button
+                    onClick={() => dispatch(toggleSearch(true))}
+                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    aria-label="Search Fragrance Vault"
+                    title="Search pure attars & flacons (Ctrl+K)"
+                  >
+                    <Search className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                  </button>
+
+                  {/* Wishlist Vault Trigger */}
+                  <button
+                    onClick={() => dispatch(toggleWishlistDrawer(true))}
+                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    aria-label="Royal Wishlist Vault"
+                    title={`Royal Wishlist (${wishlistCount})`}
+                    suppressHydrationWarning
+                  >
+                    <Heart className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                    {mounted && wishlistCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[15px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[8.5px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520] animate-in zoom-in-50">
+                        {wishlistCount}
                       </span>
                     )}
                   </button>
+
+                  {/* Cart Drawer Trigger */}
+                  <button
+                    onClick={() => dispatch(toggleCartDrawer(true))}
+                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    aria-label="View Shopping Cart"
+                    suppressHydrationWarning
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                    {mounted && itemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[15px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFDF78] text-[8.5px] font-black text-[#012520] shadow-[0_0_8px_rgba(245,180,24,0.7)] border border-[#012520] ring-1 ring-[#F5B418]/60 animate-in zoom-in-50">
+                        {itemsCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Vertical Hairline Divider */}
+                  <div className="w-[1px] h-4 bg-white/15 mx-0.5" />
+
+                  {/* User Profile / Auth Modal Trigger */}
+                  <div className="relative" ref={userDropdownRef}>
+                    <button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          dispatch(openAuthModal('login'));
+                        } else {
+                          setIsUserMenuOpen(!isUserMenuOpen);
+                        }
+                      }}
+                      className="flex items-center gap-1.5 h-8 xl:h-8.5 px-2.5 xl:px-3 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-emerald-950/70 to-[#012520]/90 hover:from-emerald-900/80 hover:to-[#023830] border border-[#F5B418]/35 hover:border-[#F5B418] active:scale-95 shadow-2xs cursor-pointer group"
+                      aria-label="User Account"
+                      suppressHydrationWarning
+                    >
+                      {mounted &&
+                      isAuthenticated &&
+                      user?.avatar &&
+                      !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="w-4 h-4 rounded-full object-cover border border-[#F5B418]"
+                        />
+                      ) : (
+                        <UserIcon className="w-3.5 h-3.5 text-[#F5B418] transition-transform duration-200 group-hover:scale-110" />
+                      )}
+                      {mounted && isAuthenticated && user ? (
+                        <span className="text-[11px] font-semibold text-[#FAF8F2] max-w-[80px] truncate">
+                          {user.name.split(' ')[0]}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] xl:text-[11px] font-bold text-[#FAF8F2] group-hover:text-[#F5B418] uppercase tracking-wider">
+                          Sign In
+                        </span>
+                      )}
+                    </button>
 
                   {/* Desktop User Dropdown Menu */}
                   <AnimatePresence>
@@ -712,22 +768,9 @@ export default function Navbar() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-
-                <button
-                  onClick={() => dispatch(toggleCartDrawer(true))}
-                  className="relative hidden sm:flex w-9 sm:w-10 h-9 sm:h-10 items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#F5B418]/50 group cursor-pointer backdrop-blur-md active:scale-95 shadow-2xs"
-                  aria-label="View Shopping Cart"
-                  suppressHydrationWarning
-                >
-                  <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-200 group-hover:scale-110" />
-                  {mounted && itemsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFDF78] text-[9px] font-black text-[#012520] shadow-[0_0_8px_rgba(245,180,24,0.7)] border border-[#012520] ring-1 ring-[#F5B418]/60 animate-in zoom-in-50">
-                      {itemsCount}
-                    </span>
-                  )}
-                </button>
-              </div>
+                    </div>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -752,8 +795,8 @@ export default function Navbar() {
             <div
               className={`fixed inset-0 bg-neutral-950/65 backdrop-blur-xs -z-10 transition-all duration-300 ${
                 isAtTop
-                  ? 'top-[100px] sm:top-[112px] lg:top-[124px]'
-                  : 'top-[68px] sm:top-[76px] lg:top-[88px]'
+                  ? 'top-[88px] sm:top-[104px] lg:top-[106px]'
+                  : 'top-[60px] sm:top-[68px] lg:top-[70px]'
               }`}
               onClick={() => {
                 if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
@@ -766,8 +809,8 @@ export default function Navbar() {
             <div
               className={`w-full bg-white border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.35)] overflow-y-auto transition-all duration-300 ${
                 isAtTop
-                  ? 'max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-112px)] lg:max-h-[calc(100vh-124px)]'
-                  : 'max-h-[calc(100vh-68px)] sm:max-h-[calc(100vh-76px)] lg:max-h-[calc(100vh-88px)]'
+                  ? 'max-h-[calc(100vh-88px)] sm:max-h-[calc(100vh-104px)] lg:max-h-[calc(100vh-106px)]'
+                  : 'max-h-[calc(100vh-60px)] sm:max-h-[calc(100vh-68px)] lg:max-h-[calc(100vh-70px)]'
               }`}
             >
               {/* Top Vault Bar */}
@@ -1037,7 +1080,7 @@ export default function Navbar() {
     </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
-      <div className="h-[100px] sm:h-[112px] lg:h-[124px] w-full shrink-0" aria-hidden="true" />
+      <div className="h-[88px] sm:h-[104px] lg:h-[106px] w-full shrink-0" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
@@ -1124,8 +1167,8 @@ export default function Navbar() {
                     { name: 'My Cart', href: '/cart', icon: ShoppingBag, isCart: true },
                     { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
                     { name: 'Gifting', href: '/gifting', icon: Gift },
-                    { name: 'About Brand', href: '/about', icon: Sparkles },
-                    { name: 'Contact Us', href: '/contact', icon: Phone },
+                    { name: 'Our Brand', href: '/about', icon: Sparkles },
+                    { name: 'Contact', href: '/contact', icon: Phone },
                     { name: 'Track Order', href: '/orders', icon: PackageCheck },
                   ].map((item) => {
                     const Icon = item.icon;
@@ -1551,7 +1594,7 @@ export default function Navbar() {
       {/* ========================================================================= */}
       {!isProductDetail && (
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] border-t border-[#C9A227]/40 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] rounded-t-[20px] pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1.5 transition-all duration-300 select-none"
+        className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] border-t border-[#C9A227]/40 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] rounded-t-[20px] pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 transition-all duration-300 select-none"
         aria-label="Mobile Bottom Navigation"
       >
         {/* Top ambient gold accent glow line */}

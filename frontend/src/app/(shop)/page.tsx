@@ -19,6 +19,8 @@ import { useCategories } from '@/hooks/useCategories';
 import ProductCard from '@/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
 import HeroBannerCarousel from '@/components/home/HeroBannerCarousel';
+import MobileBestsellerSlider from '@/components/home/MobileBestsellerSlider';
+import CategoryDisplaySlider from '@/components/home/CategoryDisplaySlider';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import Faq from '@/components/home/Faq';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -165,23 +167,31 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-16  emerald-overlay-bg">
+    <div className="space-y-10 sm:space-y-14 lg:space-y-20 bg-white">
       {/* 1. Hero Banner Carousel */}
-      <HeroBannerCarousel />
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
+      >
+        <HeroBannerCarousel />
+      </motion.section>
 
       {/* 2. Featured Sovereign Attars with Category Tabs & Smooth Scroll Carousel */}
       <motion.section
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ duration: 0.6, ease: luxuryEase }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.7, ease: luxuryEase }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6"
       >
         {/* Header with Title, Tagline and Scroll Controls */}
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1 sm:space-y-1.5">
-          
-            <h2 className="font-serif text-xl sm:text-2xl  uppercase font-medium text-neutral-900 tracking-tight">
+            <span className="text-[10.5px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-widest block font-sans">
+              Royal Reserve
+            </span>
+            <h2 className="font-serif text-2xl sm:text-3xl uppercase font-medium text-neutral-900 tracking-tight">
               Our Bestsellers
             </h2>
           </div>
@@ -271,10 +281,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Product Cards Smooth Scroll View Container */}
-        <div className="relative group/carousel -mx-4 px-4 sm:mx-0 sm:px-0">
+        {/* Product Cards Smooth Scroll View Container with Framer Motion Cross-fade */}
+        <div className="relative group/carousel -mx-4 sm:mx-0 min-h-[360px]">
           {isLoading ? (
-            <div className="flex gap-3 sm:gap-6 overflow-hidden py-3 sm:py-4">
+            <div className="flex gap-3 sm:gap-6 overflow-hidden py-3 sm:py-4 px-4 sm:px-0">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
@@ -285,7 +295,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : displayedProducts.length === 0 ? (
-            <div className="w-full py-16 px-6 rounded-3xl bg-white/90 border border-stone-200 text-center space-y-3 shadow-xs">
+            <div className="mx-4 sm:mx-0 w-[calc(100%-2rem)] sm:w-full py-16 px-6 rounded-3xl bg-white/90 border border-stone-200 text-center space-y-3 shadow-xs">
               <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center mx-auto">
                 <ShoppingBag className="w-6 h-6" />
               </div>
@@ -303,53 +313,87 @@ export default function HomePage() {
               </button>
             </div>
           ) : (
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-3 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-1 pb-5 sm:pb-6 px-0.5 no-scrollbar overscroll-x-contain"
-            >
-              {displayedProducts.map((product) => (
-                <div
-                  key={product._id}
-                  className="w-[185px] xs:w-[210px] sm:w-[280px] md:w-[315px] flex-shrink-0 snap-start flex flex-col"
-                >
-                  <ProductCard product={product} />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCategory}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.38, ease: luxuryEase }}
+              >
+                {/* Mobile View: Smooth Auto-Scroll Infinite Loop Slider */}
+                <div className="block sm:hidden">
+                  <MobileBestsellerSlider products={displayedProducts} />
                 </div>
-              ))}
-            </div>
+
+                {/* Desktop View: Interactive Chevron & Manual Horizontal Scroll */}
+                <div
+                  ref={scrollContainerRef}
+                  className="hidden sm:flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-1 pb-6 px-0.5 no-scrollbar overscroll-x-contain"
+                >
+                  {displayedProducts.map((product) => (
+                    <motion.div
+                      key={product._id}
+                      className="w-[280px] md:w-[315px] flex-shrink-0 snap-start flex flex-col"
+                      whileHover={{ y: -4 }}
+                      transition={{ duration: 0.25, ease: luxuryEase }}
+                    >
+                      <ProductCard product={product} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
 
-        {/* Explore All Collection Link */}
+        {/* Explore All Collection Link with Framer Motion hover scale */}
         <div className="flex items-center justify-center pt-4 sm:pt-6">
-          <Link
-            href={
-              selectedCategory === 'all'
-                ? '/shop'
-                : matchedCategory
-                ? `/shop?category=${matchedCategory.slug}`
-                : ['men', 'women', 'unisex'].includes(selectedCategory)
-                ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
-                : '/shop?occasion=Gifting'
-            }
-            className="group inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 rounded-full bg-[#012520] text-white text-xs sm:text-sm font-bold uppercase tracking-widest border border-[#F5B418]/30 hover:border-[#F5B418]/70 shadow-[0_4px_20px_rgba(1,37,32,0.25)] hover:shadow-[0_8px_32px_rgba(1,37,32,0.35)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+          <motion.div
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.2, ease: luxuryEase }}
           >
-            <span>Explore All</span>
-            <ArrowRight className="w-4 h-4 text-[#F5B418] group-hover:translate-x-1.5 transition-transform duration-300" />
-          </Link>
+            <Link
+              href={
+                selectedCategory === 'all'
+                  ? '/shop'
+                  : matchedCategory
+                  ? `/shop?category=${matchedCategory.slug}`
+                  : ['men', 'women', 'unisex'].includes(selectedCategory)
+                  ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
+                  : '/shop?occasion=Gifting'
+              }
+              className="group inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 rounded-full bg-[#012520] text-white text-xs sm:text-sm font-bold uppercase tracking-widest border border-[#F5B418]/30 hover:border-[#F5B418]/70 shadow-[0_4px_20px_rgba(1,37,32,0.25)] hover:shadow-[0_8px_32px_rgba(1,37,32,0.35)] transition-all duration-300"
+            >
+              <span>Explore All</span>
+              <ArrowRight className="w-4 h-4 text-[#F5B418] group-hover:translate-x-1.5 transition-transform duration-300" />
+            </Link>
+          </motion.div>
         </div>
       </motion.section>
 
-
-
-      {/* gifthomebanner */}
-      <motion.section 
-        className="w-full"
-        initial={{ opacity: 0, y: 20 }}
+      {/* 3. Category Display Slider (Continuous Buttery-Smooth Auto-Scroll) */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
+        className="w-full relative"
+      >
+        <CategoryDisplaySlider />
+      </motion.section>
+
+      {/* 4. Gifting Collection Banner */}
+      <motion.section 
+        className="w-full relative px-2 sm:px-4 lg:px-6 max-w-8xl mx-auto"
+        initial={{ opacity: 0, y: 30, scale: 0.985 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.8, ease: luxuryEase }}
       >
         <Link href="/gifting" className="block w-full cursor-pointer group">
-          <div className="w-full relative bg-[#0A1917] overflow-hidden shadow-md transition-shadow duration-500 group-hover:shadow-2xl">
+          <div className="w-full relative bg-[#0A1917] overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg group-hover:shadow-[0_16px_45px_rgba(1,37,32,0.25)] border border-amber-900/25 group-hover:border-[#F5B418]/50 transition-all duration-700">
             <Image 
               src="/images/gifthomenew.png" 
               alt="Attar Gifting Collection" 
@@ -357,135 +401,196 @@ export default function HomePage() {
               height={720}
               sizes="100vw"
               priority
-              className="w-full h-auto block object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+              className="w-full h-auto block object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
             />
+            {/* Subtle luxury vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-30 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" />
           </div>
         </Link>
       </motion.section>
 
-            
-
-      {/* Shop By Occasions */}
+      {/* 5. Shop By Occasions with Framer Motion Staggered Cards */}
       <motion.section 
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
-        initial={{ opacity: 0, y: 20 }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8"
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.7, ease: luxuryEase }}
       >
-        <div className=" mb-5">
-          <h2 className="text-xl md:text-2xl uppercase  text-emerald-950 mb-3">Shop by Occasions</h2>
-         
+        <div className="space-y-1 text-center sm:text-left">
+          <span className="text-[10.5px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-widest block font-sans">
+            Signature Moments
+          </span>
+          <h2 className="text-2xl sm:text-3xl uppercase font-serif text-emerald-950 tracking-tight font-medium">
+            Shop by Occasions
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 font-sans max-w-lg">
+            Discover exquisite concentrated attar formulations curated to match your aura, mood, and occasions
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
           {[
             {
               title: "Office Wear",
               desc: "Rich, warm & traditional blends",
               img: "/images/o1.png",
               link: "/shop?occasion=Office%20Wear",
+              tag: "Daily Prestige",
             },
             {
               title: "Date Night",
               desc: "Elegant & unforgettable signatures",
               img: "/images/o2.png",
               link: "/shop?occasion=Date",
+              tag: "Romantic Sillage",
             },
             {
               title: "Everyday Casual Wear",
               desc: "Fresh, subtle & long-lasting",
               img: "/images/o3.png",
               link: "/shop?occasion=Casual%20Wear",
+              tag: "Fresh Accord",
             },
             {
               title: "Corporate & Formal",
               desc: "Sophisticated & commanding",
               img: "/images/o4.png",
               link: "/shop?occasion=party%2CParty",
+              tag: "Imperial Aura",
             }
           ].map((occasion, idx) => (
-            <Link 
-              href={occasion.link} 
-              key={idx} 
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 28, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55, delay: idx * 0.08, ease: luxuryEase }}
+              whileHover={{ y: -6, scale: 1.02 }}
               className="group cursor-pointer"
-              data-aos="fade-up"
-              data-aos-delay={idx * 100}
             >
-              <div className="relative h-[280px] md:h-[320px] overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500">
-                <div className="absolute inset-0 bg-[#0A1917]">
+              <Link href={occasion.link} className="block">
+                <div className="relative h-[210px] xs:h-[240px] sm:h-[290px] md:h-[330px] rounded-2xl overflow-hidden shadow-sm group-hover:shadow-[0_16px_36px_rgba(1,37,32,0.25)] border border-stone-200/90 group-hover:border-[#F5B418]/80 transition-all duration-500 bg-[#0A1917]">
                   <Image 
                     src={occasion.img} 
                     alt={occasion.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover opacity-85 group-hover:opacity-100 group-hover:scale-108 transition-all duration-700 ease-out"
                   />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 w-full p-5 text-white flex flex-col justify-end h-full">
-                  <h3 className="text-xl font-serif font-semibold mb-1 group-hover:text-emerald-300 transition-colors">{occasion.title}</h3>
-                  <p className="text-xs text-neutral-300 mb-3 font-sans opacity-90">{occasion.desc}</p>
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white group-hover:text-emerald-300 transition-colors">
-                    Explore <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 via-60% to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-300" />
+                  
+                  {/* Top Occasion Tag */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-[#F5B418]/40 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-[#F5B418] shadow-xs">
+                      {occasion.tag}
+                    </span>
+                  </div>
+
+                  {/* Bottom Content */}
+                  <div className="absolute bottom-0 left-0 w-full p-3.5 sm:p-5 text-white flex flex-col justify-end h-full z-10 space-y-1">
+                    <h3 className="text-base sm:text-xl font-serif font-bold uppercase tracking-tight group-hover:text-[#F5B418] transition-colors line-clamp-1">
+                      {occasion.title}
+                    </h3>
+                    <p className="hidden xs:block text-[11px] sm:text-xs text-stone-300 font-sans opacity-90 line-clamp-1">
+                      {occasion.desc}
+                    </p>
+                    <div className="pt-1 flex items-center gap-1.5 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover:translate-x-1 transition-transform">
+                      <span>Explore</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </motion.section>
 
-
-
-      {/* Brand Values / Legacy Section (newsection 3) */}
+      {/* 6. Brand Values / Legacy Section */}
       <motion.section 
-        className="max-w-9xl mx-auto py-16 my-8 border-y border-stone-200/60 bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl"
-        initial={{ opacity: 0, y: 20 }}
+        className="max-w-8xl mx-auto py-10 sm:py-16 my-4 sm:my-8 border-y border-amber-900/20 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] shadow-[0_10px_35px_rgba(1,37,32,0.2)] rounded-none sm:rounded-3xl"
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 md:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-stone-200">
-          
-          <div className="flex flex-col items-center text-center px-4 pt-4 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300">
-              <Clock className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+        <div className="grid grid-cols-3 gap-2 sm:gap-8 divide-x divide-emerald-800/40">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1, ease: luxuryEase }}
+            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+          >
+            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Clock className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
-              75 YEARS LEGACY
+            <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
+              75 Years Legacy
             </h3>
-          </div>
+            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+              Generational hydro-distillation in authentic copper degs
+            </p>
+          </motion.div>
 
-          <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300" style={{ borderWidth: '1px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}>
-              <Droplet className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+          >
+            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Droplet className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
-              FARM TO FRAGRANCE
+            <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
+              Farm To Fragrance
             </h3>
-          </div>
+            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+              100% alcohol-free pure oils hydro-distilled from harvest blooms
+            </p>
+          </motion.div>
 
-          <div className="flex flex-col items-center text-center px-4 pt-10 sm:pt-0">
-            <div className="w-20 h-20 rounded-full border border-stone-300 flex items-center justify-center mb-5 bg-[#FBF4E3] shadow-sm transition-transform hover:scale-110 duration-300">
-              <Globe className="w-10 h-10 text-stone-800" strokeWidth={1.5} />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3, ease: luxuryEase }}
+            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+          >
+            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Globe className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
-            <h3 className="text-sm font-semibold tracking-widest text-yellow-600 uppercase font-sans">
-              LOVED WORLDWIDE6
+            <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
+              Loved Worldwide
             </h3>
-          </div>
-
+            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+              Delivered directly to luxury perfume connoisseurs worldwide
+            </p>
+          </motion.div>
         </div>
       </motion.section>
 
+      {/* 7. Customer Testimonials Reviews Carousel */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
+      >
+        <TestimonialCarousel />
+      </motion.section>
 
-
-
-
-
-      {/* 5. Customer Testimonials Reviews Carousel */}
-      <TestimonialCarousel />
-
-      {/* 6. Frequently Asked Questions (FAQ) */}
-      <Faq />
+      {/* 8. Frequently Asked Questions (FAQ) */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
+      >
+        <Faq />
+      </motion.section>
     </div>
   );
 }

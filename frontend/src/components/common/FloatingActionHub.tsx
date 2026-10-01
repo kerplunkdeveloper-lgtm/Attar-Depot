@@ -41,7 +41,7 @@ export default function FloatingActionHub() {
   const whatsappUrl = `https://wa.me/919876543210?text=${whatsappMessage}`;
 
   return (
-    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-[calc(70px+env(safe-area-inset-bottom,0px))] right-3 sm:bottom-6 sm:right-6 z-30 flex flex-col items-end gap-2.5 pointer-events-none">
       {/* WhatsApp Button with gentle floating breath micro-animation */}
       <motion.div
         animate={{ y: [0, -3, 0] }}

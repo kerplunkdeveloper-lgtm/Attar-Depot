@@ -73,7 +73,7 @@ export default function Footer() {
       {/* ========================================================================= */}
       {/* 2. MAIN FOOTER CONTENT GRID                                               */}
       {/* ========================================================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-24 lg:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* --------------------------------------------------------------------- */}
           {/* COL 1: Official Brand Logo & About (Span 4)                           */}

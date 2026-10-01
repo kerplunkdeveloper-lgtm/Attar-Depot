@@ -330,7 +330,7 @@ export default function WishlistDrawer() {
 
               {/* Footer Actions */}
               {items.length > 0 && (
-                <div className="p-4 sm:p-5 bg-white border-t border-stone-200 space-y-3 font-sans">
+                <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] bg-white border-t border-stone-200 space-y-3 font-sans">
                   <motion.button
                     whileHover={{ scale: 1.015 }}
                     whileTap={{ scale: 0.985 }}

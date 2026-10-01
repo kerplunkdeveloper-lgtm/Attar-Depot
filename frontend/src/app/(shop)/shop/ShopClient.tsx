@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal, ArrowUpDown, X, Search, ChevronDown, ChevronUp } from 'lucide-react';
@@ -134,7 +134,7 @@ function FilterContent({
                 : 'text-neutral-600 hover:bg-emerald-50 hover:text-emerald-900'
             }`}
           >
-            All Fragrances..
+            All Fragrances
           </button>
           {categories.map((cat) => (
             <button
@@ -457,6 +457,76 @@ export default function ShopClient() {
     selectedPriceRange,
   ].filter(Boolean).length + selectedNotes.length + selectedOccasions.length;
 
+  // Dynamic page heading based on chosen Category, Collection, Gender, Occasion, or Search
+  const pageHeading = useMemo(() => {
+    // 1. If search query is present
+    if (debouncedSearch && debouncedSearch.trim() !== '') {
+      return `Search: "${debouncedSearch}"`;
+    }
+
+    // 2. Resolve Category Name if chosen
+    const currentCategoryObj = categories.find(
+      (c) => c.slug === selectedCategory || c._id === selectedCategory
+    );
+    const categoryName = currentCategoryObj?.name || (selectedCategory ? selectedCategory : null);
+
+    // 3. Collect active descriptive parts
+    const parts: string[] = [];
+
+    if (categoryName) {
+      parts.push(categoryName);
+    }
+
+    if (selectedCollection) {
+      parts.push(selectedCollection);
+    }
+
+    if (selectedOccasions.length > 0) {
+      parts.push(selectedOccasions.join(', '));
+    }
+
+    if (selectedNotes.length > 0) {
+      parts.push(selectedNotes.join(', '));
+    }
+
+    // 4. Handle Gender formatting
+    if (selectedGender) {
+      const genderLabel =
+        selectedGender.toLowerCase() === 'men'
+          ? "Men's"
+          : selectedGender.toLowerCase() === 'women'
+          ? "Women's"
+          : selectedGender;
+
+      if (parts.length > 0) {
+        return `${genderLabel} ${parts.join(' • ')}`;
+      } else {
+        return `${genderLabel} Fragrances`;
+      }
+    }
+
+    if (parts.length > 0) {
+      return parts.join(' • ');
+    }
+
+    if (selectedPriceRange) {
+      const rangeObj = PRICE_RANGES.find((p) => p.value === selectedPriceRange);
+      if (rangeObj) return `Fragrances ${rangeObj.label}`;
+    }
+
+    return 'All Fragrances';
+  }, [
+    debouncedSearch,
+    categories,
+    selectedCategory,
+    selectedCollection,
+    selectedOccasions,
+    selectedGender,
+    selectedNotes,
+    selectedPriceRange,
+    PRICE_RANGES,
+  ]);
+
   const filterContentProps: FilterContentProps = {
     categories,
     selectedCategory,
@@ -506,12 +576,27 @@ export default function ShopClient() {
         <div className="border-b border-emerald-100 pb-4 sm:pb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
-                All Fragrances
-              </h1>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
+                  {pageHeading}
+                </h1>
+                {!isLoading && (
+                  <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+                    {products.length} {products.length === 1 ? 'flacon' : 'flacons'}
+                  </span>
+                )}
+              </div>
               {/* Active filter chips */}
               {activeFilterCount > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2.5 sm:mt-3">
+                  {selectedCategory && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                      {categories.find((c) => c.slug === selectedCategory || c._id === selectedCategory)?.name || selectedCategory}
+                      <button type="button" onClick={() => handleCategorySelect(selectedCategory)} className="ml-0.5 hover:text-emerald-950">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
                   {selectedGender && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
                       {selectedGender}

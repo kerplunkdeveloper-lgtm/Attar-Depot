@@ -11,7 +11,7 @@ export default function ShopLayout({
   return (
     <div className="min-h-screen flex flex-col bg-transparent text-neutral-900" suppressHydrationWarning>
       <Navbar />
-      <main className="flex-1 pb-16 lg:pb-0 flex flex-col">
+      <main className="flex-1 pb-24 lg:pb-0 flex flex-col">
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer />

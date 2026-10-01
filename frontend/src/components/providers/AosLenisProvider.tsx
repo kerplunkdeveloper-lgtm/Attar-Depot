@@ -7,33 +7,41 @@ import Lenis from 'lenis';
 
 export default function AosLenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize Lenis for smooth scrolling
+    // Initialize Lenis for ultra-smooth luxury scrolling
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.25,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 2,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.1,
+      infinite: false,
     });
 
+    // Attach to global window for external controls if needed
+    (window as any).lenis = lenis;
+
+    let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
-    // Initialize AOS for animations
+    // Initialize AOS for secondary animations
     AOS.init({
-      duration: 800,
+      duration: 750,
       once: true,
       easing: 'ease-out-cubic',
-      offset: 50,
+      offset: 40,
     });
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+      delete (window as any).lenis;
     };
   }, []);
 

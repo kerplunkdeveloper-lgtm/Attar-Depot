@@ -17,11 +17,13 @@ const BANNER_SLIDES: BannerSlide[] = [
     id: 'banner-1',
     image: '/images/banner1.png',
     alt: 'Attar Depot Royal Fragrance Banner 1',
+    link: '/shop',
   },
   {
     id: 'banner-2',
     image: '/images/bannerf1.png',
     alt: 'Attar Depot Exclusive Fragrance Banner 2',
+    link: '/shop',
   },
 ];
 
@@ -169,129 +171,134 @@ export default function HeroBannerCarousel() {
   };
 
   return (
-    <section
-      className="relative w-full overflow-hidden select-none group bg-[#012520]"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      aria-label="Promotional Banner Carousel"
-    >
-      {/* Slides Viewport Container */}
+    <section className="w-full max-w-8xl mx-auto px-2 sm:px-2 lg:px-2 pt-1 sm:pt-10">
       <div
-        className="flex will-change-transform"
-        style={{
-          transform: `translateX(-${currentIndex * 100}%)`,
-          transition: isTransitioning
-            ? `transform ${TRANSITION_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)`
-            : 'none',
-        }}
-        onTransitionEnd={handleTransitionEnd}
+        className="relative w-full rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden select-none group bg-[#012520] shadow-[0_10px_35px_rgba(1,37,32,0.22)] border border-[#C9A227]/25"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        aria-label="Promotional Banner Carousel"
       >
-        {extendedSlides.map((slide, index) => (
-          <div
-            key={`${slide.id}-${index}`}
-            className="w-full flex-shrink-0 relative"
-          >
-            {slide.link ? (
-              <Link
-                href={slide.link}
-                onClick={(e) => {
-                  if (touchMovedRef.current) {
-                    e.preventDefault();
-                    touchMovedRef.current = false;
-                  }
-                }}
-                className="block w-full cursor-pointer select-none"
-              >
-                <Image
-                  src={slide.image}
-                  alt={slide.alt}
-                  width={1920}
-                  height={800}
-                  priority={index <= 2}
-                  sizes="100vw"
-                  className="w-full h-auto object-cover"
-                />
-              </Link>
-            ) : (
-              <div className="block w-full select-none">
-                <Image
-                  src={slide.image}
-                  alt={slide.alt}
-                  width={1920}
-                  height={800}
-                  priority={index <= 2}
-                  sizes="100vw"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-     
-
-      {/* Navigation Arrow - Left */}
-      <button
-        type="button"
-        onClick={prevSlide}
-        aria-label="Previous Slide"
-        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
-      >
-        <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
-      </button>
-
-      {/* Navigation Arrow - Right */}
-      <button
-        type="button"
-        onClick={nextSlide}
-        aria-label="Next Slide"
-        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white/80 hover:bg-white text-emerald-950 shadow-lg backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-emerald-100/50"
-      >
-        <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
-      </button>
-
-      {/* Slide Counter Badge (Top Right) */}
-      <div className="absolute top-3 sm:top-5 right-4 sm:right-6 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 text-xs font-sans font-medium">
-        <span className="text-emerald-400 font-bold">
-          0{activeRealIndex + 1}
-        </span>
-        <span className="text-white/40">/</span>
-        <span className="text-white/70">0{realCount}</span>
-      </div>
-
-      {/* Bottom Controls: Animated Progress Pills & Pause Indicator */}
-      <div className="absolute bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-2.5 z-20 bg-black/40 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-white/15">
-        {BANNER_SLIDES.map((slide, idx) => {
-          const isActive = activeRealIndex === idx;
-
-          return (
-            <button
-              key={slide.id}
-              type="button"
-              onClick={() => goToSlide(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-              className="relative h-2 rounded-full overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none"
-              style={{
-                width: isActive ? '36px' : '10px',
-                backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)',
-              }}
+        {/* Slides Viewport Container */}
+        <div
+          className="flex will-change-transform"
+          style={{
+            transform: `translateX(-${currentIndex * 100}%)`,
+            transition: isTransitioning
+              ? `transform ${TRANSITION_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)`
+              : 'none',
+          }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {extendedSlides.map((slide, index) => (
+            <div
+              key={`${slide.id}-${index}`}
+              className="w-full flex-shrink-0 relative"
             >
-              {/* Dynamic Animated Progress Bar Fill */}
-              {isActive && (
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 via-emerald-300 to-amber-300 rounded-full transition-all duration-75 ease-linear"
-                  style={{
-                    width: `${progress}%`,
+              {slide.link ? (
+                <Link
+                  href={slide.link}
+                  onClick={(e) => {
+                    if (touchMovedRef.current) {
+                      e.preventDefault();
+                      touchMovedRef.current = false;
+                    }
                   }}
-                />
+                  className="block w-full cursor-pointer select-none group/slide relative overflow-hidden"
+                >
+                  <div className="relative w-full h-[155px] xs:h-[185px] sm:h-[260px] md:h-[320px] lg:h-[380px] xl:h-[430px] 2xl:h-[460px] overflow-hidden">
+                    <Image
+                      src={slide.image}
+                      alt={slide.alt}
+                      fill
+                      priority={index <= 2}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1440px"
+                      className="object-cover object-center transition-transform duration-700 ease-out group-hover/slide:scale-[1.015]"
+                    />
+                    {/* Subtle bottom vignette to blend beautifully with controls */}
+                    <div className="absolute inset-x-0 bottom-0 h-8 sm:h-14 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                  </div>
+                </Link>
+              ) : (
+                <div className="block w-full select-none relative overflow-hidden">
+                  <div className="relative w-full h-[155px] xs:h-[185px] sm:h-[260px] md:h-[320px] lg:h-[380px] xl:h-[430px] 2xl:h-[460px] overflow-hidden">
+                    <Image
+                      src={slide.image}
+                      alt={slide.alt}
+                      fill
+                      priority={index <= 2}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1440px"
+                      className="object-cover object-center"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-8 sm:h-14 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                  </div>
+                </div>
               )}
-            </button>
-          );
-        })}
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation Arrow - Left (Desktop Only) */}
+        <button
+          type="button"
+          onClick={prevSlide}
+          aria-label="Previous Slide"
+          className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-[#012520]/80 hover:bg-[#023830] text-[#FAF8F2] hover:text-[#F5B418] shadow-[0_4px_20px_rgba(0,0,0,0.45)] backdrop-blur-md items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-105 active:scale-95 z-20 cursor-pointer border border-[#F5B418]/30 hover:border-[#F5B418]"
+        >
+          <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+        </button>
+
+        {/* Navigation Arrow - Right (Desktop Only) */}
+        <button
+          type="button"
+          onClick={nextSlide}
+          aria-label="Next Slide"
+          className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-[#012520]/80 hover:bg-[#023830] text-[#FAF8F2] hover:text-[#F5B418] shadow-[0_4px_20px_rgba(0,0,0,0.45)] backdrop-blur-md items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-105 active:scale-95 z-20 cursor-pointer border border-[#F5B418]/30 hover:border-[#F5B418]"
+        >
+          <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+        </button>
+
+        {/* Slide Counter Badge (Top Right) */}
+        <div className="absolute top-2.5 sm:top-4 right-3 sm:right-5 z-20 hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#012520]/80 backdrop-blur-md text-white border border-[#F5B418]/30 text-[11px] sm:text-xs font-mono font-medium shadow-md">
+          <span className="text-[#F5B418] font-bold">
+            0{activeRealIndex + 1}
+          </span>
+          <span className="text-white/30">/</span>
+          <span className="text-white/70">0{realCount}</span>
+        </div>
+
+        {/* Bottom Controls: Animated Progress Pills & Pause Indicator */}
+        <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 z-20 bg-[#012520]/75 backdrop-blur-md px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#F5B418]/25 shadow-lg">
+          {BANNER_SLIDES.map((slide, idx) => {
+            const isActive = activeRealIndex === idx;
+
+            return (
+              <button
+                key={slide.id}
+                type="button"
+                onClick={() => goToSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className="relative h-1.5 sm:h-2 rounded-full overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none"
+                style={{
+                  width: isActive ? '28px' : '8px',
+                  backgroundColor: isActive ? 'rgba(245,180,24,0.2)' : 'rgba(255,255,255,0.3)',
+                }}
+              >
+                {/* Dynamic Animated Progress Bar Fill */}
+                {isActive && (
+                  <div
+                    className="h-full bg-gradient-to-r from-[#F5B418] via-[#FFDF78] to-[#F5B418] rounded-full transition-all duration-75 ease-linear shadow-[0_0_8px_rgba(245,180,24,0.7)]"
+                    style={{
+                      width: `${progress}%`,
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

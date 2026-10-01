@@ -335,7 +335,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               <button
                 type="button"
                 disabled
-                className="w-full py-2.5 sm:py-3 px-2 sm:px-4 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95"
+                className="w-full min-h-[40px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95"
               >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
@@ -351,7 +351,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className={`group/btn cart-btn-blink w-full py-2.5 sm:py-3 px-2 sm:px-4 border text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`group/btn cart-btn-blink w-full min-h-[40px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isAdding
                     ? 'bg-[#046A5A] text-white border-[#046A5A] shadow-emerald-sm !animate-none'
                     : 'bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white border-transparent shadow-2xs hover:shadow-emerald-sm hover:brightness-110'
