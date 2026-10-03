@@ -403,7 +403,7 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[34px] sm:h-[38px] md:h-[40px] lg:h-[50px] xl:h-[80px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.35)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    className="h-[40px] sm:h-[40px] md:h-[40px] lg:h-[50px] xl:h-[80px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.35)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>

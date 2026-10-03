@@ -171,7 +171,7 @@ export default function HeroBannerCarousel() {
   };
 
   return (
-    <section className="w-full max-w-8xl mx-auto px-2 sm:px-2 lg:px-2 pt-1 sm:pt-10">
+    <section className="w-full max-w-8xl mx-auto px-2 sm:px-2 lg:px-2 pt-6 sm:pt-10">
       <div
         className="relative w-full rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden select-none group bg-[#012520] shadow-[0_10px_35px_rgba(1,37,32,0.22)] border border-[#C9A227]/25"
         onMouseEnter={() => setIsPaused(true)}
