@@ -18,8 +18,10 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import taxonomyRoutes from './routes/taxonomyRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import bannerRoutes from './routes/bannerRoutes.js';
 import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
 import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
+import { seedDefaultBannersIfNeeded } from './controllers/bannerController.js';
 
 dotenv.config();
 
@@ -39,6 +41,9 @@ connectDB()
     });
     seedDefaultCouponsIfNeeded().catch((err) => {
       console.error('[Coupon Init Error]:', err.message);
+    });
+    seedDefaultBannersIfNeeded().catch((err) => {
+      console.error('[Banner Init Error]:', err.message);
     });
   })
   .catch((err) => {
@@ -103,6 +108,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/taxonomy', taxonomyRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
+app.use('/api/banners', bannerRoutes);
 
 // Error Handling
 app.use(notFound);

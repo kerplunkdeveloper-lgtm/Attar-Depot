@@ -248,3 +248,20 @@ export interface AppliedCoupon {
   finalTotal?: number;
 }
 
+export interface Banner {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  image: string;
+  link: string;
+  openInNewTab?: boolean;
+  order: number;
+  isActive: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  clickCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

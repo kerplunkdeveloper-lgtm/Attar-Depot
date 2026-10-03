@@ -79,6 +79,11 @@ export default function Navbar() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatar]);
 
   // Dynamic promo banner coupons
   const { data: bannerCouponsData } = useBannerCoupons();
@@ -295,7 +300,7 @@ export default function Navbar() {
       {/* 1. FIXED TOP HEADER WRAPPER                                              */}
       {/* ========================================================================= */}
       <header
-        className={`fixed top-0 left-0 right-0 z-40 w-full transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-transform duration-300 ease-in-out ${
           isNavVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
@@ -362,7 +367,7 @@ export default function Navbar() {
         {/* ================================================================= */}
         {/* MAIN LUXURY NAVIGATION BAR (MATCHING USER REFERENCE DESIGN)       */}
         {/* ================================================================= */}
-        <div className="w-full relative overflow-hidden border-b border-[#F5B418]/30 shadow-[0_12px_45px_rgba(0,0,0,0.65)]">
+        <div className="w-full relative border-b border-[#F5B418]/30 shadow-[0_12px_45px_rgba(0,0,0,0.65)]">
           {/* Royal Perfumery Panoramic Background (Flanking flacons, Islamic arch & incense smoke) */}
           <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
             <img
@@ -581,10 +586,12 @@ export default function Navbar() {
                     {mounted &&
                     isAuthenticated &&
                     user?.avatar &&
+                    !avatarError &&
                     !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
                       <img
                         src={user.avatar}
                         alt={user.name}
+                        onError={() => setAvatarError(true)}
                         className="w-3.5 h-3.5 rounded-full object-cover border border-[#F5B418]"
                       />
                     ) : (
@@ -659,10 +666,12 @@ export default function Navbar() {
                       {mounted &&
                       isAuthenticated &&
                       user?.avatar &&
+                      !avatarError &&
                       !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
                         <img
                           src={user.avatar}
                           alt={user.name}
+                          onError={() => setAvatarError(true)}
                           className="w-3.5 h-3.5 rounded-full object-cover border border-[#F5B418]"
                         />
                       ) : (
@@ -688,18 +697,32 @@ export default function Navbar() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -6 }}
                         transition={{ duration: 0.18, ease: luxuryEase }}
-                        className="absolute right-0 top-full mt-2 w-64 rounded-2xl glass-panel p-2.5 shadow-2xl border border-emerald-100/90 text-xs bg-white/98 z-50"
+                        className="absolute right-0 top-full mt-2 w-68 rounded-2xl p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.35)] border border-[#C9A227]/40 text-xs bg-white text-slate-800 z-50 ring-1 ring-black/5"
                       >
                       {isAuthenticated && user ? (
                         <>
-                          <div className="px-3 py-2.5 border-b border-emerald-100 bg-emerald-50/50 rounded-xl mb-1.5">
-                            <p className="font-bold text-neutral-900 truncate">{user.name}</p>
-                            <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
-                            {isAdmin && (
-                              <span className="inline-block mt-1 text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold tracking-wider border border-emerald-200">
-                                Store Admin
-                              </span>
-                            )}
+                          <div className="px-3 py-2.5 border-b border-emerald-100 bg-emerald-50/60 rounded-xl mb-1.5 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden border border-[#C9A227]/40">
+                              {user.avatar && !avatarError && !user.avatar.includes('photo-1534528741775-53994a69daeb') ? (
+                                <img
+                                  src={user.avatar}
+                                  alt={user.name}
+                                  onError={() => setAvatarError(true)}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span>{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-neutral-900 truncate">{user.name}</p>
+                              <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
+                              {isAdmin && (
+                                <span className="inline-block mt-0.5 text-[9.5px] bg-emerald-100 text-emerald-800 px-2 py-0.2 rounded-full font-bold tracking-wider border border-emerald-200">
+                                  Store Admin
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {isAdmin && (
