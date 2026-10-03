@@ -1,10 +1,83 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, Poppins } from 'next/font/google';
 import './globals.css';
+import fs from 'node:fs';
+import path from 'node:path';
 import Providers from '@/components/providers/Providers';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import RouteProgressBar from '@/components/common/RouteProgressBar';
+
+// Ensure texture.png and wood.png are available in public/images and public/
+try {
+  const source = path.join(process.cwd(), 'public', 'images', 'texture.png.jpeg');
+  const target1 = path.join(process.cwd(), 'public', 'images', 'texture.png');
+  const target2 = path.join(process.cwd(), 'public', 'texture.png');
+  if (fs.existsSync(source)) {
+    if (!fs.existsSync(target1)) fs.copyFileSync(source, target1);
+    if (!fs.existsSync(target2)) fs.copyFileSync(source, target2);
+  }
+
+  const woodSource = path.join(process.cwd(), 'public', 'images', 'wood.jpeg');
+  const woodTarget1 = path.join(process.cwd(), 'public', 'images', 'wood.png');
+  const woodTarget2 = path.join(process.cwd(), 'public', 'wood.png');
+  if (fs.existsSync(woodSource)) {
+    if (!fs.existsSync(woodTarget1)) fs.copyFileSync(woodSource, woodTarget1);
+    if (!fs.existsSync(woodTarget2)) fs.copyFileSync(woodSource, woodTarget2);
+  }
+
+  const aboutSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\8c0aa016-3e23-4537-bdb1-75cf85217467\\.user_uploaded\\media_1791018383377.png';
+  const aboutTarget = path.join(process.cwd(), 'public', 'images', 'aboutbanner-new.png');
+  if (fs.existsSync(aboutSource)) {
+    fs.copyFileSync(aboutSource, aboutTarget);
+  }
+
+  const luxuryBannerSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\about_luxury_hero_banner_1791023645913.jpg';
+  const luxuryBannerTarget = path.join(process.cwd(), 'public', 'images', 'about-hero-banner.jpg');
+  if (fs.existsSync(luxuryBannerSrc)) {
+    fs.copyFileSync(luxuryBannerSrc, luxuryBannerTarget);
+  }
+
+  const fragranceSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\.user_uploaded\\media_1791020661201.png';
+  const fragranceTarget1 = path.join(process.cwd(), 'public', 'images', 'fragrance-becomes.png');
+  const fragranceTarget2 = path.join(process.cwd(), 'public', 'images', 'fragrance-becomes-bg.png');
+  if (fs.existsSync(fragranceSource)) {
+    fs.copyFileSync(fragranceSource, fragranceTarget1);
+    fs.copyFileSync(fragranceSource, fragranceTarget2);
+  }
+
+  const ourvaluesSource = path.join(process.cwd(), 'public', 'images', 'ourvalues.png');
+  const overvaluesTarget = path.join(process.cwd(), 'public', 'images', 'overvalues.png');
+  if (fs.existsSync(ourvaluesSource)) {
+    fs.copyFileSync(ourvaluesSource, overvaluesTarget);
+  }
+
+  const storefrontSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\heritage_storefront_1972_1791022876342.jpg';
+  const storefrontTarget = path.join(process.cwd(), 'public', 'images', 'heritage-storefront.jpg');
+  if (fs.existsSync(storefrontSrc)) {
+    fs.copyFileSync(storefrontSrc, storefrontTarget);
+  }
+
+  const parchmentSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\heritage_parchment_bg_1791022915550.jpg';
+  const parchmentTarget = path.join(process.cwd(), 'public', 'images', 'heritage-parchment-bg.jpg');
+  if (fs.existsSync(parchmentSrc)) {
+    fs.copyFileSync(parchmentSrc, parchmentTarget);
+  }
+
+  const refSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\.user_uploaded\\media_1791022594950.png';
+  const refTarget = path.join(process.cwd(), 'public', 'images', 'heritage-reference.png');
+  if (fs.existsSync(refSrc)) {
+    fs.copyFileSync(refSrc, refTarget);
+  }
+
+  const pondyJpeg = path.join(process.cwd(), 'public', 'images', 'pondy.jpeg');
+  const pondyPng = path.join(process.cwd(), 'public', 'images', 'pondy.png');
+  if (fs.existsSync(pondyJpeg)) {
+    fs.copyFileSync(pondyJpeg, pondyPng);
+  }
+} catch (e) {
+  // ignore
+}
 
 
 const SearchModal = dynamic(() => import('@/components/search/SearchModal'), {

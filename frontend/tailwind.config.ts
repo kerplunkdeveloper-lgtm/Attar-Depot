@@ -9,10 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#FFFFFF',
+        background: 'transparent',
         foreground: '#0F172A',
         card: {
-          DEFAULT: '#FFFFFF',
+          DEFAULT: 'transparent',
           foreground: '#0F172A',
           border: 'rgba(4, 106, 90, 0.12)',
         },

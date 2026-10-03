@@ -167,7 +167,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-10 sm:space-y-14 lg:space-y-20 bg-white">
+    <div className="space-y-10 sm:space-y-14 lg:space-y-20 bg-transparent">
       {/* 1. Hero Banner Carousel */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
@@ -329,17 +329,15 @@ export default function HomePage() {
                 {/* Desktop View: Interactive Chevron & Manual Horizontal Scroll */}
                 <div
                   ref={scrollContainerRef}
-                  className="hidden sm:flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-1 pb-6 px-0.5 no-scrollbar overscroll-x-contain"
+                  className="hidden sm:flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-5 pb-6 px-0.5 no-scrollbar overscroll-x-contain"
                 >
                   {displayedProducts.map((product) => (
-                    <motion.div
+                    <div
                       key={product._id}
                       className="w-[280px] md:w-[315px] flex-shrink-0 snap-start flex flex-col"
-                      whileHover={{ y: -4 }}
-                      transition={{ duration: 0.25, ease: luxuryEase }}
                     >
                       <ProductCard product={product} />
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </motion.div>

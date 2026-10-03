@@ -193,19 +193,16 @@ function ProductCardComponent({ product }: ProductCardProps) {
     <div
       onMouseEnter={handlePrefetch}
       onTouchStart={handlePrefetch}
-      className="group relative flex flex-col pt-7 sm:pt-12 transition-all duration-300"
+      className="group relative flex flex-col pt-6 sm:pt-10 transition-all duration-300"
     >
-      {/* ── Outer Card Box with Luxury Light Gradient Green Background & Emerald Glow ── */}
+      {/* ── Outer Card Box with Warm Ivory Background & Neutral Luxury Border ── */}
       <motion.div
-        whileHover={{ y: -6 }}
+        whileHover={{ y: -4 }}
         transition={softSpring}
-        className="relative flex-1 flex flex-col justify-between bg-[#f6efdf] border border-emerald-100/90 rounded-2xl transition-colors duration-300 hover:border-emerald-300 shadow-xs hover:shadow-[0_16px_32px_-6px_rgba(4,106,90,0.14)]"
+        className="relative flex-1 flex flex-col justify-between bg-[#f6efdf] border border-[#E7DFD3] rounded-2xl transition-all duration-300 hover:border-[#D5C7B2] shadow-xs hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.08)]"
       >
-        
-       
-
         {/* Top Right: Wishlist Button */}
-        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-3 z-20 flex items-center justify-end pointer-events-none">
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-3 z-30 flex items-center justify-end pointer-events-none">
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.85 }}
@@ -217,7 +214,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             className={`pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border rounded-full transition-colors ${
               isWishlisted
                 ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
-                : 'bg-white/85 hover:bg-white text-stone-500 hover:text-rose-600 border-emerald-100 shadow-2xs'
+                : 'bg-white/90 hover:bg-white text-stone-500 hover:text-rose-600 border-[#E5DDD0] shadow-2xs'
             }`}
           >
             <Heart
@@ -230,24 +227,24 @@ function ProductCardComponent({ product }: ProductCardProps) {
           </motion.button>
         </div>
 
-        {/* ── Perfume Bottle Showcase with Top Pop-out Effect ── */}
+        {/* ── Perfume Bottle Showcase with Elevated z-index & Smooth Hover Scale ── */}
         <Link
           href={`/product/${product.slug}`}
           prefetch={true}
           onMouseEnter={handlePrefetch}
           onFocus={handlePrefetch}
-          className="relative -mt-7 sm:-mt-20 w-full h-40 sm:h-64 flex items-center justify-center p-2 sm:p-4 overflow-visible group/img"
+          className="relative z-20 -mt-6 sm:-mt-10 w-full h-40 sm:h-64 flex items-center justify-center p-2 sm:p-4 overflow-visible group/img"
         >
           {/* Skeleton Shimmer */}
           {!isImageLoaded && (
-            <div className="absolute inset-x-4 sm:inset-x-8 top-6 sm:top-10 bottom-4 sm:bottom-6 bg-emerald-100/50 animate-pulse rounded-md z-0" />
+            <div className="absolute inset-x-4 sm:inset-x-8 top-6 sm:top-10 bottom-4 sm:bottom-6 bg-stone-200/50 animate-pulse rounded-md z-0" />
           )}
 
           {/* Soft 3D Pedestal Shadow directly under bottle base */}
-          <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 w-16 sm:w-32 h-2 sm:h-3.5 bg-emerald-950/15 rounded-[100%] blur-[4px] sm:blur-[5px] pointer-events-none group-hover:scale-95 group-hover:opacity-75 transition-all duration-500" />
+          <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 w-16 sm:w-32 h-2 sm:h-3.5 bg-stone-900/10 rounded-[100%] blur-[4px] sm:blur-[5px] pointer-events-none group-hover:scale-95 group-hover:opacity-75 transition-all duration-500" />
 
-          {/* Flacon Image (Pop-out, with seamless blend) */}
-          <div className="relative w-full h-full max-h-[145px] sm:max-h-[240px] flex items-center justify-center">
+          {/* Flacon Image (Elevated z-index to always stay above card border) */}
+          <div className="relative z-20 w-full h-full max-h-[140px] sm:max-h-[225px] flex items-center justify-center pt-1.5 sm:pt-2">
             <Image
               src={imageSrc}
               alt={product.name}
@@ -255,7 +252,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               onLoad={() => setIsImageLoaded(true)}
               onError={() => setImageSrc(FALLBACK_IMAGE)}
-              className={`object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1.5 ${
+              className={`object-contain relative z-20 mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105 origin-bottom ${
                 isOutOfStock ? 'opacity-80 grayscale-[20%]' : ''
               }`}
             />
@@ -266,7 +263,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
         <div className="px-2.5 sm:px-5 pt-1 sm:pt-2 pb-3.5 sm:pb-5 flex-1 flex flex-col justify-between text-center space-y-2 sm:space-y-3.5">
           <div className="space-y-1 sm:space-y-1.5">
             {/* 1. Fragrance Notes / Accord */}
-            <p className="font-sans text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-emerald-800/80 truncate max-w-full mx-auto px-0.5">
+            <p className="font-sans text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-stone-600/90 truncate max-w-full mx-auto px-0.5">
               {notesHeader}
             </p>
 
@@ -278,7 +275,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
               onFocus={handlePrefetch}
               className="block group/title"
             >
-              <h3 className="font-serif text-sm sm:text-[20px] font-medium sm:font-normal text-stone-900 group-hover/title:text-emerald-900 transition-colors line-clamp-1 leading-snug">
+              <h3 className="font-serif text-sm sm:text-[20px] font-medium sm:font-normal text-stone-900 group-hover/title:text-[#9A7B2C] transition-colors line-clamp-1 leading-snug">
                 {product.name}
               </h3>
             </Link>

@@ -110,21 +110,17 @@ export default function GiftingPage() {
   return (
     <div className="min-h-screen bg-[#FAF9F6] font-sans pb-16">
       {/* ── Hero Banner ──────────────────────────────────────────────────────── */}
-      <section className="relative w-full overflow-hidden bg-[#012520]">
-        <div className="relative w-full">
+      <section className="relative w-full overflow-hidden">
+        <div className="relative w-full h-[175px] sm:h-[260px] md:h-[320px] lg:h-[380px]">
           <Image
             src="/images/giftbanner1.png"
             alt="Attar Depot Gift Collection Banner"
-            width={1920}
-            height={800}
+            fill
             priority
             sizes="100vw"
-            className="w-full h-auto object-cover block"
+            className="object-cover object-center"
           />
-          {/* Subtle royal emerald tint overlay */}
-          <div className="absolute inset-0 bg-emerald-950/10 pointer-events-none" />
-          {/* Elegant bottom gradient fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-14 md:h-20 bg-gradient-to-t from-[#FAF9F6] via-[#FAF9F6]/30 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-16 bg-gradient-to-t from-[#FAF9F6] to-transparent pointer-events-none" />
         </div>
       </section>
 

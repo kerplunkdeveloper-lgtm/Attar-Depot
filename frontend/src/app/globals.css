@@ -43,7 +43,7 @@ html.lenis, html.lenis body {
 }
 
 :root {
-  --background: #FFFFFF;
+  --background: transparent;
   --foreground: #0F172A;
   --emerald-primary: #046A5A;
   --emerald-dark: #023F36;
@@ -55,9 +55,20 @@ html.lenis, html.lenis body {
 /* Luxury Royal Onyx & Golden Veined Marble Background System */
 body {
   color: var(--foreground);
-
   font-family: var(--font-inter), 'Inter', sans-serif;
   overflow-x: hidden;
+  background-image: url('/images/texture.png');
+  background-repeat: repeat;
+  background-position: center top;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.bg-texture {
+  background-image: url('/images/texture.png');
+  background-repeat: repeat;
+  background-position: center top;
+  background-size: cover;
 }
 
 
@@ -90,7 +101,7 @@ button, input, select, textarea, .font-sans, .font-inter {
 
 /* Light Mode Glassmorphism with Emerald Green Overlay */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.50);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(16, 185, 129, 0.16);
@@ -98,7 +109,7 @@ button, input, select, textarea, .font-sans, .font-inter {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.90);
+  background: rgba(255, 255, 255, 0.40);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(16, 185, 129, 0.16);

@@ -8,10 +8,10 @@ interface ProductCardSkeletonProps {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="relative flex flex-col pt-7 sm:pt-12">
-      <div className="relative flex-1 flex flex-col justify-between bg-[#FAF6F0] border border-[#ECE5D8]">
+    <div className="relative flex flex-col pt-6 sm:pt-10">
+      <div className="relative flex-1 flex flex-col justify-between bg-[#FAF6F0] border border-[#ECE5D8] rounded-2xl">
         {/* Flacon Image Placeholder */}
-        <div className="relative -mt-7 sm:-mt-12 w-full h-40 sm:h-64 flex items-center justify-center p-2 sm:p-4">
+        <div className="relative -mt-6 sm:-mt-10 w-full h-40 sm:h-64 flex items-center justify-center p-2 sm:p-4">
           {/* Bottle Silhouette Shimmer */}
           <div className="w-16 sm:w-28 h-28 sm:h-48 rounded-xl bg-stone-300/35 animate-pulse" />
 

@@ -240,32 +240,43 @@ export default function TestimonialCarousel() {
                 key={item.id}
                 className="w-[84vw] sm:w-[360px] md:w-[350px] lg:w-[calc((100%-48px)/3.18)] shrink-0 snap-start"
               >
-                <div className="bg-[#047d1ea7] border border-[#EADBCA] rounded-xs p-6 sm:p-7 md:p-8 flex flex-col justify-between h-full min-h-[300px] sm:min-h-[320px] transition-shadow duration-300 hover:shadow-sm">
-                  {/* Top: 5 Stars */}
-                  <div>
-                    <div className="flex items-center gap-1 mb-5">
+                <div
+                  className="relative rounded-xs overflow-hidden border border-[#D4AF37]/35 shadow-[0_4px_24px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.28)] hover:border-[#D4AF37]/60 flex flex-col justify-between h-full min-h-[300px] sm:min-h-[320px] p-6 sm:p-7 md:p-8 transition-all duration-300 group/card"
+                  style={{
+                    backgroundImage: "url('/images/wood.png'), url('/images/wood.jpeg'), url('/wood.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  {/* Dark luxury vignette overlay for 100% sharp text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55 pointer-events-none transition-opacity duration-300 group-hover/card:from-black/40 group-hover/card:to-black/50" />
+
+                  {/* Top: 5 Stars & Comment */}
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-1.5 mb-5">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className="w-3.5 h-3.5 fill-[#4A4A4A] text-[#4A4A4A]"
+                          className="w-4 h-4 fill-[#F5C451] text-[#F5C451] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
                         />
                       ))}
                     </div>
 
                     {/* Middle: Review text with quotes */}
-                    <p className="font-sans text-[13.5px] sm:text-[14.5px] leading-[1.65] text-[#262626] font-normal">
+                    <p className="font-sans text-[14px] sm:text-[14.5px] leading-[1.7] text-[#FAF6F0] font-normal tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                       &ldquo;{item.comment}&rdquo;
                     </p>
                   </div>
 
                   {/* Bottom: Profile avatar, name, and subtitle */}
-                  <div className="flex items-center gap-3.5 mt-8 pt-2">
-                    {/* Grayscale Avatar with fallback */}
-                    <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 bg-neutral-300 border border-neutral-300/60">
+                  <div className="relative z-10 flex items-center gap-3.5 mt-8 pt-2">
+                    {/* Customer Avatar with gold rim */}
+                    <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/70 shadow-md ring-1 ring-black/50 bg-[#1f150f]">
                       <img
                         src={item.avatarUrl}
                         alt={item.userName}
-                        className="w-full h-full object-cover grayscale contrast-110"
+                        className="w-full h-full object-cover contrast-105"
                         loading="lazy"
                         onError={(e) => {
                           // Hide broken image and reveal styled initial fallback
@@ -277,9 +288,9 @@ export default function TestimonialCarousel() {
                               'flex',
                               'items-center',
                               'justify-center',
-                              'bg-neutral-800',
-                              'text-white',
-                              'font-medium',
+                              'bg-[#2c1d14]',
+                              'text-[#FAF6F0]',
+                              'font-semibold',
                               'text-xs'
                             );
                             parent.innerText = item.userName[0];
@@ -290,10 +301,10 @@ export default function TestimonialCarousel() {
 
                     {/* Author Details */}
                     <div className="min-w-0">
-                      <h4 className="text-[14px] font-semibold text-neutral-900 truncate leading-snug">
+                      <h4 className="text-[14.5px] font-semibold text-white tracking-wide truncate leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                         {item.userName}
                       </h4>
-                      <p className="text-[12px] text-neutral-500 truncate mt-0.5 font-normal">
+                      <p className="text-[12px] text-[#E8CCA0] font-medium tracking-wide truncate mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         {item.subtitle}
                       </p>
                     </div>

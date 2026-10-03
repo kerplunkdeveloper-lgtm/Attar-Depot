@@ -306,7 +306,7 @@ export default function MobileBestsellerSlider({ products }: MobileBestsellerSli
   return (
     <div
       ref={containerRef}
-      className="relative w-full overflow-hidden select-none pt-1 pb-2"
+      className="relative w-full overflow-hidden select-none pt-4 pb-2"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
