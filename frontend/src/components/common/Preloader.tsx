@@ -9,6 +9,8 @@ export default function Preloader() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check user preference for reduced motion
   useEffect(() => {
@@ -20,13 +22,24 @@ export default function Preloader() {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Preload logo assets immediately into browser memory for zero-lag instant rendering
+  // Preload logo assets & royal background immediately into browser memory for zero-lag instant rendering
   useEffect(() => {
     const textImg = new window.Image();
     textImg.src = '/images/attar-logo-text.png';
     const iconImg = new window.Image();
     iconImg.src = '/images/attar-logo-icon.png';
+    const bgImg = new window.Image();
+    bgImg.src = '/images/preloader-bg.jpg';
   }, []);
+
+  // Safe skip handler
+  const handleSkip = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+    if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+    setProgress(100);
+    setIsLoading(false);
+  };
 
   // Organic physics-based liquid fill loading curve (0% -> 100%) applied specifically to the logo icon
   useEffect(() => {
@@ -50,10 +63,9 @@ export default function Preloader() {
         rafRef.current = requestAnimationFrame(updateProgress);
       } else {
         // Hold briefly at 100% so user sees the fully illuminated golden flame icon
-        const exitTimer = setTimeout(() => {
+        exitTimerRef.current = setTimeout(() => {
           setIsLoading(false);
         }, 320);
-        return () => clearTimeout(exitTimer);
       }
     };
 
@@ -61,34 +73,53 @@ export default function Preloader() {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
     };
   }, [prefersReducedMotion]);
 
   // Safety fallback timeout to guarantee dismissal under any network or backgrounding state
   useEffect(() => {
-    const safetyTimer = setTimeout(() => {
+    safetyTimerRef.current = setTimeout(() => {
       setIsLoading(false);
     }, 3500);
 
-    return () => clearTimeout(safetyTimer);
+    return () => {
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+    };
   }, []);
 
   // Keyboard shortcut (Escape) to skip preloader instantly
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setProgress(100);
-        setIsLoading(false);
+        handleSkip();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleSkip = () => {
-    setProgress(100);
-    setIsLoading(false);
-  };
+  // Dynamic meniscus wave geometry conforming organically to the flame silhouette
+  const meniscusWidthPercent =
+    progress < 25
+      ? 10 + (progress / 25) * 14 // 10% -> 24%
+      : progress < 65
+      ? 24 + ((progress - 25) / 40) * 4 // 24% -> 28%
+      : progress < 85
+      ? 28 - ((progress - 65) / 20) * 14 // 28% -> 14%
+      : Math.max(3, 14 - ((progress - 85) / 10) * 11); // 14% -> 3% (tapers to apex point)
+
+  const meniscusLeftPercent = 50 - meniscusWidthPercent / 2;
+
+  // Gracefully dissolve the meniscus beam as it reaches the apex so no horizontal line or box lid appears at the end
+  const meniscusOpacity =
+    progress >= 96
+      ? 0
+      : progress > 88
+      ? Math.max(0, (96 - progress) / 8)
+      : progress < 6
+      ? progress / 6
+      : 1;
 
   return (
     <AnimatePresence>
@@ -107,90 +138,31 @@ export default function Preloader() {
           role="dialog"
           aria-label="Loading Attar Depot"
         >
-          {/* ============================================================== */}
-          {/* CSS KEYFRAMES & MICRO-ANIMATIONS                               */}
-          {/* ============================================================== */}
-          <style jsx>{`
-            /* Meniscus horizontal beam sweep & ripple on the filling icon */
-            @keyframes meniscusPulse {
-              0%, 100% {
-                opacity: 0.8;
-                transform: translateY(-50%) scaleY(1);
-              }
-              50% {
-                opacity: 1;
-                transform: translateY(-50%) scaleY(1.4);
-              }
-            }
-
-            /* Golden shimmer wave traveling across filled icon surface */
-            @keyframes goldShimmer {
-              0% {
-                transform: translateX(-150%) skewX(-16deg);
-                opacity: 0;
-              }
-              30%, 70% {
-                opacity: 0.45;
-              }
-              100% {
-                transform: translateX(180%) skewX(-16deg);
-                opacity: 0;
-              }
-            }
-
-            /* Ambient backlight breathing */
-            @keyframes auraBreathe {
-              0%, 100% {
-                transform: translate(-50%, -50%) scale(0.95);
-                opacity: 0.35;
-              }
-              50% {
-                transform: translate(-50%, -50%) scale(1.08);
-                opacity: 0.65;
-              }
-            }
-
-            /* Elegant Staggered Loading Dots Fade (Reference Image UX) */
-            @keyframes dotFade1 {
-              0%, 20% { opacity: 0; transform: translateY(0); }
-              40%, 80% { opacity: 1; transform: translateY(-1.5px); }
-              100% { opacity: 0; transform: translateY(0); }
-            }
-            @keyframes dotFade2 {
-              0%, 40% { opacity: 0; transform: translateY(0); }
-              60%, 80% { opacity: 1; transform: translateY(-1.5px); }
-              100% { opacity: 0; transform: translateY(0); }
-            }
-            @keyframes dotFade3 {
-              0%, 60% { opacity: 0; transform: translateY(0); }
-              80%, 100% { opacity: 1; transform: translateY(-1.5px); }
-            }
-
-            .animate-dot-1 {
-              animation: dotFade1 1.5s ease-in-out infinite;
-            }
-            .animate-dot-2 {
-              animation: dotFade2 1.5s ease-in-out infinite;
-            }
-            .animate-dot-3 {
-              animation: dotFade3 1.5s ease-in-out infinite;
-            }
-          `}</style>
 
           {/* ============================================================== */}
-          {/* 1. DEEP ROYAL EMERALD VIGNETTE BACKGROUND                       */}
+          {/* 1. LUXURY ROYAL PERFUMERY BACKGROUND (REFERENCE SCENE)         */}
           {/* ============================================================== */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(ellipse at 50% 50%, #064838 0%, #01261D 55%, #000B08 100%)',
-            }}
-          />
+          <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+            {/* High-Resolution Royal Palace Perfumery Background */}
+            <img
+              src="/images/preloader-bg.jpg"
+              alt=""
+              className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.08]"
+            />
+
+            {/* Subtle Royal Vignette & Central Alcove Shading for Contrast */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(ellipse at 50% 48%, rgba(1, 26, 19, 0.40) 0%, rgba(0, 15, 11, 0.60) 60%, rgba(0, 8, 6, 0.85) 100%)',
+              }}
+            />
+          </div>
 
           {/* Central Backlight Golden Corona behind the Logo */}
           <div
-            className="absolute top-1/2 left-1/2 w-[300px] h-[260px] sm:w-[440px] sm:h-[340px] md:w-[540px] md:h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,180,24,0.20)_0%,rgba(4,106,90,0.15)_50%,transparent_75%)] blur-3xl pointer-events-none"
+            className="absolute top-[48%] left-1/2 w-[300px] h-[260px] sm:w-[420px] sm:h-[320px] md:w-[500px] md:h-[380px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,180,24,0.22)_0%,rgba(4,106,90,0.12)_50%,transparent_72%)] blur-3xl pointer-events-none"
             style={{
               animation: prefersReducedMotion ? 'none' : 'auraBreathe 3.2s ease-in-out infinite',
               willChange: 'transform, opacity',
@@ -216,11 +188,14 @@ export default function Preloader() {
               />
 
               {/* ------------------------------------------------------------ */}
-              {/* CENTRAL FLAME ICON: UNFILLED BASE SILHOUETTE (Reference Image)*/}
+              {/* CENTRAL FLAME ICON: UNFILLED BASE SILHOUETTE                  */}
               {/* Sourced from attar-logo-icon.png (Left & right are transparent)*/}
               {/* Silver-gray frosted base waiting to be filled with essence    */}
               {/* ------------------------------------------------------------ */}
-              <div className="absolute inset-0 pointer-events-none select-none">
+              <div 
+                className="absolute inset-0 pointer-events-none select-none transition-opacity duration-300"
+                style={{ opacity: progress >= 100 ? 0 : 1 }}
+              >
                 <img
                   src="/images/attar-logo-icon.png"
                   alt="Attar Flame Icon Base"
@@ -234,58 +209,51 @@ export default function Preloader() {
               {/* ------------------------------------------------------------ */}
               {/* CENTRAL FLAME ICON: LIQUID GOLD FILL LAYER (Fills 0% -> 100%) */}
               {/* Purely isolated to the icon using vertical inset clip-path   */}
-              {/* Exactly implements the bottom-to-top fill from reference img */}
+              {/* Zero box boundaries: No overflow-hidden, no rectangular divs */}
               {/* ------------------------------------------------------------ */}
               <div
-                className="absolute inset-0 pointer-events-none select-none overflow-hidden"
+                className="absolute inset-0 pointer-events-none select-none"
                 style={{
-                  clipPath: `inset(${Math.max(0, 100 - progress)}% 0 0 0)`,
-                  willChange: 'clip-path',
+                  clipPath:
+                    progress >= 99.5
+                      ? 'none'
+                      : `inset(${Math.max(0, 100 - progress)}% 0 0 0)`,
+                  willChange: progress < 100 ? 'clip-path' : 'auto',
                 }}
               >
                 <img
                   src="/images/attar-logo-icon.png"
                   alt="Attar Flame Icon Filled"
-                  className="w-full h-full object-contain drop-shadow-[0_0_24px_rgba(245,180,24,0.75)]"
+                  className="w-full h-full object-contain drop-shadow-[0_0_18px_rgba(245,180,24,0.65)]"
                 />
-
-                {/* Subtle Moving Gold Shimmer across the filled portion of the icon */}
-                {!prefersReducedMotion && progress > 5 && progress < 100 && (
-                  <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFFBE8]/45 to-transparent pointer-events-none"
-                    style={{
-                      animation: 'goldShimmer 2.2s ease-in-out infinite',
-                      willChange: 'transform, opacity',
-                    }}
-                  />
-                )}
               </div>
 
               {/* ------------------------------------------------------------ */}
               {/* GLOWING LIQUID MENISCUS / WAVE LINE (CENTRAL FLAME ONLY)      */}
-              {/* Rides the liquid fill surface horizontally across the flame   */}
+              {/* Organically tapers and dissolves as it reaches the apex       */}
               {/* ------------------------------------------------------------ */}
-              {progress > 1 && progress < 99 && (
+              {progress > 1 && progress < 96 && meniscusOpacity > 0 && (
                 <div
-                  className="absolute pointer-events-none z-20"
+                  className="absolute pointer-events-none z-20 transition-opacity duration-150"
                   style={{
-                    left: '36%',
-                    width: '28%',
+                    left: `${meniscusLeftPercent}%`,
+                    width: `${meniscusWidthPercent}%`,
                     top: `${100 - progress}%`,
-                    height: '4px',
+                    height: '3px',
+                    opacity: meniscusOpacity,
                   }}
                 >
                   <div className="relative w-full h-full flex items-center justify-center">
                     {/* Glowing surface beam */}
                     <div
-                      className="w-full h-[2.5px] bg-gradient-to-r from-transparent via-[#FFF9D6] via-[#F5B418] to-transparent rounded-full shadow-[0_0_12px_#FFF3A8,0_0_24px_rgba(245,180,24,0.9)]"
+                      className="w-full h-[2px] bg-gradient-to-r from-transparent via-[#FFF9D6] via-[#F5B418] to-transparent rounded-full shadow-[0_0_10px_#FFF3A8,0_0_20px_rgba(245,180,24,0.85)]"
                       style={{
                         animation: prefersReducedMotion ? 'none' : 'meniscusPulse 1.2s ease-in-out infinite',
                       }}
                     />
                     {/* Soft luminous liquid droplet light at the center */}
-                    <div className="absolute w-6 h-[4px] bg-white/90 rounded-full blur-[1px]" />
-                    <div className="absolute w-12 h-3 bg-[#F5B418] rounded-full blur-[4px] opacity-75" />
+                    <div className="absolute w-4 h-[3px] bg-white/90 rounded-full blur-[1px]" />
+                    <div className="absolute w-8 h-2.5 bg-[#F5B418] rounded-full blur-[3px] opacity-75" />
                   </div>
                 </div>
               )}

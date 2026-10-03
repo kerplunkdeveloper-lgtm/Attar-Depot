@@ -111,7 +111,7 @@ export default function SearchModal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.25, ease: luxuryEase }}
-            className="fixed inset-0 z-[105] flex flex-col bg-white lg:hidden"
+            className="fixed inset-0 z-[105] flex flex-col bg-white lg:hidden pb-[70px]"
             role="dialog"
             aria-modal="true"
             aria-label="Search"
@@ -189,7 +189,7 @@ export default function SearchModal() {
         </div>
 
         {/* Mobile Scrollable Content */}
-        <div className="flex-1 overflow-y-auto bg-[#FAFAF9]">
+        <div className="flex-1 overflow-y-auto bg-[#FAFAF9] pb-8">
           {isLoading ? (
             /* Skeleton */
             <div className="p-4 space-y-3">

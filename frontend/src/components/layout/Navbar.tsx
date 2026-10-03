@@ -19,6 +19,7 @@ import {
   MapPin,
   Instagram,
   Facebook,
+  Youtube,
   ChevronRight,
   Home,
   Crown,
@@ -78,7 +79,6 @@ export default function Navbar() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
-  const [mobileAccordion, setMobileAccordion] = useState<string | null>('categories');
 
   // Dynamic promo banner coupons
   const { data: bannerCouponsData } = useBannerCoupons();
@@ -166,10 +166,6 @@ export default function Navbar() {
       shopTimeoutRef.current = null;
     }
     setIsShopOpen((prev) => !prev);
-  };
-
-  const toggleAccordion = (section: string) => {
-    setMobileAccordion((prev) => (prev === section ? null : section));
   };
 
   useEffect(() => {
@@ -363,39 +359,58 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MAIN NAVIGATION BAR */}
-        <div className="w-full p-2 bg-gradient-to-r from-[#012520]/95 via-[#023830]/95 to-[#012520]/95 backdrop-blur-xl border-b border-[#C9A227]/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
-          {/* Subtle top & bottom gold ambient glow lines */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/25 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
+        {/* ================================================================= */}
+        {/* MAIN LUXURY NAVIGATION BAR (MATCHING USER REFERENCE DESIGN)       */}
+        {/* ================================================================= */}
+        <div className="w-full relative overflow-hidden border-b border-[#F5B418]/30 shadow-[0_12px_45px_rgba(0,0,0,0.65)]">
+          {/* Royal Perfumery Panoramic Background (Flanking flacons, Islamic arch & incense smoke) */}
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+            <img
+              src="/api/navbar-bg"
+              alt=""
+              className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.08]"
+            />
+            {/* Emerald dark glassmorphic vignette for pristine legibility and contrast */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(ellipse at 50% 50%, rgba(1, 37, 32, 0.65) 0%, rgba(1, 28, 22, 0.85) 60%, rgba(0, 16, 12, 0.94) 100%)',
+              }}
+            />
+            {/* Top & bottom 24k gold hairline borders */}
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/35 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/60 to-transparent" />
+          </div>
 
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="relative flex items-center justify-between h-[60px] sm:h-[68px] lg:h-[70px] gap-2 sm:gap-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
+            <div className="relative flex items-center justify-between h-[56px] min-[360px]:h-[60px] sm:h-[64px] lg:h-[68px] xl:h-[74px] gap-2 sm:gap-4">
+              
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Brand Logo (Desktop & Mobile) + Mobile Hamburger  */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-start gap-2.5 sm:gap-3.5 shrink-0 z-20">
+              <div className="flex items-center justify-start gap-2 sm:gap-3 shrink-0 z-20">
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
+                  className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   ) : (
-                    <Menu className="w-5 h-5" />
+                    <Menu className="w-4 h-4" />
                   )}
                 </button>
 
-                {/* Brand Official Logo (Left-aligned for all screen sizes) */}
+                {/* Brand Official Logo (Left-aligned) */}
                 <Link
                   href="/"
-                  className="group relative flex items-center py-3 select-none transition-transform duration-300 active:scale-[0.98]"
+                  className="group relative flex items-center py-1 select-none transition-transform duration-300 active:scale-[0.98]"
                   aria-label="Attar Depot Home"
                 >
                   {/* Subtle golden ambient aura behind the logo */}
-                  <div className="absolute -inset-2.5 sm:-inset-3 bg-gradient-to-r from-[#F5B418]/20 via-[#F5B418]/10 to-transparent rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-[#F5B418]/25 via-[#F5B418]/15 to-transparent rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
@@ -403,31 +418,41 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[40px] sm:h-[40px] md:h-[40px] lg:h-[50px] xl:h-[80px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.35)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.55)] group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[52px] lg:h-[58px] xl:h-[68px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.6)] group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>
 
               {/* ================================================================= */}
-              {/* 2. CENTER SECTION: Desktop Navigation Menu (True Center Alignment) */}
+              {/* 2. CENTER SECTION: Signature Capsule Pill Navigation Bar (Compact) */}
               {/* ================================================================= */}
               <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center justify-center z-20 pointer-events-auto">
-                <nav className="flex items-center gap-0.5 xl:gap-1 bg-black/20 p-1 rounded-full border border-white/[0.08] backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.06),0_4px_14px_rgba(0,0,0,0.2)]">
-                  {/* Home Link */}
+                {/* Left Ornamental Diamond Finial */}
+                <div className="hidden 2xl:flex items-center gap-0.5 text-[#F5B418]/80 mr-1.5 select-none pointer-events-none">
+                  <span className="w-4 h-[1px] bg-gradient-to-l from-[#F5B418]/90 to-transparent" />
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[#F5B418] drop-shadow-[0_0_5px_rgba(245,180,24,0.5)]">
+                    <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(245,180,24,0.18)" />
+                    <circle cx="12" cy="12" r="2" fill="currentColor" />
+                  </svg>
+                </div>
+
+                {/* Central Floating Capsule Pill (Refined & Compact Menu Size) */}
+                <nav className="flex items-center gap-2 bg-[#011C16]/85 px-1.5 py-2 xl:px-2 xl:py-2 rounded-full border border-[#F5B418]/45 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(245,180,24,0.25)]">
+                  {/* Home Link (Iconic Golden Pill when active) */}
                   <Link
                     href="/"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
                       isHome
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
                     {isHome && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <span>Home</span>
+                    <span className="text-[12px]">Home</span>
                   </Link>
 
                   {/* Shop Dropdown Trigger */}
@@ -439,24 +464,21 @@ export default function Navbar() {
                   >
                     <button
                       onClick={toggleShopDropdown}
-                      className={`relative flex items-center gap-1 text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center gap-1 text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 cursor-pointer ${
                         isShop || isShopOpen
-                          ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
-                          : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                          ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                          : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                       }`}
                       aria-expanded={isShopOpen}
                     >
-                      {(isShop || isShopOpen) && (
-                        <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                      )}
-                      <span>Shop</span>
+                      <span className="text-[12px]">Shop</span>
                       <ChevronDown
                         className={`w-2.5 h-2.5 transition-transform duration-300 ${
                           isShopOpen
                             ? 'rotate-180 text-[#F5B418]'
                             : isShop
                             ? 'text-[#F5B418]'
-                            : 'text-[#FAF8F2]/60 group-hover:text-[#F5B418]'
+                            : 'text-[#FAF8F2]/70 group-hover:text-[#F5B418]'
                         }`}
                       />
                     </button>
@@ -467,16 +489,13 @@ export default function Navbar() {
                     href="/gifting"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
                       isGifting
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    {isGifting && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Gifting</span>
+                    <span className="text-[12px]">Gifting</span>
                   </Link>
 
                   {/* Our Brand Link */}
@@ -484,60 +503,62 @@ export default function Navbar() {
                     href="/about"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
                       isAbout
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    {isAbout && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Our Brand</span>
+                    <span className="text-[12px]">Our Brand</span>
                   </Link>
 
-                  {/* Contact Us Link */}
+                  {/* Contact Link */}
                   <Link
                     href="/contact"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[10.5px] xl:text-[11px] font-semibold tracking-[0.07em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
                       isContact
-                        ? 'text-[#F5B418] font-bold bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.2)]'
-                        : 'text-[#FAF8F2]/80 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    {isContact && (
-                      <span className="w-1 h-1 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
-                    )}
-                    <span>Contact</span>
+                    <span className="text-[12px]">Contact</span>
                   </Link>
                 </nav>
+
+                {/* Right Ornamental Diamond Finial */}
+                <div className="hidden 2xl:flex items-center gap-0.5 text-[#F5B418]/80 ml-1.5 select-none pointer-events-none">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[#F5B418] drop-shadow-[0_0_5px_rgba(245,180,24,0.5)]">
+                    <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(245,180,24,0.18)" />
+                    <circle cx="12" cy="12" r="2" fill="currentColor" />
+                  </svg>
+                  <span className="w-4 h-[1px] bg-gradient-to-r from-[#F5B418]/90 to-transparent" />
+                </div>
               </div>
 
               {/* ================================================================= */}
-              {/* 3. RIGHT SECTION: Search, User Profile, Cart (Others)             */}
+              {/* 3. RIGHT SECTION: Utility Dock (Search, Heart, Bag, Sign In)      */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-end shrink-0 gap-2 sm:gap-2.5 xl:gap-3 z-20">
+              <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2 z-20">
 
                 {/* Mobile Quick Action Buttons (Search, Wishlist & Sign In) */}
-                <div className="flex lg:hidden items-center gap-1.5">
-                  {/* Mobile Quick Search Button */}
+                <div className="flex lg:hidden items-center gap-1">
                   <button
                     onClick={() => dispatch(toggleSearch(true))}
-                    className="relative w-9 h-9 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative w-8 h-8 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
                     aria-label="Search Fragrance Vault"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="w-3.5 h-3.5" />
                   </button>
 
                   <button
                     onClick={() => dispatch(toggleWishlistDrawer(true))}
-                    className="relative w-9 h-9 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative w-8 h-8 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
                     aria-label="Royal Wishlist Vault"
                     suppressHydrationWarning
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className="w-3.5 h-3.5" />
                     {mounted && wishlistCount > 0 && (
                       <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[9px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520]">
                         {wishlistCount}
@@ -545,7 +566,6 @@ export default function Navbar() {
                     )}
                   </button>
 
-                  {/* Mobile Sign In / User Profile Button (Replaced Cart) */}
                   <button
                     onClick={() => {
                       if (!isAuthenticated) {
@@ -554,7 +574,7 @@ export default function Navbar() {
                         router.push('/profile');
                       }
                     }}
-                    className="relative flex items-center gap-1.5 h-9 px-2.5 sm:px-3 text-[#FAF8F2]/95 hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-emerald-950/70 to-[#012520]/90 hover:from-emerald-900/80 hover:to-[#023830] border border-[#F5B418]/40 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative flex items-center gap-1.5 h-8 px-2.5 text-[#FAF8F2]/95 hover:text-[#F5B418] transition-all rounded-full bg-[#011C16]/85 border border-[#F5B418]/60 active:scale-95 shadow-2xs cursor-pointer"
                     aria-label={mounted && isAuthenticated && user ? 'View Profile' : 'Sign In'}
                     suppressHydrationWarning
                   >
@@ -565,40 +585,40 @@ export default function Navbar() {
                       <img
                         src={user.avatar}
                         alt={user.name}
-                        className="w-4 h-4 rounded-full object-cover border border-[#F5B418]"
+                        className="w-3.5 h-3.5 rounded-full object-cover border border-[#F5B418]"
                       />
                     ) : (
-                      <UserIcon className="w-3.5 h-3.5 text-[#F5B418]" />
+                      <UserIcon className="w-3 h-3 text-[#F5B418]" />
                     )}
-                    <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#FAF8F2]">
-                      {mounted && isAuthenticated && user ? user.name.split(' ')[0] : 'Sign In'}
+                    <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#FAF8F2]">
+                      {mounted && isAuthenticated && user ? user.name.split(' ')[0] : 'SIGN IN'}
                     </span>
                   </button>
                 </div>
 
-                {/* Desktop Unified Glass Utility Dock */}
-                <div className="hidden lg:flex items-center gap-1 xl:gap-1.5 bg-black/25 p-1 rounded-full border border-white/10 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.06),0_4px_16px_rgba(0,0,0,0.25)]">
+                {/* Desktop Signature Pill Utility Dock (Compact) */}
+                <div className="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-[#011C16]/85 px-1.5 py-0.5 xl:px-2 xl:py-0.5 rounded-full border border-[#F5B418]/45 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(245,180,24,0.25)]">
                   {/* Search Modal Trigger */}
                   <button
                     onClick={() => dispatch(toggleSearch(true))}
-                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    className="relative w-7 h-7 xl:w-7.5 xl:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] group cursor-pointer active:scale-95"
                     aria-label="Search Fragrance Vault"
                     title="Search pure attars & flacons (Ctrl+K)"
                   >
-                    <Search className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                    <Search className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   </button>
 
                   {/* Wishlist Vault Trigger */}
                   <button
                     onClick={() => dispatch(toggleWishlistDrawer(true))}
-                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    className="relative w-7 h-7 xl:w-7.5 xl:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] group cursor-pointer active:scale-95"
                     aria-label="Royal Wishlist Vault"
                     title={`Royal Wishlist (${wishlistCount})`}
                     suppressHydrationWarning
                   >
-                    <Heart className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                    <Heart className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                     {mounted && wishlistCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[15px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[8.5px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520] animate-in zoom-in-50">
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] px-0.5 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[8px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520] animate-in zoom-in-50">
                         {wishlistCount}
                       </span>
                     )}
@@ -607,22 +627,22 @@ export default function Navbar() {
                   {/* Cart Drawer Trigger */}
                   <button
                     onClick={() => dispatch(toggleCartDrawer(true))}
-                    className="relative w-8 h-8 xl:w-8.5 xl:h-8.5 flex items-center justify-center text-[#FAF8F2]/85 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.1] group cursor-pointer active:scale-95"
+                    className="relative w-7 h-7 xl:w-7.5 xl:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] group cursor-pointer active:scale-95"
                     aria-label="View Shopping Cart"
                     suppressHydrationWarning
                   >
-                    <ShoppingBag className="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200 group-hover:scale-110" />
+                    <ShoppingBag className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                     {mounted && itemsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[15px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFDF78] text-[8.5px] font-black text-[#012520] shadow-[0_0_8px_rgba(245,180,24,0.7)] border border-[#012520] ring-1 ring-[#F5B418]/60 animate-in zoom-in-50">
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] px-0.5 items-center justify-center rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFDF78] text-[8px] font-black text-[#012520] shadow-[0_0_8px_rgba(245,180,24,0.7)] border border-[#012520] ring-1 ring-[#F5B418]/60 animate-in zoom-in-50">
                         {itemsCount}
                       </span>
                     )}
                   </button>
 
                   {/* Vertical Hairline Divider */}
-                  <div className="w-[1px] h-4 bg-white/15 mx-0.5" />
+                  <div className="w-[1px] h-3.5 bg-[#F5B418]/30 mx-0.5" />
 
-                  {/* User Profile / Auth Modal Trigger */}
+                  {/* User Profile / SIGN IN Pill Button */}
                   <div className="relative" ref={userDropdownRef}>
                     <button
                       onClick={() => {
@@ -632,7 +652,7 @@ export default function Navbar() {
                           setIsUserMenuOpen(!isUserMenuOpen);
                         }
                       }}
-                      className="flex items-center gap-1.5 h-8 xl:h-8.5 px-2.5 xl:px-3 text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-emerald-950/70 to-[#012520]/90 hover:from-emerald-900/80 hover:to-[#023830] border border-[#F5B418]/35 hover:border-[#F5B418] active:scale-95 shadow-2xs cursor-pointer group"
+                      className="flex items-center gap-1.5 h-7 xl:h-7.5 px-2 xl:px-2.5 text-[#FAF8F2] hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-[#F5B418]/25 via-[#F5B418]/15 to-[#F5B418]/25 hover:from-[#F5B418]/35 hover:to-[#F5B418]/25 border border-[#F5B418]/60 hover:border-[#F5B418] shadow-[0_0_10px_rgba(245,180,24,0.2)] active:scale-95 cursor-pointer group"
                       aria-label="User Account"
                       suppressHydrationWarning
                     >
@@ -643,18 +663,18 @@ export default function Navbar() {
                         <img
                           src={user.avatar}
                           alt={user.name}
-                          className="w-4 h-4 rounded-full object-cover border border-[#F5B418]"
+                          className="w-3.5 h-3.5 rounded-full object-cover border border-[#F5B418]"
                         />
                       ) : (
-                        <UserIcon className="w-3.5 h-3.5 text-[#F5B418] transition-transform duration-200 group-hover:scale-110" />
+                        <UserIcon className="w-3 h-3 text-[#F5B418] transition-transform duration-200 group-hover:scale-110" />
                       )}
                       {mounted && isAuthenticated && user ? (
-                        <span className="text-[11px] font-semibold text-[#FAF8F2] max-w-[80px] truncate">
+                        <span className="text-[9.5px] xl:text-[10px] font-bold text-[#FAF8F2] max-w-[75px] truncate">
                           {user.name.split(' ')[0]}
                         </span>
                       ) : (
-                        <span className="text-[10px] xl:text-[11px] font-bold text-[#FAF8F2] group-hover:text-[#F5B418] uppercase tracking-wider">
-                          Sign In
+                        <span className="text-[9px] xl:text-[9.5px] font-extrabold text-[#FAF8F2] group-hover:text-[#F5B418] uppercase tracking-[0.08em]">
+                          SIGN IN
                         </span>
                       )}
                     </button>
@@ -795,8 +815,8 @@ export default function Navbar() {
             <div
               className={`fixed inset-0 bg-neutral-950/65 backdrop-blur-xs -z-10 transition-all duration-300 ${
                 isAtTop
-                  ? 'top-[88px] sm:top-[104px] lg:top-[106px]'
-                  : 'top-[60px] sm:top-[68px] lg:top-[70px]'
+                  ? 'top-[82px] min-[360px]:top-[86px] sm:top-[92px] lg:top-[96px] xl:top-[102px]'
+                  : 'top-[56px] min-[360px]:top-[60px] sm:top-[64px] lg:top-[68px] xl:top-[74px]'
               }`}
               onClick={() => {
                 if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
@@ -809,8 +829,8 @@ export default function Navbar() {
             <div
               className={`w-full bg-white border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.35)] overflow-y-auto transition-all duration-300 ${
                 isAtTop
-                  ? 'max-h-[calc(100vh-88px)] sm:max-h-[calc(100vh-104px)] lg:max-h-[calc(100vh-106px)]'
-                  : 'max-h-[calc(100vh-60px)] sm:max-h-[calc(100vh-68px)] lg:max-h-[calc(100vh-70px)]'
+                  ? 'max-h-[calc(100vh-86px)] sm:max-h-[calc(100vh-92px)] lg:max-h-[calc(100vh-96px)] xl:max-h-[calc(100vh-102px)]'
+                  : 'max-h-[calc(100vh-60px)] sm:max-h-[calc(100vh-64px)] lg:max-h-[calc(100vh-68px)] xl:max-h-[calc(100vh-74px)]'
               }`}
             >
               {/* Top Vault Bar */}
@@ -1080,7 +1100,7 @@ export default function Navbar() {
     </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
-      <div className="h-[88px] sm:h-[104px] lg:h-[106px] w-full shrink-0" aria-hidden="true" />
+      <div className="h-[82px] min-[360px]:h-[86px] sm:h-[92px] lg:h-[96px] xl:h-[102px] w-full shrink-0" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
@@ -1123,11 +1143,11 @@ export default function Navbar() {
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
-                    width={280}
-                    height={80}
+                    width={300}
+                    height={85}
                     priority
                     quality={95}
-                    className="h-12 sm:h-14 w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
+                    className="h-[52px] sm:h-[58px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
                   />
                 </Link>
                 <button
@@ -1141,35 +1161,68 @@ export default function Navbar() {
               </div>
 
               {/* Drawer Scrollable Content */}
-              <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-5">
-                {/* Interactive Search Modal Trigger Bar */}
-                <div
-                  onClick={() => {
-                    setIsMobileNavOpen(false);
-                    dispatch(toggleSearch(true));
-                  }}
-                  className="relative cursor-pointer group"
-                >
-                  <div className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF8F2] border border-emerald-200/90 rounded-2xl text-neutral-400 font-sans shadow-2xs flex items-center group-hover:border-emerald-500 transition-colors">
-                    <span>Search pure oudh, musk, flacons...</span>
-                  </div>
-                  <Search className="w-4 h-4 text-emerald-700 absolute left-3 top-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform" />
-                </div>
-
-                {/* Primary Navigation Links */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-4">
+                {/* Primary Navigation - Atelier & Collections */}
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-900/80 mb-1.5 px-1">
-                    Store Navigation
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#012520] mb-1.5 px-1 font-serif flex items-center gap-1.5">
+                    <Crown className="w-3 h-3 text-[#F5B418]" />
+                    <span>Atelier & Collections</span>
                   </p>
                   {[
                     { name: 'Home', href: '/', icon: Home },
                     { name: 'All Perfumes', href: '/shop', icon: ShoppingBag },
-                    { name: 'My Cart', href: '/cart', icon: ShoppingBag, isCart: true },
+                    { name: 'Royal Gifting', href: '/gifting', icon: Gift },
+                    { name: 'Our Brand & Heritage', href: '/about', icon: Sparkles },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    return (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() => {
+                          setIsMobileNavOpen(false);
+                          router.push(item.href);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-xs transition-all text-left cursor-pointer active:scale-[0.98] ${
+                          isActive
+                            ? 'bg-[#012520] text-[#F5B418] font-bold border border-[#F5B418]/40 shadow-[0_2px_12px_rgba(1,37,32,0.25)]'
+                            : 'text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50/70 font-semibold border border-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center transition-colors ${
+                              isActive
+                                ? 'bg-[#F5B418] text-[#012520] shadow-2xs font-bold'
+                                : 'bg-[#FAF8F2] border border-[#F5B418]/30 text-[#012520]'
+                            }`}
+                          >
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <span>{item.name}</span>
+                        </div>
+                        <ChevronRight
+                          className={`w-3.5 h-3.5 ${
+                            isActive ? 'text-[#F5B418]' : 'text-neutral-400'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Secondary Navigation - Personal Sanctuary */}
+                <div className="pt-2 border-t border-emerald-100/80 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#012520] mb-1.5 px-1 font-serif flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-[#F5B418]" />
+                    <span>Your Sanctuary</span>
+                  </p>
+                  {[
+                    { name: 'My Shopping Bag', href: '/cart', icon: ShoppingBag, isCart: true },
                     { name: 'My Wishlist', href: '/wishlist', icon: Heart, isWishlist: true },
-                    { name: 'Gifting', href: '/gifting', icon: Gift },
-                    { name: 'Our Brand', href: '/about', icon: Sparkles },
+                    { name: 'Track Orders', href: '/orders', icon: PackageCheck },
                     { name: 'Contact', href: '/contact', icon: Phone },
-                    { name: 'Track Order', href: '/orders', icon: PackageCheck },
                   ].map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
@@ -1195,14 +1248,14 @@ export default function Navbar() {
                       >
                         <div className="flex items-center gap-2.5">
                           <div
-                            className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
+                            className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center transition-colors ${
                               item.isWishlist
                                 ? 'bg-rose-50 text-rose-600'
                                 : item.isCart
                                 ? 'bg-[#F5B418]/20 text-[#B8860B]'
                                 : isActive
                                 ? 'bg-[#F5B418] text-[#012520] shadow-2xs font-bold'
-                                : 'bg-emerald-50 text-emerald-800'
+                                : 'bg-[#FAF8F2] border border-[#F5B418]/30 text-[#012520]'
                             }`}
                           >
                             <Icon className="w-3.5 h-3.5" />
@@ -1216,7 +1269,7 @@ export default function Navbar() {
                             </span>
                           )}
                           {item.isCart && mounted && itemsCount > 0 && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5B418]/20 text-[#B8860B] border border-[#F5B418]/40">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5B418]/25 text-[#012520] border border-[#F5B418]/50 shadow-2xs">
                               {itemsCount}
                             </span>
                           )}
@@ -1231,223 +1284,117 @@ export default function Navbar() {
                   })}
                 </div>
 
-                {/* ============================================================= */}
-                {/* INTERACTIVE ACCORDIONS: CATEGORIES, GENDER, NOTES, COLLECTIONS */}
-                {/* ============================================================= */}
-                <div className="pt-2 border-t border-emerald-100/80 space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-900/80 px-1">
-                    Explore Fragrance Vault
-                  </p>
-
-                  {/* 1. Categories Accordion */}
-                  <div className="border border-emerald-100 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion('categories')}
-                      className="w-full flex items-center justify-between p-3 text-xs font-bold text-neutral-800 bg-neutral-50/70 hover:bg-emerald-50/50 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <ShoppingBag className="w-3.5 h-3.5 text-emerald-700" />
-                        Curated Categories ({categories.length})
+                {/* ========================================================= */}
+                {/* SOCIAL MEDIA CHANNELS & COMMUNITY                         */}
+                {/* ========================================================= */}
+                <div className="rounded-2xl bg-gradient-to-br from-[#FAF8F2] via-white to-[#FDFBF7] border border-[#F5B418]/40 p-3.5 space-y-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-serif text-xs font-bold text-[#012520] tracking-wide block">
+                        Connect With Us
                       </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-emerald-700 transition-transform duration-200 ${
-                          mobileAccordion === 'categories' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {mobileAccordion === 'categories' && (
-                        <motion.div
-                          variants={accordionVariants}
-                          initial="collapsed"
-                          animate="expanded"
-                          exit="collapsed"
-                          className="overflow-hidden"
-                        >
-                          <div className="p-2 space-y-1 bg-white">
-                            {categories.map((c) => (
-                              <Link
-                                key={c._id}
-                                href={`/shop?category=${c.slug}`}
-                                onClick={() => setIsMobileNavOpen(false)}
-                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                              >
-                                <span>{c.name}</span>
-                                <ChevronRight className="w-3 h-3 text-neutral-400" />
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                      <p className="text-[10px] text-neutral-500 font-sans mt-0.5">
+                        Follow our fragrance stories & daily reveals
+                      </p>
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#F5B418]/20 text-[#012520] border border-[#F5B418]/40">
+                      Official
+                    </span>
                   </div>
 
-                  {/* 2. Occasions Accordion */}
-                  <div className="border border-emerald-100 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion('occasions')}
-                      className="w-full flex items-center justify-between p-3 text-xs font-bold text-neutral-800 bg-neutral-50/70 hover:bg-emerald-50/50 transition-colors"
+                  {/* 2x2 Interactive Social Links Grid */}
+                  <div className="grid grid-cols-2 gap-2 pt-0.5">
+                    {/* Instagram */}
+                    <a
+                      href="https://www.instagram.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-rose-50/60 border border-neutral-200/90 hover:border-[#E4405F]/50 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
+                      aria-label="Follow Attar Depot on Instagram"
                     >
-                      <span className="flex items-center gap-2">
-                        <Gift className="w-3.5 h-3.5 text-emerald-700" />
-                        Shop By Occasion ({megaOccasions.length > 0 ? megaOccasions.length : 4})
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-emerald-700 transition-transform duration-200 ${
-                          mobileAccordion === 'occasions' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FD1D1D] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                        <Instagram className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#E4405F] block truncate transition-colors">
+                          Instagram
+                        </span>
+                        <span className="text-[9.5px] text-neutral-400 block truncate">
+                          @theattardepot
+                        </span>
+                      </div>
+                    </a>
 
-                    <AnimatePresence initial={false}>
-                      {mobileAccordion === 'occasions' && (
-                        <motion.div
-                          variants={accordionVariants}
-                          initial="collapsed"
-                          animate="expanded"
-                          exit="collapsed"
-                          className="overflow-hidden"
-                        >
-                          <div className="p-2 space-y-1 bg-white">
-                            {(megaOccasions.length > 0
-                              ? megaOccasions
-                              : ['Daily Wear', 'Special Occasion', 'Evening Wear', 'Gifting']
-                            ).map((occ) => (
-                              <Link
-                                key={occ}
-                                href={`/shop?occasion=${encodeURIComponent(occ)}`}
-                                onClick={() => setIsMobileNavOpen(false)}
-                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                              >
-                                <span>{occ}</span>
-                                <ChevronRight className="w-3 h-3 text-neutral-400" />
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* 3. Fragrance Notes Accordion */}
-                  <div className="border border-emerald-100 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion('notes')}
-                      className="w-full flex items-center justify-between p-3 text-xs font-bold text-neutral-800 bg-neutral-50/70 hover:bg-emerald-50/50 transition-colors"
+                    {/* WhatsApp */}
+                    <a
+                      href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-emerald-50/60 border border-neutral-200/90 hover:border-[#25D366]/50 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
+                      aria-label="Chat on WhatsApp"
                     >
-                      <span className="flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
-                        Signature Notes ({megaNotes.length})
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-emerald-700 transition-transform duration-200 ${
-                          mobileAccordion === 'notes' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
+                      <div className="w-8 h-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-emerald-700 block truncate transition-colors">
+                          WhatsApp
+                        </span>
+                        <span className="text-[9.5px] text-neutral-400 block truncate">
+                          Direct Concierge
+                        </span>
+                      </div>
+                    </a>
 
-                    <AnimatePresence initial={false}>
-                      {mobileAccordion === 'notes' && (
-                        <motion.div
-                          variants={accordionVariants}
-                          initial="collapsed"
-                          animate="expanded"
-                          exit="collapsed"
-                          className="overflow-hidden"
-                        >
-                          <div className="p-2.5 flex flex-wrap gap-1.5 bg-white">
-                            {megaNotes.slice(0, 12).map((note) => (
-                              <Link
-                                key={note}
-                                href={`/shop?notes=${encodeURIComponent(note)}`}
-                                onClick={() => setIsMobileNavOpen(false)}
-                                className="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-lg font-medium border border-emerald-200/70 transition-colors"
-                              >
-                                {note}
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* 4. Price Ranges Accordion */}
-                  <div className="border border-emerald-100 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion('price')}
-                      className="w-full flex items-center justify-between p-3 text-xs font-bold text-neutral-800 bg-neutral-50/70 hover:bg-emerald-50/50 transition-colors"
+                    {/* YouTube */}
+                    <a
+                      href="https://www.youtube.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-rose-50/60 border border-neutral-200/90 hover:border-[#FF0000]/40 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
+                      aria-label="Subscribe on YouTube"
                     >
-                      <span className="flex items-center gap-2">
-                        <Tag className="w-3.5 h-3.5 text-emerald-700" />
-                        Shop By Price
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-emerald-700 transition-transform duration-200 ${
-                          mobileAccordion === 'price' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
+                      <div className="w-8 h-8 rounded-lg bg-[#FF0000] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                        <Youtube className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#FF0000] block truncate transition-colors">
+                          YouTube
+                        </span>
+                        <span className="text-[9.5px] text-neutral-400 block truncate">
+                          Fragrance Films
+                        </span>
+                      </div>
+                    </a>
 
-                    <AnimatePresence initial={false}>
-                      {mobileAccordion === 'price' && (
-                        <motion.div
-                          variants={accordionVariants}
-                          initial="collapsed"
-                          animate="expanded"
-                          exit="collapsed"
-                          className="overflow-hidden"
-                        >
-                          <div className="p-2 space-y-1 bg-white">
-                            {megaPriceRanges.map(({ label, value }) => (
-                              <Link
-                                key={value}
-                                href={`/shop?priceRange=${value}`}
-                                onClick={() => setIsMobileNavOpen(false)}
-                                className="flex items-center justify-between p-2 rounded-xl text-xs text-neutral-700 hover:text-emerald-950 hover:bg-emerald-50 transition-all font-medium"
-                              >
-                                <span>{label}</span>
-                                <ChevronRight className="w-3 h-3 text-neutral-400" />
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Facebook */}
+                    <a
+                      href="https://www.facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-blue-50/60 border border-neutral-200/90 hover:border-[#1877F2]/40 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
+                      aria-label="Follow Attar Depot on Facebook"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#1877F2] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                        <Facebook className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#1877F2] block truncate transition-colors">
+                          Facebook
+                        </span>
+                        <span className="text-[9.5px] text-neutral-400 block truncate">
+                          Official Page
+                        </span>
+                      </div>
+                    </a>
                   </div>
-
-                </div>
-
-                {/* Direct Fragrance Concierge Card */}
-                <div className="rounded-2xl bg-gradient-to-br from-[#ECFDF5] to-[#D1FAE5]/60 border border-emerald-200/90 p-3.5 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Royal Concierge Service</span>
-                  </div>
-                  <p className="text-[11px] text-emerald-900/80 leading-relaxed font-sans">
-                    Need scent recommendations or bespoke blending assistance? Our perfumers are available online.
-                  </p>
-                  <a
-                    href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils%20and%20bespoke%20royal%20fragrances."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold uppercase tracking-wider shadow-2xs transition-all active:scale-98"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
-                    </svg>
-                    <span>Chat on WhatsApp</span>
-                  </a>
                 </div>
               </div>
 
               {/* Drawer Bottom Footer (Auth & Info) */}
-              <div className="shrink-0 p-4 border-t border-emerald-100/90 bg-[#FAF8F2]/90 space-y-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <div className="shrink-0 p-4 border-t border-[#F5B418]/30 bg-gradient-to-b from-[#FAF8F2] to-white space-y-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg">
                 {!isAuthenticated ? (
                   <div className="space-y-2">
                     <div className="flex gap-2">
@@ -1457,7 +1404,7 @@ export default function Navbar() {
                           setIsMobileNavOpen(false);
                           dispatch(openAuthModal('login'));
                         }}
-                        className="flex-1 py-2.5 rounded-2xl text-center text-xs font-bold uppercase tracking-wider btn-emerald text-white shadow-emerald-sm"
+                        className="flex-1 py-2.5 rounded-2xl text-center text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] text-[#F5B418] border border-[#F5B418]/50 shadow-[0_2px_12px_rgba(1,37,32,0.3)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                       >
                         Sign In
                       </button>
@@ -1467,7 +1414,7 @@ export default function Navbar() {
                           setIsMobileNavOpen(false);
                           dispatch(openAuthModal('signup'));
                         }}
-                        className="flex-1 py-2.5 rounded-2xl text-center text-xs font-bold uppercase tracking-wider border border-emerald-300 text-emerald-950 bg-white hover:bg-emerald-50 transition-colors"
+                        className="flex-1 py-2.5 rounded-2xl text-center text-xs font-bold uppercase tracking-wider border-2 border-[#F5B418]/60 text-[#012520] bg-white hover:bg-[#FAF8F2] active:scale-95 transition-all shadow-2xs cursor-pointer"
                       >
                         Register
                       </button>
@@ -1476,7 +1423,7 @@ export default function Navbar() {
                       <a
                         href="/admin/login"
                         onClick={() => setIsMobileNavOpen(false)}
-                        className="text-[11px] text-neutral-500 hover:text-emerald-800 font-medium transition-colors"
+                        className="text-[11px] text-neutral-500 hover:text-[#046A5A] font-medium transition-colors"
                       >
                         Store Admin / Merchant Access →
                       </a>
@@ -1554,34 +1501,15 @@ export default function Navbar() {
                   </div>
                 )}
 
-                {/* Location & Social Links */}
-                <div className="pt-2 border-t border-emerald-100 flex items-center justify-between text-[11px] text-neutral-600">
+                {/* Location & Brand Motto */}
+                <div className="pt-2 border-t border-emerald-100/80 flex items-center justify-between text-[11px] text-neutral-600">
                   <div className="flex items-center gap-1 text-[10px] text-emerald-900 truncate font-medium">
                     <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
                     <span className="truncate">Kannauj, UP - India</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href="https://www.instagram.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-6 h-6 rounded-full bg-white text-neutral-600 hover:text-[#E4405F] border border-emerald-200/80 flex items-center justify-center transition-all shadow-2xs hover:scale-110"
-                      title="Follow Attar Depot on Instagram"
-                      aria-label="Instagram"
-                    >
-                      <Instagram className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.facebook.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-6 h-6 rounded-full bg-white text-neutral-600 hover:text-[#1877F2] border border-emerald-200/80 flex items-center justify-center transition-all shadow-2xs hover:scale-110"
-                      title="Follow Attar Depot on Facebook"
-                      aria-label="Facebook"
-                    >
-                      <Facebook className="w-3 h-3" />
-                    </a>
-                  </div>
+                  <span className="text-[10px] text-[#046A5A] font-semibold tracking-wide">
+                    100% Pure Attars
+                  </span>
                 </div>
               </div>
             </motion.aside>
@@ -1594,7 +1522,7 @@ export default function Navbar() {
       {/* ========================================================================= */}
       {!isProductDetail && (
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] border-t border-[#C9A227]/40 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] rounded-t-[20px] pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 transition-all duration-300 select-none"
+        className="fixed bottom-0 left-0 right-0 z-[120] lg:hidden bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] border-t border-[#C9A227]/40 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] rounded-t-[20px] pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 transition-all duration-300 select-none"
         aria-label="Mobile Bottom Navigation"
       >
         {/* Top ambient gold accent glow line */}
@@ -1604,19 +1532,22 @@ export default function Navbar() {
           {/* 1. Home */}
           <Link
             href="/"
+            onClick={() => {
+              if (isSearchOpen) dispatch(toggleSearch(false));
+            }}
             className="flex flex-col items-center justify-center py-0.5 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="Navigate to Home"
           >
             <div
               className={`relative flex items-center justify-center w-8.5 h-6.5 rounded-xl transition-all duration-300 ${
-                isHome
+                isHome && !isSearchOpen
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.25)]'
                   : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <Home
                 className={`w-4 h-4 transition-all duration-300 ${
-                  isHome
+                  isHome && !isSearchOpen
                     ? 'stroke-[2.4] text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.6)] scale-105'
                     : 'stroke-[1.8] group-hover:scale-105'
                 }`}
@@ -1624,36 +1555,36 @@ export default function Navbar() {
             </div>
             <span
               className={`text-[9px] tracking-wide mt-0.5 transition-colors duration-200 ${
-                isHome
+                isHome && !isSearchOpen
                   ? 'font-bold text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.3)]'
                   : 'font-medium text-[#FAF8F2]/75 group-hover:text-[#F5B418]'
               }`}
             >
               Home
             </span>
-            {isHome && (
+            {isHome && !isSearchOpen && (
               <span className="w-1 h-1 rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFE28A] shadow-[0_0_6px_#F5B418] mt-0.5 animate-pulse" />
             )}
           </Link>
 
-          {/* 2. Quick Search */}
+          {/* 2. Quick Search (Toggles search modal without hiding bottom bar) */}
           <button
             type="button"
-            onClick={() => dispatch(toggleSearch(true))}
+            onClick={() => dispatch(toggleSearch(!isSearchOpen))}
             className="flex flex-col items-center justify-center py-0.5 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent] cursor-pointer"
             aria-label="Search fragrances"
           >
             <div
               className={`relative flex items-center justify-center w-8.5 h-6.5 rounded-xl transition-all duration-300 ${
                 isSearchOpen
-                  ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.25)]'
+                  ? 'bg-[#F5B418]/25 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.45)]'
                   : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <Search
                 className={`w-4 h-4 transition-all duration-300 ${
                   isSearchOpen
-                    ? 'stroke-[2.4] text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.6)] scale-105'
+                    ? 'stroke-[2.4] text-[#F5B418] drop-shadow-[0_0_8px_rgba(245,180,24,0.8)] scale-110'
                     : 'stroke-[1.8] group-hover:scale-105'
                 }`}
               />
@@ -1661,28 +1592,31 @@ export default function Navbar() {
             <span
               className={`text-[9px] tracking-wide mt-0.5 transition-colors duration-200 ${
                 isSearchOpen
-                  ? 'font-bold text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.3)]'
+                  ? 'font-bold text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.4)]'
                   : 'font-medium text-[#FAF8F2]/75 group-hover:text-[#F5B418]'
               }`}
             >
               Search
             </span>
             {isSearchOpen && (
-              <span className="w-1 h-1 rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFE28A] shadow-[0_0_8px_#F5B418] mt-0.5 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFE28A] shadow-[0_0_8px_#F5B418] mt-0.5 animate-pulse" />
             )}
           </button>
 
           {/* 3. Shop Vault (Center Elevated Imperial Medallion Action) */}
           <Link
             href="/shop"
+            onClick={() => {
+              if (isSearchOpen) dispatch(toggleSearch(false));
+            }}
             className="flex flex-col items-center justify-center -mt-3.5 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none relative transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="Navigate to Shop"
           >
             {/* Subtle compact gold glow */}
-            <span className={`absolute -inset-0.5 rounded-full bg-[#F5B418]/25 blur-[3px] ${isShop ? 'opacity-100' : 'opacity-60'} pointer-events-none`} />
+            <span className={`absolute -inset-0.5 rounded-full bg-[#F5B418]/25 blur-[3px] ${isShop && !isSearchOpen ? 'opacity-100' : 'opacity-60'} pointer-events-none`} />
 
             {/* Royal Gold Bezel Ring */}
-            <div className={`relative p-[2px] rounded-full bg-gradient-to-b from-[#FFF0BA] via-[#F5B418] to-[#996D12] shadow-[0_4px_16px_rgba(245,180,24,0.5),0_2px_4px_rgba(0,0,0,0.5)] ring-1.5 ${isShop ? 'ring-[#FFE28A]' : 'ring-[#F5B418]/40'} transition-all duration-300 group-hover:scale-105 group-active:scale-95`}>
+            <div className={`relative p-[2px] rounded-full bg-gradient-to-b from-[#FFF0BA] via-[#F5B418] to-[#996D12] shadow-[0_4px_16px_rgba(245,180,24,0.5),0_2px_4px_rgba(0,0,0,0.5)] ring-1.5 ${isShop && !isSearchOpen ? 'ring-[#FFE28A]' : 'ring-[#F5B418]/40'} transition-all duration-300 group-hover:scale-105 group-active:scale-95`}>
               {/* Inner Medallion Disc */}
               <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#FFEAA0] via-[#F5B418] to-[#D99B12] flex items-center justify-center relative overflow-hidden shadow-inner">
                 {/* Glass top reflection sheen */}
@@ -1695,7 +1629,7 @@ export default function Navbar() {
 
             {/* Text Label */}
             <span className={`text-[9px] font-black uppercase tracking-[0.12em] mt-0.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] transition-colors ${
-              isShop ? 'text-[#FFE28A] font-extrabold' : 'text-[#F5B418] group-hover:text-[#FFE28A]'
+              isShop && !isSearchOpen ? 'text-[#FFE28A] font-extrabold' : 'text-[#F5B418] group-hover:text-[#FFE28A]'
             }`}>
               Shop
             </span>
@@ -1704,19 +1638,22 @@ export default function Navbar() {
           {/* 4. Orders */}
           <Link
             href="/orders"
+            onClick={() => {
+              if (isSearchOpen) dispatch(toggleSearch(false));
+            }}
             className="flex flex-col items-center justify-center py-0.5 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent]"
             aria-label="View Orders"
           >
             <div
               className={`relative flex items-center justify-center w-8.5 h-6.5 rounded-xl transition-all duration-300 ${
-                isOrders
+                isOrders && !isSearchOpen
                   ? 'bg-[#F5B418]/15 border border-[#F5B418]/40 shadow-[0_0_10px_rgba(245,180,24,0.25)]'
                   : 'text-[#FAF8F2]/75 group-hover:text-[#F5B418] group-hover:bg-white/[0.06] border border-transparent'
               }`}
             >
               <PackageCheck
                 className={`w-4 h-4 transition-all duration-300 ${
-                  isOrders
+                  isOrders && !isSearchOpen
                     ? 'stroke-[2.4] text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.6)] scale-105'
                     : 'stroke-[1.8] group-hover:scale-105'
                 }`}
@@ -1724,14 +1661,14 @@ export default function Navbar() {
             </div>
             <span
               className={`text-[9px] tracking-wide mt-0.5 transition-colors duration-200 ${
-                isOrders
+                isOrders && !isSearchOpen
                   ? 'font-bold text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.3)]'
                   : 'font-medium text-[#FAF8F2]/75 group-hover:text-[#F5B418]'
               }`}
             >
               Orders
             </span>
-            {isOrders && (
+            {isOrders && !isSearchOpen && (
               <span className="w-1 h-1 rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFE28A] shadow-[0_0_6px_#F5B418] mt-0.5 animate-pulse" />
             )}
           </Link>
@@ -1739,7 +1676,10 @@ export default function Navbar() {
           {/* 5. Cart Bag */}
           <button
             type="button"
-            onClick={() => dispatch(toggleCartDrawer(true))}
+            onClick={() => {
+              if (isSearchOpen) dispatch(toggleSearch(false));
+              dispatch(toggleCartDrawer(true));
+            }}
             className="flex flex-col items-center justify-center py-0.5 group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none transition-transform duration-200 active:scale-95 [-webkit-tap-highlight-color:transparent] cursor-pointer"
             aria-label="Open Cart"
           >
