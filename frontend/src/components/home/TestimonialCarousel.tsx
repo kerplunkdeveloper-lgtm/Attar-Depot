@@ -243,7 +243,7 @@ export default function TestimonialCarousel() {
                 <div
                   className="relative rounded-xs overflow-hidden border border-[#D4AF37]/35 shadow-[0_4px_24px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.28)] hover:border-[#D4AF37]/60 flex flex-col justify-between h-full min-h-[300px] sm:min-h-[320px] p-6 sm:p-7 md:p-8 transition-all duration-300 group/card"
                   style={{
-                    backgroundImage: "url('/images/wood.png'), url('/images/wood.jpeg'), url('/wood.png')",
+                    backgroundImage: "url('/images/wood.jpeg')",
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',

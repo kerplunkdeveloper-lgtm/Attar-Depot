@@ -21,9 +21,11 @@ export async function GET() {
         console.error('Failed to copy to public directory:', err);
       }
 
-      return new NextResponse(fileBuffer, {
+      return new Response(new Uint8Array(fileBuffer), {
+        status: 200,
         headers: {
           'Content-Type': 'image/jpeg',
+          'Content-Length': String(fileBuffer.length),
           'Cache-Control': 'public, max-age=31536000, immutable',
         },
       });
@@ -32,5 +34,5 @@ export async function GET() {
     console.error('Error serving spotlight image:', error);
   }
 
-  return new NextResponse(null, { status: 404 });
+  return new Response('Not Found', { status: 404 });
 }

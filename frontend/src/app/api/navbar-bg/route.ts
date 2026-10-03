@@ -22,9 +22,11 @@ export async function GET() {
         console.error('Failed to copy navbar background to public directory:', err);
       }
 
-      return new NextResponse(fileBuffer, {
+      return new Response(new Uint8Array(fileBuffer), {
+        status: 200,
         headers: {
           'Content-Type': 'image/jpeg',
+          'Content-Length': String(fileBuffer.length),
           'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       });
@@ -32,9 +34,11 @@ export async function GET() {
 
     if (fs.existsSync(destPath)) {
       const buffer = fs.readFileSync(destPath);
-      return new NextResponse(buffer, {
+      return new Response(new Uint8Array(buffer), {
+        status: 200,
         headers: {
           'Content-Type': 'image/jpeg',
+          'Content-Length': String(buffer.length),
           'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       });
@@ -43,5 +47,5 @@ export async function GET() {
     console.error('Error serving navbar background image:', error);
   }
 
-  return new NextResponse(null, { status: 404 });
+  return new Response('Not Found', { status: 404 });
 }

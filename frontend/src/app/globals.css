@@ -57,6 +57,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), 'Inter', sans-serif;
   overflow-x: hidden;
+  background-color: #e7e1d1;
   background-image: url('/images/texture.png');
   background-repeat: repeat;
   background-position: center top;
