@@ -16,7 +16,10 @@ import {
   Facebook,
   Youtube,
   Sparkles,
+  Copy,
+  Check,
 } from 'lucide-react';
+import { toast } from '@/lib/toast';
 
 const FAQS = [
   {
@@ -48,13 +51,27 @@ const FAQS = [
 
 export default function ContactPage() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopy = (e: React.MouseEvent, text: string, key: string, label: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      toast.success(`${label} copied to clipboard!`);
+      setTimeout(() => {
+        setCopiedKey((prev) => (prev === key ? null : prev));
+      }, 2200);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-neutral-900 font-sans selection:bg-[#046A5A] selection:text-white pb-24">
       {/* ===================================================================== */}
       {/* 1. SLEEK LUXURY HERO BANNER (REDUCED HEIGHT & PANORAMIC VIEW)         */}
       {/* ===================================================================== */}
-      <section className="relative w-full overflow-hidden bg-[#FAF8F2]">
+      <section className="relative w-full overflow-hidden">
         <div className="relative w-full h-[125px] sm:h-[165px] md:h-[205px] lg:h-[240px]">
           <Image
             src="/images/contactbanner.png"
@@ -82,128 +99,422 @@ export default function ContactPage() {
         </nav>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-7 relative z-20 space-y-10 sm:space-y-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-7 relative z-20 space-y-12 sm:space-y-16">
         {/* ===================================================================== */}
-        {/* 2. FOUR VIP CONCIERGE CARDS (REFERENCE DESIGN ALIGNMENT)              */}
+        {/* 2. FOUR VIP CONCIERGE CARDS (PREMIUM LUXURY UI / UX REDESIGN)         */}
         {/* ===================================================================== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Card 1: Direct Hotline / Concierge Desk */}
-          <div className="rounded-[26px] p-6 sm:p-7 bg-white/50 backdrop-blur-md border border-neutral-200/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(1,37,32,0.08)] hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
-            <div className="space-y-3.5">
-              <div className="w-13 h-13 rounded-2xl bg-[#02332A] text-[#F5B418] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <Phone className="w-5 h-5 text-[#F5B418] stroke-[2]" />
-              </div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#065A4B]">
-                DIRECT HOTLINE
-              </p>
-              <h3 className="font-serif text-[22px] font-bold text-neutral-900 tracking-tight leading-snug">
-                Concierge Desk
-              </h3>
-              <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                Speak directly with our fragrance specialists for orders, blending, and product advice.
-              </p>
+        <div className="space-y-6">
+          {/* Section Introduction */}
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-[#C9A227]/30 text-[11px] font-extrabold uppercase tracking-widest text-[#02332A] shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#C9A227]" />
+              <span>Royal Concierge Service</span>
             </div>
-            <div className="pt-4 mt-6 border-t border-neutral-100">
-              <a
-                href="tel:+919876543210"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#02332A] group-hover:text-[#C9A227] transition-colors"
-              >
-                <span>+91 98765 43210</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 tracking-tight">
+              Direct Access to Our Fragrance House
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-sans">
+              Connect directly with our master perfumers for personal order blending, royal gifting sets, and Deg-Bhapka scent advisory.
+            </p>
           </div>
 
-          {/* Card 2: Instant Messaging / WhatsApp Perfumer */}
-          <div className="rounded-[26px] p-6 sm:p-7 bg-white/50 backdrop-blur-md border border-neutral-200/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(37,211,102,0.14)] hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
-            <div className="space-y-3.5">
-              <div className="w-13 h-13 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                {/* Official WhatsApp Speech Bubble Icon */}
-                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
-                </svg>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#065A4B]">
-                  INSTANT MESSAGING
+          {/* Responsive Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            {/* ------------------------------------------------------------- */}
+            {/* Card 1: Direct Hotline / Concierge Desk                       */}
+            {/* ------------------------------------------------------------- */}
+            <div className="relative group rounded-3xl bg-white/85 backdrop-blur-md border border-[#02332A]/10 hover:border-[#C9A227]/60 shadow-[0_4px_24px_rgba(2,51,42,0.04)] hover:shadow-[0_20px_40px_rgba(2,51,42,0.1)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6 sm:p-7 overflow-hidden">
+              {/* Top Accent Gold Bar */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#C9A227] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Subtle Ambient Hover Glow */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#C9A227]/10 blur-2xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
+
+              <div className="relative z-10 space-y-4">
+                {/* Header: Jewel Icon + Status Pill */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#02332A] via-[#034A3D] to-[#046A5A] text-[#F5B418] flex items-center justify-center shadow-md border border-[#C9A227]/30 group-hover:scale-105 transition-transform duration-300">
+                    <Phone className="w-5 h-5 text-[#F5B418] stroke-[2.2]" />
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/70 shadow-2xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                    <span>Mon–Sat • Active</span>
+                  </span>
+                </div>
+
+                {/* Eyebrow & Titles */}
+                <div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-[#065A4B]">
+                    DIRECT HOTLINE
+                  </p>
+                  <h3 className="font-serif text-[22px] sm:text-[23px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#02332A] transition-colors mt-0.5">
+                    Concierge Desk
+                  </h3>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-sans">
+                  Speak directly with our fragrance specialists for orders, bespoke accord blending, and vintage oudh advice.
                 </p>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                  Avg. 10m
-                </span>
-              </div>
-              <h3 className="font-serif text-[22px] font-bold text-neutral-900 tracking-tight leading-snug">
-                WhatsApp Perfumer
-              </h3>
-              <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                Fast scent suggestions, real bottle photos, personalized notes, and quick reorders.
-              </p>
-            </div>
-            <div className="pt-4 mt-6 border-t border-neutral-100">
-              <a
-                href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils%20and%20bespoke%20royal%20fragrances."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#25D366] hover:text-[#189b48] transition-colors"
-              >
-                <span>Chat on WhatsApp</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
-          </div>
 
-          {/* Card 3: Written Inquiries / VIP Correspondence */}
-          <div className="rounded-[26px] p-6 sm:p-7 bg-white/50 backdrop-blur-md border border-neutral-200/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(1,37,32,0.08)] hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
-            <div className="space-y-3.5">
-              <div className="w-13 h-13 rounded-2xl bg-[#02332A] text-[#F5B418] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <Mail className="w-5 h-5 text-[#F5B418] stroke-[2]" />
+                {/* Capability Badges */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Voice Advisory
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Custom Blends
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Kannauj Degs
+                  </span>
+                </div>
               </div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#065A4B]">
-                WRITTEN INQUIRIES
-              </p>
-              <h3 className="font-serif text-[22px] font-bold text-neutral-900 tracking-tight leading-snug">
-                VIP Correspondence
-              </h3>
-              <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                For corporate bulk gifts, exports, bridal orders, and formal vendor proposals.
-              </p>
-            </div>
-            <div className="pt-4 mt-6 border-t border-neutral-100">
-              <a
-                href="mailto:concierge@attardepot.com"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#02332A] group-hover:text-[#C9A227] transition-colors truncate max-w-full"
-              >
-                <span className="truncate">concierge@attardepot.com</span>
-                <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          </div>
 
-          {/* Card 4: Attar Depot Shop / Puducherry */}
-          <div className="rounded-[26px] p-6 sm:p-7 bg-white/50 backdrop-blur-md border border-neutral-200/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(1,37,32,0.08)] hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
-            <div className="space-y-3.5">
-              <div className="w-13 h-13 rounded-2xl bg-[#02332A] text-[#F5B418] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <MapPin className="w-5 h-5 text-[#F5B418] stroke-[2]" />
+              {/* Action Zone */}
+              <div className="relative z-10 pt-4 mt-5 border-t border-neutral-200/60 space-y-3">
+                {/* Value row with 1-click Copy */}
+                <div className="flex items-center justify-between gap-2 bg-[#FAF8F2] px-3 py-2 rounded-xl border border-neutral-200/80">
+                  <div className="min-w-0">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
+                      Hotline Number
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans">
+                      +91 98765 43210
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopy(e, '+919876543210', 'hotline', 'Phone number')}
+                    className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      copiedKey === 'hotline'
+                        ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                        : 'bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-2xs'
+                    }`}
+                    title="Copy phone number"
+                  >
+                    {copiedKey === 'hotline' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-neutral-400 group-hover:text-[#C9A227]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Primary CTA */}
+                <a
+                  href="tel:+919876543210"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#F5B418]" />
+                  <span>Call Concierge Now</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                </a>
               </div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#065A4B]">
-                ATTAR DEPOT SHOP
-              </p>
-              <h3 className="font-serif text-[22px] font-bold text-neutral-900 tracking-tight leading-snug">
-                Puducherry
-              </h3>
-              <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                Bharathi street , MGROAD, Puducherry.
-              </p>
             </div>
-            <div className="pt-4 mt-6 border-t border-neutral-100">
-              <a
-                href="https://www.google.com/maps/place/The+Attar+Depot+(Opening+Soon)/@11.9352508,79.8272356,17z/data=!4m15!1m8!3m7!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!2sThe+Attar+Depot+(Opening+Soon)!8m2!3d11.9352508!4d79.8272356!10e1!16s%2Fg%2F11nk011rzr!3m5!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!8m2!3d11.9352508!4d79.8272356!16s%2Fg%2F11nk011rzr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#02332A] group-hover:text-[#C9A227] transition-colors"
-              >
-                <span>View Google Maps</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+
+            {/* ------------------------------------------------------------- */}
+            {/* Card 2: Instant Messaging / WhatsApp Perfumer                 */}
+            {/* ------------------------------------------------------------- */}
+            <div className="relative group rounded-3xl bg-white/85 backdrop-blur-md border border-[#02332A]/10 hover:border-[#25D366]/60 shadow-[0_4px_24px_rgba(2,51,42,0.04)] hover:shadow-[0_20px_40px_rgba(37,211,102,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6 sm:p-7 overflow-hidden">
+              {/* Top Accent WhatsApp Bar */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#25D366] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Subtle Ambient Hover Glow */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#25D366]/10 blur-2xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
+
+              <div className="relative z-10 space-y-4">
+                {/* Header: Jewel Icon + Status Pill */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#128C7E] via-[#25D366] to-[#20ba5a] text-white flex items-center justify-center shadow-md border border-emerald-300/40 group-hover:scale-105 transition-transform duration-300">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
+                    </svg>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/70 shadow-2xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-ping" />
+                    <span>Avg. 10m Reply</span>
+                  </span>
+                </div>
+
+                {/* Eyebrow & Titles */}
+                <div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-[#15803D]">
+                    INSTANT MESSAGING
+                  </p>
+                  <h3 className="font-serif text-[22px] sm:text-[23px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#15803D] transition-colors mt-0.5">
+                    WhatsApp Perfumer
+                  </h3>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-sans">
+                  Fast scent suggestions, real bottle photos, personalized notes, and quick reorders.
+                </p>
+
+                {/* Capability Badges */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50/80 text-emerald-800 border border-emerald-200/50">
+                    Live Photo Clips
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50/80 text-emerald-800 border border-emerald-200/50">
+                    Audio Consults
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50/80 text-emerald-800 border border-emerald-200/50">
+                    Quick Reorders
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Zone */}
+              <div className="relative z-10 pt-4 mt-5 border-t border-neutral-200/60 space-y-3">
+                {/* Value row with 1-click Copy */}
+                <div className="flex items-center justify-between gap-2 bg-[#FAF8F2] px-3 py-2 rounded-xl border border-neutral-200/80">
+                  <div className="min-w-0">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
+                      WhatsApp Desk
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#15803D] truncate block font-sans">
+                      +91 98765 43210
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopy(e, '+919876543210', 'whatsapp', 'WhatsApp number')}
+                    className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      copiedKey === 'whatsapp'
+                        ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                        : 'bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-2xs'
+                    }`}
+                    title="Copy WhatsApp number"
+                  >
+                    {copiedKey === 'whatsapp' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-neutral-400 group-hover:text-[#25D366]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Primary CTA */}
+                <a
+                  href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils%20and%20bespoke%20royal%20fragrances."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1faa53] text-white text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
+                >
+                  <span>Chat on WhatsApp</span>
+                  <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
+              </div>
+            </div>
+
+            {/* ------------------------------------------------------------- */}
+            {/* Card 3: Written Inquiries / VIP Correspondence               */}
+            {/* ------------------------------------------------------------- */}
+            <div className="relative group rounded-3xl bg-white/85 backdrop-blur-md border border-[#02332A]/10 hover:border-[#C9A227]/60 shadow-[0_4px_24px_rgba(2,51,42,0.04)] hover:shadow-[0_20px_40px_rgba(2,51,42,0.1)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6 sm:p-7 overflow-hidden">
+              {/* Top Accent Gold Bar */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#C9A227] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Subtle Ambient Hover Glow */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#C9A227]/10 blur-2xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
+
+              <div className="relative z-10 space-y-4">
+                {/* Header: Jewel Icon + Status Pill */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#02332A] via-[#034A3D] to-[#046A5A] text-[#F5B418] flex items-center justify-center shadow-md border border-[#C9A227]/30 group-hover:scale-105 transition-transform duration-300">
+                    <Mail className="w-5 h-5 text-[#F5B418] stroke-[2.2]" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-900 border border-amber-200/70 shadow-2xs">
+                    <Clock className="w-3 h-3 text-[#C9A227]" />
+                    <span>2–4h Response</span>
+                  </span>
+                </div>
+
+                {/* Eyebrow & Titles */}
+                <div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-[#065A4B]">
+                    WRITTEN INQUIRIES
+                  </p>
+                  <h3 className="font-serif text-[22px] sm:text-[23px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#02332A] transition-colors mt-0.5">
+                    VIP Correspondence
+                  </h3>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-sans">
+                  For corporate bulk gifts, exports, bridal orders, and formal vendor proposals.
+                </p>
+
+                {/* Capability Badges */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Bridal Trousseau
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Corporate Gifts
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Global Export
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Zone */}
+              <div className="relative z-10 pt-4 mt-5 border-t border-neutral-200/60 space-y-3">
+                {/* Value row with 1-click Copy */}
+                <div className="flex items-center justify-between gap-2 bg-[#FAF8F2] px-3 py-2 rounded-xl border border-neutral-200/80">
+                  <div className="min-w-0">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
+                      Email Address
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title="concierge@attardepot.com">
+                      concierge@attardepot.com
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopy(e, 'concierge@attardepot.com', 'email', 'Email address')}
+                    className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      copiedKey === 'email'
+                        ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                        : 'bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-2xs'
+                    }`}
+                    title="Copy email address"
+                  >
+                    {copiedKey === 'email' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-neutral-400 group-hover:text-[#C9A227]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Primary CTA */}
+                <a
+                  href="mailto:concierge@attardepot.com"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#F5B418]" />
+                  <span>Send VIP Inquiries</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </div>
+
+            {/* ------------------------------------------------------------- */}
+            {/* Card 4: Attar Depot Shop / Puducherry Atelier                 */}
+            {/* ------------------------------------------------------------- */}
+            <div className="relative group rounded-3xl bg-white/85 backdrop-blur-md border border-[#02332A]/10 hover:border-[#C9A227]/60 shadow-[0_4px_24px_rgba(2,51,42,0.04)] hover:shadow-[0_20px_40px_rgba(2,51,42,0.1)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6 sm:p-7 overflow-hidden">
+              {/* Top Accent Gold Bar */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#C9A227] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Subtle Ambient Hover Glow */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#C9A227]/10 blur-2xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
+
+              <div className="relative z-10 space-y-4">
+                {/* Header: Jewel Icon + Status Pill */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#02332A] via-[#034A3D] to-[#046A5A] text-[#F5B418] flex items-center justify-center shadow-md border border-[#C9A227]/30 group-hover:scale-105 transition-transform duration-300">
+                    <MapPin className="w-5 h-5 text-[#F5B418] stroke-[2.2]" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#02332A]/5 text-[#02332A] border border-[#02332A]/15 shadow-2xs">
+                    <Sparkles className="w-3 h-3 text-[#C9A227]" />
+                    <span>Flagship Atelier</span>
+                  </span>
+                </div>
+
+                {/* Eyebrow & Titles */}
+                <div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-[#065A4B]">
+                    ATTAR DEPOT SHOP
+                  </p>
+                  <h3 className="font-serif text-[22px] sm:text-[23px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#02332A] transition-colors mt-0.5">
+                    Puducherry Atelier
+                  </h3>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-sans">
+                  Bharathi street , MGROAD, Puducherry. Experience our live olfactory scent bar and flacons.
+                </p>
+
+                {/* Capability Badges */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Scent Tasting Bar
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Pure Sandalwood
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/60">
+                    Walk-ins Welcome
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Zone */}
+              <div className="relative z-10 pt-4 mt-5 border-t border-neutral-200/60 space-y-3">
+                {/* Value row with 1-click Copy */}
+                <div className="flex items-center justify-between gap-2 bg-[#FAF8F2] px-3 py-2 rounded-xl border border-neutral-200/80">
+                  <div className="min-w-0">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
+                      Shop Address
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title="Bharathi street, MGROAD, Puducherry">
+                      Bharathi St, MG Road
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopy(e, 'Bharathi street, MGROAD, Puducherry', 'puducherry', 'Address')}
+                    className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      copiedKey === 'puducherry'
+                        ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                        : 'bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-2xs'
+                    }`}
+                    title="Copy store address"
+                  >
+                    {copiedKey === 'puducherry' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-neutral-400 group-hover:text-[#C9A227]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Primary CTA */}
+                <a
+                  href="https://www.google.com/maps/place/The+Attar+Depot+(Opening+Soon)/@11.9352508,79.8272356,17z/data=!4m15!1m8!3m7!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!2sThe+Attar+Depot+(Opening+Soon)!8m2!3d11.9352508!4d79.8272356!10e1!16s%2Fg%2F11nk011rzr!3m5!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!8m2!3d11.9352508!4d79.8272356!16s%2Fg%2F11nk011rzr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-[#F5B418]" />
+                  <span>View Google Maps</span>
+                  <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -447,7 +758,7 @@ export default function ContactPage() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-white/60 backdrop-blur-md border border-emerald-100 shadow-2xs overflow-hidden transition-all duration-200"
+                  className="rounded-2xl bg-white/70 backdrop-blur-md border border-emerald-100 shadow-2xs overflow-hidden transition-all duration-200"
                 >
                   <button
                     type="button"

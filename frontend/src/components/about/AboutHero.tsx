@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronDown, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 
 export default function AboutHero() {
   const scrollToHeritage = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -16,105 +16,158 @@ export default function AboutHero() {
   };
 
   return (
-    <section 
-      aria-label="About Attar Depot - A Legacy of Trust, A New World of Fragrance"
-      className="relative w-full min-h-[380px] sm:min-h-[420px] md:min-h-[450px] lg:min-h-[480px] xl:min-h-[520px] flex items-center bg-[#070A08] text-[#FAF6F0] overflow-hidden select-none"
+    <section
+      aria-label="About Attar Depot - A Fragrance Discovery House"
+      className="relative w-full bg-[#F7F3EE] text-[#142A20] overflow-hidden select-none"
     >
-      {/* Background Photography Layer: Luxury Perfume Flacon, Jasmine & Oud Wood */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none select-none">
-        <Image
-          src="/images/about-hero-banner.jpg"
-          alt="Attar Depot - A Legacy of Trust, A New World of Fragrance"
-          fill
-          priority
-          unoptimized
-          sizes="100vw"
-          className="object-cover object-[76%_center] sm:object-[72%_center] md:object-[68%_center] lg:object-[64%_center] xl:object-center w-full h-full brightness-[0.92] contrast-[1.03]"
-        />
+      {/* ========================================================================= */}
+      {/* DESKTOP & WIDE SCREEN PANORAMIC LAYOUT (Exact Reference Match)           */}
+      {/* ========================================================================= */}
+      <div className="hidden lg:block relative w-full min-h-[460px] xl:min-h-[520px] 2xl:min-h-[580px]">
+        {/* Full-bleed Photography Canvas */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none">
+          <Image
+            src="/images/about-hero-clean.jpg"
+            alt="The Attar Depot - A Fragrance Discovery House"
+            fill
+            priority
+            unoptimized
+            sizes="100vw"
+            className="object-cover object-right xl:object-center w-full h-full brightness-[1.01] contrast-[1.02]"
+          />
 
-        {/* Ambient Dark Gradient Overlays for Guaranteed Text Readability */}
-        <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#070A08]/95 via-[#070A08]/75 to-transparent" />
-        <div className="hidden lg:block absolute inset-0 bg-gradient-to-b from-[#070A08]/30 via-transparent to-[#070A08]/80" />
+          {/* Natural luxury cream shade across left content area */}
+          <div className="absolute inset-y-0 left-0 w-full sm:w-[75%] md:w-[68%] lg:w-[64%] xl:w-[58%] bg-gradient-to-r from-[#F7F3EE] via-[#F7F3EE] via-45% to-transparent pointer-events-none z-[1]" />
+        </div>
 
-        <div className="block lg:hidden absolute inset-0 bg-gradient-to-r from-[#070A08]/95 via-[#070A08]/85 to-[#070A08]/50" />
-        <div className="block lg:hidden absolute inset-0 bg-gradient-to-b from-[#070A08]/70 via-transparent to-[#070A08]/90" />
-      </div>
+        {/* Hero Content Container */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto h-full min-h-[460px] xl:min-h-[520px] 2xl:min-h-[580px] px-8 md:px-12 lg:px-16 flex items-center">
+          <div className="w-full grid grid-cols-12 items-center">
+            
+            {/* Left Column: Brand Manifesto & Call to Action */}
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              className="relative col-span-7 xl:col-span-6 flex flex-col items-start space-y-5 lg:space-y-6 max-w-xl py-10 lg:py-12"
+            >
+              {/* Soft ambient blur backing directly under text for guaranteed crisp contrast */}
+              <div className="absolute -inset-6 -left-8 bg-gradient-to-r from-[#F7F3EE] via-[#F7F3EE]/90 to-transparent backdrop-blur-[2px] rounded-3xl -z-10 pointer-events-none" />
 
-      {/* Content Container (Grid layout: Text on Left, Visual space on Right) */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 md:px-12 lg:px-16 py-10 sm:py-12 md:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-          
-          {/* Left Column: Heading, Subtitle & Interactive Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-7 xl:col-span-6 flex flex-col space-y-4 sm:space-y-5 max-w-2xl"
+              {/* Eyebrow Label: OUR BRAND */}
+              <div className="inline-flex items-center gap-2">
+                <span className="text-[#98722B] text-[11px] xl:text-[12px] font-semibold tracking-[0.28em] uppercase font-sans">
+                  OUR BRAND
+                </span>
+              </div>
+
+              {/* Main Headline: A Fragrance Discovery House */}
+              <h1 className="font-serif text-[42px] xl:text-[50px] 2xl:text-[56px] font-normal tracking-[-0.015em] text-[#0E281C] leading-[1.12]">
+                A Fragrance <br />
+                Discovery House
+              </h1>
+
+              {/* Description Paragraph */}
+              <p className="font-serif text-[15px] xl:text-[17px] text-[#2E3F36] font-normal leading-[1.65] max-w-[430px]">
+                Fragrance can bring back a memory, remind you of someone, or simply feel right before you know why.
+              </p>
+
+              {/* Primary Call to Action Button */}
+              <div className="pt-2">
+                <Link
+                  href="/shop"
+                  className="group inline-flex items-center gap-2.5 px-6 xl:px-7 py-3 rounded-[6px] bg-[#0E281C] text-[#F7F4EE] hover:bg-[#163828] border border-[#0E281C] hover:border-[#98722B]/60 shadow-[0_4px_14px_rgba(14,40,28,0.25)] hover:shadow-[0_8px_24px_rgba(14,40,28,0.35)] transition-all duration-300 font-sans text-xs sm:text-[13px] font-medium tracking-wide"
+                >
+                  <span>Explore Our Collection</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#F7F4EE] transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Visual room for the perfume bottles, citrus & figs */}
+            <div className="col-span-5 xl:col-span-6 pointer-events-none" />
+
+          </div>
+        </div>
+
+        {/* Scroll down indicator to heritage section */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+          <a
+            href="#heritage"
+            onClick={scrollToHeritage}
+            aria-label="Scroll to our heritage"
+            className="group flex flex-col items-center gap-1 text-[#3D4F46]/60 hover:text-[#122E22] transition-colors duration-300"
           >
-            {/* Top Eyebrow Tagline */}
-            <div className="inline-flex items-center gap-2 text-[#D4AF37] text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase font-sans">
-              <Sparkles className="w-3 h-3 text-[#D4AF37] animate-pulse" />
-              <span>SINCE 1972 • PONDICHERRY</span>
+            <div className="w-7 h-7 rounded-full border border-[#122E22]/20 group-hover:border-[#122E22]/60 flex items-center justify-center bg-white/70 backdrop-blur-sm shadow-sm group-hover:scale-105 transition-all duration-300">
+              <ChevronDown className="w-3.5 h-3.5 text-[#122E22] animate-bounce" />
             </div>
-
-            {/* Main Headline */}
-            <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl lg:text-[42px] xl:text-[46px] font-normal tracking-tight text-[#F7F4EE] leading-[1.1] drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-              A Legacy <br className="hidden sm:inline" />
-              Of Trust. <br />
-              <span className="italic text-[#EAD8B1] font-light">A New World</span> <br className="hidden sm:inline" />
-              Of Fragrance.
-            </h1>
-
-            {/* Narrative Subtitle */}
-            <div className="space-y-1 font-sans text-xs sm:text-sm md:text-base text-neutral-300 font-light leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] max-w-xl">
-              <p>Five decades of generational trust from Pondicherry.</p>
-              <p className="text-[#C9A227]/90 font-normal">A new chapter written in fragrance.</p>
-            </div>
-
-            {/* Action Buttons Row */}
-            <div className="pt-1 sm:pt-2 flex flex-wrap items-center gap-3.5">
-              {/* Primary CTA: Discover Our Story */}
-              <a
-                href="#heritage"
-                onClick={scrollToHeritage}
-                className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#D4AF37] text-[#0C0B0A] hover:bg-[#F3E5AB] font-sans text-xs sm:text-xs font-semibold tracking-wider uppercase shadow-[0_8px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_12px_28px_rgba(212,175,55,0.45)] hover:scale-[1.02] active:scale-95 transition-all duration-300 group"
-              >
-                <span>DISCOVER OUR STORY</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
-
-              {/* Secondary CTA: Explore Collection */}
-              <Link
-                href="/shop"
-                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 text-[#FAF6F0] border border-white/20 hover:border-[#D4AF37]/60 backdrop-blur-md font-sans text-xs sm:text-xs font-medium tracking-wider uppercase transition-all duration-300"
-              >
-                <span>EXPLORE COLLECTION</span>
-              </Link>
-            </div>
-
-          </motion.div>
-
-          {/* Right Column: Natural visual space for the glowing perfume flacon */}
-          <div className="hidden lg:block lg:col-span-5 xl:col-span-6 pointer-events-none" />
-
+          </a>
         </div>
       </div>
 
-      {/* Bottom Center Circular Scroll Down Indicator */}
-      <div className="absolute bottom-3 sm:bottom-4 inset-x-0 flex justify-center z-20 pointer-events-auto">
-        <a
-          href="#heritage"
-          onClick={scrollToHeritage}
-          aria-label="Scroll down to heritage story"
-          title="Scroll down"
-          className="group flex flex-col items-center gap-1 text-neutral-400 hover:text-[#D4AF37] transition-colors duration-300 cursor-pointer"
-        >
-          <div className="w-7 h-7 rounded-full border border-white/30 group-hover:border-[#D4AF37] flex items-center justify-center bg-black/40 backdrop-blur-md shadow-md group-hover:scale-110 transition-all duration-300">
-            <ChevronDown className="w-3.5 h-3.5 text-white/80 group-hover:text-[#D4AF37] animate-bounce" />
-          </div>
-        </a>
-      </div>
+      {/* ========================================================================= */}
+      {/* MOBILE & TABLET RESPONSIVE LAYOUT (Optimized for Small & Medium Screens)  */}
+      {/* ========================================================================= */}
+      <div className="block lg:hidden w-full px-5 sm:px-8 py-8 sm:py-12 bg-gradient-to-b from-[#F7F3EE] via-[#F4EFE6] to-[#ECE5D8]">
+        <div className="max-w-xl mx-auto flex flex-col space-y-6 sm:space-y-8">
+          
+          {/* Visual Showcase Card with Responsive Crop */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="relative w-full h-[240px] sm:h-[320px] rounded-2xl overflow-hidden shadow-[0_12px_36px_rgba(20,40,30,0.12)] border border-[#E4DCCE]/80"
+          >
+            <Image
+              src="/images/about-hero-clean.jpg"
+              alt="The Attar Depot Luxury Fragrances"
+              fill
+              priority
+              unoptimized
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover object-[80%_center] w-full h-full brightness-[1.01]"
+            />
+            {/* Soft border inner sheen */}
+            <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl pointer-events-none" />
+          </motion.div>
 
+          {/* Text Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="flex flex-col items-start space-y-4"
+          >
+            {/* Eyebrow Label */}
+            <span className="text-[#A2823D] text-[11px] font-semibold tracking-[0.25em] uppercase font-sans">
+              OUR BRAND
+            </span>
+
+            {/* Headline */}
+            <h1 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-[#122E22] leading-[1.15]">
+              A Fragrance <br />
+              Discovery House
+            </h1>
+
+            {/* Description */}
+            <p className="font-serif text-[15px] sm:text-base text-[#3D4F46] leading-relaxed">
+              Fragrance can bring back a memory, remind you of someone, or simply feel right before you know why.
+            </p>
+
+            {/* CTA Button */}
+            <div className="pt-2 w-full sm:w-auto">
+              <Link
+                href="/shop"
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-[6px] bg-[#122B20] text-[#F5F2EA] hover:bg-[#183B2C] border border-[#122B20] shadow-[0_4px_14px_rgba(18,43,32,0.22)] transition-all duration-300 font-sans text-xs sm:text-sm font-medium tracking-wide active:scale-[0.98]"
+              >
+                <span>Explore Our Collection</span>
+                <ArrowRight className="w-4 h-4 text-[#F5F2EA] transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </motion.div>
+
+        </div>
+      </div>
     </section>
   );
 }

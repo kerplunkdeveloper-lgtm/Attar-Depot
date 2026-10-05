@@ -223,6 +223,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/corporate-gifting"
+                  className="flex items-center gap-1.5 hover:text-[#F5B418] hover:translate-x-1 transition-all duration-200"
+                >
+                  <ArrowRight className="w-3 h-3 text-[#F5B418]/70" />
+                  <span>Corporate & Bulk Gifting</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/about"
                   className="flex items-center gap-1.5 hover:text-[#F5B418] hover:translate-x-1 transition-all duration-200"
                 >

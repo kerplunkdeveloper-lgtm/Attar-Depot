@@ -32,10 +32,38 @@ try {
     fs.copyFileSync(aboutSource, aboutTarget);
   }
 
-  const luxuryBannerSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\about_luxury_hero_banner_1791023645913.jpg';
+  const luxuryBannerSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\e35a2100-e99c-411c-a721-05297aa75b63\\about_clean_banner_1791185770734.jpg';
   const luxuryBannerTarget = path.join(process.cwd(), 'public', 'images', 'about-hero-banner.jpg');
+  const cleanBannerTarget = path.join(process.cwd(), 'public', 'images', 'about-hero-clean.jpg');
   if (fs.existsSync(luxuryBannerSrc)) {
     fs.copyFileSync(luxuryBannerSrc, luxuryBannerTarget);
+    fs.copyFileSync(luxuryBannerSrc, cleanBannerTarget);
+  }
+
+  const heritageSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\e35a2100-e99c-411c-a721-05297aa75b63\\.user_uploaded\\media_1791186323471.png';
+  const heritageTarget = path.join(process.cwd(), 'public', 'images', 'heritage-family-trust.png');
+  const heritageRefTarget = path.join(process.cwd(), 'public', 'images', 'heritage-reference.png');
+  if (fs.existsSync(heritageSource)) {
+    fs.copyFileSync(heritageSource, heritageTarget);
+    fs.copyFileSync(heritageSource, heritageRefTarget);
+  }
+
+  const meaningSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\e35a2100-e99c-411c-a721-05297aa75b63\\.user_uploaded\\media_1791186857974.png';
+  const meaningTarget = path.join(process.cwd(), 'public', 'images', 'about-name-meaning.png');
+  if (fs.existsSync(meaningSource)) {
+    fs.copyFileSync(meaningSource, meaningTarget);
+  }
+
+  const leafSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\e35a2100-e99c-411c-a721-05297aa75b63\\attar_leaf_emblem_1791186979033.jpg';
+  const leafTrg = path.join(process.cwd(), 'public', 'images', 'attar-leaf-emblem.jpg');
+  if (fs.existsSync(leafSrc)) {
+    fs.copyFileSync(leafSrc, leafTrg);
+  }
+
+  const pondyHDSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\e35a2100-e99c-411c-a721-05297aa75b63\\pondicherry_heritage_street_1791186434129.jpg';
+  const pondyHDTrg = path.join(process.cwd(), 'public', 'images', 'pondicherry-heritage-hd.jpg');
+  if (fs.existsSync(pondyHDSrc)) {
+    fs.copyFileSync(pondyHDSrc, pondyHDTrg);
   }
 
   const fragranceSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\f30006dc-3c5d-4da6-804e-af994d6384c6\\.user_uploaded\\media_1791020661201.png';

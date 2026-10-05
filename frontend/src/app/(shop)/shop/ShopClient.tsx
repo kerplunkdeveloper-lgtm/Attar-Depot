@@ -557,7 +557,7 @@ export default function ShopClient() {
   return (
     <>
       {/* Hero Shop Banner */}
-      <section className="relative w-full overflow-hidden">
+      <section className="relative w-full overflow-hidden ">
         <div className="relative w-full h-[175px] sm:h-[260px] md:h-[320px] lg:h-[380px]">
           <Image
             src="/images/shopbanner.png"

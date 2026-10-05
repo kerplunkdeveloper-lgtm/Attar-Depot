@@ -1,0 +1,1 @@
+width=637, height=276, size=385333

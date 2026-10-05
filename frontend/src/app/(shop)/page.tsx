@@ -22,7 +22,7 @@ import HeroBannerCarousel from '@/components/home/HeroBannerCarousel';
 import MobileBestsellerSlider from '@/components/home/MobileBestsellerSlider';
 import CategoryDisplaySlider from '@/components/home/CategoryDisplaySlider';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
-import Faq from '@/components/home/Faq';
+import FAQsection from '@/components/home/FAQsection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { luxuryEase, popSpring } from '@/lib/animations';
 
@@ -580,14 +580,14 @@ export default function HomePage() {
         <TestimonialCarousel />
       </motion.section>
 
-      {/* 8. Frequently Asked Questions (FAQ) */}
+      {/* 8. Frequently Asked Questions Section */}
       <motion.section
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.75, ease: luxuryEase }}
       >
-        <Faq />
+        <FAQsection />
       </motion.section>
     </div>
   );
