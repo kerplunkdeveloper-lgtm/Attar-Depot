@@ -82,7 +82,6 @@ function AdminLayoutInner({
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isMuted, setIsMutedState] = useState(false);
   const [notificationTab, setNotificationTab] = useState<'all' | 'orders' | 'stock' | 'customers'>('all');
-  const [showSoundTestMenu, setShowSoundTestMenu] = useState(false);
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -173,7 +172,6 @@ function AdminLayoutInner({
     markAsRead,
     markAllAsRead,
     clearAll,
-    triggerTest,
   } = useAdminNotifications(!isLoginPage);
 
   // Load sound mute preference
@@ -186,7 +184,6 @@ function AdminLayoutInner({
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         setIsNotificationsOpen(false);
-        setShowSoundTestMenu(false);
       }
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) {
         setIsAdminDropdownOpen(false);
@@ -205,18 +202,24 @@ function AdminLayoutInner({
     }
   };
 
-  const handleTestChime = (type: NotificationType = 'payment_received') => {
-    playNotificationSound(type);
-    triggerTest(type);
-  };
+
+  // Periodic ticker to smoothly update relative timestamps (e.g. Just now -> 1m ago -> 2m ago)
+  const [, setTimeTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeTick((t) => t + 1);
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   const formatRelativeTime = (dateStr: string) => {
     if (!dateStr) return 'Recently';
     try {
       const date = new Date(dateStr);
       const now = new Date();
-      const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
-      if (diffSec < 60) return 'Just now';
+      const diffSec = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+      if (diffSec < 45) return 'Just now';
+      if (diffSec < 90) return '1m ago';
       if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
       if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
       return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -854,10 +857,7 @@ function AdminLayoutInner({
             {/* Notification Bell & Popover Trigger */}
             <div className="relative">
               <button
-                onClick={() => {
-                  setIsNotificationsOpen(!isNotificationsOpen);
-                  setShowSoundTestMenu(false);
-                }}
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={`p-2 rounded-xl border transition-all relative ${
                   isNotificationsOpen
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
@@ -905,21 +905,6 @@ function AdminLayoutInner({
 
                       {/* Right Action Icons */}
                       <div className="flex items-center gap-1 shrink-0">
-                        {/* Audio Chime Demo Toggle */}
-                        <button
-                          type="button"
-                          onClick={() => setShowSoundTestMenu(!showSoundTestMenu)}
-                          title="Preview Notification Audio Chimes"
-                          className={`text-[10px] px-2 py-1 rounded-lg border font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                            showSoundTestMenu
-                              ? 'bg-amber-50 text-amber-900 border-amber-300 ring-1 ring-amber-300'
-                              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 shadow-2xs'
-                          }`}
-                        >
-                          <Volume2 className="w-3 h-3 text-amber-600" />
-                          <span className="hidden xs:inline">Sound</span>
-                        </button>
-
                         {/* Mark All As Read */}
                         {unreadCount > 0 && (
                           <button
@@ -956,62 +941,6 @@ function AdminLayoutInner({
                         </button>
                       </div>
                     </div>
-
-                    {/* Sound Test Panel */}
-                    {showSoundTestMenu && (
-                      <div className="p-2.5 mb-2.5 rounded-xl border border-amber-200/90 bg-amber-50/80 animate-in fade-in slide-in-from-top-1 text-slate-800">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-900">
-                            🔊 Test Audio Chimes
-                          </p>
-                          <span className="text-[9px] text-amber-700">Click to play sound</span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-1.5 text-[10px]">
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('payment_received')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>💳 Payment</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('stock_low')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-amber-100 hover:text-amber-900 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>⚠️ Low Stock</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('stock_empty')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-rose-50 hover:text-rose-800 hover:border-rose-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>🚨 0 Stock</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('customer_register')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-purple-50 hover:text-purple-800 hover:border-purple-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>🎉 Register</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('customer_login')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-indigo-50 hover:text-indigo-800 hover:border-indigo-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>🔑 Login</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTestChime('order_placed')}
-                            className="px-2 py-1 rounded-lg bg-white border border-amber-200 text-slate-800 hover:bg-sky-50 hover:text-sky-800 hover:border-sky-300 font-semibold transition-all text-left truncate flex items-center gap-1 cursor-pointer shadow-2xs"
-                          >
-                            <span>📦 COD Order</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
 
                     {/* Category Filter Tabs */}
                     <div className="flex items-center gap-1 p-0.5 rounded-xl bg-slate-200/70 text-slate-700 text-[11px] font-semibold">
@@ -1112,7 +1041,10 @@ function AdminLayoutInner({
                                     {cfg.badgeText}
                                   </span>
                                 </div>
-                                <span className="text-[10px] font-medium text-slate-400 shrink-0">
+                                <span
+                                  className="text-[10px] font-medium text-slate-400 shrink-0 cursor-default"
+                                  title={item.createdAt ? new Date(item.createdAt).toLocaleString('en-IN') : ''}
+                                >
                                   {formatRelativeTime(item.createdAt)}
                                 </span>
                               </div>

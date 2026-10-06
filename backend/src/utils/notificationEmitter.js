@@ -10,7 +10,7 @@ export const registerSseClient = (res) => {
   sseClients.add(res);
 
   // Send initial handshake event
-  res.write(`data: ${JSON.stringify({ event: 'connected', time: new Date().toISOString() })}\n\n`);
+  res.write(`data: ${JSON.stringify({ type: 'connected', event: 'connected', time: new Date().toISOString() })}\n\n`);
 
   // Remove on close
   res.on('close', () => {

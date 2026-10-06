@@ -5,11 +5,14 @@ import { registerSseClient, sendAdminNotification } from '../utils/notificationE
 // @route   GET /api/admin/notifications/stream
 // @access  Public / Admin (Protected by cookie or bearer)
 export const getNotificationStream = (req, res) => {
+  const origin = req.headers.origin || 'http://localhost:3000';
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache, no-transform',
     Connection: 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
   });
 
   res.flushHeaders();
