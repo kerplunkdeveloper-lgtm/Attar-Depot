@@ -31,6 +31,7 @@ import {
   Layers,
   ArrowRight,
   Gift,
+  Briefcase,
   LocateFixed,
   Heart,
   Phone,
@@ -290,6 +291,7 @@ export default function Navbar() {
   const isAbout = pathname === '/about';
   const isOrders = pathname === '/orders';
   const isGifting = pathname === '/gifting';
+  const isCorporateGifting = pathname === '/corporate-gifting';
   const isContact = pathname === '/contact';
   const isCart = pathname === '/cart';
   const isProductDetail = pathname.startsWith('/product/');
@@ -308,11 +310,11 @@ export default function Navbar() {
         <div
           className={`w-full bg-[#FBF4E3] text-neutral-800 select-none transition-all duration-300 ease-in-out overflow-hidden ${
             isAtTop
-              ? 'max-h-16 opacity-100 border-b border-neutral-300'
+              ? 'max-h-16 opacity-100 '
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
           }`}
         >
-          <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[26px] sm:h-9 py-0.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[26px] sm:h-9 py-0.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
             {currentBannerCoupon ? (
               <div className="flex items-center justify-center w-full text-[9px] xs:text-[10px] sm:text-[12.5px] font-medium text-neutral-800 tracking-tight sm:tracking-wide gap-1 sm:gap-2 whitespace-nowrap overflow-hidden">
                 <span className="font-semibold text-neutral-900 truncate flex-shrink">
@@ -367,20 +369,24 @@ export default function Navbar() {
         {/* ================================================================= */}
         {/* MAIN LUXURY NAVIGATION BAR (MATCHING USER REFERENCE DESIGN)       */}
         {/* ================================================================= */}
-        <div className="w-full relative border-b border-[#F5B418]/30 shadow-[0_12px_45px_rgba(0,0,0,0.65)]">
-          {/* Royal Perfumery Panoramic Background (Flanking flacons, Islamic arch & incense smoke) */}
-          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-            <img
-              src="/api/navbar-bg"
-              alt=""
-              className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.08]"
+        <div className="w-full relative">
+          {/* Royal Perfumery Panoramic Background with greenbg.jpeg */}
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10">
+            <Image
+              src="/images/greenbg.jpeg"
+              alt="Navbar Background"
+              fill
+              priority
+              quality={90}
+              className="object-cover object-center"
+              sizes="100vw"
             />
-            {/* Emerald dark glassmorphic vignette for pristine legibility and contrast */}
+            {/* Subtle glassmorphic depth & ambient lighting to highlight royal emerald texture */}
             <div
               className="absolute inset-0"
               style={{
                 background:
-                  'radial-gradient(ellipse at 50% 50%, rgba(1, 37, 32, 0.65) 0%, rgba(1, 28, 22, 0.85) 60%, rgba(0, 16, 12, 0.94) 100%)',
+                  'linear-gradient(to bottom, rgba(0, 0, 0, 0.12) 0%, rgba(1, 28, 22, 0.25) 100%)',
               }}
             />
             {/* Top & bottom 24k gold hairline borders */}
@@ -415,7 +421,7 @@ export default function Navbar() {
                   aria-label="Attar Depot Home"
                 >
                   {/* Subtle golden ambient aura behind the logo */}
-                  <div className="absolute -inset-2 bg-gradient-to-r from-[#F5B418]/25 via-[#F5B418]/15 to-transparent rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-2  rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
@@ -423,7 +429,7 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[52px] lg:h-[58px] xl:h-[68px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_18px_rgba(245,180,24,0.6)] group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[56px] lg:h-[60px] xl:h-[70px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03]  group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>
@@ -442,22 +448,22 @@ export default function Navbar() {
                 </div>
 
                 {/* Central Floating Capsule Pill (Refined & Compact Menu Size) */}
-                <nav className="flex items-center gap-2 bg-[#011C16]/85 px-1.5 py-2 xl:px-2 xl:py-2 rounded-full border border-[#F5B418]/45 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(245,180,24,0.25)]">
+                <nav className="flex items-center gap-1.5 xl:gap-2 bg-[#011C16]/90 px-2 py-1.5 xl:px-2.5 xl:py-1.5 rounded-full border border-[#F5B418]/45 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(245,180,24,0.25)]">
                   {/* Home Link (Iconic Golden Pill when active) */}
                   <Link
                     href="/"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
                       isHome
                         ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
                         : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
                     {isHome && (
-                      <span className="w-2 h-2 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_6px_#F5B418] shrink-0 animate-pulse" />
                     )}
-                    <span className="text-[12px]">Home</span>
+                    <span className="text-[10px] xl:text-[10.5px]">Home</span>
                   </Link>
 
                   {/* Shop Dropdown Trigger */}
@@ -469,14 +475,14 @@ export default function Navbar() {
                   >
                     <button
                       onClick={toggleShopDropdown}
-                      className={`relative flex items-center gap-1 text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center gap-1 text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap ${
                         isShop || isShopOpen
                           ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
                           : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                       }`}
                       aria-expanded={isShopOpen}
                     >
-                      <span className="text-[12px]">Shop</span>
+                      <span className="text-[10px] xl:text-[10.5px]">Shop</span>
                       <ChevronDown
                         className={`w-2.5 h-2.5 transition-transform duration-300 ${
                           isShopOpen
@@ -494,13 +500,27 @@ export default function Navbar() {
                     href="/gifting"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
                       isGifting
                         ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
                         : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    <span className="text-[12px]">Gifting</span>
+                    <span className="text-[10px] xl:text-[10.5px]">Gifting</span>
+                  </Link>
+
+                  {/* Corporate Gifting Link */}
+                  <Link
+                    href="/corporate-gifting"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
+                      isCorporateGifting
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    <span className="text-[10px] xl:text-[10.5px]">Corporate Gifting</span>
                   </Link>
 
                   {/* Our Brand Link */}
@@ -508,13 +528,13 @@ export default function Navbar() {
                     href="/about"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
                       isAbout
                         ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
                         : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    <span className="text-[12px]">Our Brand</span>
+                    <span className="text-[10px] xl:text-[10.5px]">Our Brand</span>
                   </Link>
 
                   {/* Contact Link */}
@@ -522,13 +542,13 @@ export default function Navbar() {
                     href="/contact"
                     prefetch={true}
                     onMouseEnter={() => closeShopDropdown(100)}
-                    className={`relative text-[9px] xl:text-[9.5px] font-bold tracking-[0.06em] uppercase py-0.5 px-2 xl:px-2.5 rounded-full transition-all duration-200 group flex items-center gap-1 ${
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
                       isContact
                         ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
                         : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
                     }`}
                   >
-                    <span className="text-[12px]">Contact</span>
+                    <span className="text-[10px] xl:text-[10.5px]">Contact</span>
                   </Link>
                 </nav>
 
@@ -1038,30 +1058,16 @@ export default function Navbar() {
 
                   {/* Col 5: Luxury Spotlight Card */}
                   <div className="lg:pl-4 pt-4 lg:pt-0 flex flex-col justify-between">
-                    <div className="h-full rounded-2xl bg-gradient-to-br from-[#023129] via-[#034A3E] to-[#01221c] p-4 text-white shadow-xl relative overflow-hidden group flex flex-col justify-between border border-emerald-700/50">
-                      <div className="absolute -right-8 -top-8 w-28 h-28 bg-[#F5B418]/15 rounded-full blur-xl group-hover:bg-[#F5B418]/25 transition-all pointer-events-none" />
+                    <div className="h-full  text-white shadow-xl relative overflow-hidden group flex flex-col justify-between ">
+                     
 
-                      <div className="relative z-10 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-[#F5B418] bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 rounded-full">
-                            Signature Flacon
-                          </span>
-                          <span className="text-[10px] text-emerald-200">★ 4.9/5</span>
-                        </div>
-                        <p className="font-serif text-sm font-bold tracking-wide text-white">
-                          Dehn Al Oudh Royale
-                        </p>
-                        <p className="text-[10px] text-emerald-200/80 line-clamp-1">
-                          12-Year Vintage Aged Assam Agarwood
-                        </p>
-                      </div>
+                     
 
                       <div className="relative z-10 my-2.5 w-full h-28 rounded-xl overflow-hidden shadow-md border border-emerald-500/30 bg-emerald-950/60 group/img">
                         <Image
                           src="/images/attar-spotlight.jpg"
                           alt="Pure Artisanal Attar Perfume Oil Flacon"
                           fill
-                          sizes="240px"
                           className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
                           priority
                         />
@@ -1154,13 +1160,21 @@ export default function Navbar() {
               aria-label="Navigation Menu"
             >
               {/* Drawer Top Header */}
-              <div className="shrink-0 p-3.5 sm:p-4 border-b border-[#C9A227]/30 flex items-center justify-between bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] text-white shadow-xs relative">
+              <div className="shrink-0 p-3.5 sm:p-4 border-b border-[#C9A227]/30 flex items-center justify-between text-white shadow-xs relative overflow-hidden">
+                <Image
+                  src="/images/greenbg.jpeg"
+                  alt=""
+                  fill
+                  className="object-cover object-center pointer-events-none select-none -z-0"
+                  sizes="360px"
+                />
+                <div className="absolute inset-0 bg-black/15 pointer-events-none" />
                 <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-[#F5B418]/50 to-transparent pointer-events-none" />
                 {/* Mobile Drawer Brand Logo */}
                 <Link
                   href="/"
                   onClick={() => setIsMobileNavOpen(false)}
-                  className="flex items-center group select-none py-1"
+                  className="relative z-10 flex items-center group select-none py-1"
                   aria-label="Attar Depot Home"
                 >
                   <Image
@@ -1176,7 +1190,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setIsMobileNavOpen(false)}
-                  className="w-8.5 h-8.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 text-[#FAF8F2] hover:text-[#F5B418] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+                  className="relative z-10 w-8.5 h-8.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 text-[#FAF8F2] hover:text-[#F5B418] flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
                   aria-label="Close menu"
                 >
                   <X className="w-4 h-4" />
@@ -1194,8 +1208,9 @@ export default function Navbar() {
                   {[
                     { name: 'Home', href: '/', icon: Home },
                     { name: 'All Perfumes', href: '/shop', icon: ShoppingBag },
-                    { name: 'Royal Gifting', href: '/gifting', icon: Gift },
-                    { name: 'Our Brand & Heritage', href: '/about', icon: Sparkles },
+                    { name: 'Gifting', href: '/gifting', icon: Gift },
+                    { name: 'Corporate Gifting', href: '/corporate-gifting', icon: Briefcase },
+                    { name: 'Our Brand', href: '/about', icon: Sparkles },
                   ].map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
@@ -1310,109 +1325,52 @@ export default function Navbar() {
                 {/* ========================================================= */}
                 {/* SOCIAL MEDIA CHANNELS & COMMUNITY                         */}
                 {/* ========================================================= */}
-                <div className="rounded-2xl bg-gradient-to-br from-[#FAF8F2] via-white to-[#FDFBF7] border border-[#F5B418]/40 p-3.5 space-y-2.5 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-serif text-xs font-bold text-[#012520] tracking-wide block">
-                        Connect With Us
-                      </span>
-                      <p className="text-[10px] text-neutral-500 font-sans mt-0.5">
-                        Follow our fragrance stories & daily reveals
-                      </p>
-                    </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#F5B418]/20 text-[#012520] border border-[#F5B418]/40">
-                      Official
-                    </span>
-                  </div>
+                <div className="flex items-center justify-center gap-4 py-2">
+                  {/* Instagram */}
+                  <a
+                    href="https://www.instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                    aria-label="Follow Attar Depot on Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
 
-                  {/* 2x2 Interactive Social Links Grid */}
-                  <div className="grid grid-cols-2 gap-2 pt-0.5">
-                    {/* Instagram */}
-                    <a
-                      href="https://www.instagram.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-rose-50/60 border border-neutral-200/90 hover:border-[#E4405F]/50 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
-                      aria-label="Follow Attar Depot on Instagram"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FD1D1D] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                        <Instagram className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#E4405F] block truncate transition-colors">
-                          Instagram
-                        </span>
-                        <span className="text-[9.5px] text-neutral-400 block truncate">
-                          @theattardepot
-                        </span>
-                      </div>
-                    </a>
+                  {/* WhatsApp */}
+                  <a
+                    href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                    aria-label="Chat on WhatsApp"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
+                    </svg>
+                  </a>
 
-                    {/* WhatsApp */}
-                    <a
-                      href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-emerald-50/60 border border-neutral-200/90 hover:border-[#25D366]/50 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
-                      aria-label="Chat on WhatsApp"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.472 14.382c-.301-.15-1.782-.88-2.058-.98-.276-.1-.476-.15-.677.15-.2.3-.777.98-.953 1.18-.175.2-.351.225-.652.075s-1.271-.468-2.42-1.493c-.894-.798-1.498-1.784-1.674-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.351.451-.527.15-.175.201-.3.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.63-.927-2.232-.244-.587-.492-.507-.677-.517l-.577-.01c-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.479 1.078 2.909 1.228 3.11.15.2 2.121 3.24 5.14 4.542.718.31 1.279.495 1.716.634.721.23 1.378.197 1.897.12.578-.087 1.782-.728 2.033-1.43.25-.702.25-1.304.175-1.43-.075-.126-.276-.201-.577-.351zm-5.452 7.618h-.008a9.923 9.923 0 01-5.06-1.385l-.363-.215-3.76.986 1.003-3.665-.236-.375a9.912 9.912 0 01-1.522-5.267c.005-5.485 4.468-9.947 9.957-9.947a9.897 9.897 0 017.039 2.915 9.899 9.899 0 012.914 7.042c-.006 5.487-4.468 9.906-9.964 9.906zm8.487-18.452A11.916 11.916 0 0012.02.001C5.395.001.004 5.393.001 12.02c0 2.113.551 4.175 1.6 5.993L0 24l6.155-1.614a11.954 11.954 0 005.865 1.534h.005c6.623 0 12.016-5.392 12.019-12.019a11.92 11.92 0 00-3.518-8.481z" />
-                        </svg>
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-emerald-700 block truncate transition-colors">
-                          WhatsApp
-                        </span>
-                        <span className="text-[9.5px] text-neutral-400 block truncate">
-                          Direct Concierge
-                        </span>
-                      </div>
-                    </a>
+                  {/* YouTube */}
+                  <a
+                    href="https://www.youtube.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-[#FF0000] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                    aria-label="Subscribe on YouTube"
+                  >
+                    <Youtube className="w-5 h-5" />
+                  </a>
 
-                    {/* YouTube */}
-                    <a
-                      href="https://www.youtube.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-rose-50/60 border border-neutral-200/90 hover:border-[#FF0000]/40 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
-                      aria-label="Subscribe on YouTube"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-[#FF0000] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                        <Youtube className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#FF0000] block truncate transition-colors">
-                          YouTube
-                        </span>
-                        <span className="text-[9.5px] text-neutral-400 block truncate">
-                          Fragrance Films
-                        </span>
-                      </div>
-                    </a>
-
-                    {/* Facebook */}
-                    <a
-                      href="https://www.facebook.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white hover:bg-blue-50/60 border border-neutral-200/90 hover:border-[#1877F2]/40 transition-all duration-200 shadow-2xs group cursor-pointer active:scale-95"
-                      aria-label="Follow Attar Depot on Facebook"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-[#1877F2] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                        <Facebook className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-bold text-neutral-800 group-hover:text-[#1877F2] block truncate transition-colors">
-                          Facebook
-                        </span>
-                        <span className="text-[9.5px] text-neutral-400 block truncate">
-                          Official Page
-                        </span>
-                      </div>
-                    </a>
-                  </div>
+                  {/* Facebook */}
+                  <a
+                    href="https://www.facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                    aria-label="Follow Attar Depot on Facebook"
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </a>
                 </div>
               </div>
 

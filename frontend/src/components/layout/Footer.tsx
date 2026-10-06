@@ -62,18 +62,37 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-gradient-to-b from-[#063323] via-[#042419] to-[#021810] text-[#FAF8F2] border-t-2 border-[#F5B418]/30 overflow-hidden font-sans">
+    <footer className="relative text-[#FAF8F2] border-t-2 border-[#F5B418]/30 overflow-hidden font-sans">
+      {/* Footer Panoramic Background with greenbg.jpeg */}
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10">
+        <Image
+          src="/images/greenbg.jpeg"
+          alt="Footer Background"
+          fill
+          quality={90}
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Subtle glassmorphic depth & ambient tint for high contrast & legibility */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(1, 28, 22, 0.45) 0%, rgba(1, 20, 15, 0.65) 50%, rgba(0, 14, 10, 0.85) 100%)',
+          }}
+        />
+        {/* Top 24k gold hairline border accent */}
+        <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/60 to-transparent" />
+      </div>
+
       {/* Ambient Luxury Glow Effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#F5B418]/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#10B981]/5 rounded-full blur-3xl pointer-events-none" />
 
-
-
-
       {/* ========================================================================= */}
       {/* 2. MAIN FOOTER CONTENT GRID                                               */}
       {/* ========================================================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-24 lg:pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-24 lg:pb-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* --------------------------------------------------------------------- */}
           {/* COL 1: Official Brand Logo & About (Span 4)                           */}
