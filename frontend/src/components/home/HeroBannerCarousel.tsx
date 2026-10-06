@@ -206,9 +206,9 @@ export default function HeroBannerCarousel() {
   };
 
   return (
-    <section className="w-full relative overflow-hidden select-none ">
+    <section className="w-full relative select-none px-3.5 xs:px-4 sm:px-0 pt-2.5 sm:pt-0 pb-1 sm:pb-0">
       <div
-        className="relative w-full overflow-hidden select-none group"
+        className="relative w-full overflow-hidden select-none group rounded-2xl sm:rounded-none shadow-md sm:shadow-none isolate"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -232,21 +232,22 @@ export default function HeroBannerCarousel() {
             const isExternal = slide.link?.startsWith('http://') || slide.link?.startsWith('https://');
 
             const content = (
-              <div className="relative w-full aspect-[21/9] sm:aspect-[21/8] lg:aspect-[21/7.5] min-h-[220px] xs:min-h-[260px] sm:min-h-[380px] md:min-h-[460px] lg:min-h-[560px] xl:min-h-[640px] 2xl:min-h-[700px] overflow-hidden">
+              <div className="relative w-full aspect-[16/9] xs:aspect-[18/9] sm:aspect-[21/8] lg:aspect-[21/7.5] min-h-[200px] xs:min-h-[230px] sm:min-h-[380px] md:min-h-[460px] lg:min-h-[560px] xl:min-h-[640px] 2xl:min-h-[700px] overflow-hidden">
                 <Image
                   src={slide.image}
                   alt={slide.alt || 'Attar Depot Hero Banner'}
                   fill
                   priority={index <= 2}
-                  sizes="100vw"
-                  className="object-cover object-center transition-transform duration-700 ease-out group-hover/slide:scale-[1.015]"
+                  sizes="(max-width: 640px) 100vw, 100vw"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover/slide:scale-[1.015]"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
                 />
 
-                {/* Subtle top vignette to ensure transparent navbar menu readability */}
-                <div className="absolute inset-x-0 top-0 h-32 sm:h-44 bg-gradient-to-b from-[#011C16]/85 via-[#011C16]/35 to-transparent pointer-events-none" />
+                {/* Subtle top vignette on desktop only (navbar is solid, no need on mobile) */}
+                <div className="hidden sm:block absolute inset-x-0 top-0 h-32 sm:h-44 bg-gradient-to-b from-[#011C16]/85 via-[#011C16]/35 to-transparent pointer-events-none" />
 
                 {/* Subtle luxury bottom vignette to blend into page */}
-                <div className="absolute inset-x-0 bottom-0 h-12 sm:h-20 bg-gradient-to-t from-[#011C16]/80 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 h-10 sm:h-20 bg-gradient-to-t from-[#011C16]/70 via-transparent to-transparent pointer-events-none" />
               </div>
             );
 
@@ -287,25 +288,25 @@ export default function HeroBannerCarousel() {
           })}
         </div>
 
-        {/* Navigation Arrow - Left (Circular black translucent button, reference match) */}
+        {/* Navigation Arrow - Left (Circular black translucent button) */}
         {isMultiple && (
           <button
             type="button"
             onClick={prevSlide}
             aria-label="Previous Slide"
-            className="flex absolute left-3 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-black/60 hover:bg-black/90 text-white shadow-2xl backdrop-blur-md items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-white/20 hover:border-[#F5B418]"
+            className="flex absolute left-2.5 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-black/60 hover:bg-black/90 text-white shadow-xl backdrop-blur-md items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-white/20 hover:border-[#F5B418]"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
           </button>
         )}
 
-        {/* Navigation Arrow - Right (Circular black translucent button, reference match) */}
+        {/* Navigation Arrow - Right (Circular black translucent button) */}
         {isMultiple && (
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Next Slide"
-            className="flex absolute right-3 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-black/60 hover:bg-black/90 text-white shadow-2xl backdrop-blur-md items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-white/20 hover:border-[#F5B418]"
+            className="flex absolute right-2.5 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-black/60 hover:bg-black/90 text-white shadow-xl backdrop-blur-md items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-white/20 hover:border-[#F5B418]"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
           </button>
@@ -345,7 +346,7 @@ export default function HeroBannerCarousel() {
 
         {/* Bottom Controls: Animated Progress Pills */}
         {isMultiple && (
-          <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20 bg-[#011C16]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#F5B418]/30 shadow-xl">
+          <div className="absolute bottom-2.5 sm:bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 z-20 bg-[#011C16]/80 backdrop-blur-md px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-[#F5B418]/30 shadow-xl">
             {slides.map((slide, idx) => {
               const isActive = activeRealIndex === idx;
 
@@ -355,9 +356,9 @@ export default function HeroBannerCarousel() {
                   type="button"
                   onClick={() => goToSlide(idx)}
                   aria-label={`Go to slide ${idx + 1}`}
-                  className="relative h-2 rounded-full overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none"
+                  className="relative h-1.5 sm:h-2 rounded-full overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none"
                   style={{
-                    width: isActive ? '32px' : '8px',
+                    width: isActive ? '26px' : '7px',
                     backgroundColor: isActive ? 'rgba(245,180,24,0.25)' : 'rgba(255,255,255,0.3)',
                   }}
                 >
