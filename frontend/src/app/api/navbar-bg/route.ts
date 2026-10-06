@@ -8,7 +8,7 @@ export async function GET() {
       'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\d9685302-6140-48ba-931b-1005a16c6112\\navbar_panoramic_clean_bg_1791005169378.jpg';
 
     const publicDir = path.join(process.cwd(), 'public', 'images');
-    const greenBgPath = path.join(publicDir, 'greenbg.jpeg');
+    const greenBgPath = path.join(publicDir, 'greenbgnew.jpeg');
     const destPath = path.join(publicDir, 'navbar-bg.jpg');
 
     if (fs.existsSync(greenBgPath)) {

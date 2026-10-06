@@ -63,10 +63,10 @@ export default function Footer() {
 
   return (
     <footer className="relative text-[#FAF8F2] border-t-2 border-[#F5B418]/30 overflow-hidden font-sans">
-      {/* Footer Panoramic Background with greenbg.jpeg */}
+      {/* Footer Panoramic Background with greenbgnew.jpeg */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10">
         <Image
-          src="/images/greenbg.jpeg"
+          src="/images/greenbgnew.jpeg"
           alt="Footer Background"
           fill
           quality={90}

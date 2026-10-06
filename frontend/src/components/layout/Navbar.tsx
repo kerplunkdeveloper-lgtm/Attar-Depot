@@ -370,10 +370,10 @@ export default function Navbar() {
         {/* MAIN LUXURY NAVIGATION BAR (MATCHING USER REFERENCE DESIGN)       */}
         {/* ================================================================= */}
         <div className="w-full relative">
-          {/* Royal Perfumery Panoramic Background with greenbg.jpeg */}
+          {/* Royal Perfumery Panoramic Background with greenbgnew.jpeg */}
           <div className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10">
             <Image
-              src="/images/greenbg.jpeg"
+              src="/images/greenbgnew.jpeg"
               alt="Navbar Background"
               fill
               priority
@@ -1162,7 +1162,7 @@ export default function Navbar() {
               {/* Drawer Top Header */}
               <div className="shrink-0 p-3.5 sm:p-4 border-b border-[#C9A227]/30 flex items-center justify-between text-white shadow-xs relative overflow-hidden">
                 <Image
-                  src="/images/greenbg.jpeg"
+                  src="/images/greenbgnew.jpeg"
                   alt=""
                   fill
                   className="object-cover object-center pointer-events-none select-none -z-0"

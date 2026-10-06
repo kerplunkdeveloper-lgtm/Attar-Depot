@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Ensure texture.png and wood.png exist in public/images/ and public/
+// Ensure texturenew.png and wood.png exist in public/images/ and public/
 try {
-  const source = path.join(process.cwd(), 'public', 'images', 'texture.png.jpeg');
-  const target1 = path.join(process.cwd(), 'public', 'images', 'texture.png');
-  const target2 = path.join(process.cwd(), 'public', 'texture.png');
+  const source = path.join(process.cwd(), 'public', 'images', 'texturenew.png.jpeg');
+  const target1 = path.join(process.cwd(), 'public', 'images', 'texturenew.png');
+  const target2 = path.join(process.cwd(), 'public', 'texturenew.png');
   if (fs.existsSync(source)) {
     if (!fs.existsSync(target1)) fs.copyFileSync(source, target1);
     if (!fs.existsSync(target2)) fs.copyFileSync(source, target2);
@@ -61,12 +61,12 @@ const nextConfig = {
         destination: '/images/logonew.png',
       },
       {
-        source: '/images/texture.png',
-        destination: '/images/texture.png.jpeg',
+        source: '/images/texturenew.png',
+        destination: '/images/texturenew.png.jpeg',
       },
       {
-        source: '/texture.png',
-        destination: '/images/texture.png.jpeg',
+        source: '/texturenew.png',
+        destination: '/images/texturenew.png.jpeg',
       },
       {
         source: '/images/wood.png',

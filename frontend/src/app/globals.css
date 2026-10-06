@@ -58,15 +58,24 @@ body {
   font-family: var(--font-inter), 'Inter', sans-serif;
   overflow-x: hidden;
   background-color: #e7e1d1;
-  background-image: url('/images/texture.png');
+  background-image: url('/images/texturenew.png');
   background-repeat: repeat;
   background-position: center top;
-  background-attachment: fixed;
+  background-attachment: fixed; /* parallax effect on desktop */
   background-size: cover;
 }
 
+/* Mobile: background-attachment:fixed is broken on iOS/Android —
+   it causes blank areas, repaint jank, and kills scroll performance.
+   Switch to scroll on touch devices. */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
 .bg-texture {
-  background-image: url('/images/texture.png');
+  background-image: url('/images/texturenew.png');
   background-repeat: repeat;
   background-position: center top;
   background-size: cover;

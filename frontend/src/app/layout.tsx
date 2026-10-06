@@ -8,11 +8,11 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import RouteProgressBar from '@/components/common/RouteProgressBar';
 
-// Ensure texture.png and wood.png are available in public/images and public/
+// Ensure texturenew.png and wood.png are available in public/images and public/
 try {
-  const source = path.join(process.cwd(), 'public', 'images', 'texture.png.jpeg');
-  const target1 = path.join(process.cwd(), 'public', 'images', 'texture.png');
-  const target2 = path.join(process.cwd(), 'public', 'texture.png');
+  const source = path.join(process.cwd(), 'public', 'images', 'texturenew.png.jpeg');
+  const target1 = path.join(process.cwd(), 'public', 'images', 'texturenew.png');
+  const target2 = path.join(process.cwd(), 'public', 'texturenew.png');
   if (fs.existsSync(source)) {
     if (!fs.existsSync(target1)) fs.copyFileSync(source, target1);
     if (!fs.existsSync(target2)) fs.copyFileSync(source, target2);
