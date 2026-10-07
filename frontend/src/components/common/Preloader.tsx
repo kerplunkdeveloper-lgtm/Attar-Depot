@@ -1,36 +1,57 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Preloader() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const pathname = usePathname();
+  // Never show preloader on admin login, admin dashboard, or any admin routes
+  const isAdminRoute = Boolean(
+    pathname?.startsWith('/admin') ||
+    (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))
+  );
+
+  const [isLoading, setIsLoading] = useState(() => !isAdminRoute);
+  const [progress, setProgress] = useState(() => (isAdminRoute ? 100 : 0));
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // If on an admin route, immediately dismiss preloader and cancel any pending animations
+  useEffect(() => {
+    if (isAdminRoute) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+      setIsLoading(false);
+      setProgress(100);
+    }
+  }, [isAdminRoute]);
+
   // Check user preference for reduced motion
   useEffect(() => {
+    if (isAdminRoute) return;
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
 
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
+  }, [isAdminRoute]);
 
   // Preload logo assets & royal background immediately into browser memory for zero-lag instant rendering
   useEffect(() => {
+    if (isAdminRoute) return;
     const textImg = new window.Image();
     textImg.src = '/images/attar-logo-text.png';
     const iconImg = new window.Image();
     iconImg.src = '/images/attar-logo-icon.png';
     const bgImg = new window.Image();
     bgImg.src = '/images/preloader-bg.jpg';
-  }, []);
+  }, [isAdminRoute]);
 
   // Safe skip handler
   const handleSkip = () => {
@@ -43,6 +64,7 @@ export default function Preloader() {
 
   // Organic physics-based liquid fill loading curve (0% -> 100%) applied specifically to the logo icon
   useEffect(() => {
+    if (isAdminRoute) return;
     const targetDuration = prefersReducedMotion ? 900 : 2200; // ms
 
     const updateProgress = (timestamp: number) => {
@@ -75,10 +97,11 @@ export default function Preloader() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isAdminRoute]);
 
   // Safety fallback timeout to guarantee dismissal under any network or backgrounding state
   useEffect(() => {
+    if (isAdminRoute) return;
     safetyTimerRef.current = setTimeout(() => {
       setIsLoading(false);
     }, 3500);
@@ -86,10 +109,11 @@ export default function Preloader() {
     return () => {
       if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
     };
-  }, []);
+  }, [isAdminRoute]);
 
   // Keyboard shortcut (Escape) to skip preloader instantly
   useEffect(() => {
+    if (isAdminRoute) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleSkip();
@@ -97,7 +121,7 @@ export default function Preloader() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isAdminRoute]);
 
   // Dynamic meniscus wave geometry conforming organically to the flame silhouette
   const meniscusWidthPercent =
@@ -120,6 +144,10 @@ export default function Preloader() {
       : progress < 6
       ? progress / 6
       : 1;
+
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

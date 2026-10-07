@@ -411,24 +411,10 @@ function AdminLayoutInner({
   return (
     <div
       style={{
-        backgroundColor: '#FAF8F5',
-        backgroundImage: `
-          radial-gradient(circle at 12% 8%, rgba(209, 250, 229, 0.45) 0%, transparent 45%),
-          radial-gradient(circle at 88% 18%, rgba(254, 243, 199, 0.45) 0%, transparent 45%),
-          radial-gradient(circle at 50% 85%, rgba(236, 253, 245, 0.50) 0%, transparent 55%),
-          linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
-          url('/images/luxury-marble-bg.jpg')
-        `,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        backgroundAttachment: 'fixed',
+        backgroundColor: '#FFFFFF',
       }}
-      className="min-h-screen flex font-poppins relative text-slate-800 selection:bg-emerald-600 selection:text-white transition-colors duration-300"
+      className="min-h-screen flex font-poppins relative bg-white text-slate-800 selection:bg-emerald-600 selection:text-white transition-colors duration-300"
     >
-      {/* Dynamic Ambient Background Glows */}
-      <div className="fixed top-16 left-60 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none bg-emerald-500/10 opacity-60" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[160px] pointer-events-none bg-amber-400/10 opacity-50" />
-
       {/* Real-time SaaS Live Toast */}
       {liveToast && (
         <div className="fixed top-5 right-5 z-[80] animate-in slide-in-from-top-4 fade-in duration-300 max-w-md w-full px-3 sm:px-0">
@@ -1349,7 +1335,7 @@ function AdminLayoutInner({
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8 bg-white">
           {children}
         </main>
 

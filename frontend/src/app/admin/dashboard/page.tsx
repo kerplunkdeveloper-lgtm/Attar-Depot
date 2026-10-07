@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
   }, [customers]);
 
   return (
-    <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 pb-10">
+    <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 pb-10 bg-white">
       {/* ========================================================================= */}
       {/* 1. EXECUTIVE DATE FILTER TOOLBAR (Matches Reference Image)                */}
       {/* ========================================================================= */}

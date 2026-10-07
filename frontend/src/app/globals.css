@@ -359,7 +359,7 @@ button, input, select, textarea, .font-sans, .font-inter {
 /* Admin Light Mode Theme Engine (Refined Luxury Atelier Palette)           */
 /* ========================================================================= */
 .admin-light-mode {
-  --admin-bg: #F4F7F5;
+  --admin-bg: #FFFFFF;
   --admin-card-bg: #FFFFFF;
   --admin-border: #E2EAE6;
   --admin-text-primary: #0F172A;
@@ -369,7 +369,7 @@ button, input, select, textarea, .font-sans, .font-inter {
 }
 
 .admin-light-mode > div {
-  background-color: #F4F7F5 !important;
+  background-color: #FFFFFF !important;
   color: #0F172A !important;
 }
 
