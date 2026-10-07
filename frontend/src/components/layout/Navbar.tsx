@@ -293,6 +293,7 @@ export default function Navbar() {
   const isGifting = pathname === '/gifting';
   const isCorporateGifting = pathname === '/corporate-gifting';
   const isContact = pathname === '/contact';
+  const isFaq = pathname === '/faq';
   const isCart = pathname === '/cart';
   const isProductDetail = pathname.startsWith('/product/');
 
@@ -429,7 +430,8 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[56px] lg:h-[60px] xl:h-[70px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03]  group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[56px] lg:h-[60px] xl:h-[70px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    style={{ mixBlendMode: 'multiply', filter: 'brightness(1.08)' }}
                   />
                 </Link>
               </div>
@@ -549,6 +551,20 @@ export default function Navbar() {
                     }`}
                   >
                     <span className="text-[10px] xl:text-[10.5px]">Contact</span>
+                  </Link>
+
+                  {/* FAQ Link */}
+                  <Link
+                    href="/faq"
+                    prefetch={true}
+                    onMouseEnter={() => closeShopDropdown(100)}
+                    className={`relative text-[10px] xl:text-[10.5px] font-bold tracking-[0.05em] uppercase py-1 px-2.5 xl:px-3 rounded-full transition-all duration-200 group flex items-center gap-1 whitespace-nowrap ${
+                      isFaq
+                        ? 'text-[#FAF8F2] bg-gradient-to-r from-[#F5B418]/30 via-[#F5B418]/20 to-[#F5B418]/30 border border-[#F5B418] shadow-[0_0_12px_rgba(245,180,24,0.35)]'
+                        : 'text-[#FAF8F2]/85 hover:text-[#F5B418] hover:bg-white/[0.06] border border-transparent'
+                    }`}
+                  >
+                    <span className="text-[10px] xl:text-[10.5px]">FAQ</span>
                   </Link>
                 </nav>
 
@@ -1185,6 +1201,7 @@ export default function Navbar() {
                     priority
                     quality={95}
                     className="h-[52px] sm:h-[58px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
+                    style={{ mixBlendMode: 'multiply', filter: 'brightness(1.08)' }}
                   />
                 </Link>
                 <button
@@ -1211,6 +1228,7 @@ export default function Navbar() {
                     { name: 'Gifting', href: '/gifting', icon: Gift },
                     { name: 'Corporate Gifting', href: '/corporate-gifting', icon: Briefcase },
                     { name: 'Our Brand', href: '/about', icon: Sparkles },
+                    { name: 'FAQ', href: '/faq', icon: MessageCircle },
                   ].map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
