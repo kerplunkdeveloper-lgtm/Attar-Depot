@@ -24,7 +24,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useAdminOrders, useUpdateOrderStatus } from '@/hooks/useAdmin';
-import { formatPrice, formatDate } from '@/lib/utils';
+import { formatPrice, formatDate, formatDateTime } from '@/lib/utils';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { toast } from '@/lib/toast';
 
@@ -399,27 +399,17 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Executive Header */}
-      <div
-        className={`p-5 sm:p-6 rounded-3xl border flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-xl shadow-lg transition-all ${
-          isLight
-            ? 'bg-gradient-to-r from-[#EBF7F2] via-[#E4F4EC] to-[#DCF1E6] border-[#B2DFD0] text-[#022D24] shadow-emerald-950/5'
-            : 'bg-gradient-to-r from-[#0C1714] via-[#091310] to-[#08100D] border-[#1C332B] text-white shadow-black/60'
-        }`}
-      >
+      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm transition-all">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1
-              className={`font-serif text-2xl font-bold tracking-tight ${
-                isLight ? 'text-[#022D24]' : 'text-white'
-              }`}
-            >
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-slate-900">
               Orders & Consignments
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-600 text-white shadow-xs">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
               {filteredAndSortedOrders.length}
             </span>
           </div>
-          <p className="text-xs text-emerald-900/70 mt-1">
+          <p className="text-xs text-slate-500 mt-1 font-medium">
             Real-time fulfillment, airway courier tracking & payment verification
           </p>
         </div>
@@ -429,7 +419,7 @@ export default function AdminOrdersPage() {
           {isAnyFilterActive && (
             <button
               onClick={resetAllFilters}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-rose-700 border border-rose-300 hover:bg-rose-50 shadow-xs transition-all cursor-pointer"
+              className="admin-btn-neutral inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-700 hover:text-rose-800 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Filters</span>
@@ -437,7 +427,7 @@ export default function AdminOrdersPage() {
           )}
           <button
             onClick={() => refetch()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-emerald-950 border border-emerald-300 hover:bg-emerald-100 shadow-xs transition-all cursor-pointer"
+            className="admin-btn-secondary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold cursor-pointer"
             title="Refresh Orders"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-emerald-700 ${isLoading ? 'animate-spin' : ''}`} />
@@ -817,7 +807,16 @@ export default function AdminOrdersPage() {
                         <span className="font-mono font-bold text-xs block text-slate-900">
                           <span className="text-emerald-500">#</span>{ord.orderNumber}
                         </span>
-                        <span className="text-[10px] text-slate-400 block">{formatDate(ord.createdAt)}</span>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                            <Calendar className="w-2.5 h-2.5 text-emerald-600" />
+                            {formatDateTime(ord.createdAt).date}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                            <Clock className="w-2.5 h-2.5 text-amber-600" />
+                            {formatDateTime(ord.createdAt).time}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Color-Coded Status Select with high-contrast text */}
@@ -932,6 +931,7 @@ export default function AdminOrdersPage() {
             >
               <tr>
                 <th className="p-4 pl-6">Order Ref</th>
+                <th className="p-4 min-w-[150px]">Date & Time</th>
                 <th className="p-4">Customer </th>
                 <th className="p-4 min-w-[240px]">Ordered Items</th>
                 <th className="p-4">Price</th>
@@ -947,7 +947,7 @@ export default function AdminOrdersPage() {
             >
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                  <td colSpan={8} className="p-12 text-center text-neutral-500">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                       <span>Retrieving orders database...</span>
@@ -956,7 +956,7 @@ export default function AdminOrdersPage() {
                 </tr>
               ) : filteredAndSortedOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-neutral-500">
+                  <td colSpan={8} className="p-12 text-center text-neutral-500">
                     <div className="max-w-sm mx-auto space-y-3">
                       <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
                         <SlidersHorizontal className="w-6 h-6" />
@@ -989,9 +989,21 @@ export default function AdminOrdersPage() {
                       <span className={`font-mono font-bold block text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>
                         <span className="text-emerald-500">#</span>{ord.orderNumber}
                       </span>
-                      <span className={`text-[10px] ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
-                        {formatDate(ord.createdAt)}
+                      <span className={`text-[10px] uppercase font-semibold tracking-wider ${isLight ? 'text-slate-400' : 'text-neutral-500'}`}>
+                        Online Order
                       </span>
+                    </td>
+
+                    {/* Customer Placed Date & Time Column */}
+                    <td className="p-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                        <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>{formatDateTime(ord.createdAt).date}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mt-0.5">
+                        <Clock className="w-3 h-3 text-amber-500 shrink-0" />
+                        <span className="font-mono">{formatDateTime(ord.createdAt).time}</span>
+                      </div>
                     </td>
 
                     <td className="p-4">

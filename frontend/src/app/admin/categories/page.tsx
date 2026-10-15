@@ -564,15 +564,16 @@ export default function AdminCatalogTaxonomyPage() {
             icon: Layers,
             tab: 'categories' as TabType,
             activeClass:
-              'bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/25 ring-2 ring-white/30',
+              'bg-white border-2 border-emerald-600 shadow-sm ring-2 ring-emerald-500/15',
             inactiveClass:
-              'bg-gradient-to-br from-[#EBF7F2] via-white to-[#E1F3EA] border-[#A8DAC5] text-[#022D24] shadow-xs hover:border-emerald-500/60',
-            activeSub: 'text-emerald-100',
-            inactiveSub: 'text-[#046A5A]',
-            inactiveTitle: 'text-emerald-800',
-            inactiveCount: 'text-emerald-950',
-            iconBgActive: 'bg-white/20 text-white border-white/30',
-            iconBgInactive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+              'bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300',
+            activeSub: 'text-emerald-700 font-bold',
+            inactiveSub: 'text-slate-500 font-medium',
+            activeTitle: 'text-emerald-800 font-bold',
+            inactiveTitle: 'text-slate-600 font-bold',
+            iconBgActive: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            iconBgInactive: 'bg-slate-50 text-slate-600 border-slate-200',
+            topBar: 'from-emerald-500 via-teal-400 to-emerald-200',
           },
           {
             title: 'Collections',
@@ -581,15 +582,16 @@ export default function AdminCatalogTaxonomyPage() {
             icon: Sparkles,
             tab: 'collections' as TabType,
             activeClass:
-              'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white shadow-xl shadow-amber-600/25 ring-2 ring-white/30',
+              'bg-white border-2 border-amber-500 shadow-sm ring-2 ring-amber-500/15',
             inactiveClass:
-              'bg-gradient-to-br from-[#FEF8EC] via-white to-[#FDF1DA] border-[#F2D7A5] text-[#4A2E00] shadow-xs hover:border-amber-500/60',
-            activeSub: 'text-amber-100',
-            inactiveSub: 'text-amber-800',
-            inactiveTitle: 'text-amber-800',
-            inactiveCount: 'text-amber-950',
-            iconBgActive: 'bg-white/20 text-white border-white/30',
-            iconBgInactive: 'bg-amber-100 text-amber-800 border-amber-200',
+              'bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300',
+            activeSub: 'text-amber-700 font-bold',
+            inactiveSub: 'text-slate-500 font-medium',
+            activeTitle: 'text-amber-800 font-bold',
+            inactiveTitle: 'text-slate-600 font-bold',
+            iconBgActive: 'bg-amber-50 text-amber-700 border-amber-200',
+            iconBgInactive: 'bg-slate-50 text-slate-600 border-slate-200',
+            topBar: 'from-amber-400 via-yellow-400 to-amber-200',
           },
           {
             title: 'Fragrance Notes',
@@ -598,15 +600,16 @@ export default function AdminCatalogTaxonomyPage() {
             icon: Droplets,
             tab: 'notes' as TabType,
             activeClass:
-              'bg-gradient-to-br from-teal-600 via-cyan-700 to-emerald-800 text-white shadow-xl shadow-teal-800/25 ring-2 ring-white/30',
+              'bg-white border-2 border-teal-600 shadow-sm ring-2 ring-teal-500/15',
             inactiveClass:
-              'bg-gradient-to-br from-[#EDFBFB] via-white to-[#DCF7F7] border-[#A5E7E7] text-[#003B46] shadow-xs hover:border-teal-500/60',
-            activeSub: 'text-teal-100',
-            inactiveSub: 'text-teal-800',
-            inactiveTitle: 'text-teal-800',
-            inactiveCount: 'text-teal-950',
-            iconBgActive: 'bg-white/20 text-white border-white/30',
-            iconBgInactive: 'bg-teal-100 text-teal-800 border-teal-200',
+              'bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300',
+            activeSub: 'text-teal-700 font-bold',
+            inactiveSub: 'text-slate-500 font-medium',
+            activeTitle: 'text-teal-800 font-bold',
+            inactiveTitle: 'text-slate-600 font-bold',
+            iconBgActive: 'bg-teal-50 text-teal-700 border-teal-200',
+            iconBgInactive: 'bg-slate-50 text-slate-600 border-slate-200',
+            topBar: 'from-teal-500 via-cyan-400 to-teal-200',
           },
           {
             title: 'Occasions',
@@ -615,15 +618,16 @@ export default function AdminCatalogTaxonomyPage() {
             icon: Calendar,
             tab: 'occasions' as TabType,
             activeClass:
-              'bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-800 text-white shadow-xl shadow-indigo-700/25 ring-2 ring-white/30',
+              'bg-white border-2 border-indigo-600 shadow-sm ring-2 ring-indigo-500/15',
             inactiveClass:
-              'bg-gradient-to-br from-[#F5F2FC] via-white to-[#EAE3F9] border-[#CFBEF5] text-[#2E1065] shadow-xs hover:border-purple-500/60',
-            activeSub: 'text-purple-100',
-            inactiveSub: 'text-purple-800',
-            inactiveTitle: 'text-purple-800',
-            inactiveCount: 'text-purple-950',
-            iconBgActive: 'bg-white/20 text-white border-white/30',
-            iconBgInactive: 'bg-purple-100 text-purple-800 border-purple-200',
+              'bg-white border border-slate-200/90 shadow-2xs hover:border-slate-300',
+            activeSub: 'text-indigo-700 font-bold',
+            inactiveSub: 'text-slate-500 font-medium',
+            activeTitle: 'text-indigo-800 font-bold',
+            inactiveTitle: 'text-slate-600 font-bold',
+            iconBgActive: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+            iconBgInactive: 'bg-slate-50 text-slate-600 border-slate-200',
+            topBar: 'from-indigo-500 via-purple-400 to-indigo-200',
           },
         ].map((item) => {
           const Icon = item.icon;
@@ -637,42 +641,38 @@ export default function AdminCatalogTaxonomyPage() {
               }}
               className={`p-4 sm:p-4.5 rounded-3xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
                 isCurrent
-                  ? `${item.activeClass} scale-[1.02]`
-                  : `${item.inactiveClass} hover:scale-[1.01]`
+                  ? `${item.activeClass} scale-[1.01]`
+                  : `${item.inactiveClass} hover:scale-[1.005]`
               }`}
             >
               {isCurrent && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-white/40 to-transparent" />
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${item.topBar}`} />
               )}
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-xs font-bold uppercase tracking-wider truncate ${
-                    isCurrent ? 'text-white/90' : item.inactiveTitle
+                  className={`text-xs uppercase tracking-wider truncate font-bold ${
+                    isCurrent ? item.activeTitle : item.inactiveTitle
                   }`}
                 >
                   {item.title}
                 </span>
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-xs transition-transform group-hover:scale-110 ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-2xs transition-transform group-hover:scale-110 ${
                     isCurrent ? item.iconBgActive : item.iconBgInactive
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
               </div>
-              <p
-                className={`text-2xl sm:text-3xl font-black font-serif mt-2 tracking-tight ${
-                  isCurrent ? 'text-white drop-shadow-sm' : item.inactiveCount
-                }`}
-              >
+              <p className="text-2xl sm:text-3xl font-extrabold font-serif mt-2 tracking-tight text-slate-900">
                 {item.count}
               </p>
               <div className="mt-1.5 flex items-center gap-1.5">
                 {isCurrent && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                 )}
                 <p
-                  className={`text-[11px] font-semibold truncate ${
+                  className={`text-[11px] truncate ${
                     isCurrent ? item.activeSub : item.inactiveSub
                   }`}
                 >
@@ -700,9 +700,9 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'categories' && (
             <button
               onClick={handleOpenCreateCategory}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
+              className="admin-btn-primary w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <Plus className="w-4 h-4 text-amber-300" />
+              <Plus className="w-4 h-4 text-emerald-200" />
               <span>New Category</span>
             </button>
           )}
@@ -710,9 +710,9 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'collections' && (
             <button
               onClick={handleOpenCreateCollection}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
+              className="admin-btn-primary w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <Plus className="w-4 h-4 text-amber-300" />
+              <Plus className="w-4 h-4 text-emerald-200" />
               <span>Add Collection</span>
             </button>
           )}
@@ -720,9 +720,9 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'notes' && (
             <button
               onClick={handleOpenCreateNote}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
+              className="admin-btn-primary w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <Plus className="w-4 h-4 text-amber-300" />
+              <Plus className="w-4 h-4 text-emerald-200" />
               <span>New Fragrance Note</span>
             </button>
           )}
@@ -730,9 +730,9 @@ export default function AdminCatalogTaxonomyPage() {
           {activeTab === 'occasions' && (
             <button
               onClick={handleOpenCreateOccasion}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95 cursor-pointer"
+              className="admin-btn-primary w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <Plus className="w-4 h-4 text-amber-300" />
+              <Plus className="w-4 h-4 text-emerald-200" />
               <span>New Occasion</span>
             </button>
           )}
@@ -741,9 +741,9 @@ export default function AdminCatalogTaxonomyPage() {
             <Link
               href="/shop"
               target="_blank"
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 transition-all shadow-md shadow-emerald-700/25 border border-emerald-500/40 active:scale-95"
+              className="admin-btn-primary w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 active:scale-95"
             >
-              <ExternalLink className="w-4 h-4 text-amber-300" />
+              <ExternalLink className="w-4 h-4 text-emerald-200" />
               <span>Open Storefront Shop</span>
             </Link>
           )}
@@ -1027,7 +1027,7 @@ export default function AdminCatalogTaxonomyPage() {
                 >
                   {searchTerm
                     ? `No categories match "${searchTerm}"`
-                    : 'No Categories in Database'}
+                    : 'No Categories'}
                 </h3>
                 <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
                   {searchTerm

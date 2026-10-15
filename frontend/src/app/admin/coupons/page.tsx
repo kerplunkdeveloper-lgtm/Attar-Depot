@@ -218,21 +218,20 @@ export default function AdminCouponsPage() {
     <div className="space-y-6 animate-in fade-in duration-300 font-sans">
       {/* 1. Header Banner */}
       <div
-        className="p-2 sm:p-3 rounded-3xl border flex flex-col lg:flex-row lg:items-center justify-between gap-4 backdrop-blur-xl shadow-lg transition-all bg-gradient-to-r from-[#EBF7F2] via-[#E4F4EC] to-[#DCF1E6] border-[#B2DFD0] text-[#022D24] shadow-emerald-950/5"
+        className="p-4 sm:p-5 rounded-2xl border border-slate-200/90 bg-white shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4"
       >
         <div>
-
-          <h1 className="font-serif text-xl sm:text-xl font-bold tracking-tight text-neutral-900">
+          <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Coupons, Promo Codes & Offers
           </h1>
-
+          <p className="text-xs text-slate-500 mt-1 font-medium">Manage promotional vouchers, seasonal discounts and loyalty campaign codes</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleSeedDefaults}
             disabled={seedMutation.isPending}
-            className="px-4 py-2.5 rounded-xl border border-emerald-300 bg-white/80 hover:bg-white text-emerald-900 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition-all active:scale-95"
+            className="admin-btn-secondary px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
             title="Seed default offers (DKIT22, ROYAL15, FESTIVE25)"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${seedMutation.isPending ? 'animate-spin' : ''}`} />
@@ -241,81 +240,81 @@ export default function AdminCouponsPage() {
 
           <button
             onClick={handleOpenCreateModal}
-            className="btn-emerald px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-emerald-sm transition-all active:scale-95"
+            className="admin-btn-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer active:scale-95"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-emerald-200" />
             <span>Create New Coupon</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Stats KPI Row - Premium Luxury Gradients */}
+      {/* 2. Stats KPI Row - Clean Light Luxury Theme */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-        {/* Total Coupons - Royal Emerald */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-emerald-200/50 to-transparent" />
+        {/* Total Coupons */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm relative overflow-hidden group hover:border-emerald-300 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-emerald-100">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-slate-500">
               Total Coupons
             </span>
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
-              <TicketPercent className="w-5 h-5 drop-shadow-xs" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-700 border border-emerald-100 group-hover:scale-110 transition-transform">
+              <TicketPercent className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+          <div className="mt-3">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               {stats.totalCoupons}
             </p>
           </div>
-          <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
               Configured Promotions
             </span>
           </div>
         </div>
 
-        {/* Active Offers - Sunlit Amber */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white shadow-xl shadow-amber-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-amber-200/50 to-transparent" />
+        {/* Active Offers */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-amber-100">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-slate-500">
               Active Offers
             </span>
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
-              <Sparkles className="w-5 h-5 drop-shadow-xs" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-50 text-amber-700 border border-amber-100 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+          <div className="mt-3">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               {stats.activeCoupons}
             </p>
           </div>
-          <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              Live forCustomers
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live for Customers
             </span>
           </div>
         </div>
 
-        {/* Total Redemptions - Imperial Indigo */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 text-white shadow-xl shadow-indigo-700/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-purple-200/50 to-transparent" />
+        {/* Total Redemptions */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm relative overflow-hidden group hover:border-indigo-300 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-indigo-100">
+            <span className="uppercase tracking-widest text-[11px] font-bold text-slate-500">
               Total Redemptions
             </span>
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-inner group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-5 h-5 drop-shadow-xs" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-50 text-indigo-700 border border-indigo-100 group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-              {stats.totalUsages} <span className="text-sm font-semibold text-indigo-200">orders</span>
+          <div className="mt-3">
+            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              {stats.totalUsages} <span className="text-xs font-semibold text-slate-500">orders</span>
             </p>
           </div>
-          <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60">
               Successfully applied
             </span>
           </div>
@@ -323,21 +322,21 @@ export default function AdminCouponsPage() {
       </div>
 
       {/* 3. Filters & Search Bar */}
-      <div className="p-4 rounded-2xl bg-white border border-emerald-100/90 shadow-emerald-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search coupon code or title..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-emerald-50/40 border border-emerald-200/80 rounded-xl text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-emerald-500"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50/80 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -350,10 +349,10 @@ export default function AdminCouponsPage() {
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all capitalize ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all capitalize cursor-pointer ${
                 statusFilter === st
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xs'
-                  : 'bg-emerald-50/60 text-neutral-600 hover:bg-emerald-100/60'
+                  ? 'admin-btn-primary'
+                  : 'admin-btn-neutral'
               }`}
             >
               {st}

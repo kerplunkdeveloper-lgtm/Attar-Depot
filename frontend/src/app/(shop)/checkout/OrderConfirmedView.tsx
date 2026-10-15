@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { toast } from '@/lib/toast';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 interface OrderConfirmedViewProps {
   order: any;
@@ -540,7 +541,7 @@ export default function OrderConfirmedView({
 
         {/* WhatsApp Concierge Assistance */}
         <a
-          href={`https://wa.me/919876543210?text=Salam!%20I%20have%20placed%20order%20%23${orderNumber}%20via%20Cash%20on%20Delivery.%20Please%20provide%20updates.`}
+          href={SITE_CONTACT.whatsapp.getOrderUrl(orderNumber)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs font-bold uppercase tracking-wider text-[#128C7E] bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200 transition-all text-center"

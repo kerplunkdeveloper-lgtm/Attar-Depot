@@ -141,43 +141,6 @@ export default function FAQsection() {
           >
             FREQUENTLY ASKED QUESTIONS
           </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, delay: 0.1, ease: luxuryEase }}
-            className="mt-3 text-xs sm:text-sm text-neutral-600 max-w-xl mx-auto leading-relaxed"
-          >
-            Essential guidance on our pure oil attars, spray comparisons, application rituals, and discovery in Pondicherry.
-          </motion.p>
-
-          {/* Quick Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.15, ease: luxuryEase }}
-            className="mt-6 relative max-w-md mx-auto"
-          >
-            <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search questions (e.g. alcohol, apply, location)..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-[#EAE3D6] rounded-xl text-xs sm:text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/20 transition-all shadow-xs"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-neutral-700 cursor-pointer"
-              >
-                Clear
-              </button>
-            )}
-          </motion.div>
         </div>
 
         {/* Accordion List */}

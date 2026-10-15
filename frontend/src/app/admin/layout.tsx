@@ -547,25 +547,25 @@ function AdminLayoutInner({
               className="group flex items-center justify-center flex-1 min-w-0 transition-transform duration-200"
             >
               {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-center w-full py-2 px-1">
+                <div className="flex items-center justify-center w-full py-2.5 px-1 min-h-[96px]">
                   <Image
                     src="/images/logonew.png"
                     alt="The Attar Depot"
-                    width={220}
-                    height={90}
+                    width={280}
+                    height={130}
                     priority
-                    className="h-16 sm:h-18 max-h-22 w-auto object-contain brightness-105 contrast-105 drop-shadow-[0_2px_16px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-all duration-300"
+                    className="h-24 sm:h-28 max-h-32 w-auto object-contain brightness-105 contrast-105 drop-shadow-[0_2px_16px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-all duration-300"
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-2">
+                <div className="flex items-center justify-center py-2.5">
                   <Image
                     src="/images/logonew.png"
                     alt="The Attar Depot"
-                    width={52}
-                    height={52}
+                    width={64}
+                    height={64}
                     priority
-                    className="h-10 w-auto object-contain brightness-105 drop-shadow-[0_2px_10px_rgba(245,180,24,0.4)] group-hover:scale-110 transition-all duration-300"
+                    className="h-12 sm:h-14 w-auto object-contain brightness-105 drop-shadow-[0_2px_10px_rgba(245,180,24,0.4)] group-hover:scale-110 transition-all duration-300"
                   />
                 </div>
               )}
@@ -827,6 +827,18 @@ function AdminLayoutInner({
 
           {/* Right Action Icons & Admin Profile Dropdown */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0" ref={popoverRef}>
+            {/* Real-time Data Sync Button */}
+            <button
+              onClick={() => {
+                getQueryClient().invalidateQueries();
+                toast.success('All admin & live data re-synchronized.', { title: 'Live Sync' });
+              }}
+              title="Force sync latest backend data immediately"
+              className="p-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 shadow-xs transition-all active:scale-95"
+            >
+              <RefreshCw className="w-4 h-4 hover:rotate-180 transition-transform duration-500" />
+            </button>
+
             {/* Audio Chime Mute/Unmute Toggle */}
             <button
               onClick={toggleMute}
@@ -1335,7 +1347,7 @@ function AdminLayoutInner({
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8 bg-white">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8 bg-white page-transition-wrapper gpu-accelerated">
           {children}
         </main>
 

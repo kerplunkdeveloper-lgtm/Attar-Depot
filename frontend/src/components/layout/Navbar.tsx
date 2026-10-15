@@ -56,6 +56,7 @@ import { useBannerCoupons } from '@/hooks/useCoupons';
 import { toast } from '@/lib/toast';
 import api from '@/lib/api';
 import { getQueryClient } from '@/components/providers/Providers';
+import { SITE_CONTACT } from '@/config/siteContact';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   backdropVariants,
@@ -1346,7 +1347,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-center gap-4 py-2">
                   {/* Instagram */}
                   <a
-                    href="https://www.instagram.com"
+                    href={SITE_CONTACT.socials.instagram.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
@@ -1357,7 +1358,7 @@ export default function Navbar() {
 
                   {/* WhatsApp */}
                   <a
-                    href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils."
+                    href={SITE_CONTACT.whatsapp.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
@@ -1370,7 +1371,7 @@ export default function Navbar() {
 
                   {/* YouTube */}
                   <a
-                    href="https://www.youtube.com"
+                    href={SITE_CONTACT.socials.youtube.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-[#FF0000] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
@@ -1381,7 +1382,7 @@ export default function Navbar() {
 
                   {/* Facebook */}
                   <a
-                    href="https://www.facebook.com"
+                    href={SITE_CONTACT.socials.facebook.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"

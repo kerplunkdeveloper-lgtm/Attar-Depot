@@ -228,7 +228,7 @@ export default function AdminBannersPage() {
           <Link
             href="/"
             target="_blank"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-sm font-medium transition-all shadow-sm"
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl admin-btn-neutral text-xs uppercase tracking-wider"
           >
             <Eye className="w-4 h-4 text-emerald-600" />
             <span>Preview Storefront</span>
@@ -236,9 +236,9 @@ export default function AdminBannersPage() {
 
           <button
             onClick={handleOpenCreateModal}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#012520] via-[#034D40] to-[#046A5A] hover:from-[#02332B] hover:to-[#057F6D] text-white text-sm font-semibold shadow-md shadow-[#012520]/20 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] border border-[#F5B418]/30"
+            className="admin-btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active:scale-95"
           >
-            <Plus className="w-4 h-4 text-[#F5B418]" />
+            <Plus className="w-4 h-4 text-emerald-200" />
             <span>Add New Banner</span>
           </button>
         </div>

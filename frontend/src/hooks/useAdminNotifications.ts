@@ -8,6 +8,7 @@ import {
   NotificationType,
   playNotificationSound,
 } from '@/lib/adminNotifications';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 interface NotificationsApiResponse {
   success: boolean;
@@ -35,7 +36,7 @@ export const useAdminNotifications = (enabled: boolean = true) => {
     },
     enabled,
     staleTime: 5000,
-    refetchInterval: isConnected ? 30000 : 8000, // Fallback polling if SSE is disconnected
+    refetchInterval: isConnected ? 25000 : 7000, // Fallback polling if SSE is disconnected
   });
 
   const notifications = data?.notifications || [];
@@ -116,6 +117,23 @@ export const useAdminNotifications = (enabled: boolean = true) => {
                   };
                 }
               );
+
+              // ⚡ INSTANT REAL-TIME DATA PROPAGATION:
+              // Invalidate dashboard metrics, orders, customers, and product queries immediately
+              const keysToInvalidate = ['admin-stats', 'admin-orders', 'orders'];
+              if (newNotif.type === 'customer_register' || newNotif.type === 'customer_login') {
+                keysToInvalidate.push('admin-customers');
+              }
+              if (newNotif.type === 'stock_low' || newNotif.type === 'stock_empty') {
+                keysToInvalidate.push('products', 'featured-products');
+              }
+              
+              keysToInvalidate.forEach((k) => {
+                queryClient.invalidateQueries({ queryKey: [k], refetchType: 'active' });
+              });
+
+              // Broadcast across all open browser tabs (storefront, admin)
+              broadcastDataChange(keysToInvalidate);
             }
           } catch (err) {
             console.error('[SSE Message Parse Error]:', err);

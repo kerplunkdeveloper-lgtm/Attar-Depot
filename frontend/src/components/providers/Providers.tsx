@@ -6,14 +6,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from '@/store';
 import GlobalAuthTimer from '@/components/auth/GlobalAuthTimer';
 import AosLenisProvider from './AosLenisProvider';
+import LiveSyncListener from './LiveSyncListener';
 
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutes cache freshness
+        staleTime: 15 * 1000,      // 15 seconds cache freshness (fast navigation without stale lag)
         gcTime: 30 * 60 * 1000,    // Keep unused cache in memory for 30 minutes
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true, // Auto-refetch when user focuses or returns to tab
+        refetchOnReconnect: true,   // Auto-refetch when network reconnects
         retry: 1,
       },
     },
@@ -37,6 +39,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
+        <LiveSyncListener />
         <AosLenisProvider>
           <GlobalAuthTimer />
           {children}

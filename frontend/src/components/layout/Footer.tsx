@@ -24,6 +24,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -123,13 +124,22 @@ export default function Footer() {
 
             {/* Social Media Section */}
             <div className="space-y-3 pt-2">
-              <span className="font-serif text-xs font-bold uppercase tracking-widest text-[#F5B418] block">
-                Follow Our Olfactory Journey
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="font-serif text-xs font-bold uppercase tracking-widest text-[#F5B418] block">
+                  Follow Our Olfactory Journey
+                </span>
+                <Link
+                  href="/social"
+                  className="text-[11px] font-bold text-[#F5B418] hover:text-white flex items-center gap-1 transition-colors underline underline-offset-2"
+                >
+                  <span>All Channels</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </Link>
+              </div>
               <div className="flex items-center space-x-3">
                 {/* Instagram */}
                 <a
-                  href="https://www.instagram.com"
+                  href={SITE_CONTACT.socials.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -140,7 +150,7 @@ export default function Footer() {
 
                 {/* Facebook */}
                 <a
-                  href="https://www.facebook.com"
+                  href={SITE_CONTACT.socials.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -151,7 +161,7 @@ export default function Footer() {
 
                 {/* YouTube */}
                 <a
-                  href="https://www.youtube.com"
+                  href={SITE_CONTACT.socials.youtube.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
@@ -162,7 +172,7 @@ export default function Footer() {
 
                 {/* WhatsApp */}
                 <a
-                  href="https://wa.me/919876543210?text=Hello%20Attar%20Depot%20Team,%20I%20would%20like%20assistance%20with%20fragrances."
+                  href={SITE_CONTACT.whatsapp.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp Concierge"
@@ -173,7 +183,7 @@ export default function Footer() {
 
                 {/* Twitter / X */}
                 <a
-                  href="https://twitter.com"
+                  href={SITE_CONTACT.socials.twitter.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Twitter"
@@ -347,17 +357,17 @@ export default function Footer() {
                   <MapPin className="w-3.5 h-3.5" />
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-[#F5B418]">Flagship Perfumery & Works</p>
+                  <p className="font-semibold text-[#F5B418]">{SITE_CONTACT.address.flagship.name}</p>
                   <p className="text-[11px] text-[#FAF8F2]/75 leading-relaxed">
-                    Heritage Perfume Lane, Near Jama Masjid, Kannauj & Fort, Mumbai, India - 209725
+                    {SITE_CONTACT.address.flagship.fullAddress}
                   </p>
                   <a
-                    href="https://www.google.com/maps/search/?api=1&query=Kannauj+Perfume+Market+India"
+                    href={SITE_CONTACT.maps.queryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] text-[#F5B418] hover:text-[#FDE047] font-medium underline underline-offset-2"
                   >
-                    <span>Open in Google Maps</span>
+                    <span>{SITE_CONTACT.maps.label}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -369,12 +379,12 @@ export default function Footer() {
                   <Phone className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-[#FAF8F2]/60">Concierge Desk</p>
+                  <p className="text-[11px] text-[#FAF8F2]/60">{SITE_CONTACT.phone.label}</p>
                   <a
-                    href="tel:+919876543210"
+                    href={SITE_CONTACT.phone.telUrl}
                     className="text-xs font-semibold text-[#F5B418] hover:text-[#FDE047] transition-colors"
                   >
-                    +91 98765 43210
+                    {SITE_CONTACT.phone.display}
                   </a>
                 </div>
               </div>
@@ -385,9 +395,9 @@ export default function Footer() {
                   <MessageCircle className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-[#FAF8F2]/60">WhatsApp Orders</p>
+                  <p className="text-[11px] text-[#FAF8F2]/60">{SITE_CONTACT.whatsapp.label}</p>
                   <a
-                    href="https://wa.me/919876543210?text=Hello%20Attar%20Depot,%20I%20would%20like%20to%20place%20an%20order."
+                    href={SITE_CONTACT.whatsapp.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-medium text-[#FAF8F2]/90 hover:text-[#F5B418] transition-colors flex items-center gap-1"
@@ -406,10 +416,10 @@ export default function Footer() {
                 <div>
                   <p className="text-[11px] text-[#FAF8F2]/60">VIP Enquiries & Exports</p>
                   <a
-                    href="mailto:concierge@attardepot.com"
+                    href={SITE_CONTACT.email.mailtoUrl}
                     className="text-xs font-semibold text-[#F5B418] hover:text-[#FDE047] transition-colors"
                   >
-                    concierge@attardepot.com
+                    {SITE_CONTACT.email.primary}
                   </a>
                 </div>
               </div>
@@ -417,7 +427,7 @@ export default function Footer() {
               {/* Operating Hours */}
               <div className="pt-2 border-t border-[#F5B418]/15 text-[11px] text-[#FAF8F2]/70 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-[#F5B418] shrink-0" />
-                <span>Mon - Sat: 10:00 AM - 9:00 PM IST</span>
+                <span>{SITE_CONTACT.operatingHours.display}</span>
               </div>
             </div>
           </div>
@@ -450,11 +460,11 @@ export default function Footer() {
 
           <div className="flex items-center space-x-4 text-[11px] text-[#FAF8F2]/60">
             <Link href="/about" className="hover:text-[#F5B418] transition-colors">
-              Purity Guarantee
+             About Brands
             </Link>
             <span>•</span>
             <Link href="/orders" className="hover:text-[#F5B418] transition-colors">
-              Dispatch Concierge
+             My orders
             </Link>
             <span>•</span>
             <Link href="/admin/login" className="hover:text-[#F5B418] transition-colors">

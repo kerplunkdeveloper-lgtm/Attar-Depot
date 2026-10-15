@@ -403,7 +403,7 @@ export const deleteCoupon = async (req, res, next) => {
     }
 
     const code = coupon.code;
-    await coupon.deleteOne();
+    await Coupon.findByIdAndDelete(coupon._id);
 
     res.status(200).json({
       success: true,

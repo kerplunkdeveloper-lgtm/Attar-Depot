@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useAppSelector } from '@/store';
 import { Order } from '@/types';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 export const useMyOrders = (enabled: boolean = true) => {
   const { user } = useAppSelector((state) => state.auth);
@@ -13,7 +14,8 @@ export const useMyOrders = (enabled: boolean = true) => {
       return data.orders || [];
     },
     enabled: enabled && !!user,
-    staleTime: 3 * 60 * 1000,
+    staleTime: 10 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -25,6 +27,8 @@ export const useOrderDetails = (orderId: string) => {
       return data.order;
     },
     enabled: !!orderId,
+    staleTime: 15 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -38,6 +42,12 @@ export const useCreateOrder = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      broadcastDataChange(['my-orders', 'orders', 'products', 'featured-products', 'admin-stats', 'admin-orders']);
     },
   });
 };

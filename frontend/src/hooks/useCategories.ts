@@ -9,6 +9,7 @@ export const useCategories = () => {
       const { data } = await api.get('/categories');
       return data.categories || [];
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes cache
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: true,
   });
 };

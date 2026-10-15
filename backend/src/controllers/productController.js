@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
 import Collection from '../models/Collection.js';
@@ -560,13 +561,17 @@ export const updateProduct = async (req, res, next) => {
 // @access  Private/Admin
 export const deleteProduct = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const isObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
+    const product = await Product.findOne(
+      isObjectId ? { $or: [{ _id: req.params.id }, { slug: req.params.id }] } : { slug: req.params.id }
+    );
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
-    await product.deleteOne();
+    await Product.findByIdAndDelete(product._id);
     res.status(200).json({ success: true, message: 'Product removed successfully' });
   } catch (error) {
+    console.error('[Delete Product Error]:', error);
     next(error);
   }
 };

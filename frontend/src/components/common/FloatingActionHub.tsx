@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 import { popSpring, luxuryEase } from '@/lib/animations';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 export default function FloatingActionHub() {
   const pathname = usePathname();
@@ -35,10 +36,7 @@ export default function FloatingActionHub() {
   if (!mounted) return null;
   if (pathname?.startsWith('/admin')) return null;
 
-  const whatsappMessage = encodeURIComponent(
-    'Salam & Greetings! I am inquiring about Attar Depot pure perfume oils and bespoke royal fragrances.'
-  );
-  const whatsappUrl = `https://wa.me/919876543210?text=${whatsappMessage}`;
+  const whatsappUrl = SITE_CONTACT.whatsapp.url;
 
   return (
     <div className="fixed bottom-[calc(70px+env(safe-area-inset-bottom,0px))] right-3 sm:bottom-6 sm:right-6 z-30 flex flex-col items-end gap-2.5 pointer-events-none">
@@ -99,7 +97,7 @@ export default function FloatingActionHub() {
             <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-neutral-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md backdrop-blur-xs hidden sm:block">
               Back to Top
             </div>
-          </motion.div>
+          </motion.div> 
         )}
       </AnimatePresence>
     </div>

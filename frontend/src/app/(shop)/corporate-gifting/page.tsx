@@ -28,6 +28,7 @@ import {
   FlaskConical,
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 // ── 4 Reference Grid Cards Data ──────────────────────────────────────────────
 const REFERENCE_CARDS = [
@@ -357,7 +358,7 @@ export default function CorporateGiftingPage() {
       selectedPackage ? `*Selected Package:* ${selectedPackage}%0A` : ''
     }%0APlease share your corporate catalog and volume pricing.`;
 
-    window.open(`https://wa.me/919876543210?text=${msg}`, '_blank');
+    window.open(SITE_CONTACT.whatsapp.getCustomUrl(msg), '_blank');
   };
 
   const handleSelectPackageForInquiry = (pkgName: string) => {

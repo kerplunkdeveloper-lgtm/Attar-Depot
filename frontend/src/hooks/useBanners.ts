@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Banner } from '@/types';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 // ==========================================
 // PUBLIC HOMEPAGE HOOKS
@@ -17,7 +18,8 @@ export const useBanners = () => {
       const { data } = await api.get('/banners');
       return data;
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -64,6 +66,7 @@ export const useAdminBanners = (params?: AdminBannersParams) => {
       return data;
     },
     staleTime: 10 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -77,6 +80,7 @@ export const useAdminCreateBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
       queryClient.invalidateQueries({ queryKey: ['public-banners'] });
+      broadcastDataChange(['admin-banners', 'public-banners']);
     },
   });
 };
@@ -91,6 +95,7 @@ export const useAdminUpdateBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
       queryClient.invalidateQueries({ queryKey: ['public-banners'] });
+      broadcastDataChange(['admin-banners', 'public-banners']);
     },
   });
 };
@@ -105,6 +110,7 @@ export const useAdminDeleteBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
       queryClient.invalidateQueries({ queryKey: ['public-banners'] });
+      broadcastDataChange(['admin-banners', 'public-banners']);
     },
   });
 };
@@ -119,6 +125,7 @@ export const useAdminToggleBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
       queryClient.invalidateQueries({ queryKey: ['public-banners'] });
+      broadcastDataChange(['admin-banners', 'public-banners']);
     },
   });
 };

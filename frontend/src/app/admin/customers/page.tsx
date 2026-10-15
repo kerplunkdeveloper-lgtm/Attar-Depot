@@ -447,7 +447,7 @@ export default function AdminCustomersPage() {
           </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#044e43] hover:bg-[#033c34] text-slate-50 text-sm font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="admin-btn-primary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold shadow-xs active:scale-95 cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add Customer</span>
@@ -455,74 +455,74 @@ export default function AdminCustomersPage() {
         </div>
       </div>
 
-      {/* ─── 2. FOUR STAT CARDS (Premium Luxury Gradients) ─── */}
+      {/* ─── 2. FOUR STAT CARDS (Clean Light Luxury Palette) ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Customers - Royal Emerald */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white shadow-xl shadow-emerald-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-emerald-200/50 to-transparent" />
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+        <div className="p-5 sm:p-6 rounded-3xl bg-white border border-emerald-200/90 shadow-sm relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-200" />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
             <Users className="w-6 h-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-100">Total Customers</p>
-            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Total Customers</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-poppins mt-0.5">
               {summary.total.toLocaleString()}
             </p>
-            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
-              <ArrowUp className="w-3 h-3 text-emerald-200" />
+            <p className="text-[11px] font-bold text-emerald-900 inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-2xs">
+              <ArrowUp className="w-3 h-3 text-emerald-600" />
               <span>+12% this month</span>
             </p>
           </div>
         </div>
 
         {/* Card 2: New Customers - Imperial Blue */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-700 text-white shadow-xl shadow-blue-800/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-blue-200/50 to-transparent" />
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+        <div className="p-5 sm:p-6 rounded-3xl bg-white border border-blue-200/90 shadow-sm relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-400 to-sky-200" />
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
             <ShoppingBag className="w-6 h-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-blue-100">New Customers</p>
-            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wider text-blue-800">New Customers</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-poppins mt-0.5">
               {summary.newCusts.toLocaleString()}
             </p>
-            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
-              <ArrowUp className="w-3 h-3 text-blue-200" />
+            <p className="text-[11px] font-bold text-blue-900 inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 shadow-2xs">
+              <ArrowUp className="w-3 h-3 text-blue-600" />
               <span>+18% this month</span>
             </p>
           </div>
         </div>
 
         {/* Card 3: Total Spent - Sunlit Amber */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white shadow-xl shadow-amber-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-amber-200/50 to-transparent" />
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white font-black text-xl shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+        <div className="p-5 sm:p-6 rounded-3xl bg-white border border-amber-200/90 shadow-sm relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-200" />
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 font-black text-xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
             ₹
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-100">Total Spent</p>
-            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-800">Total Spent</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-poppins mt-0.5">
               {formatPrice(summary.totalSpent)}
             </p>
-            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
-              <ArrowUp className="w-3 h-3 text-amber-200" />
+            <p className="text-[11px] font-bold text-amber-900 inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 shadow-2xs">
+              <ArrowUp className="w-3 h-3 text-amber-600" />
               <span>+22% this month</span>
             </p>
           </div>
         </div>
 
         {/* Card 4: Active Customers - Radiant Rose */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 text-white shadow-xl shadow-rose-600/20 ring-1 ring-white/20 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-4">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/70 via-rose-200/50 to-transparent" />
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
-            <Star className="w-6 h-6 fill-white/90" />
+        <div className="p-5 sm:p-6 rounded-3xl bg-white border border-rose-200/90 shadow-sm relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex items-center gap-4">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-pink-400 to-rose-200" />
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+            <Star className="w-6 h-6 fill-rose-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-rose-100">Active Customers</p>
-            <p className="text-2xl sm:text-3xl font-bold text-white font-poppins mt-0.5 drop-shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wider text-rose-800">Active Customers</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-poppins mt-0.5">
               {summary.active.toLocaleString()}
             </p>
-            <p className="text-[11px] font-bold text-white inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
+            <p className="text-[11px] font-bold text-rose-900 inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-rose-50 border border-rose-200 shadow-2xs">
               <span>{summary.activePercent}% of total</span>
             </p>
           </div>

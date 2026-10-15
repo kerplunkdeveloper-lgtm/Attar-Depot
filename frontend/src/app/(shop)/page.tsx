@@ -23,6 +23,7 @@ import MobileBestsellerSlider from '@/components/home/MobileBestsellerSlider';
 import CategoryDisplaySlider from '@/components/home/CategoryDisplaySlider';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import FAQsection from '@/components/home/FAQsection';
+import HomeStoreMapSection from '@/components/home/HomeStoreMapSection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { luxuryEase, popSpring } from '@/lib/animations';
 
@@ -43,6 +44,7 @@ export default function HomePage() {
 
   const { data: categories = [] } = useCategories();
   const { data: productsData, isLoading: isFeaturedLoading } = useFeaturedProducts();
+  const { data: allCatalogData } = useProducts({ limit: 100 });
 
   // Find matching category from database for the selected tab (e.g. category named "MEN", "WOMEN", "UNISEX", "GIFTED")
   const matchedCategory = useMemo(() => {
@@ -87,8 +89,83 @@ export default function HomePage() {
   const allBestsellers = useMemo(() => {
     if (bestSellers.length > 0) return bestSellers;
     if (featured.length > 0) return featured;
-    return categoryProductsData?.products || [];
-  }, [bestSellers, featured, categoryProductsData]);
+    return allCatalogData?.products || categoryProductsData?.products || [];
+  }, [bestSellers, featured, allCatalogData, categoryProductsData]);
+
+  // Dynamically filter tabs: ONLY show tabs that contain at least 1 product
+  const availableTabs = useMemo(() => {
+    // If data is still loading and we have no products at all yet, show default tabs to avoid layout shift
+    if (!allCatalogData && !productsData) {
+      return HOME_CATEGORY_TABS;
+    }
+
+    // Combine all available products from catalog and bestsellers
+    const catalogMap = new Map();
+    (allCatalogData?.products || []).forEach((p) => catalogMap.set(p._id, p));
+    (allBestsellers || []).forEach((p) => catalogMap.set(p._id, p));
+    const catalog = Array.from(catalogMap.values());
+
+    if (catalog.length === 0) {
+      return [];
+    }
+
+    return HOME_CATEGORY_TABS.filter((tab) => {
+      if (tab.id === 'all') {
+        return catalog.length > 0;
+      }
+
+      if (tab.id === 'men') {
+        return catalog.some((product) => {
+          const prodGender = product.gender?.toLowerCase() || '';
+          const catName = (typeof product.category === 'object' ? product.category?.name : '')?.toLowerCase() || '';
+          const catSlug = (typeof product.category === 'object' ? product.category?.slug : '')?.toLowerCase() || '';
+          return prodGender === 'men' || catSlug === 'men' || catName === 'men';
+        });
+      }
+
+      if (tab.id === 'women') {
+        return catalog.some((product) => {
+          const prodGender = product.gender?.toLowerCase() || '';
+          const catName = (typeof product.category === 'object' ? product.category?.name : '')?.toLowerCase() || '';
+          const catSlug = (typeof product.category === 'object' ? product.category?.slug : '')?.toLowerCase() || '';
+          return prodGender === 'women' || catSlug === 'women' || catName === 'women';
+        });
+      }
+
+      if (tab.id === 'unisex') {
+        return catalog.some((product) => {
+          const prodGender = product.gender?.toLowerCase() || '';
+          const catName = (typeof product.category === 'object' ? product.category?.name : '')?.toLowerCase() || '';
+          const catSlug = (typeof product.category === 'object' ? product.category?.slug : '')?.toLowerCase() || '';
+          return prodGender === 'unisex' || catSlug === 'unisex' || catName === 'unisex';
+        });
+      }
+
+      if (tab.id === 'gifted') {
+        return catalog.some((product) => {
+          const catName = (typeof product.category === 'object' ? product.category?.name : '')?.toLowerCase() || '';
+          const catSlug = (typeof product.category === 'object' ? product.category?.slug : '')?.toLowerCase() || '';
+          const isOccasionGift = product.occasions?.some((o) => o?.toLowerCase().includes('gift'));
+          const isCollectionGift = product.collection?.toLowerCase().includes('gift');
+          return (
+            catSlug.includes('gift') ||
+            catName.includes('gift') ||
+            isOccasionGift ||
+            isCollectionGift
+          );
+        });
+      }
+
+      return false;
+    });
+  }, [allCatalogData, productsData, allBestsellers]);
+
+  // If the currently selected tab is no longer available, fall back to first available tab
+  useEffect(() => {
+    if (availableTabs.length > 0 && !availableTabs.some((t) => t.id === selectedCategory)) {
+      setSelectedCategory(availableTabs[0].id);
+    }
+  }, [availableTabs, selectedCategory]);
 
   const displayedProducts = useMemo(() => {
     if (selectedCategory === 'all') {
@@ -191,95 +268,99 @@ export default function HomePage() {
             <span className="text-[10.5px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-widest block font-sans">
               Royal Reserve
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl uppercase font-medium text-neutral-900 tracking-tight">
-              Our <span className="italic font-light">Bestsellers</span>
+            <h2 className="font-serif text-2xl sm:text-3xl uppercase font-light text-neutral-900 tracking-tight">
+              Our Bestsellers
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Quick Mobile "View All" Pill */}
-            <Link
-              href={
-                selectedCategory === 'all'
-                  ? '/shop'
-                  : matchedCategory
-                  ? `/shop?category=${matchedCategory.slug}`
-                  : ['men', 'women', 'unisex'].includes(selectedCategory)
-                  ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
-                  : '/shop?occasion=Gifting'
-              }
-              className="sm:hidden inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider py-1.5 px-3 rounded-full bg-emerald-50 border border-emerald-200/80 transition-colors"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3 h-3 text-[#C9A227]" />
-            </Link>
+          {!isLoading && displayedProducts.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Quick Mobile "View All" Pill */}
+              <Link
+                href={
+                  selectedCategory === 'all'
+                    ? '/shop'
+                    : matchedCategory
+                    ? `/shop?category=${matchedCategory.slug}`
+                    : ['men', 'women', 'unisex'].includes(selectedCategory)
+                    ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
+                    : '/shop?occasion=Gifting'
+                }
+                className="sm:hidden inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 hover:text-emerald-700 uppercase tracking-wider py-1.5 px-3 rounded-full bg-emerald-50 border border-emerald-200/80 transition-colors"
+              >
+                <span>View All</span>
+                <ArrowRight className="w-3 h-3 text-[#C9A227]" />
+              </Link>
 
-            {/* Smooth Scroll Navigation Arrows (Desktop) */}
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                onClick={() => handleScroll('left')}
-                disabled={!canScrollLeft}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
-                  canScrollLeft
-                    ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
-                    : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
-                }`}
-                aria-label="Scroll left"
-                title="Previous flacons"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => handleScroll('right')}
-                disabled={!canScrollRight}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
-                  canScrollRight
-                    ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
-                    : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
-                }`}
-                aria-label="Scroll right"
-                title="Next flacons"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              {/* Smooth Scroll Navigation Arrows (Desktop) */}
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={() => handleScroll('left')}
+                  disabled={!canScrollLeft}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
+                    canScrollLeft
+                      ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
+                      : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
+                  }`}
+                  aria-label="Scroll left"
+                  title="Previous flacons"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleScroll('right')}
+                  disabled={!canScrollRight}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 ${
+                    canScrollRight
+                      ? 'border-stone-300 bg-white text-stone-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] shadow-sm active:scale-95 cursor-pointer'
+                      : 'border-stone-200/80 bg-white/40 text-stone-300 cursor-not-allowed'
+                  }`}
+                  aria-label="Scroll right"
+                  title="Next flacons"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Category Tabs Bar with Framer Motion Sliding Active Pill */}
-        <div className="relative pt-0.5">
-          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 px-0.5 overscroll-x-contain">
-            {HOME_CATEGORY_TABS.map((tab) => {
-              const isSelected = selectedCategory === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setSelectedCategory(tab.id)}
-                  className={`relative px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
-                    isSelected
-                      ? 'text-[#F5B418]'
-                      : 'bg-white/90 text-stone-700 hover:text-stone-900 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
-                  }`}
-                >
-                  {isSelected && (
-                    <motion.div
-                      layoutId="activeCategoryPill"
-                      className="absolute inset-0 bg-[#012520] rounded-full border border-[#F5B418]/50 shadow-[0_4px_16px_rgba(1,37,32,0.3)] -z-0"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center gap-1.5">
+        {availableTabs.length > 0 && (
+          <div className="relative pt-0.5">
+            <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 px-0.5 overscroll-x-contain">
+              {availableTabs.map((tab) => {
+                const isSelected = selectedCategory === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(tab.id)}
+                    className={`relative px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
+                      isSelected
+                        ? 'text-[#F5B418]'
+                        : 'bg-white/90 text-stone-700 hover:text-stone-900 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
+                    }`}
+                  >
                     {isSelected && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_8px_#F5B418] shrink-0" />
+                      <motion.div
+                        layoutId="activeCategoryPill"
+                        className="absolute inset-0 bg-[#012520] rounded-full border border-[#F5B418]/50 shadow-[0_4px_16px_rgba(1,37,32,0.3)] -z-0"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
                     )}
-                    <span>{tab.label}</span>
-                  </span>
-                </button>
-              );
-            })}
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#F5B418] shadow-[0_0_8px_#F5B418] shrink-0" />
+                      )}
+                      <span>{tab.label}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Product Cards Smooth Scroll View Container with Framer Motion Cross-fade */}
         <div className="relative group/carousel -mx-4 sm:mx-0 min-h-[360px]">
@@ -303,14 +384,8 @@ export default function HomePage() {
                 No Fragrances Found
               </h3>
               <p className="font-sans text-xs text-neutral-500 max-w-sm mx-auto">
-                No active perfumes found in this category. Our master perfumers are continuously distilling new batches.
+                Discover our artisanal collection or check back soon for new arrivals.
               </p>
-              <button
-                onClick={() => setSelectedCategory('all')}
-                className="mt-2 py-2.5 px-6 rounded-full bg-stone-900 text-white hover:bg-emerald-950 text-xs font-bold uppercase tracking-wider transition-all"
-              >
-                View All Bestsellers
-              </button>
             </div>
           ) : (
             <AnimatePresence mode="wait">
@@ -345,30 +420,32 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Explore All Collection Link with Framer Motion hover scale */}
-        <div className="flex items-center justify-center pt-4 sm:pt-6">
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.2, ease: luxuryEase }}
-          >
-            <Link
-              href={
-                selectedCategory === 'all'
-                  ? '/shop'
-                  : matchedCategory
-                  ? `/shop?category=${matchedCategory.slug}`
-                  : ['men', 'women', 'unisex'].includes(selectedCategory)
-                  ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
-                  : '/shop?occasion=Gifting'
-              }
-              className="group inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 rounded-full bg-[#012520] text-white text-xs sm:text-sm font-bold uppercase tracking-widest border border-[#F5B418]/30 hover:border-[#F5B418]/70 shadow-[0_4px_20px_rgba(1,37,32,0.25)] hover:shadow-[0_8px_32px_rgba(1,37,32,0.35)] transition-all duration-300"
+        {/* Explore All Collection Link with Framer Motion hover scale - Only shown when products exist */}
+        {!isLoading && displayedProducts.length > 0 && (
+          <div className="flex items-center justify-center pt-4 sm:pt-6">
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.2, ease: luxuryEase }}
             >
-              <span>Explore All</span>
-              <ArrowRight className="w-4 h-4 text-[#F5B418] group-hover:translate-x-1.5 transition-transform duration-300" />
-            </Link>
-          </motion.div>
-        </div>
+              <Link
+                href={
+                  selectedCategory === 'all'
+                    ? '/shop'
+                    : matchedCategory
+                    ? `/shop?category=${matchedCategory.slug}`
+                    : ['men', 'women', 'unisex'].includes(selectedCategory)
+                    ? `/shop?gender=${selectedCategory === 'men' ? 'Men' : selectedCategory === 'women' ? 'Women' : 'Unisex'}`
+                    : '/shop?occasion=Gifting'
+                }
+                className="group inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 rounded-full bg-[#012520] text-white text-xs sm:text-sm font-bold uppercase tracking-widest border border-[#F5B418]/30 hover:border-[#F5B418]/70 shadow-[0_4px_20px_rgba(1,37,32,0.25)] hover:shadow-[0_8px_32px_rgba(1,37,32,0.35)] transition-all duration-300"
+              >
+                <span>Explore All</span>
+                <ArrowRight className="w-4 h-4 text-[#F5B418] group-hover:translate-x-1.5 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+          </div>
+        )}
       </motion.section>
 
       {/* 3. Category Display Slider (Continuous Buttery-Smooth Auto-Scroll) */}
@@ -580,7 +657,10 @@ export default function HomePage() {
         <TestimonialCarousel />
       </motion.section>
 
-      {/* 8. Frequently Asked Questions Section */}
+      {/* 8. Visit Our Flagship Store & Interactive Map Section */}
+      <HomeStoreMapSection />
+
+      {/* 9. Frequently Asked Questions Section */}
       <motion.section
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

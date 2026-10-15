@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Order, Product, Category, Review, User, Customer } from '@/types';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 export const useAdminStats = () => {
   return useQuery<{
@@ -20,7 +21,9 @@ export const useAdminStats = () => {
       const { data } = await api.get('/admin/stats');
       return data;
     },
-    staleTime: 60 * 1000,
+    staleTime: 5000,
+    refetchInterval: 10000, // Live poll every 10s for active admin dashboard
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -33,6 +36,9 @@ export const useAdminOrders = (status?: string, enabled = true) => {
       return data;
     },
     enabled,
+    staleTime: 5000,
+    refetchInterval: 12000, // Live poll orders every 12s
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -54,6 +60,8 @@ export const useUpdateOrderStatus = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      broadcastDataChange(['admin-orders', 'admin-stats', 'orders']);
     },
   });
 };
@@ -67,7 +75,10 @@ export const useAdminCreateProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['products', 'featured-products', 'admin-stats', 'product-filter-options']);
     },
   });
 };
@@ -81,7 +92,15 @@ export const useAdminDeleteProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.refetchQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['products', 'featured-products', 'admin-categories', 'categories', 'admin-stats', 'product-filter-options']);
     },
   });
 };
@@ -144,8 +163,11 @@ export const useAdminUpdateProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.refetchQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['products', 'featured-products', 'admin-stats', 'product-filter-options']);
     },
   });
 };
@@ -288,7 +310,9 @@ export const useAdminCustomers = () => {
       const { data } = await api.get('/admin/customers');
       return data;
     },
-    staleTime: 30 * 1000,
+    staleTime: 8000,
+    refetchInterval: 20000,
+    refetchOnWindowFocus: true,
   });
 };
 

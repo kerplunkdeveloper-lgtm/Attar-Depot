@@ -21,3 +21,27 @@ export function formatDate(dateString: string): string {
     year: 'numeric',
   });
 }
+
+export function formatDateTime(dateString: string): { date: string; time: string; full: string } {
+  if (!dateString) return { date: '-', time: '-', full: '-' };
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return { date: '-', time: '-', full: '-' };
+
+  const date = d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  const time = d.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return {
+    date,
+    time,
+    full: `${date} • ${time}`,
+  };
+}

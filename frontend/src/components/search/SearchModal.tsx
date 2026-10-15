@@ -20,6 +20,7 @@ import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { backdropVariants, modalVariants, luxuryEase } from '@/lib/animations';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 export default function SearchModal() {
   const router = useRouter();
@@ -623,7 +624,7 @@ export default function SearchModal() {
             <div className="flex items-center gap-1.5">
               <span>Need advice?</span>
               <a
-                href="https://wa.me/919876543210?text=Salam!%20Can%20you%20help%20me%20choose%20a%20pure%20attar?"
+                href={SITE_CONTACT.whatsapp.getCustomUrl('Salam! Can you help me choose a pure attar?')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-emerald-700 hover:text-emerald-900 font-bold hover:underline"

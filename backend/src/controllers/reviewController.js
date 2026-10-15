@@ -107,7 +107,7 @@ export const deleteReview = async (req, res, next) => {
     }
 
     const productId = review.product;
-    await review.deleteOne();
+    await Review.findByIdAndDelete(review._id);
 
     // Recalculate product rating
     const remainingReviews = await Review.find({ product: productId });

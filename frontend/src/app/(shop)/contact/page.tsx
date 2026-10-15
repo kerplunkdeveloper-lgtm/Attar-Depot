@@ -20,6 +20,7 @@ import {
   Check,
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
+import { SITE_CONTACT } from '@/config/siteContact';
 
 const FAQS = [
   {
@@ -179,12 +180,12 @@ export default function ContactPage() {
                       Hotline Number
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans">
-                      +91 98765 43210
+                      {SITE_CONTACT.phone.display}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={(e) => handleCopy(e, '+919876543210', 'hotline', 'Phone number')}
+                    onClick={(e) => handleCopy(e, SITE_CONTACT.phone.international, 'hotline', 'Phone number')}
                     className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                       copiedKey === 'hotline'
                         ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
@@ -208,7 +209,7 @@ export default function ContactPage() {
 
                 {/* Primary CTA */}
                 <a
-                  href="tel:+919876543210"
+                  href={SITE_CONTACT.phone.telUrl}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
                 >
                   <Phone className="w-3.5 h-3.5 text-[#F5B418]" />
@@ -279,12 +280,12 @@ export default function ContactPage() {
                       WhatsApp Desk
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#15803D] truncate block font-sans">
-                      +91 98765 43210
+                      {SITE_CONTACT.whatsapp.display}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={(e) => handleCopy(e, '+919876543210', 'whatsapp', 'WhatsApp number')}
+                    onClick={(e) => handleCopy(e, SITE_CONTACT.whatsapp.rawNumber, 'whatsapp', 'WhatsApp number')}
                     className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                       copiedKey === 'whatsapp'
                         ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
@@ -308,7 +309,7 @@ export default function ContactPage() {
 
                 {/* Primary CTA */}
                 <a
-                  href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils%20and%20bespoke%20royal%20fragrances."
+                  href={SITE_CONTACT.whatsapp.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1faa53] text-white text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
@@ -377,13 +378,13 @@ export default function ContactPage() {
                     <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
                       Email Address
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title="concierge@attardepot.com">
-                      concierge@attardepot.com
+                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title={SITE_CONTACT.emails.concierge}>
+                      {SITE_CONTACT.emails.concierge}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={(e) => handleCopy(e, 'concierge@attardepot.com', 'email', 'Email address')}
+                    onClick={(e) => handleCopy(e, SITE_CONTACT.emails.concierge, 'email', 'Email address')}
                     className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                       copiedKey === 'email'
                         ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
@@ -407,7 +408,7 @@ export default function ContactPage() {
 
                 {/* Primary CTA */}
                 <a
-                  href="mailto:concierge@attardepot.com"
+                  href={`mailto:${SITE_CONTACT.emails.concierge}`}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
                 >
                   <Mail className="w-3.5 h-3.5 text-[#F5B418]" />
@@ -538,9 +539,18 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-emerald-100 text-xs font-medium text-emerald-900 shadow-2xs self-start sm:self-auto">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Official Handles • 7 Days Support</span>
+            <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+              <Link
+                href="/social"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#046A5A] hover:bg-[#023F36] text-white text-xs font-bold shadow-xs hover:shadow-md transition-all"
+              >
+                <span>Full Social Hub</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-emerald-100 text-xs font-medium text-emerald-900 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Official Handles • 7 Days Support</span>
+              </div>
             </div>
           </div>
 
@@ -554,22 +564,22 @@ export default function ContactPage() {
                     <Instagram className="w-6 h-6 text-white stroke-[2]" />
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-[#E4405F] border border-rose-200/60">
-                    Daily Reels
+                    {SITE_CONTACT.socials.instagram.badge}
                   </span>
                 </div>
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#E4405F]">
                   INSTAGRAM
                 </p>
                 <h3 className="font-serif text-[21px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#E4405F] transition-colors">
-                  @theattardepot
+                  {SITE_CONTACT.socials.instagram.handle}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                  Watch traditional extraction reels, flacon aesthetics, customer unboxings, and scent layering tips.
+                  {SITE_CONTACT.socials.instagram.description}
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-neutral-100">
                 <a
-                  href="https://www.instagram.com"
+                  href={SITE_CONTACT.socials.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#E4405F] hover:text-[#b01e40] transition-colors"
@@ -590,22 +600,22 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#15803D] border border-emerald-200/60">
-                    Active Desk
+                    {SITE_CONTACT.socials.whatsapp.badge}
                   </span>
                 </div>
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#15803D]">
                   WHATSAPP CHANNEL
                 </p>
                 <h3 className="font-serif text-[21px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#25D366] transition-colors">
-                  WhatsApp Concierge
+                  {SITE_CONTACT.socials.whatsapp.name}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                  Direct personal fragrance advice, live bottle preview clips, bespoke trousseau orders & instant queries.
+                  {SITE_CONTACT.socials.whatsapp.description}
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-neutral-100">
                 <a
-                  href="https://wa.me/919876543210?text=Salam%20%26%20Greetings!%20I%20am%20inquiring%20about%20Attar%20Depot%20pure%20perfume%20oils."
+                  href={SITE_CONTACT.whatsapp.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#25D366] hover:text-[#189b48] transition-colors"
@@ -624,22 +634,22 @@ export default function ContactPage() {
                     <Youtube className="w-6 h-6 text-white stroke-[2]" />
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-[#FF0000] border border-red-200/60">
-                    4K Films
+                    {SITE_CONTACT.socials.youtube.badge}
                   </span>
                 </div>
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#FF0000]">
                   YOUTUBE
                 </p>
                 <h3 className="font-serif text-[21px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#FF0000] transition-colors">
-                  Attar Depot
+                  {SITE_CONTACT.socials.youtube.name}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                  Deep dive into Deg-Bhapka hydro-distillation, pure sandalwood maturation, and notes breakdown tutorials.
+                  {SITE_CONTACT.socials.youtube.description}
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-neutral-100">
                 <a
-                  href="https://www.youtube.com"
+                  href={SITE_CONTACT.socials.youtube.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#FF0000] hover:text-[#b80000] transition-colors"
@@ -658,22 +668,22 @@ export default function ContactPage() {
                     <Facebook className="w-6 h-6 text-white stroke-[2]" />
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1877F2] border border-blue-200/60">
-                    Official Page
+                    {SITE_CONTACT.socials.facebook.badge}
                   </span>
                 </div>
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#1877F2]">
                   FACEBOOK
                 </p>
                 <h3 className="font-serif text-[21px] font-bold text-neutral-900 tracking-tight leading-snug group-hover:text-[#1877F2] transition-colors">
-                  Attar Depot Official
+                  {SITE_CONTACT.socials.facebook.name}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-neutral-500 leading-relaxed font-sans">
-                  Join our community of over 30,000 attar aficionados, festive release updates, and verified reviews.
+                  {SITE_CONTACT.socials.facebook.description}
                 </p>
               </div>
               <div className="pt-4 mt-6 border-t border-neutral-100">
                 <a
-                  href="https://www.facebook.com"
+                  href={SITE_CONTACT.socials.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#1877F2] hover:text-[#0f5ac2] transition-colors"
@@ -710,7 +720,7 @@ export default function ContactPage() {
                 <span>Mon–Sat: 10:00 AM – 9:00 PM IST</span>
               </div>
               <a
-                href="https://www.google.com/maps/place/The+Attar+Depot+(Opening+Soon)/@11.9352508,79.8272356,17z/data=!4m15!1m8!3m7!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!2sThe+Attar+Depot+(Opening+Soon)!8m2!3d11.9352508!4d79.8272356!10e1!16s%2Fg%2F11nk011rzr!3m5!1s0x3a5361321e7067c7:0x21cfed5a9498e2a5!8m2!3d11.9352508!4d79.8272356!16s%2Fg%2F11nk011rzr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"
+                href={SITE_CONTACT.maps.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition-colors border border-emerald-200 shadow-2xs"
@@ -724,7 +734,7 @@ export default function ContactPage() {
           {/* Interactive Google Map Embed */}
           <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden border border-emerald-100 relative shadow-inner">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.5661658908084!2d79.8272356!3d11.935250799999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5361321e7067c7%3A0x21cfed5a9498e2a5!2sThe%20Attar%20Depot%20(Opening%20Soon)!5e0!3m2!1sen!2sin!4v1790573624309!5m2!1sen!2sin"
+              src={SITE_CONTACT.maps.embedUrl}
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'contrast(1.05) saturate(1.1)' }}

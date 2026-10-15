@@ -300,7 +300,7 @@ export const deleteCategory = async (req, res, next) => {
     }
 
     // Delete category
-    await category.deleteOne();
+    await Category.findByIdAndDelete(category._id);
 
     res.status(200).json({
       success: true,

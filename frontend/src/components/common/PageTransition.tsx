@@ -15,14 +15,18 @@ export default function PageTransition({ children }: PageTransitionProps) {
   return (
     <motion.div
       key={pathname}
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
+      exit={{ opacity: 0, y: -4 }}
       transition={{
-        duration: 0.35,
+        duration: 0.28,
         ease: luxuryEase,
       }}
-      className="w-full flex-1 flex flex-col"
+      className="w-full flex-1 flex flex-col gpu-accelerated"
+      style={{
+        transform: 'translate3d(0, 0, 0)',
+        backfaceVisibility: 'hidden',
+      }}
     >
       {children}
     </motion.div>

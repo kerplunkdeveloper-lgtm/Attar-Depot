@@ -15,7 +15,8 @@ export const usePublicTaxonomy = () => {
       const { data } = await api.get('/taxonomy');
       return data;
     },
-    staleTime: 3 * 60 * 1000,
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -27,7 +28,8 @@ export const useAdminTaxonomy = () => {
       const { data } = await api.get('/taxonomy/all');
       return data;
     },
-    staleTime: 30 * 1000,
+    staleTime: 10 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 

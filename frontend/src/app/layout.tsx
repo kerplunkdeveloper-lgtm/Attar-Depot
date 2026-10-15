@@ -196,7 +196,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`light scroll-smooth ${cormorant.variable} ${inter.variable} ${poppins.variable}`}
+      className={`light ${cormorant.variable} ${inter.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
       <head>

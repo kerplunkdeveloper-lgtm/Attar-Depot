@@ -294,7 +294,7 @@ export const deleteCollection = async (req, res, next) => {
     if (!collection) {
       return res.status(404).json({ success: false, message: 'Collection not found' });
     }
-    await collection.deleteOne();
+    await Collection.findByIdAndDelete(collection._id);
     res.status(200).json({ success: true, message: `Collection "${collection.name}" removed successfully` });
   } catch (error) {
     next(error);
@@ -376,7 +376,7 @@ export const deleteNote = async (req, res, next) => {
     if (!note) {
       return res.status(404).json({ success: false, message: 'Fragrance note not found' });
     }
-    await note.deleteOne();
+    await FragranceNote.findByIdAndDelete(note._id);
     res.status(200).json({ success: true, message: `Fragrance note "${note.name}" removed successfully` });
   } catch (error) {
     next(error);
@@ -456,7 +456,7 @@ export const deleteOccasion = async (req, res, next) => {
     if (!occasion) {
       return res.status(404).json({ success: false, message: 'Occasion not found' });
     }
-    await occasion.deleteOne();
+    await Occasion.findByIdAndDelete(occasion._id);
     res.status(200).json({ success: true, message: `Occasion "${occasion.name}" removed successfully` });
   } catch (error) {
     next(error);

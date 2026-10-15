@@ -52,7 +52,8 @@ export const useProducts = (params: ProductQueryParams = {}) => {
       return data;
     },
     placeholderData: keepPreviousData,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 15 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -66,7 +67,8 @@ export const useFeaturedProducts = () => {
         bestSellers: data.bestSellers || [],
       };
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -80,7 +82,8 @@ export const useProductDetails = (idOrSlug: string, initialProduct?: Product) =>
       return data;
     },
     enabled: !!idOrSlug,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: true,
     placeholderData: (previousData) => {
       if (previousData) return previousData;
       if (initialProduct) {

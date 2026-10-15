@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Coupon, AppliedCoupon } from '@/types';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 // Fetch active coupons for storeCustomers
 export const useCoupons = (params?: { limit?: number }) => {
@@ -96,6 +97,7 @@ export const useAdminCreateCoupon = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['banner-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['public-coupons'] });
+      broadcastDataChange(['admin-coupons', 'banner-coupons', 'public-coupons']);
     },
   });
 };
@@ -111,6 +113,7 @@ export const useAdminUpdateCoupon = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['banner-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['public-coupons'] });
+      broadcastDataChange(['admin-coupons', 'banner-coupons', 'public-coupons']);
     },
   });
 };
@@ -126,6 +129,7 @@ export const useAdminDeleteCoupon = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['banner-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['public-coupons'] });
+      broadcastDataChange(['admin-coupons', 'banner-coupons', 'public-coupons']);
     },
   });
 };
@@ -141,6 +145,7 @@ export const useAdminToggleCouponStatus = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['banner-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['public-coupons'] });
+      broadcastDataChange(['admin-coupons', 'banner-coupons', 'public-coupons']);
     },
   });
 };
@@ -156,6 +161,7 @@ export const useAdminSeedDefaultCoupons = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['banner-coupons'] });
       queryClient.invalidateQueries({ queryKey: ['public-coupons'] });
+      broadcastDataChange(['admin-coupons', 'banner-coupons', 'public-coupons']);
     },
   });
 };
