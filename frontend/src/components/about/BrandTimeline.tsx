@@ -61,29 +61,29 @@ export default function BrandTimeline() {
     <section
       id="brand-journey"
       aria-label="A Story That Spans Generations"
-      className="relative w-full mt-8 mb-5 overflow-hidden"
+      className="relative w-full py-16 sm:py-20 lg:py-24 bg-[#F7F4EE] overflow-hidden border-b border-[#EAE3D5]"
     >
       {/* Subtle warm noise texture */}
       <div className="absolute inset-0 opacity-[0.018]"
         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }}
       />
 
-      <div className="relative z-10 max-w-8xl mx-auto px-6 sm:px-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Section Header ── */}
-        <motion.div {...fadeUp()} className="text-center mb-16 lg:mb-20 space-y-5">
-          <div className="inline-flex items-center gap-4">
+        <motion.div {...fadeUp()} className="text-center mb-14 lg:mb-18 space-y-4">
+          <div className="inline-flex items-center gap-3">
             <div className="w-8 h-px bg-gradient-to-r from-transparent to-[#C9A227]" />
-            <span className="font-sans text-[10px] font-bold tracking-[0.42em] uppercase text-[#C9A227]">
+            <span className="font-sans text-[10.5px] font-bold tracking-[0.42em] uppercase text-[#C9A227]">
               OUR JOURNEY
             </span>
             <div className="w-8 h-px bg-gradient-to-l from-transparent to-[#C9A227]" />
           </div>
 
           <h2 className="font-serif font-normal text-[#0D1A10] tracking-[-0.02em] leading-[1.08]"
-            style={{ fontSize: 'clamp(30px, 4vw, 54px)' }}
+            style={{ fontSize: 'clamp(30px, 3.8vw, 52px)' }}
           >
-            A Story That Spans Generations
+            A Story That Spans <span className="italic">Generations</span>
           </h2>
 
           <p className="font-serif text-[15px] sm:text-[17px] text-[#6B6554] italic font-normal">
@@ -92,26 +92,21 @@ export default function BrandTimeline() {
         </motion.div>
 
         {/* ── Timeline Grid ── */}
-        <div className="relative">
-          {/* Connector line — desktop */}
-          <div className="hidden lg:block absolute top-[44%] left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#C9A227]/25 to-transparent pointer-events-none z-0" />
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 lg:gap-4 xl:gap-5">
-            {timelineItems.map((item, i) => (
-              <motion.div
-                key={item.year}
-                initial={{ opacity: 0, y: 36 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="group flex flex-col"
-              >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5 lg:gap-4 xl:gap-5">
+          {timelineItems.map((item, i) => (
+            <motion.div
+              key={item.year}
+              initial={{ opacity: 0, y: 36 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex flex-col justify-between h-full"
+            >
+              <div>
                 {/* ── Photo ── */}
                 <div
-                  className={`relative w-full overflow-hidden bg-[#E5DFD0] shadow-[0_4px_20px_rgba(14,26,16,0.10)] group-hover:shadow-[0_8px_30px_rgba(14,26,16,0.18)] transition-shadow duration-500 ${
-                    item.accent
-                      ? 'ring-2 ring-[#C9A227]/70 rounded-xl'
-                      : 'rounded-xl'
+                  className={`relative w-full overflow-hidden bg-[#E5DFD0] shadow-[0_4px_20px_rgba(14,26,16,0.10)] group-hover:shadow-[0_8px_30px_rgba(14,26,16,0.18)] transition-shadow duration-500 rounded-xl ${
+                    item.accent ? 'ring-2 ring-[#C9A227]/70' : ''
                   }`}
                   style={{ aspectRatio: '3/4' }}
                 >
@@ -131,22 +126,25 @@ export default function BrandTimeline() {
                   )}
                 </div>
 
-                {/* ── Timeline dot ── */}
-                <div className="flex items-center gap-0 mt-5 mb-3.5">
+                {/* ── Timeline dot with continuous connector ── */}
+                <div className="relative flex items-center mt-4.5 mb-3">
                   <div
-                    className={`w-2.5 h-2.5 rounded-full border-[1.5px] flex-shrink-0 transition-all duration-300 ${
+                    className={`w-2.5 h-2.5 rounded-full border-[1.5px] z-10 flex-shrink-0 transition-all duration-300 ${
                       item.accent
                         ? 'border-[#C9A227] bg-[#C9A227] shadow-[0_0_8px_rgba(201,162,39,0.5)]'
-                        : 'border-[#C9A227]/60 bg-transparent group-hover:border-[#C9A227] group-hover:bg-[#C9A227]/20'
+                        : 'border-[#C9A227]/60 bg-[#F7F4EE] group-hover:border-[#C9A227] group-hover:bg-[#C9A227]/20'
                     }`}
                   />
+                  {i < timelineItems.length - 1 && (
+                    <div className="hidden lg:block absolute left-2.5 right-0 h-px bg-gradient-to-r from-[#C9A227]/50 to-[#C9A227]/15 pointer-events-none" />
+                  )}
                 </div>
 
                 {/* ── Year + text ── */}
-                <div className="space-y-2 pr-1">
+                <div className="space-y-1.5 pr-1">
                   <p
                     className={`font-sans text-[10.5px] font-bold tracking-[0.18em] uppercase ${
-                      item.accent ? 'text-[#C9A227]' : 'text-[#9B7E3A]/80'
+                      item.accent ? 'text-[#C9A227]' : 'text-[#9B7E3A]'
                     }`}
                   >
                     {item.year}
@@ -155,18 +153,18 @@ export default function BrandTimeline() {
                     className={`font-serif leading-snug ${
                       item.accent
                         ? 'text-[#0D1A10] text-[14px] sm:text-[15px] font-semibold'
-                        : 'text-[#1B2C1E] text-[13px] sm:text-[14px] font-normal'
+                        : 'text-[#1B2C1E] text-[13px] sm:text-[14px] font-medium'
                     }`}
                   >
                     {item.label}
                   </h3>
-                  <p className="font-sans text-[11px] sm:text-[11.5px] leading-[1.7] text-[#6B6554] font-light">
+                  <p className="font-sans text-[11px] sm:text-[11.5px] leading-[1.65] text-[#555042] font-light">
                     {item.body}
                   </p>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

@@ -199,8 +199,12 @@ export default function RootLayout({
       className={`light scroll-smooth ${cormorant.variable} ${inter.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.cdnfonts.com" crossOrigin="anonymous" />
+        <link href="https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro" rel="stylesheet" />
+      </head>
       <body
-        className={`${inter.className} min-h-screen text-neutral-900 font-sans selection:bg-[#046A5A] selection:text-white antialiased`}
+        className="min-h-screen text-neutral-900 font-sans selection:bg-[#046A5A] selection:text-white antialiased"
         suppressHydrationWarning
       >
         <Preloader />

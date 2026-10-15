@@ -21,8 +21,8 @@ export default function BrandToday() {
         }}
       />
 
-      <div className="relative z-10 max-w-8xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch min-h-[440px] xl:min-h-[480px]">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-8 xl:gap-10">
 
           {/* ═══════════════════════════════════════════════════════════
               LEFT COLUMN: Eyebrow + Title + Rule + Text + Button
@@ -32,7 +32,7 @@ export default function BrandToday() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-4 xl:col-span-4 flex flex-col justify-center px-6 sm:px-10 lg:pl-12 lg:pr-6 py-12 sm:py-16 lg:py-12 space-y-5"
+            className="lg:col-span-4 xl:col-span-4 flex flex-col justify-center space-y-5"
           >
             {/* Eyebrow: TODAY */}
             <span
@@ -55,8 +55,8 @@ export default function BrandToday() {
 
             {/* Description */}
             <p
-              className="font-sans font-light text-[#555048] leading-[1.8]"
-              style={{ fontSize: 'clamp(13px, 1.15vw, 14.5px)', maxWidth: '380px' }}
+              className="font-sans font-light text-[#555048] leading-[1.8] max-w-sm"
+              style={{ fontSize: 'clamp(13px, 1.15vw, 14.5px)' }}
             >
               Those same values now find a new expression in fragrance — through quality, curation, personal attention and the joy of discovery.
             </p>
@@ -65,7 +65,7 @@ export default function BrandToday() {
             <div className="pt-2">
               <Link
                 href="/shop"
-                className="group inline-flex items-center gap-2.5 px-7 py-3 rounded-full bg-[#C29F55] hover:bg-[#B59145] text-[#1A160C] transition-all duration-300 font-sans text-[11px] font-bold tracking-[0.16em] uppercase shadow-[0_4px_16px_rgba(194,159,85,0.28)] hover:shadow-[0_6px_22px_rgba(194,159,85,0.4)] hover:-translate-y-0.5 active:translate-y-0 w-fit"
+                className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 rounded-full bg-[#C29F55] hover:bg-[#B59145] text-[#1A160C] transition-all duration-300 font-sans text-[11px] font-bold tracking-[0.16em] uppercase shadow-[0_4px_16px_rgba(194,159,85,0.28)] hover:shadow-[0_6px_22px_rgba(194,159,85,0.4)] hover:-translate-y-0.5 active:translate-y-0 w-fit"
               >
                 <span>EXPLORE OUR COLLECTIONS</span>
                 <ArrowRight
@@ -78,39 +78,17 @@ export default function BrandToday() {
 
           {/* ═══════════════════════════════════════════════════════════
               CENTER COLUMN: Pondicherry Street & "THE ATTAR DEPOT" Sign
-              Uses original high-definition heritage photo
           ═══════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-5 xl:col-span-5 relative w-full h-[340px] sm:h-[420px] lg:h-auto overflow-hidden">
-            <div className="relative w-full h-full overflow-hidden">
-              <Image
-                src="/images/pondicherry-heritage-hd.jpg"
-                alt="The Attar Depot — Heritage Pondicherry French Quarter"
-                fill
-                unoptimized
-                priority
-                className="object-cover object-[25%_center] hover:scale-105 transition-transform duration-700"
-              />
-
-
-
-              {/* Left soft feather fade into ivory background */}
-              <div
-                className="absolute inset-y-0 left-0 w-20 sm:w-28 pointer-events-none z-10"
-                style={{
-                  background:
-                    'linear-gradient(to right, #FAF7F2 0%, rgba(250,247,242,0.85) 35%, transparent 100%)',
-                }}
-              />
-
-              {/* Right subtle fade into ivory background */}
-              <div
-                className="absolute inset-y-0 right-0 w-12 sm:w-16 pointer-events-none z-10"
-                style={{
-                  background:
-                    'linear-gradient(to left, #FAF7F2 0%, rgba(250,247,242,0.7) 40%, transparent 100%)',
-                }}
-              />
-            </div>
+          <div className="lg:col-span-5 xl:col-span-5 relative w-full h-[320px] sm:h-[380px] lg:h-[440px] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E5DFD0] shadow-[0_12px_36px_rgba(26,24,21,0.08)] bg-[#EAE3D5]">
+            <Image
+              src="/images/pondicherry-heritage-hd.jpg"
+              alt="The Attar Depot — Heritage Pondicherry French Quarter"
+              fill
+              unoptimized
+              priority
+              sizes="(max-width: 1024px) 100vw, 42vw"
+              className="object-cover object-[25%_center] hover:scale-105 transition-transform duration-700"
+            />
           </div>
 
           {/* ═══════════════════════════════════════════════════════════
@@ -121,7 +99,7 @@ export default function BrandToday() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-3 xl:col-span-3 flex flex-col justify-center px-6 sm:px-10 lg:pl-6 lg:pr-10 py-10 sm:py-14 lg:py-12 space-y-4"
+            className="lg:col-span-3 xl:col-span-3 flex flex-col justify-center space-y-4 lg:pl-2"
           >
             {/* Top gold dash */}
             <div className="w-8 h-[2px] bg-[#C29F55]" />
@@ -129,7 +107,7 @@ export default function BrandToday() {
             {/* Quote */}
             <blockquote
               className="font-serif italic text-[#343029] leading-[1.82] font-normal"
-              style={{ fontSize: 'clamp(14.5px, 1.25vw, 17.5px)', maxWidth: '300px' }}
+              style={{ fontSize: 'clamp(14.5px, 1.25vw, 17px)', maxWidth: '320px' }}
             >
               “A familiar fragrance can bring back a memory, remind us of a place, or someone we love. Fragrance has a way of becoming part of who we are.”
             </blockquote>

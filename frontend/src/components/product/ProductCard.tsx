@@ -281,7 +281,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
             </Link>
               
             {/* 3. Subtitle / Target Audience */}
-            <p className="font-serif text-[11px] sm:text-base text-stone-600 line-clamp-1 leading-tight">
+            <p className="font-serif italic font-light text-[11px] sm:text-[13px] text-stone-500 line-clamp-1 leading-tight tracking-wide">
               {targetAudience}
             </p>
 

@@ -111,13 +111,14 @@ export default function BrandHero() {
       {/* ═══════════════════════════════════════════════════════════
           CONTENT LAYER
       ═══════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full h-full max-w-[1380px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-18 flex items-center"
-        style={{ minHeight: 'clamp(380px, 65vh, 720px)' }}
+      <div
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
+        style={{ minHeight: 'clamp(460px, 72vh, 740px)' }}
       >
-        <div className="w-full grid grid-cols-12 items-center gap-0 py-20 lg:py-0">
+        <div className="w-full grid grid-cols-12 items-center gap-6 py-14 sm:py-20 lg:py-24">
 
           {/* ── LEFT TEXT BLOCK ── */}
-          <div className="col-span-12 mt-10 lg:col-span-7 xl:col-span-6 2xl:col-span-5 flex flex-col gap-5 lg:gap-6">
+          <div className="col-span-12 lg:col-span-8 xl:col-span-7 flex flex-col gap-5 lg:gap-6">
 
             {/* Eyebrow label */}
             <motion.div
@@ -128,8 +129,8 @@ export default function BrandHero() {
             >
               <div className="w-9 h-px bg-[#C9A227]" />
               <span
-                className="font-sans  font-bold uppercase text-[#C9A227]"
-                style={{ fontSize: '10px', letterSpacing: '0.38em' }}
+                className="font-sans font-bold uppercase text-[#C9A227]"
+                style={{ fontSize: '10.5px', letterSpacing: '0.38em' }}
               >
                 OUR BRAND
               </span>
@@ -140,19 +141,16 @@ export default function BrandHero() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.95, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-              className="font-serif font-normal leading-[1.05] tracking-[-0.022em] text-[#EDE8E0]"
-              style={{ fontSize: 'clamp(32px, 4.4vw, 62px)' }}
+              className="font-serif font-normal leading-[1.08] tracking-[-0.022em] text-[#EDE8E0]"
+              style={{ fontSize: 'clamp(34px, 4.2vw, 62px)' }}
             >
               A Legacy of Trust.
               <br />
-              A New World
-              <br />
+              A New World{' '}
               <span>
                 of{' '}
-                {/* Gold italic "Fragrance." — exact reference match */}
                 <span
-                  className="text-[#C9A227] font-serif"
-                  style={{ fontStyle: 'italic' }}
+                  className="text-[#C9A227] font-serif italic"
                 >
                   Fragrance.
                 </span>
@@ -177,28 +175,25 @@ export default function BrandHero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.44 }}
-              className="font-sans font-light leading-[1.85] text-[#B8B3A9]/80"
-              style={{ fontSize: 'clamp(13px, 1.3vw, 15.5px)', maxWidth: '380px' }}
+              className="font-sans font-light leading-[1.85] text-[#B8B3A9]/85 max-w-lg"
+              style={{ fontSize: 'clamp(13.5px, 1.25vw, 15.5px)' }}
             >
-              The same values that earned generations of trust
-              <br className="hidden sm:block" />
-              in Pondicherry now find a new expression
-              <br className="hidden sm:block" />
-              in a world of fragrance.
+              The same values that earned generations of trust in Pondicherry now find a new expression in an artisanal world of fragrance.
             </motion.p>
 
-            {/* CTA Button — outlined pill, matches reference */}
+            {/* CTA Button — outlined pill */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.58 }}
+              className="pt-1"
             >
               <button
                 onClick={scrollToJourney}
-                className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full border border-[#C9A227]/45 hover:border-[#C9A227]/85 hover:bg-[#C9A227]/8 transition-all duration-350 active:scale-[0.97]"
+                className="group relative inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 rounded-full border border-[#C9A227]/50 hover:border-[#C9A227] hover:bg-[#C9A227]/12 transition-all duration-300 active:scale-[0.97] shadow-[0_4px_20px_rgba(0,0,0,0.35)]"
               >
                 <span
-                  className="font-sans font-semibold uppercase tracking-[0.2em] text-[#E8E2D8]"
+                  className="font-sans font-semibold uppercase tracking-[0.2em] text-[#E8E2D8] group-hover:text-white transition-colors"
                   style={{ fontSize: '11px' }}
                 >
                   OUR JOURNEY
@@ -211,24 +206,32 @@ export default function BrandHero() {
             </motion.div>
           </div>
 
-          {/* ── RIGHT: Vertical navigation (desktop-only, far right) ── */}
+          {/* ── RIGHT: Vertical navigation (desktop, clean right gutter alignment) ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.9 }}
-            className="hidden xl:flex col-span-5 xl:col-span-6 2xl:col-span-7 flex-col items-end justify-center gap-[18px]"
+            className="hidden lg:flex col-span-4 xl:col-span-5 flex-col items-end justify-center gap-4.5"
           >
-            {sideLinks.map((label, i) => (
-              <motion.p
-                key={label}
+            {[
+              { label: 'TRADITION', id: 'brand-journey' },
+              { label: 'PEOPLE', id: 'brand-values' },
+              { label: 'FRAGRANCE', id: 'brand-today' },
+              { label: 'A BRIGHTER TOMORROW', id: 'brand-tomorrow' },
+            ].map((item, i) => (
+              <motion.button
+                key={item.label}
+                type="button"
+                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.55, delay: 1.0 + i * 0.09 }}
-                className="font-sans font-semibold uppercase text-[#C4BC9E]/55 hover:text-[#C9A227]/80 cursor-pointer transition-colors duration-300"
+                className="group flex items-center gap-2.5 text-right font-sans font-semibold uppercase text-[#C4BC9E]/60 hover:text-[#C9A227] transition-all duration-300 cursor-pointer"
                 style={{ fontSize: '9.5px', letterSpacing: '0.32em' }}
               >
-                {label}
-              </motion.p>
+                <span>{item.label}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-transparent group-hover:bg-[#C9A227] transition-all duration-300" />
+              </motion.button>
             ))}
           </motion.div>
 

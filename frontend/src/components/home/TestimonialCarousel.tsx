@@ -264,7 +264,7 @@ export default function TestimonialCarousel() {
                     </div>
 
                     {/* Middle: Review text with quotes */}
-                    <p className="font-sans text-[14px] sm:text-[14.5px] leading-[1.7] text-[#FAF6F0] font-normal tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    <p className="font-sans italic text-[14px] sm:text-[14.5px] leading-[1.7] text-[#FAF6F0] font-normal tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                       &ldquo;{item.comment}&rdquo;
                     </p>
                   </div>
@@ -304,7 +304,7 @@ export default function TestimonialCarousel() {
                       <h4 className="text-[14.5px] font-semibold text-white tracking-wide truncate leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                         {item.userName}
                       </h4>
-                      <p className="text-[12px] text-[#E8CCA0] font-medium tracking-wide truncate mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      <p className="text-[12px] text-[#E8CCA0] italic font-medium tracking-wide truncate mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         {item.subtitle}
                       </p>
                     </div>

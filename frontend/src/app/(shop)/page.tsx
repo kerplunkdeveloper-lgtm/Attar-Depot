@@ -192,7 +192,7 @@ export default function HomePage() {
               Royal Reserve
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl uppercase font-medium text-neutral-900 tracking-tight">
-              Our Bestsellers
+              Our <span className="italic font-light">Bestsellers</span>
             </h2>
           </div>
 
@@ -420,9 +420,9 @@ export default function HomePage() {
             Signature Moments
           </span>
           <h2 className="text-2xl sm:text-3xl uppercase font-serif text-emerald-950 tracking-tight font-medium">
-            Shop by Occasions
+            Shop by <span className="italic font-light text-emerald-900">Occasions</span>
           </h2>
-          <p className="text-xs sm:text-sm text-stone-500 font-sans max-w-lg">
+          <p className="text-xs sm:text-sm text-stone-500 font-sans max-w-lg italic">
             Discover exquisite concentrated attar formulations curated to match your aura, mood, and occasions
           </p>
         </div>
@@ -490,7 +490,7 @@ export default function HomePage() {
                     <h3 className="text-base sm:text-xl font-serif font-bold uppercase tracking-tight group-hover:text-[#F5B418] transition-colors line-clamp-1">
                       {occasion.title}
                     </h3>
-                    <p className="hidden xs:block text-[11px] sm:text-xs text-stone-300 font-sans opacity-90 line-clamp-1">
+                    <p className="hidden xs:block text-[11px] sm:text-xs text-stone-300 font-sans italic opacity-90 line-clamp-1">
                       {occasion.desc}
                     </p>
                     <div className="pt-1 flex items-center gap-1.5 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover:translate-x-1 transition-transform">
@@ -527,7 +527,7 @@ export default function HomePage() {
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               75 Years Legacy
             </h3>
-            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
               Generational hydro-distillation in authentic copper degs
             </p>
           </motion.div>
@@ -545,7 +545,7 @@ export default function HomePage() {
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               Farm To Fragrance
             </h3>
-            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
               100% alcohol-free pure oils hydro-distilled from harvest blooms
             </p>
           </motion.div>
@@ -563,7 +563,7 @@ export default function HomePage() {
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               Loved Worldwide
             </h3>
-            <p className="hidden md:block text-xs text-stone-300 font-sans max-w-xs">
+            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
               Delivered directly to luxury perfume connoisseurs worldwide
             </p>
           </motion.div>

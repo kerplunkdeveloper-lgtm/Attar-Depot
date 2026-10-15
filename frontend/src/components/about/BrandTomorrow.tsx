@@ -99,13 +99,13 @@ export default function BrandTomorrow() {
           CONTENT LAYER: Exact Reference Alignment & Typography
       ═══════════════════════════════════════════════════════════ */}
       <div
-        className="relative z-10 max-w-8xl mx-auto px-6 sm:px-10 lg:px-14 xl:px-18 py-16 sm:py-20 lg:py-24 flex items-center"
+        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 flex items-center"
         style={{ minHeight: 'clamp(480px, 65vh, 660px)' }}
       >
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-8">
 
           {/* ── LEFT: Narrative Text & Outlined Pill Button ── */}
-          <div className="lg:col-span-7 xl:col-span-7 space-y-5 sm:space-y-6">
+          <div className="lg:col-span-7 xl:col-span-8 space-y-5 sm:space-y-6">
 
             {/* Eyebrow: TOMORROW */}
             <motion.div
@@ -131,7 +131,7 @@ export default function BrandTomorrow() {
               className="font-serif font-normal text-[#FFFFFF] leading-[1.06] tracking-[-0.02em]"
               style={{ fontSize: 'clamp(32px, 3.8vw, 54px)' }}
             >
-              A Fragrance House
+              A Fragrance <span className="italic text-[#C4A052]">House</span>
             </motion.h2>
 
             {/* Gold Divider Rule */}
@@ -160,7 +160,7 @@ export default function BrandTomorrow() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.75, delay: 0.28 }}
-              className="space-y-2.5 font-sans text-[13px] sm:text-[14px] text-[#B8B3A8] font-light leading-[1.85] max-w-[500px]"
+              className="space-y-2.5 font-sans text-[13px] sm:text-[14px] text-[#B8B3A8] font-light leading-[1.85] max-w-lg"
             >
               <p>
                 Pondicherry is where we begin, not where we intend to stop.
@@ -191,13 +191,13 @@ export default function BrandTomorrow() {
             </motion.div>
           </div>
 
-          {/* ── RIGHT: Vertical Accent Rule & Stacked Motto (Matches Reference) ── */}
+          {/* ── RIGHT: Vertical Accent Rule & Stacked Motto ── */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.4 }}
-            className="hidden xl:flex lg:col-span-5 xl:col-span-5 items-center justify-end gap-5"
+            className="hidden lg:flex lg:col-span-5 xl:col-span-4 items-center justify-end gap-5"
           >
             {/* Vertical Rule with Central Diamond */}
             <div className="flex flex-col items-center gap-1.5 opacity-80">

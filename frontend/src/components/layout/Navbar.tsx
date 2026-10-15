@@ -422,7 +422,7 @@ export default function Navbar() {
                   aria-label="Attar Depot Home"
                 >
                   {/* Subtle golden ambient aura behind the logo */}
-                  <div className="absolute -inset-2  rounded-full blur-lg pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-2   pointer-events-none" />
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
@@ -430,8 +430,8 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[56px] lg:h-[60px] xl:h-[70px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
-                    style={{ mixBlendMode: 'multiply', filter: 'brightness(1.08)' }}
+                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[90px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
+
                   />
                 </Link>
               </div>
