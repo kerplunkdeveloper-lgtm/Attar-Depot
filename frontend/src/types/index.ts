@@ -254,6 +254,7 @@ export interface Banner {
   subtitle?: string;
   badge?: string;
   image: string;
+  mobileImage?: string;
   link: string;
   openInNewTab?: boolean;
   order: number;

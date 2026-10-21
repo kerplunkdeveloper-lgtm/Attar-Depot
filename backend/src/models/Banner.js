@@ -25,6 +25,11 @@ const bannerSchema = new mongoose.Schema(
       required: [true, 'Banner image URL is required'],
       trim: true,
     },
+    mobileImage: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     link: {
       type: String,
       default: '/shop',

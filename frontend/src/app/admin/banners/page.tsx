@@ -87,6 +87,7 @@ export default function AdminBannersPage() {
     subtitle: '',
     badge: '',
     image: '',
+    mobileImage: '',
     link: '/shop',
     openInNewTab: false,
     order: 1,
@@ -123,6 +124,7 @@ export default function AdminBannersPage() {
       subtitle: '',
       badge: '',
       image: '',
+      mobileImage: '',
       link: '/shop',
       openInNewTab: false,
       order: nextOrder,
@@ -138,6 +140,7 @@ export default function AdminBannersPage() {
       subtitle: banner.subtitle || '',
       badge: banner.badge || '',
       image: banner.image,
+      mobileImage: banner.mobileImage || '',
       link: banner.link || '/shop',
       openInNewTab: banner.openInNewTab || false,
       order: banner.order || 1,
@@ -709,6 +712,36 @@ export default function AdminBannersPage() {
                         }`}
                       >
                         {preset.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mobile-Specific Artwork Image (Optional) */}
+                <div className="pt-2 border-t border-slate-100">
+                  <AdminImageUpload
+                    value={formData.mobileImage}
+                    onChange={(url) => setFormData((prev) => ({ ...prev, mobileImage: url }))}
+                    label="Mobile Portrait Banner (Optional, Recommended: 1080x1920 or 9:16 PNG/WEBP)"
+                    folder="attar-depot/banners/mobile"
+                  />
+                  <div className="flex flex-wrap gap-2 mt-1.5">
+                    {[
+                      { title: 'Mobile Sunset', url: '/images/banner2.png' },
+                      { title: 'Mobile Fruity', url: '/images/bannerf2.png' },
+                      { title: 'Mobile Gift', url: '/images/gifthomenew.png' },
+                    ].map((p) => (
+                      <button
+                        key={p.url}
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, mobileImage: p.url }))}
+                        className={`text-[11px] px-2 py-0.5 rounded-md border transition-all ${
+                          formData.mobileImage === p.url
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold'
+                            : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {p.title}
                       </button>
                     ))}
                   </div>
