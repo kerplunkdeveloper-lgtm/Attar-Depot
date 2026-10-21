@@ -23,6 +23,7 @@ import MobileBestsellerSlider from '@/components/home/MobileBestsellerSlider';
 import CategoryDisplaySlider from '@/components/home/CategoryDisplaySlider';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
 import FAQsection from '@/components/home/FAQsection';
+import FindUsAround from '@/components/common/FindUsAround';
 import { motion, AnimatePresence } from 'framer-motion';
 import { luxuryEase, popSpring } from '@/lib/animations';
 
@@ -656,7 +657,15 @@ export default function HomePage() {
         <TestimonialCarousel />
       </motion.section>
 
-      
+      {/* 8. Find Us Around - Official Social Media Channels */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.75, ease: luxuryEase }}
+      >
+        <FindUsAround className="my-8 sm:my-14" />
+      </motion.section>
 
       {/* 9. Frequently Asked Questions Section */}
       <motion.section

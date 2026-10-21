@@ -8,7 +8,7 @@ import { ArrowRight } from 'lucide-react';
 const tagLines = ['SAME', 'VALUES.', 'A BRIGHTER', 'TOMORROW.'];
 
 export default function BrandTomorrow() {
-  const [imgSrc, setImgSrc] = React.useState('/api/tomorrow-image');
+  const [imgSrc, setImgSrc] = React.useState('/images/brand-tomorrow-arch.png');
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const bgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);

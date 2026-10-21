@@ -8,11 +8,11 @@ import { ChevronDown } from 'lucide-react';
 const sideLinks = ['TRADITION', 'PEOPLE', 'FRAGRANCE', 'A BRIGHTER TOMORROW'];
 
 export default function BrandHero() {
-  const [imgSrc, setImgSrc] = React.useState('/api/hero-image');
+  const [imgSrc, setImgSrc] = React.useState('/images/brand-hero-attar.png');
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   /* Subtle parallax — image moves slightly slower than scroll */
-  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
 
   const scrollToJourney = () =>
     document.getElementById('brand-journey')?.scrollIntoView({ behavior: 'smooth' });
@@ -27,8 +27,8 @@ export default function BrandHero() {
       style={{ minHeight: 'clamp(380px, 75vh, 720px)' }}
     >
       {/* ═══════════════════════════════════════════════════════════
-          BACKGROUND: User-Provided Heritage Luxury Attar Bottle
-          Positioned to showcase the glowing bottle, oud wood, and flowers
+          BACKGROUND: High-Definition Heritage Luxury Attar Bottle
+          Showcasing the razor-sharp crystal flacon, oud wood, and flowers
       ═══════════════════════════════════════════════════════════ */}
       <motion.div
         style={{ y: imgY }}
@@ -39,24 +39,14 @@ export default function BrandHero() {
           alt="The Attar Depot — Heritage Luxury Attar Bottle on Dark Oud"
           fill
           priority
-          unoptimized
+          quality={95}
           sizes="100vw"
-          /* Position bottle center-right with arch and flowers */
-          className="object-cover object-[70%_52%] sm:object-[68%_50%]"
-          onError={() => {
-            if (imgSrc !== '/images/brand-hero-attar.png') {
-              setImgSrc('/images/brand-hero-attar.png');
-            }
-          }}
-          style={{
-            /* Rich contrast and vibrant golden hues */
-            filter: 'brightness(0.92) contrast(1.04) saturate(1.05)',
-          }}
+          className="object-cover object-[70%_center] sm:object-[68%_center]"
         />
       </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════
-          COLOUR OVERLAYS — layered for cinematic depth & readability
+          COLOUR OVERLAYS — Clean gradient for readability without blurring
       ═══════════════════════════════════════════════════════════ */}
 
       {/* 1a. Desktop left-to-right gradient — text crisp, bottle glowing */}
@@ -64,7 +54,7 @@ export default function BrandHero() {
         className="absolute inset-0 pointer-events-none hidden lg:block"
         style={{
           background:
-            'linear-gradient(to right, #0C0906 0%, #0C0906 24%, rgba(12,9,6,0.92) 42%, rgba(12,9,6,0.55) 60%, rgba(12,9,6,0.15) 76%, transparent 100%)',
+            'linear-gradient(to right, #0C0906 0%, #0C0906 20%, rgba(12,9,6,0.85) 38%, rgba(12,9,6,0.35) 58%, transparent 75%)',
         }}
       />
 
@@ -73,39 +63,20 @@ export default function BrandHero() {
         className="absolute inset-0 pointer-events-none lg:hidden"
         style={{
           background:
-            'linear-gradient(to bottom, rgba(12,9,6,0.88) 0%, rgba(12,9,6,0.65) 45%, rgba(12,9,6,0.94) 100%)',
+            'linear-gradient(to bottom, rgba(12,9,6,0.85) 0%, rgba(12,9,6,0.4) 45%, rgba(12,9,6,0.9) 100%)',
         }}
       />
 
-      {/* 2. Warm amber aura around bottle center-right */}
+      {/* 2. Top edge vignette — blends seamlessly with navbar */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 55% 70% at 68% 52%, rgba(200,130,30,0.16) 0%, transparent 70%)',
-        }}
-      />
-
-      {/* 3. Top edge vignette — blends seamlessly with navbar */}
-      <div
-        className="absolute inset-x-0 top-0 h-28 pointer-events-none"
+        className="absolute inset-x-0 top-0 h-24 pointer-events-none"
         style={{ background: 'linear-gradient(to bottom, #0C0906 0%, transparent 100%)' }}
       />
 
-      {/* 4. Bottom edge vignette — blends into timeline section */}
+      {/* 3. Bottom edge vignette — blends into timeline section */}
       <div
-        className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-28 pointer-events-none"
         style={{ background: 'linear-gradient(to top, #0C0906 0%, transparent 100%)' }}
-      />
-
-      {/* 5. Film-grain texture overlay for premium tactile feel */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.038,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E")`,
-          backgroundSize: '300px 300px',
-        }}
       />
 
       {/* ═══════════════════════════════════════════════════════════

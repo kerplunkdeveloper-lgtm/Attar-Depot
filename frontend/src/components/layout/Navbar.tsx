@@ -398,16 +398,16 @@ export default function Navbar() {
           </div>
 
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
-            <div className="relative flex items-center justify-between h-[64px] min-[360px]:h-[68px] sm:h-[72px] lg:h-[72px] xl:h-[76px] gap-2 sm:gap-4">
+            <div className="relative flex items-center justify-between h-[68px] min-[360px]:h-[74px] xs:h-[78px] sm:h-[82px] lg:h-[74px] xl:h-[78px] gap-2 sm:gap-4">
               
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Brand Logo (Desktop & Mobile) + Mobile Hamburger  */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-start gap-2 sm:gap-3 shrink-0 z-20">
+              <div className="flex items-center justify-start gap-1.5 min-[360px]:gap-2.5 sm:gap-3 shrink-0 z-20">
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
+                  className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer shrink-0"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
@@ -417,7 +417,7 @@ export default function Navbar() {
                   )}
                 </button>
 
-                {/* Brand Official Logo (Left-aligned) */}
+                {/* Brand Official Logo (Left-aligned & Highly Visible) */}
                 <Link
                   href="/"
                   className="group relative flex items-center py-0.5 select-none transition-transform duration-300 active:scale-[0.98]"
@@ -432,7 +432,7 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[48px] min-[360px]:h-[54px] xs:h-[58px] sm:h-[64px] md:h-[88px] lg:h-[92px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
+                    className="h-[52px] min-[360px]:h-[58px] xs:h-[64px] sm:h-[72px] md:h-[88px] lg:h-[92px] w-auto max-w-[190px] min-[360px]:max-w-[215px] xs:max-w-[250px] sm:max-w-none object-contain drop-shadow-[0_2px_14px_rgba(245,180,24,0.45)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>
@@ -582,32 +582,53 @@ export default function Navbar() {
               {/* ================================================================= */}
               {/* 3. RIGHT SECTION: Utility Dock (Search, Heart, Bag, Sign In)      */}
               {/* ================================================================= */}
-              <div className="flex items-center justify-end shrink-0 gap-1.5 sm:gap-2 z-20">
+              <div className="flex items-center justify-end shrink-0 gap-1 sm:gap-2 z-20">
 
-                {/* Mobile Quick Action Buttons (Search, Wishlist & Sign In) */}
-                <div className="flex lg:hidden items-center gap-1">
+                {/* Mobile Quick Action Capsule Dock (Search, Wishlist, Cart & Profile) */}
+                <div className="flex lg:hidden items-center gap-0.5 min-[360px]:gap-1 bg-[#011C16]/85 px-1 min-[360px]:px-1.5 py-0.5 rounded-full border border-[#F5B418]/45 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+                  {/* Search Trigger */}
                   <button
                     onClick={() => dispatch(toggleSearch(true))}
-                    className="relative w-8 h-8 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative w-7 h-7 min-[360px]:w-7.5 min-[360px]:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] active:scale-95 cursor-pointer"
                     aria-label="Search Fragrance Vault"
                   >
                     <Search className="w-3.5 h-3.5" />
                   </button>
 
+                  {/* Wishlist Trigger */}
                   <button
                     onClick={() => dispatch(toggleWishlistDrawer(true))}
-                    className="relative w-8 h-8 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full bg-white/[0.06] border border-white/10 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative w-7 h-7 min-[360px]:w-7.5 min-[360px]:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] active:scale-95 cursor-pointer"
                     aria-label="Royal Wishlist Vault"
                     suppressHydrationWarning
                   >
                     <Heart className="w-3.5 h-3.5" />
                     {mounted && wishlistCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[9px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520]">
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] px-0.5 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-[#F5B418] text-[8px] font-black text-white shadow-[0_0_8px_rgba(244,63,94,0.6)] border border-[#012520]">
                         {wishlistCount}
                       </span>
                     )}
                   </button>
 
+                  {/* Shopping Cart Trigger */}
+                  <button
+                    onClick={() => dispatch(toggleCartDrawer(true))}
+                    className="relative w-7 h-7 min-[360px]:w-7.5 min-[360px]:h-7.5 flex items-center justify-center text-[#FAF8F2]/90 hover:text-[#F5B418] transition-all rounded-full hover:bg-white/[0.08] active:scale-95 cursor-pointer"
+                    aria-label="View Shopping Cart"
+                    suppressHydrationWarning
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    {mounted && itemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] px-0.5 items-center justify-center rounded-full bg-gradient-to-r from-[#F5B418] to-[#FFDF78] text-[8px] font-black text-[#012520] shadow-[0_0_8px_rgba(245,180,24,0.7)] border border-[#012520] ring-1 ring-[#F5B418]/60">
+                        {itemsCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Vertical Hairline Divider */}
+                  <div className="w-[1px] h-3 bg-[#F5B418]/30 mx-0.5" />
+
+                  {/* Profile / Sign In Button */}
                   <button
                     onClick={() => {
                       if (!isAuthenticated) {
@@ -616,7 +637,7 @@ export default function Navbar() {
                         router.push('/profile');
                       }
                     }}
-                    className="relative flex items-center gap-1.5 h-8 px-2.5 text-[#FAF8F2]/95 hover:text-[#F5B418] transition-all rounded-full bg-[#011C16]/85 border border-[#F5B418]/60 active:scale-95 shadow-2xs cursor-pointer"
+                    className="relative flex items-center justify-center w-7 h-7 min-[360px]:w-7.5 min-[360px]:h-7.5 xs:w-auto xs:px-2 text-[#FAF8F2]/95 hover:text-[#F5B418] transition-all rounded-full bg-gradient-to-r from-[#F5B418]/25 via-[#F5B418]/15 to-[#F5B418]/25 border border-[#F5B418]/60 active:scale-95 shadow-2xs cursor-pointer"
                     aria-label={mounted && isAuthenticated && user ? 'View Profile' : 'Sign In'}
                     suppressHydrationWarning
                   >
@@ -634,7 +655,7 @@ export default function Navbar() {
                     ) : (
                       <UserIcon className="w-3 h-3 text-[#F5B418]" />
                     )}
-                    <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#FAF8F2]">
+                    <span className="hidden xs:inline-block text-[8.5px] font-bold uppercase tracking-wider text-[#FAF8F2] ml-1">
                       {mounted && isAuthenticated && user ? user.name.split(' ')[0] : 'SIGN IN'}
                     </span>
                   </button>
@@ -1183,7 +1204,7 @@ export default function Navbar() {
     </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
-      <div className="h-[90px] min-[360px]:h-[94px] sm:h-[98px] lg:h-[100px] xl:h-[104px] w-full shrink-0" aria-hidden="true" />
+      <div className="h-[94px] min-[360px]:h-[100px] xs:h-[104px] sm:h-[108px] lg:h-[100px] xl:h-[104px] w-full shrink-0" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
@@ -1238,7 +1259,7 @@ export default function Navbar() {
                     height={85}
                     priority
                     quality={95}
-                    className="h-[58px] sm:h-[64px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
+                    className="h-[62px] sm:h-[68px] w-auto max-w-[240px] object-contain drop-shadow-[0_2px_14px_rgba(245,180,24,0.45)] group-hover:scale-105 transition-transform"
                     style={{ mixBlendMode: 'multiply', filter: 'brightness(1.08)' }}
                   />
                 </Link>

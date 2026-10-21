@@ -131,6 +131,10 @@ const FloatingActionHub = dynamic(
 const AiChatDrawer = dynamic(() => import('@/components/ai/AiChatDrawer'), {
   ssr: false,
 });
+const CustomCursor = dynamic(
+  () => import('@/components/common/CustomCursor'),
+  { ssr: false }
+);
 import Preloader from '@/components/common/Preloader';
 
 const cormorant = Cormorant_Garamond({
@@ -222,6 +226,7 @@ export default function RootLayout({
             <ToastContainer />
             <FloatingActionHub />
             <AiChatDrawer />
+            <CustomCursor />
           </div>
         </Providers>
       </body>
