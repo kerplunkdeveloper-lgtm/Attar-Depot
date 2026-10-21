@@ -398,7 +398,7 @@ export default function Navbar() {
           </div>
 
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
-            <div className="relative flex items-center justify-between h-[56px] min-[360px]:h-[60px] sm:h-[64px] lg:h-[68px] xl:h-[74px] gap-2 sm:gap-4">
+            <div className="relative flex items-center justify-between h-[64px] min-[360px]:h-[68px] sm:h-[72px] lg:h-[72px] xl:h-[76px] gap-2 sm:gap-4">
               
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Brand Logo (Desktop & Mobile) + Mobile Hamburger  */}
@@ -407,7 +407,7 @@ export default function Navbar() {
                 {/* Mobile menu trigger button */}
                 <button
                   onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                  className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
+                  className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-xl text-[#FAF8F2] hover:text-[#F5B418] transition-all lg:hidden flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 shadow-2xs cursor-pointer"
                   aria-label="Toggle navigation menu"
                 >
                   {isMobileNavOpen ? (
@@ -420,11 +420,11 @@ export default function Navbar() {
                 {/* Brand Official Logo (Left-aligned) */}
                 <Link
                   href="/"
-                  className="group relative flex items-center py-1 select-none transition-transform duration-300 active:scale-[0.98]"
+                  className="group relative flex items-center py-0.5 select-none transition-transform duration-300 active:scale-[0.98]"
                   aria-label="Attar Depot Home"
                 >
                   {/* Subtle golden ambient aura behind the logo */}
-                  <div className="absolute -inset-2   pointer-events-none" />
+                  <div className="absolute -inset-2 pointer-events-none" />
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
@@ -432,8 +432,7 @@ export default function Navbar() {
                     height={90}
                     priority
                     quality={95}
-                    className="h-[36px] min-[360px]:h-[40px] xs:h-[44px] sm:h-[48px] md:h-[90px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
-
+                    className="h-[48px] min-[360px]:h-[54px] xs:h-[58px] sm:h-[64px] md:h-[88px] lg:h-[92px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-[1.03] group-hover:brightness-110 transition-all duration-300 relative z-10"
                   />
                 </Link>
               </div>
@@ -1184,7 +1183,7 @@ export default function Navbar() {
     </header>
 
       {/* HEADER SPACING OFFSET TO PREVENT CONTENT OVERLAP */}
-      <div className="h-[82px] min-[360px]:h-[86px] sm:h-[92px] lg:h-[96px] xl:h-[102px] w-full shrink-0" aria-hidden="true" />
+      <div className="h-[90px] min-[360px]:h-[94px] sm:h-[98px] lg:h-[100px] xl:h-[104px] w-full shrink-0" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* 2. OFF-CANVAS MOBILE DRAWER                                              */}
@@ -1239,7 +1238,7 @@ export default function Navbar() {
                     height={85}
                     priority
                     quality={95}
-                    className="h-[52px] sm:h-[58px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
+                    className="h-[58px] sm:h-[64px] w-auto object-contain drop-shadow-[0_2px_12px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-transform"
                     style={{ mixBlendMode: 'multiply', filter: 'brightness(1.08)' }}
                   />
                 </Link>
