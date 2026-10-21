@@ -312,27 +312,6 @@ export default function HeroBannerCarousel() {
           </button>
         )}
 
-        {/* Mystery Discount Badge (Reference Match - Bottom Left) */}
-        <div className="absolute bottom-3 sm:bottom-5 left-3 sm:left-6 z-20 hidden md:block">
-          <Link
-            href="/shop?filter=sale"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C5A059]/90 hover:bg-[#D49E24] text-white shadow-lg backdrop-blur-md text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all hover:scale-105 active:scale-95 border border-white/20"
-          >
-            <Sparkles className="w-3 h-3 text-amber-100" />
-            <span>Mystery Discount</span>
-          </Link>
-        </div>
-
-        {/* Royal Heritage Seal Badge (Reference Match - Bottom Right) */}
-        <div className="absolute bottom-3 sm:bottom-5 right-3 sm:right-6 z-20 hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 text-[#012520] shadow-xl border border-amber-300/60 backdrop-blur-md select-none">
-          <div className="w-5 h-5 rounded-full bg-[#012520] text-[#F5B418] flex items-center justify-center">
-            <Crown className="w-3 h-3 text-[#F5B418]" />
-          </div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider">
-            Attar Depot • Pure Attar
-          </span>
-        </div>
-
         {/* Slide Counter Badge (Top Right) */}
         {isMultiple && (
           <div className="absolute top-4 sm:top-6 right-4 sm:right-8 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#011C16]/80 backdrop-blur-md text-white border border-[#F5B418]/40 text-xs font-mono font-medium shadow-md">

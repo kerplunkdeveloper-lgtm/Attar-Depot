@@ -6,11 +6,95 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Droplets } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 
+function CategoryCardItem({ cat }: { cat: any }) {
+  const [imgError, setImgError] = useState(false);
+  const rawImage = cat.image || cat.imageUrl || '';
+  const hasValidImage = Boolean(
+    !imgError &&
+    rawImage &&
+    typeof rawImage === 'string' &&
+    rawImage.trim().length > 5
+  );
+
+  return (
+    <div className="w-[310px] xs:w-[350px] sm:w-[430px] md:w-[490px] lg:w-[550px] xl:w-[580px] flex-shrink-0 snap-start flex flex-col group/card">
+      <Link
+        href={`/shop?category=${cat.slug || cat._id}`}
+        className="block relative w-full h-[370px] xs:h-[390px] sm:h-[430px] md:h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 hover:border-[#F5B418] shadow-md hover:shadow-[0_20px_40px_rgba(1,37,32,0.25)] transition-all duration-500 bg-[#0A1917]"
+      >
+        {/* Crystal Clear Category Background Image */}
+        {hasValidImage ? (
+          <Image
+            src={rawImage}
+            alt={cat.name}
+            fill
+            unoptimized
+            onError={() => setImgError(true)}
+            sizes="(max-width: 640px) 360px, (max-width: 1024px) 500px, 600px"
+            className="object-cover object-center contrast-[1.03] brightness-[1.02] group-hover/card:scale-105 transition-transform duration-700 ease-out"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#012520] via-[#08302A] to-[#0A1917] flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-[#F5B418]/15 border border-[#F5B418]/30 flex items-center justify-center mb-3 group-hover/card:scale-110 transition-transform duration-500">
+              <Droplets className="w-8 h-8 text-[#F5B418]" />
+            </div>
+            <span className="font-serif text-3xl font-light tracking-widest text-[#F5B418]/60 uppercase select-none">
+              {cat.name.charAt(0)}
+            </span>
+          </div>
+        )}
+
+        {/* Minimal Bottom Gradient - Leaves 75% of the image 100% bright and clear */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 via-28% to-transparent pointer-events-none" />
+
+        {/* Top Badge (if featured) */}
+        {cat.featured && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-[#F5B418]/50 text-[10px] font-bold uppercase tracking-widest text-[#F5B418] shadow-sm">
+              <Sparkles className="w-2.5 h-2.5 text-[#F5B418]" />
+              <span>Featured</span>
+            </span>
+          </div>
+        )}
+
+        {/* Bottom Content Area - Crisp typography with high contrast */}
+        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end z-10 text-white space-y-1.5">
+          <h3 className="font-serif text-xl sm:text-2xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            {cat.name}
+          </h3>
+
+          {cat.description && (
+            <p className="font-sans text-[11.5px] sm:text-xs text-stone-200 line-clamp-2 leading-relaxed opacity-95 group-hover/card:opacity-100 transition-opacity drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+              {cat.description}
+            </p>
+          )}
+
+          <div className="pt-2 flex items-center justify-between border-t border-white/20 group-hover/card:border-[#F5B418]/40 transition-colors">
+            <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover/card:translate-x-1 transition-transform duration-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+              <span>Explore Collection</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </span>
+
+            {typeof cat.productCount === 'number' && cat.productCount > 0 && (
+              <span className="text-[10px] font-sans font-medium text-stone-200 group-hover/card:text-white transition-colors bg-black/40 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-xs">
+                {cat.productCount} {cat.productCount === 1 ? 'Flacon' : 'Flacons'}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
 export default function CategoryDisplaySlider() {
   const { data: apiCategories = [], isLoading } = useCategories();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isInView, setIsInView] = useState(true);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter only active, valid categories from database - strictly dynamic data only
   const categories = useMemo(() => {
@@ -37,29 +121,77 @@ export default function CategoryDisplaySlider() {
     };
   }, [checkScroll, categories.length]);
 
+  // Viewport observer: only auto-scroll when section is in viewport
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Temporary pause on manual button click or touch interaction
+  const pauseTemporarily = useCallback((duration = 4000) => {
+    setIsPaused(true);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, duration);
+  }, []);
+
   const handleScroll = (direction: 'left' | 'right') => {
+    pauseTemporarily(4500);
     if (!scrollContainerRef.current) return;
     const { scrollLeft, clientWidth } = scrollContainerRef.current;
-    const scrollAmount = clientWidth * 0.75;
+    const card = scrollContainerRef.current.querySelector('.group\\/card') as HTMLElement | null;
+    const scrollAmount = card ? card.offsetWidth + 24 : clientWidth * 0.75;
     scrollContainerRef.current.scrollTo({
       left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
       behavior: 'smooth',
     });
   };
 
-  // Strictly dynamic: If loading or no categories exist in database, render nothing (no static dummy/fallback data)
+  // Luxury Auto-Scroll Loop (slides smoothly every 3.8 seconds, pauses on hover/touch)
+  useEffect(() => {
+    if (isPaused || !isInView || categories.length <= 1) return;
+
+    const interval = setInterval(() => {
+      if (document.hidden) return;
+
+      const el = scrollContainerRef.current;
+      if (!el) return;
+
+      const card = el.querySelector('.group\\/card') as HTMLElement | null;
+      const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.75;
+
+      if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 20) {
+        // Smoothly loop back to start when reaching end
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    }, 3800);
+
+    return () => clearInterval(interval);
+  }, [isPaused, isInView, categories.length]);
+
+  // Strictly dynamic: If loading or no categories exist in database, render nothing
   if (isLoading || categories.length === 0) {
     return null;
   }
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
-      {/* Header with Title, Tagline and Scroll Controls matching Our Bestsellers */}
+      {/* Header with Title and Scroll Controls */}
       <div className="flex items-end justify-between gap-3">
         <div className="space-y-1 sm:space-y-1.5">
-          <span className="text-[10.5px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-widest block font-sans">
-            Artisanal Reserve
-          </span>
           <h2 className="font-serif text-2xl sm:text-3xl uppercase font-light text-neutral-900 tracking-tight">
             Our Categories
           </h2>
@@ -107,85 +239,21 @@ export default function CategoryDisplaySlider() {
         </div>
       </div>
 
-      {/* Categories Horizontal Slider Container */}
-      <div className="relative group/carousel -mx-4 sm:mx-0">
+      {/* Categories Horizontal Slider Container with Auto-Scroll & Hover/Touch Pause */}
+      <div
+        className="relative group/carousel -mx-4 sm:mx-0"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => pauseTemporarily(5000)}
+        onTouchEnd={() => pauseTemporarily(3000)}
+      >
         <div
           ref={scrollContainerRef}
           className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-2 pb-6 px-4 sm:px-0.5 no-scrollbar overscroll-x-contain"
         >
-          {categories.map((cat) => {
-            const hasImage = Boolean(cat.image && (cat.image.startsWith('http') || cat.image.startsWith('/')));
-            return (
-              <div
-                key={cat._id}
-                className="w-[280px] xs:w-[310px] sm:w-[340px] md:w-[370px] flex-shrink-0 snap-start flex flex-col group/card"
-              >
-                <Link
-                  href={`/shop?category=${cat.slug || cat._id}`}
-                  className="block relative aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 hover:border-[#F5B418]/80 shadow-sm hover:shadow-[0_16px_36px_rgba(1,37,32,0.18)] transition-all duration-500 bg-[#0A1917]"
-                >
-                  {/* Category Background Image or Dynamic Monogram */}
-                  {hasImage ? (
-                    <Image
-                      src={cat.image}
-                      alt={cat.name}
-                      fill
-                      sizes="(max-width: 640px) 310px, (max-width: 1024px) 340px, 400px"
-                      className="object-cover object-center group-hover/card:scale-105 transition-transform duration-700 ease-out"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#012520] via-[#08302A] to-[#0A1917] flex flex-col items-center justify-center p-6 text-center">
-                      <div className="w-16 h-16 rounded-full bg-[#F5B418]/10 border border-[#F5B418]/30 flex items-center justify-center mb-3 group-hover/card:scale-110 transition-transform duration-500">
-                        <Droplets className="w-8 h-8 text-[#F5B418]" />
-                      </div>
-                      <span className="font-serif text-3xl font-light tracking-widest text-[#F5B418]/40 uppercase select-none">
-                        {cat.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Subtle Cinematic Vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent opacity-80 group-hover/card:opacity-85 transition-opacity duration-300 pointer-events-none" />
-
-                  {/* Top Badge (if featured) */}
-                  {cat.featured && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-[#F5B418]/40 text-[10px] font-bold uppercase tracking-widest text-[#F5B418] shadow-sm">
-                        <Sparkles className="w-2.5 h-2.5 text-[#F5B418]" />
-                        <span>Featured</span>
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Bottom Content Area */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end z-10 text-white space-y-1.5">
-                    <h3 className="font-serif text-lg sm:text-xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight">
-                      {cat.name}
-                    </h3>
-
-                    {cat.description && (
-                      <p className="font-sans text-[11px] sm:text-xs text-stone-300 line-clamp-2 leading-relaxed opacity-90 group-hover/card:opacity-100 transition-opacity">
-                        {cat.description}
-                      </p>
-                    )}
-
-                    <div className="pt-2 flex items-center justify-between border-t border-white/10 group-hover/card:border-[#F5B418]/30 transition-colors">
-                      <span className="inline-flex items-center gap-1.5 text-[10.5px] sm:text-[11.5px] font-bold uppercase tracking-wider text-[#F5B418] group-hover/card:translate-x-1 transition-transform duration-300">
-                        <span>Explore</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-
-                      {typeof cat.productCount === 'number' && cat.productCount > 0 && (
-                        <span className="text-[10px] font-sans text-stone-400 group-hover/card:text-stone-300 transition-colors">
-                          {cat.productCount} Flacons
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            );
-          })}
+          {categories.map((cat) => (
+            <CategoryCardItem key={cat._id} cat={cat} />
+          ))}
         </div>
       </div>
     </section>

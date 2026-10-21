@@ -38,6 +38,7 @@ import {
   Copy,
   Check,
   TicketPercent,
+  Star,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -1074,34 +1075,73 @@ export default function Navbar() {
                   </div>
 
                   {/* Col 5: Luxury Spotlight Card */}
-                  <div className="lg:pl-4 pt-4 lg:pt-0 flex flex-col justify-between">
-                    <div className="h-full  text-white shadow-xl relative overflow-hidden group flex flex-col justify-between ">
-                     
+                  <div className="lg:pl-4 pt-4 lg:pt-0 flex flex-col h-full">
+                    <div className="relative h-full flex flex-col justify-between rounded-2xl bg-gradient-to-b from-[#012520] via-[#023029] to-[#011C16] border border-[#F5B418]/35 shadow-[0_12px_32px_rgba(1,37,32,0.22)] p-3.5 overflow-hidden group transition-all duration-300 hover:border-[#F5B418]/65 hover:shadow-[0_16px_40px_rgba(245,180,24,0.18)]">
+                      {/* Ambient background luxury glows */}
+                      <div className="absolute -top-10 -right-10 w-28 h-28 bg-[#F5B418]/15 rounded-full blur-2xl pointer-events-none" />
+                      <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none" />
+                      <div className="absolute inset-0 bg-[radial-gradient(#F5B418_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.04] pointer-events-none" />
 
-                     
+                      {/* Card Content Top Section */}
+                      <div className="relative z-10">
+                        
 
-                      <div className="relative z-10 my-2.5 w-full h-28 rounded-xl overflow-hidden shadow-md border border-emerald-500/30 bg-emerald-950/60 group/img">
-                        <Image
-                          src="/images/attar-spotlight.jpg"
-                          alt="Pure Artisanal Attar Perfume Oil Flacon"
-                          fill
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          priority
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#023129]/80 via-transparent to-transparent pointer-events-none" />
+                        {/* Spotlight Image with Flacon Preview */}
+                        <div className="relative w-full h-32 rounded-xl overflow-hidden shadow-inner border border-[#F5B418]/25 bg-emerald-950/80 group-hover:border-[#F5B418]/50 transition-colors">
+                          <Image
+                            src="/images/attar-spotlight.jpg"
+                            alt="Pure Artisanal Attar Perfume Oil Flacon"
+                            fill
+                            className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+                            priority
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#011C16]/90 via-[#011C16]/20 to-transparent pointer-events-none" />
+
+                          {/* Floating Micro Badges on Image */}
+                          <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-[#011C16]/85 backdrop-blur-xs text-[8.5px] font-bold tracking-wide text-[#F5B418] border border-[#F5B418]/30">
+                            100% Pure Oil
+                          </span>
+                          <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md bg-emerald-950/90 backdrop-blur-xs text-[8.5px] font-bold tracking-wide text-emerald-200 border border-emerald-400/30">
+                            Alcohol-Free
+                          </span>
+                        </div>
+
+                        {/* Title & Description */}
+                        <div className="mt-3">
+                          <h4 className="text-xs font-bold text-[#FAF8F2] tracking-wide group-hover:text-[#F5B418] transition-colors flex items-center gap-1.5">
+                            <span>Artisanal Attar Vault</span>
+                            <Sparkles className="w-3 h-3 text-[#F5B418] shrink-0" />
+                          </h4>
+                          <p className="text-[11px] text-white/70 line-clamp-2 leading-relaxed mt-1">
+                            Concentrated perfume oils crafted using hydro-steam distillation for deep, all-day sillage.
+                          </p>
+                        </div>
+
+                        {/* Value Proposition Pills */}
+                        <div className="grid grid-cols-2 gap-1.5 mt-2.5 pt-2.5 border-t border-[#F5B418]/20">
+                          <div className="flex items-center gap-1 text-[9.5px] font-medium text-white/85">
+                            <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                            <span className="truncate">Skin-Friendly</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[9.5px] font-medium text-white/85">
+                            <Flame className="w-3 h-3 text-[#F5B418] shrink-0" />
+                            <span className="truncate">18+ Hrs Sillage</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="relative z-10 pt-1">
+                      {/* Bottom Pricing & CTA Button */}
+                      <div className="relative z-10  border-t border-[#F5B418]/20 space-y-2">
                         <Link
                           href="/shop?sort=bestselling"
                           onClick={() => {
                             if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
                             setIsShopOpen(false);
                           }}
-                          className="inline-flex items-center justify-between w-full text-xs font-bold text-emerald-950 bg-[#F5B418] hover:bg-[#ffc32c] py-2 px-3 rounded-xl transition-all shadow-md group-hover:shadow-lg uppercase tracking-wider"
+                          className="inline-flex items-center justify-between w-full text-[11px] font-extrabold text-[#012520] bg-gradient-to-r from-[#F5B418] via-[#FFDF78] to-[#F5B418] hover:brightness-105 active:scale-[0.98] py-2 px-3 rounded-xl transition-all shadow-[0_4px_14px_rgba(245,180,24,0.35)] group/btn uppercase tracking-wider cursor-pointer"
                         >
                           <span>Explore Bestsellers</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-emerald-950 stroke-[2.5]" />
+                          <ChevronRight className="w-3.5 h-3.5 text-[#012520] stroke-[2.5] group-hover/btn:translate-x-0.5 transition-transform" />
                         </Link>
                       </div>
                     </div>
@@ -1117,9 +1157,7 @@ export default function Navbar() {
                       <ShieldCheck className="w-4 h-4 text-emerald-700" /> 100% Certified Alcohol-Free
                     </span>
                     <span className="hidden md:inline-block text-emerald-300">•</span>
-                    <span className="hidden md:flex items-center gap-1.5 font-medium">
-                      <PackageCheck className="w-4 h-4 text-emerald-700" /> Free Shipping Over ₹999
-                    </span>
+                   
                     <span className="hidden lg:inline-block text-emerald-300">•</span>
                     <span className="hidden lg:flex items-center gap-1.5 font-medium">
                       <Sparkles className="w-4 h-4 text-emerald-700" /> Hand-poured Crystal Flacons

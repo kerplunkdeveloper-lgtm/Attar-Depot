@@ -264,9 +264,7 @@ export default function HomePage() {
         {/* Header with Title, Tagline and Scroll Controls */}
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1 sm:space-y-1.5">
-            <span className="text-[10.5px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-widest block font-sans">
-              Royal Reserve
-            </span>
+           
             <h2 className="font-serif text-2xl sm:text-3xl uppercase font-light text-neutral-900 tracking-tight">
               Our Bestsellers
             </h2>

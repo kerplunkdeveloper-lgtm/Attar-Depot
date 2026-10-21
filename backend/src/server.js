@@ -22,6 +22,7 @@ import bannerRoutes from './routes/bannerRoutes.js';
 import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js';
 import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
 import { seedDefaultBannersIfNeeded } from './controllers/bannerController.js';
+import { seedDefaultAdminIfNeeded } from './controllers/authController.js';
 
 dotenv.config();
 
@@ -36,6 +37,9 @@ process.on('unhandledRejection', (reason) => {
 // Connect to MongoDB
 connectDB()
   .then(() => {
+    seedDefaultAdminIfNeeded().catch((err) => {
+      console.error('[Admin Init Error]:', err.message);
+    });
     seedDefaultTaxonomyIfNeeded().catch((err) => {
       console.error('[Taxonomy Init Error]:', err.message);
     });

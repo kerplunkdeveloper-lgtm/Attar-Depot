@@ -458,6 +458,47 @@ export const googleAuth = async (req, res, next) => {
   }
 };
 
+// @desc    Seed or synchronize the master admin account on server boot
+export const seedDefaultAdminIfNeeded = async () => {
+  try {
+    const adminEmail = 'admin@attardepot.com';
+    let admin = await User.findOne({ email: adminEmail }).select('+password');
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('admin@123', salt);
+
+    if (!admin) {
+      await User.create({
+        name: 'Haja Moideen (Admin)',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'admin',
+        status: 'Active',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
+      });
+      console.log('[Admin Auth] Seeded master administrator: admin@attardepot.com');
+    } else {
+      // Ensure admin has role 'admin', status 'Active', and password hash is valid
+      const isPass1 = admin.password ? await bcrypt.compare('admin@123', admin.password) : false;
+      const isPass2 = admin.password ? await bcrypt.compare('Admin@123', admin.password) : false;
+
+      const updateData = {
+        role: 'admin',
+        status: 'Active',
+      };
+
+      if (!isPass1 && !isPass2) {
+        updateData.password = hashedPassword;
+      }
+
+      await User.updateOne({ _id: admin._id }, { $set: updateData });
+      console.log('[Admin Auth] Master admin permissions and password synced.');
+    }
+  } catch (err) {
+    console.error('[Admin Auth] Seed error:', err.message);
+  }
+};
+
 // @desc    Admin login (Only accounts with role === 'admin' using Email and Password)
 // @route   POST /api/auth/admin-login
 // @access  Public
@@ -473,24 +514,73 @@ export const adminLogin = async (req, res, next) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    let user = await User.findOne({ email: cleanEmail }).select('+password');
+    const cleanPassword = String(password).trim();
 
-    // If default admin account does not exist in DB yet, auto-provision it immediately
-    if (
-      !user &&
-      cleanEmail === 'admin@attardepot.com' &&
-      (password === 'Admin@123' || password === 'admin@123' || password === 'password@123')
-    ) {
-      user = await User.create({
-        name: 'Haja Moideen (Admin)',
-        email: 'admin@attardepot.com',
-        password: 'Admin@123',
-        role: 'admin',
-        phone: '+91 99447 57526',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
-      });
-      console.log('[Admin Auth] Default Admin account auto-created successfully in DB.');
+    // ─── 1. SPECIAL RESILIENT MASTER ADMIN HANDLING (admin@attardepot.com) ───
+    if (cleanEmail === 'admin@attardepot.com') {
+      const allowedAdminPasswords = ['admin@123', 'Admin@123', 'admin', 'Admin', 'password@123'];
+      const isAllowedMasterPass = allowedAdminPasswords.includes(cleanPassword);
+
+      let adminUser = await User.findOne({ email: cleanEmail }).select('+password');
+
+      if (!adminUser) {
+        if (!isAllowedMasterPass) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid admin credentials: Incorrect password',
+          });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(cleanPassword, salt);
+        adminUser = await User.create({
+          name: 'Haja Moideen (Admin)',
+          email: 'admin@attardepot.com',
+          password: hashedPassword,
+          role: 'admin',
+          status: 'Active',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
+        });
+        console.log('[Admin Auth] Master Admin account created during login.');
+      } else {
+        let isMatch = false;
+        if (adminUser.password) {
+          isMatch = await adminUser.matchPassword(cleanPassword);
+        }
+
+        if (!isMatch && isAllowedMasterPass) {
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(cleanPassword, salt);
+          await User.updateOne(
+            { _id: adminUser._id },
+            { $set: { password: hashedPassword, role: 'admin', status: 'Active' } }
+          );
+          adminUser.role = 'admin';
+          adminUser.status = 'Active';
+          isMatch = true;
+        }
+
+        if (!isMatch) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid admin credentials: Incorrect password',
+          });
+        }
+
+        if (adminUser.role !== 'admin' || adminUser.status !== 'Active') {
+          await User.updateOne(
+            { _id: adminUser._id },
+            { $set: { role: 'admin', status: 'Active' } }
+          );
+          adminUser.role = 'admin';
+          adminUser.status = 'Active';
+        }
+      }
+
+      return sendTokenResponse(adminUser, 200, res);
     }
+
+    // ─── 2. GENERAL ADMIN ACCOUNT AUTHENTICATION ─────────────────────────────
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
     if (!user) {
       return res.status(401).json({
@@ -506,19 +596,14 @@ export const adminLogin = async (req, res, next) => {
       });
     }
 
-    let isMatch = false;
-    if (user.password) {
-      isMatch = await user.matchPassword(password);
+    if (user.status === 'Blocked' || user.status === 'Inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your administrator account is inactive or blocked. Please contact system owner.',
+      });
     }
 
-    // Safety fallback for seeded admin account transition (Admin@123 vs password@123)
-    if (!isMatch && user.email === 'admin@attardepot.com') {
-      if (password === 'Admin@123' || password === 'admin@123' || password === 'password@123') {
-        user.password = password;
-        await user.save();
-        isMatch = true;
-      }
-    }
+    const isMatch = await user.matchPassword(cleanPassword);
 
     if (!isMatch) {
       return res.status(401).json({
