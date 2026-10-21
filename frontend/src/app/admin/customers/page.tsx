@@ -1233,7 +1233,7 @@ export default function AdminCustomersPage() {
                       Total transactions value: <strong className="text-emerald-700 font-poppins">{formatPrice(selectedCustomer.totalSpent || 0)}</strong>
                     </p>
                     <p className="text-[11px] text-slate-500">
-                      Supports Prepaid Online (UPI, Cards, NetBanking) and Cash on Delivery.
+                      Supports 100% Secure Prepaid Online Payments (UPI, Cards, NetBanking, Wallets).
                     </p>
                   </div>
                 </div>

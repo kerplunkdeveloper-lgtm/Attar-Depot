@@ -16,8 +16,6 @@ import { toast } from '@/lib/toast';
 import { openAuthModal } from '@/store/uiSlice';
 import OrderConfirmedView from './OrderConfirmedView';
 
-const COD_RATE_PER_KM = 7; // ₹7 per km for Cash on Delivery last-mile delivery
-
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -107,7 +105,7 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, items.length, dispatch]);
 
-  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online' | 'UPI'>('COD');
+  const [paymentMethod, setPaymentMethod] = useState<'Online' | 'UPI'>('Online');
   const [orderPlaced, setOrderPlaced] = useState<any>(null);
   const [placedItemsSnapshot, setPlacedItemsSnapshot] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -210,8 +208,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const codDistanceCharge = paymentMethod === 'COD' ? deliveryDistanceKm * COD_RATE_PER_KM : 0;
-    const finalTotal = total + codDistanceCharge;
+    const finalTotal = total;
 
     try {
       const orderPayload = {
@@ -224,7 +221,7 @@ export default function CheckoutPage() {
           quantity: i.quantity,
         })),
         shippingAddress: formData,
-        paymentMethod,
+        paymentMethod: 'Online',
         itemsPrice: subtotal,
         discountPrice: discount || 0,
         coupon: appliedCoupon
@@ -233,17 +230,15 @@ export default function CheckoutPage() {
               discount: appliedCoupon.discountAmount,
             }
           : undefined,
-        shippingPrice: shipping + codDistanceCharge,
+        shippingPrice: shipping,
         totalPrice: finalTotal,
         codDetails: {
-          isCod: paymentMethod === 'COD',
-          distanceKm: paymentMethod === 'COD' ? deliveryDistanceKm : 0,
-          chargePerKm: COD_RATE_PER_KM,
-          totalCodCharge: codDistanceCharge,
+          isCod: false,
+          distanceKm: 0,
+          chargePerKm: 0,
+          totalCodCharge: 0,
         },
-        notes: paymentMethod === 'COD'
-          ? `Cash on Delivery: ${deliveryDistanceKm} km @ ₹${COD_RATE_PER_KM}/km = ₹${codDistanceCharge}`
-          : '',
+        notes: '',
       };
 
       setPlacedItemsSnapshot([...items]);
@@ -267,8 +262,6 @@ export default function CheckoutPage() {
   };
 
   if (orderPlaced) {
-    const codCharge = paymentMethod === 'COD' ? deliveryDistanceKm * COD_RATE_PER_KM : 0;
-    const calculatedTotal = total + codCharge;
     return (
       <OrderConfirmedView
         order={orderPlaced}
@@ -277,10 +270,10 @@ export default function CheckoutPage() {
         subtotal={subtotal}
         discount={discount}
         shipping={shipping}
-        deliveryDistanceKm={deliveryDistanceKm}
-        codRatePerKm={COD_RATE_PER_KM}
-        codDistanceCharge={codCharge}
-        total={orderPlaced.totalPrice || calculatedTotal}
+        deliveryDistanceKm={0}
+        codRatePerKm={0}
+        codDistanceCharge={0}
+        total={orderPlaced.totalPrice || total}
       />
     );
   }
@@ -524,67 +517,12 @@ export default function CheckoutPage() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
-              {/* Option 1: Cash on Delivery */}
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('COD')}
-                className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer group ${
-                  paymentMethod === 'COD'
-                    ? 'border-2 border-emerald-500 bg-[#F4FAF6] shadow-emerald-xs'
-                    : 'border border-neutral-200 bg-white hover:border-emerald-200'
-                }`}
-              >
-                <div className="flex items-center gap-3.5">
-                  {/* Currency Notes Icon Container */}
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-50/90 border border-emerald-100 flex items-center justify-center shrink-0">
-                    <svg className="w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 48 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="2" width="38" height="24" rx="2.5" fill="#BBF7D0" stroke="#059669" strokeWidth="1.5" transform="rotate(-7 3 2)" />
-                      <rect x="5" y="4" width="38" height="24" rx="2.5" fill="#86EFAC" stroke="#047857" strokeWidth="1.5" transform="rotate(-3 5 4)" />
-                      <rect x="5" y="8" width="38" height="24" rx="2.5" fill="#F0FDF4" stroke="#059669" strokeWidth="1.8" />
-                      <rect x="8" y="11" width="32" height="18" rx="1.5" stroke="#10B981" strokeWidth="0.9" strokeDasharray="1.5 1.5" fill="none" />
-                      <circle cx="24" cy="20" r="5.5" fill="#D1FAE5" stroke="#059669" strokeWidth="1.2" />
-                      <text x="24" y="23.5" fontSize="9.5" fontWeight="bold" fill="#047857" textAnchor="middle" fontFamily="sans-serif">₹</text>
-                      <circle cx="8" cy="11" r="1" fill="#059669" />
-                      <circle cx="40" cy="11" r="1" fill="#059669" />
-                      <circle cx="8" cy="29" r="1" fill="#059669" />
-                      <circle cx="40" cy="29" r="1" fill="#059669" />
-                    </svg>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-neutral-900 leading-tight">
-                      Cash on Delivery
-                    </h3>
-                    <p className="text-xs text-neutral-500 mt-1">
-                      Pay when your order is delivered
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right Indicator */}
-                {paymentMethod === 'COD' ? (
-                  <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-full border-2 border-neutral-300 bg-white shrink-0 group-hover:border-emerald-300" />
-                )}
-              </button>
-
-              {/* Option 2: Razorpay */}
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('Online')}
-                className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer group ${
-                  paymentMethod === 'Online'
-                    ? 'border-2 border-emerald-500 bg-[#F4FAF6] shadow-emerald-xs'
-                    : 'border border-neutral-200 bg-white hover:border-emerald-200'
-                }`}
-              >
-                <div className="flex items-center gap-3.5">
+            {/* Online Payment Card (Razorpay) */}
+            <div className="p-5 sm:p-6 rounded-2xl border-2 border-emerald-500 bg-[#F4FAF6] shadow-emerald-xs space-y-4 font-sans">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start sm:items-center gap-3.5">
                   {/* Razorpay Logo Container */}
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50/80 border border-blue-100 flex items-center justify-center shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50/90 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
                     <svg className="w-7 h-8 sm:w-8 sm:h-9" viewBox="0 0 28 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M13.2 0L0 34H9.2L18.5 10L13.2 0Z" fill="#0C2340" />
                       <path d="M17.8 0L9.8 20.8H16.8L25.8 0H17.8Z" fill="#0284C7" />
@@ -593,16 +531,21 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-neutral-900 leading-tight">
-                      Razorpay
-                    </h3>
-                    <p className="text-xs text-neutral-500 mt-1">
-                      UPI, Cards, Net Banking & Wallets
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-bold text-neutral-900 leading-tight">
+                        Razorpay Secure Checkout
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        Prepaid Only
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-600 mt-1">
+                      UPI (GPay, PhonePe, Paytm, BHIM), Credit & Debit Cards, Net Banking & Wallets
                     </p>
 
                     {/* Method Badges Row */}
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-neutral-50/90 border border-neutral-200/90 rounded text-[9.5px] font-black tracking-tight text-neutral-800 shadow-2xs">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-neutral-200 rounded text-[9.5px] font-black tracking-tight text-neutral-800 shadow-2xs">
                         <span>UPI</span>
                         <span className="flex flex-col text-[6px] leading-[2.5px] ml-0.5">
                           <span className="text-[#097939] font-black">▲</span>
@@ -610,113 +553,49 @@ export default function CheckoutPage() {
                         </span>
                       </span>
 
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-neutral-50/90 border border-neutral-200/90 rounded text-[9.5px] font-black italic tracking-wider text-[#1434CB] shadow-2xs">
+                      <span className="inline-flex items-center px-2 py-0.5 bg-white border border-neutral-200 rounded text-[9.5px] font-black italic tracking-wider text-[#1434CB] shadow-2xs">
                         VISA
                       </span>
 
-                      <span className="inline-flex items-center px-1.5 py-1 bg-neutral-50/90 border border-neutral-200/90 rounded shadow-2xs">
+                      <span className="inline-flex items-center px-1.5 py-1 bg-white border border-neutral-200 rounded shadow-2xs">
                         <span className="w-2.5 h-2.5 rounded-full bg-[#EB001B] -mr-1"></span>
                         <span className="w-2.5 h-2.5 rounded-full bg-[#F79E1B] opacity-90"></span>
                       </span>
 
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-neutral-50/90 border border-neutral-200/90 rounded text-[9.5px] font-black tracking-tight text-[#092B65] shadow-2xs">
+                      <span className="inline-flex items-center px-2 py-0.5 bg-white border border-neutral-200 rounded text-[9.5px] font-black tracking-tight text-[#092B65] shadow-2xs">
                         <span>RuPay</span>
                         <span className="text-[#F37021] text-[8px] ml-0.5 font-black">❯</span>
                       </span>
 
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-neutral-50/90 border border-neutral-200/90 rounded text-neutral-600 shadow-2xs" title="Net Banking">
-                        <Landmark className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-neutral-200 rounded text-[9.5px] font-semibold text-neutral-700 shadow-2xs">
+                        <Landmark className="w-3 h-3 text-neutral-500" />
+                        <span>Net Banking</span>
                       </span>
 
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-neutral-50/90 border border-neutral-200/90 rounded text-neutral-600 shadow-2xs" title="Wallets">
-                        <Wallet className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-neutral-200 rounded text-[9.5px] font-semibold text-neutral-700 shadow-2xs">
+                        <Wallet className="w-3 h-3 text-neutral-500" />
+                        <span>Wallets</span>
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Indicator */}
-                {paymentMethod === 'Online' ? (
-                  <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-full border-2 border-neutral-300 bg-white shrink-0 group-hover:border-emerald-300" />
-                )}
-              </button>
-            </div>
-
-            {/* Cash on Delivery Dynamic Distance Calculation Panel */}
-            {paymentMethod === 'COD' && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/40 border border-emerald-200/90 shadow-2xs space-y-3 font-sans">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-emerald-700" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-950">
-                      Cash on Delivery Distance Rate (₹{COD_RATE_PER_KM} / km)
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-200 w-fit">
-                    ₹{COD_RATE_PER_KM} per KM Surcharge
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div>
-                    <p className="text-neutral-700 font-semibold">
-                      Estimated Distance from Regional Hub:
-                    </p>
-                    <p className="text-[11px] text-neutral-500">
-                      Destination: {formData.city ? `${formData.city}${formData.postalCode ? ' - ' + formData.postalCode : ''}` : 'Enter your address'}
-                    </p>
-                  </div>
-
-                  {/* Distance Adjuster Controls */}
-                  <div className="flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-xl border border-emerald-200 shadow-2xs">
-                    <button
-                      type="button"
-                      onClick={() => setDeliveryDistanceKm((prev) => Math.max(2, prev - 1))}
-                      className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-800 font-bold hover:bg-emerald-100 flex items-center justify-center transition-colors cursor-pointer"
-                      title="Decrease distance"
-                    >
-                      -
-                    </button>
-                    <span className="font-mono font-bold text-neutral-900 text-sm min-w-14 text-center">
-                      {deliveryDistanceKm} km
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setDeliveryDistanceKm((prev) => Math.min(100, prev + 1))}
-                      className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-800 font-bold hover:bg-emerald-100 flex items-center justify-center transition-colors cursor-pointer"
-                      title="Increase distance"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-1 text-xs border-t border-emerald-100/70">
-                  <span className="text-neutral-600 font-medium">COD Distance Delivery Surcharge:</span>
-                  <span className="font-mono font-bold text-emerald-900 text-sm">
-                    {deliveryDistanceKm} km × ₹{COD_RATE_PER_KM} = +{formatPrice(deliveryDistanceKm * COD_RATE_PER_KM)}
-                  </span>
+                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs self-end sm:self-center">
+                  <Check className="w-4 h-4 stroke-[3]" />
                 </div>
               </div>
-            )}
 
-            {paymentMethod === 'Online' && (
-              <div className="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-900 flex items-center justify-between gap-3 font-sans">
+              {/* Reassurance Banner */}
+              <div className="pt-3 border-t border-emerald-100 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-950">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>
-                    <strong>Prepaid Advantage:</strong> Free shipping and <strong>₹0 COD distance charge</strong> applied!
-                  </span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>256-Bit SSL Encrypted & RBI Compliant Payment Gateway</span>
                 </div>
-                <span className="font-mono font-bold text-blue-700 bg-white px-2.5 py-0.5 rounded border border-blue-200 text-[11px] shrink-0">
-                  Save {formatPrice(deliveryDistanceKm * COD_RATE_PER_KM)}
+                <span className="font-semibold text-emerald-800 bg-white/90 px-2.5 py-0.5 rounded-full border border-emerald-200 text-[11px]">
+                  ✓ Free Insured Delivery Included
                 </span>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -850,21 +729,10 @@ export default function CheckoutPage() {
                   {shipping === 0 ? 'FREE' : formatPrice(shipping)}
                 </span>
               </div>
-              {paymentMethod === 'COD' && (
-                <div className="flex justify-between text-emerald-900 font-medium">
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5 text-emerald-600" />
-                    COD Distance Surcharge ({deliveryDistanceKm} km × ₹{COD_RATE_PER_KM})
-                  </span>
-                  <span className="font-bold text-emerald-800">
-                    +{formatPrice(deliveryDistanceKm * COD_RATE_PER_KM)}
-                  </span>
-                </div>
-              )}
               <div className="flex justify-between text-sm font-bold text-neutral-900 border-t border-emerald-100 pt-2">
                 <span>Total Due</span>
                 <span className="font-sans text-xl font-extrabold text-emerald-800">
-                  {formatPrice(total + (paymentMethod === 'COD' ? deliveryDistanceKm * COD_RATE_PER_KM : 0))}
+                  {formatPrice(total)}
                 </span>
               </div>
             </div>

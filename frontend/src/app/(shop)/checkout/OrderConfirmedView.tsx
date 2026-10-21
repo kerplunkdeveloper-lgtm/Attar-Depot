@@ -76,7 +76,7 @@ export default function OrderConfirmedView({
   const address = order?.shippingAddress?.address || formData.address || '';
   const postalCode = order?.shippingAddress?.postalCode || formData.postalCode || '';
 
-  const isCod = order?.paymentMethod === 'COD' || order?.paymentMethod === undefined;
+  const isCod = order?.paymentMethod === 'COD';
   const distanceKm = order?.codDetails?.distanceKm || deliveryDistanceKm;
   const ratePerKm = order?.codDetails?.chargePerKm || codRatePerKm;
   const codCharge = order?.codDetails?.totalCodCharge || codDistanceCharge;

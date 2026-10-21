@@ -1102,7 +1102,7 @@ export default function ProfilePage() {
                             </span>
                             <span className="text-neutral-300">•</span>
                             <span className="text-[11px] font-bold text-neutral-700 px-2 py-0.5 rounded bg-neutral-200/70">
-                              {order.paymentMethod || 'COD'}
+                              {order.paymentMethod || 'Online'}
                             </span>
                           </div>
 

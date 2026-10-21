@@ -16,7 +16,7 @@ const STORE_FAQS = {
   cod: {
     patterns: [/cod/i, /cash on delivery/i, /pay on delivery/i],
     response:
-      '💵 **Cash on Delivery (COD)**: Yes! Cash on Delivery is gladly available across 19,000+ pin codes in India on orders up to **₹5,000**. For expedited dispatch, prepaid orders via UPI, Cards, and Netbanking are also processed instantly.',
+      '💳 **Cash on Delivery (COD) Policy**: Cash on Delivery (COD) is currently not available. All orders are processed securely via 100% encrypted online payments (UPI, Credit/Debit Cards, NetBanking, and Wallets via Razorpay) with complimentary insured express courier delivery.',
   },
   purity: {
     patterns: [/alcohol/i, /pure/i, /natural/i, /halal/i, /synthetic/i, /chemical/i, /concentrat/i],

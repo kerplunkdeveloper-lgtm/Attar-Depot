@@ -30,6 +30,14 @@ export const createOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Shipping address is incomplete' });
     }
 
+    // Cash on Delivery is strictly disabled across the platform
+    if (paymentMethod === 'COD') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery (COD) is not accepted. Please pay online via UPI, Cards, or NetBanking.',
+      });
+    }
+
     // Generate unique order number (e.g. AD-2026-XXXX)
     const orderNumber = `AD-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -38,7 +46,7 @@ export const createOrder = async (req, res, next) => {
       orderNumber,
       orderItems,
       shippingAddress,
-      paymentMethod: paymentMethod || 'COD',
+      paymentMethod: paymentMethod || 'Online',
       itemsPrice,
       discountPrice: Number(discountPrice) || 0,
       coupon: {
@@ -48,14 +56,14 @@ export const createOrder = async (req, res, next) => {
       shippingPrice,
       taxPrice: taxPrice || 0,
       totalPrice,
-      codDetails: codDetails || {
-        isCod: paymentMethod === 'COD',
+      codDetails: {
+        isCod: false,
         distanceKm: 0,
-        chargePerKm: 7,
+        chargePerKm: 0,
         totalCodCharge: 0,
       },
       notes: notes || '',
-      paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Completed',
+      paymentStatus: 'Completed',
     });
 
     // If coupon was applied, increment usage count and register in Coupon.usedBy
@@ -145,45 +153,24 @@ export const createOrder = async (req, res, next) => {
     const customerDisplayName = shippingAddress.fullName || req.user.name || 'Valued Customer';
     const formattedAmount = Number(totalPrice).toLocaleString('en-IN');
 
-    if (order.paymentStatus === 'Completed' || (paymentMethod && paymentMethod !== 'COD')) {
-      // Payment confirmed notification with full customer details and status
-      sendAdminNotification({
-        type: 'payment_received',
-        title: `Payment Received: ₹${formattedAmount} 💳`,
-        message: `Received ₹${formattedAmount} from ${customerDisplayName} via ${paymentMethod || 'Online'} for Order #${order.orderNumber}.`,
-        customerName: customerDisplayName,
-        amount: totalPrice,
-        orderNumber: order.orderNumber,
-        paymentStatus: 'Completed',
-        paymentMethod: paymentMethod || 'Online',
-        priority: 'high',
-        link: '/admin/orders',
-        metadata: {
-          orderId: order._id,
-          itemsCount: orderItems.length,
-          city: shippingAddress.city,
-        },
-      }).catch((err) => console.error('[Payment Notification Error]:', err.message));
-    } else {
-      // New COD order placed notification
-      sendAdminNotification({
-        type: 'order_placed',
-        title: `New Order Placed: #${order.orderNumber} 📦`,
-        message: `${customerDisplayName} placed a ${paymentMethod || 'COD'} order worth ₹${formattedAmount}. Payment is pending on delivery.`,
-        customerName: customerDisplayName,
-        amount: totalPrice,
-        orderNumber: order.orderNumber,
-        paymentStatus: 'Pending',
-        paymentMethod: paymentMethod || 'COD',
-        priority: 'medium',
-        link: '/admin/orders',
-        metadata: {
-          orderId: order._id,
-          itemsCount: orderItems.length,
-          city: shippingAddress.city,
-        },
-      }).catch((err) => console.error('[Order Notification Error]:', err.message));
-    }
+    // Payment confirmed notification with full customer details and status
+    sendAdminNotification({
+      type: 'payment_received',
+      title: `Payment Received: ₹${formattedAmount} 💳`,
+      message: `Received ₹${formattedAmount} from ${customerDisplayName} via ${order.paymentMethod} for Order #${order.orderNumber}.`,
+      customerName: customerDisplayName,
+      amount: totalPrice,
+      orderNumber: order.orderNumber,
+      paymentStatus: 'Completed',
+      paymentMethod: order.paymentMethod,
+      priority: 'high',
+      link: '/admin/orders',
+      metadata: {
+        orderId: order._id,
+        itemsCount: orderItems.length,
+        city: shippingAddress.city,
+      },
+    }).catch((err) => console.error('[Payment Notification Error]:', err.message));
 
     res.status(201).json({
       success: true,

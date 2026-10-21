@@ -185,10 +185,10 @@ export default function CartDrawer() {
                   </div>
                   <div>
                     <h2 className="font-serif text-base sm:text-lg font-bold uppercase tracking-wider text-neutral-900 leading-none">
-                      Your Vault
+                      My Cart
                     </h2>
                     <p className="text-[11px] text-stone-500 font-sans mt-0.5">
-                      {itemsCount} {itemsCount === 1 ? 'precious item' : 'precious items'}
+                      {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
                     </p>
                   </div>
                 </div>
@@ -215,38 +215,7 @@ export default function CartDrawer() {
                 </div>
               </div>
 
-              {/* 2. Luxury Free Shipping Progress Tracker */}
-              <div className="bg-gradient-to-r from-emerald-50/90 via-[#FDFBF7] to-amber-50/70 p-3 sm:p-3.5 border-b border-emerald-100/70 text-xs font-sans">
-                {amountLeft > 0 ? (
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-stone-700 flex items-center gap-1.5">
-                      <Truck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span>
-                        Add <strong className="text-emerald-950 font-bold">{formatPrice(amountLeft)}</strong> for{' '}
-                        <span className="text-emerald-800 font-semibold">Free Express Shipping</span>
-                      </span>
-                    </span>
-                    <span className="font-bold text-[11px] text-emerald-800 shrink-0">
-                      {progressPercent}%
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-emerald-900 font-semibold mb-1.5 text-[11.5px]">
-                    <Sparkles className="w-4 h-4 text-[#C9A227] shrink-0" />
-                    <span>🎉 Free Royal Express Delivery Unlocked!</span>
-                  </div>
-                )}
 
-                {/* Animated Progress Bar */}
-                <div className="w-full bg-stone-200/70 h-2 rounded-full overflow-hidden p-0.5">
-                  <motion.div
-                    className="bg-gradient-to-r from-[#012520] via-emerald-600 to-[#F5B418] h-full rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercent}%` }}
-                    transition={{ duration: 0.55, ease: luxuryEase }}
-                  />
-                </div>
-              </div>
 
               {/* 3. Main Scrollable Container (Items + Promo + Upsells) */}
               <div className="flex-1 overflow-y-auto px-3.5 py-4 sm:px-5 sm:py-5 space-y-4 no-scrollbar overscroll-contain">
