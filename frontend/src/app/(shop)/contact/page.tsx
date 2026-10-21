@@ -378,13 +378,13 @@ export default function ContactPage() {
                     <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 block">
                       Email Address
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title={SITE_CONTACT.emails.concierge}>
-                      {SITE_CONTACT.emails.concierge}
+                    <span className="text-xs sm:text-sm font-bold text-[#02332A] truncate block font-sans" title={SITE_CONTACT.email.primary}>
+                      {SITE_CONTACT.email.primary}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={(e) => handleCopy(e, SITE_CONTACT.emails.concierge, 'email', 'Email address')}
+                    onClick={(e) => handleCopy(e, SITE_CONTACT.email.primary, 'email', 'Email address')}
                     className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                       copiedKey === 'email'
                         ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
@@ -408,7 +408,7 @@ export default function ContactPage() {
 
                 {/* Primary CTA */}
                 <a
-                  href={`mailto:${SITE_CONTACT.emails.concierge}`}
+                  href={`mailto:${SITE_CONTACT.email.primary}`}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#02332A] hover:bg-[#034A3D] text-[#FAF8F2] hover:text-[#F5B418] text-xs sm:text-[13px] font-bold transition-all shadow-sm hover:shadow-md group/btn"
                 >
                   <Mail className="w-3.5 h-3.5 text-[#F5B418]" />

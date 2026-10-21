@@ -74,6 +74,7 @@ export const SITE_CONTACT = {
   // Email Desks
   email: {
     primary: 'concierge@attardepot.com',
+    concierge: 'concierge@attardepot.com',
     support: 'support@attardepot.com',
     orders: 'orders@attardepot.com',
     wholesale: 'wholesale@attardepot.com',
@@ -83,6 +84,11 @@ export const SITE_CONTACT = {
     getSupportMailtoUrl(subject?: string) {
       return `mailto:${this.support}?subject=${encodeURIComponent(subject || 'Customer Support Request')}`;
     },
+  },
+
+  // Alias getter for backward compatibility
+  get emails() {
+    return this.email;
   },
 
   // Physical Flagship & Distillery Locations
