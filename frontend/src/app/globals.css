@@ -259,6 +259,7 @@ i, em, .italic {
   animation: pulseGlowDot 1.6s ease-in-out infinite;
 }
 
+
 /* Add to Cart Premium Emerald Blinking Glow Animation */
 @keyframes cartBtnBlinkGlow {
   0%, 100% {

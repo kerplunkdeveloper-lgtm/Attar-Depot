@@ -9,7 +9,6 @@ import { useBanners, useTrackBannerClick } from '@/hooks/useBanners';
 interface BannerSlide {
   id: string;
   image: string;
-  mobileImage?: string;
   alt: string;
   link?: string;
   openInNewTab?: boolean;
@@ -19,21 +18,18 @@ const DEFAULT_SLIDES: BannerSlide[] = [
   {
     id: 'default-1',
     image: '/images/banner1.png',
-    mobileImage: '/images/banner2.png',
     alt: 'Attar Depot Royal Heritage Fragrance - Find Your Signature',
     link: '/shop',
   },
   {
     id: 'default-2',
     image: '/images/bannerf1.png',
-    mobileImage: '/images/bannerf2.png',
     alt: 'Attar Depot Fruity Scents - A Burst of Freshness',
     link: '/shop',
   },
   {
     id: 'default-3',
     image: '/images/giftbanner1.png',
-    mobileImage: '/images/gifthomenew.png',
     alt: 'Attar Depot Luxury Fragrance Gifting Sets',
     link: '/gifting',
   },
@@ -49,22 +45,13 @@ export default function HeroBannerCarousel() {
   // Compute dynamic slides from backend or fallback to default
   const slides: BannerSlide[] = useMemo(() => {
     if (bannerData?.banners && bannerData.banners.length > 0) {
-      return bannerData.banners.map((b) => {
-        let mobileImg = (b as any).mobileImage;
-        if (!mobileImg) {
-          if (b.image?.includes('banner1')) mobileImg = '/images/banner2.png';
-          else if (b.image?.includes('bannerf1')) mobileImg = '/images/bannerf2.png';
-          else if (b.image?.includes('giftbanner1')) mobileImg = '/images/gifthomenew.png';
-        }
-        return {
-          id: b._id,
-          image: b.image,
-          mobileImage: mobileImg,
-          alt: b.title || 'Attar Depot Luxury Fragrance',
-          link: b.link || '/shop',
-          openInNewTab: b.openInNewTab,
-        };
-      });
+      return bannerData.banners.map((b) => ({
+        id: b._id,
+        image: b.image,
+        alt: b.title || 'Attar Depot Luxury Fragrance',
+        link: b.link || '/shop',
+        openInNewTab: b.openInNewTab,
+      }));
     }
     return DEFAULT_SLIDES;
   }, [bannerData]);
@@ -260,61 +247,24 @@ export default function HeroBannerCarousel() {
         >
           {extendedSlides.map((slide, index) => {
             const isExternal = slide.link?.startsWith('http://') || slide.link?.startsWith('https://');
-            const hasDedicatedMobile = Boolean(slide.mobileImage && slide.mobileImage !== slide.image);
 
             const content = (
-              <div className="relative w-full overflow-hidden">
-                {hasDedicatedMobile ? (
-                  <>
-                    {/* 1. Mobile Portrait Viewport (< 640px) */}
-                    <div className="block sm:hidden relative w-full aspect-[9/15] xs:aspect-[9/14] min-h-[460px] max-h-[82vh] overflow-hidden bg-[#011C16]">
-                      <Image
-                        src={slide.mobileImage!}
-                        alt={slide.alt || 'Attar Depot Luxury Hero Banner'}
-                        fill
-                        priority={index <= 2}
-                        sizes="100vw"
-                        quality={95}
-                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out"
-                        style={{ objectFit: 'cover', objectPosition: 'center' }}
-                      />
-                      {/* Subtle luxury bottom edge blend */}
-                      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#011C16]/50 via-transparent to-transparent pointer-events-none" />
-                    </div>
-
-                    {/* 2. Desktop & Tablet Widescreen Viewport (>= 640px) */}
-                    <div className="hidden sm:block relative w-full aspect-[21/8.4] lg:aspect-[21/8] xl:aspect-[21/7.8] min-h-[380px] md:min-h-[460px] lg:min-h-[540px] xl:min-h-[600px] 2xl:min-h-[660px] overflow-hidden bg-[#011C16]">
-                      <Image
-                        src={slide.image}
-                        alt={slide.alt || 'Attar Depot Luxury Hero Banner'}
-                        fill
-                        priority={index <= 2}
-                        sizes="100vw"
-                        quality={95}
-                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover/slide:scale-[1.018]"
-                        style={{ objectFit: 'cover', objectPosition: 'center' }}
-                      />
-                      {/* Subtle luxury bottom edge blend */}
-                      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#011C16]/40 via-transparent to-transparent pointer-events-none" />
-                    </div>
-                  </>
-                ) : (
-                  /* Universal Responsive Viewport (when single image is supplied) */
-                  <div className="relative w-full aspect-[16/9] xs:aspect-[16/8.5] sm:aspect-[21/8.4] lg:aspect-[21/8] xl:aspect-[21/7.8] min-h-[220px] sm:min-h-[380px] md:min-h-[460px] lg:min-h-[540px] xl:min-h-[600px] 2xl:min-h-[660px] overflow-hidden bg-[#011C16]">
-                    <Image
-                      src={slide.image}
-                      alt={slide.alt || 'Attar Depot Hero Banner'}
-                      fill
-                      priority={index <= 2}
-                      sizes="100vw"
-                      quality={95}
-                      className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover/slide:scale-[1.018]"
-                      style={{ objectFit: 'cover', objectPosition: 'center' }}
-                    />
-                    {/* Subtle luxury bottom edge blend */}
-                    <div className="absolute inset-x-0 bottom-0 h-8 sm:h-12 bg-gradient-to-t from-[#011C16]/40 via-transparent to-transparent pointer-events-none" />
-                  </div>
-                )}
+              <div className="relative w-full overflow-hidden bg-[#011C16]">
+                {/* Unified Responsive Banner Viewport: Desktop banner image is used across all screen sizes (mobile & desktop) */}
+                <div className="relative w-full aspect-[21/9] sm:aspect-[21/8.4] lg:aspect-[21/8] xl:aspect-[21/7.8] min-h-[160px] xs:min-h-[185px] sm:min-h-[320px] md:min-h-[420px] lg:min-h-[520px] xl:min-h-[600px] 2xl:min-h-[660px] overflow-hidden">
+                  <Image
+                    src={slide.image}
+                    alt={slide.alt || 'Attar Depot Luxury Hero Banner'}
+                    fill
+                    priority={index <= 2}
+                    sizes="100vw"
+                    quality={95}
+                    className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover/slide:scale-[1.018]"
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  />
+                  {/* Subtle luxury bottom edge blend */}
+                  <div className="absolute inset-x-0 bottom-0 h-6 sm:h-12 bg-gradient-to-t from-[#011C16]/40 via-transparent to-transparent pointer-events-none" />
+                </div>
               </div>
             );
 
@@ -361,9 +311,9 @@ export default function HeroBannerCarousel() {
             type="button"
             onClick={prevSlide}
             aria-label="Previous Slide"
-            className="absolute left-2.5 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-[#011C16]/75 hover:bg-[#F5B418] text-[#FAF8F2] hover:text-[#011C16] shadow-[0_4px_24px_rgba(0,0,0,0.6)] backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:-translate-x-2 sm:group-hover:translate-x-0 z-20 cursor-pointer border border-[#F5B418]/40 hover:border-[#F5B418] active:scale-95 hover:scale-105"
+            className="absolute left-2 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-[#011C16]/75 hover:bg-[#F5B418] text-[#FAF8F2] hover:text-[#011C16] shadow-[0_4px_24px_rgba(0,0,0,0.6)] backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:-translate-x-2 sm:group-hover:translate-x-0 z-20 cursor-pointer border border-[#F5B418]/40 hover:border-[#F5B418] active:scale-95 hover:scale-105"
           >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
+            <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
           </button>
         )}
 
@@ -373,16 +323,16 @@ export default function HeroBannerCarousel() {
             type="button"
             onClick={nextSlide}
             aria-label="Next Slide"
-            className="absolute right-2.5 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-[#011C16]/75 hover:bg-[#F5B418] text-[#FAF8F2] hover:text-[#011C16] shadow-[0_4px_24px_rgba(0,0,0,0.6)] backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 z-20 cursor-pointer border border-[#F5B418]/40 hover:border-[#F5B418] active:scale-95 hover:scale-105"
+            className="absolute right-2 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-[#011C16]/75 hover:bg-[#F5B418] text-[#FAF8F2] hover:text-[#011C16] shadow-[0_4px_24px_rgba(0,0,0,0.6)] backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 z-20 cursor-pointer border border-[#F5B418]/40 hover:border-[#F5B418] active:scale-95 hover:scale-105"
           >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
+            <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.2]" />
           </button>
         )}
 
         {/* Slide Counter Badge (Top Right) */}
         {isMultiple && (
-          <div className="absolute top-3 sm:top-5 right-3 sm:right-6 z-20 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[#011C16]/85 backdrop-blur-md text-white border border-[#F5B418]/40 text-[11px] sm:text-xs font-mono font-medium shadow-lg select-none">
-            <Sparkles className="w-3 h-3 text-[#F5B418]" />
+          <div className="absolute top-2 sm:top-5 right-2 sm:right-6 z-20 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#011C16]/85 backdrop-blur-md text-white border border-[#F5B418]/40 text-[10px] sm:text-xs font-mono font-medium shadow-lg select-none">
+            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#F5B418]" />
             <span className="text-[#F5B418] font-bold">
               0{activeRealIndex + 1}
             </span>
@@ -393,7 +343,7 @@ export default function HeroBannerCarousel() {
 
         {/* Bottom Controls: Animated Story Progress Pills */}
         {isMultiple && (
-          <div className="absolute bottom-2.5 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2.5 z-20 bg-[#011C16]/85 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#F5B418]/35 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          <div className="absolute bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2.5 z-20 bg-[#011C16]/85 backdrop-blur-md px-2.5 sm:px-4 py-1 sm:py-2 rounded-full border border-[#F5B418]/35 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {slides.map((slide, idx) => {
               const isActive = activeRealIndex === idx;
 
