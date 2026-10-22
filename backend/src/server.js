@@ -23,6 +23,7 @@ import { seedDefaultTaxonomyIfNeeded } from './controllers/taxonomyController.js
 import { seedDefaultCouponsIfNeeded } from './controllers/couponController.js';
 import { seedDefaultBannersIfNeeded } from './controllers/bannerController.js';
 import { seedDefaultAdminIfNeeded } from './controllers/authController.js';
+import { autoSyncTrackerMiddleware, getSyncVersions } from './utils/syncTracker.js';
 
 dotenv.config();
 
@@ -85,12 +86,26 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
+// Global In-Memory Real-Time Sync Tracker Middleware
+app.use(autoSyncTrackerMiddleware);
+
 // Health Check API
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     app: 'Attar Depot API',
     time: new Date().toISOString(),
+  });
+});
+
+// Real-Time Data Sync Version (Sub-millisecond in-memory heartbeat)
+app.get('/api/sync/version', (req, res) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.status(200).json({
+    success: true,
+    ...getSyncVersions(),
   });
 });
 

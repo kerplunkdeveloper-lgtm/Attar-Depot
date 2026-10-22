@@ -77,8 +77,10 @@ export const useAdminCreateProduct = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['featured-products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
-      broadcastDataChange(['products', 'featured-products', 'admin-stats', 'product-filter-options']);
+      broadcastDataChange(['products', 'featured-products', 'categories', 'admin-categories', 'admin-stats', 'product-filter-options']);
     },
   });
 };
@@ -150,6 +152,9 @@ export const useAdminCreateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'product-filter-options', 'products', 'featured-products', 'admin-stats']);
     },
   });
 };
@@ -164,10 +169,13 @@ export const useAdminUpdateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.refetchQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
-      broadcastDataChange(['products', 'featured-products', 'admin-stats', 'product-filter-options']);
+      broadcastDataChange(['products', 'featured-products', 'product', 'categories', 'admin-categories', 'admin-stats', 'product-filter-options']);
     },
   });
 };
@@ -199,6 +207,9 @@ export const useAdminUpdateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'product-filter-options', 'products', 'featured-products', 'admin-stats']);
     },
   });
 };
@@ -216,6 +227,7 @@ export const useAdminToggleCategoryStatus = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'products', 'featured-products']);
     },
   });
 };
@@ -233,6 +245,7 @@ export const useAdminToggleCategoryFeatured = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'products', 'featured-products']);
     },
   });
 };
@@ -254,6 +267,9 @@ export const useAdminDeleteCategory = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'product-filter-options', 'products', 'featured-products', 'admin-stats']);
     },
   });
 };
@@ -272,6 +288,9 @@ export const useAdminBulkDeleteCategories = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'product-filter-options', 'products', 'featured-products', 'admin-stats']);
     },
   });
 };
@@ -289,6 +308,9 @@ export const useAdminSeedDefaultCategories = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      broadcastDataChange(['categories', 'admin-categories', 'public-taxonomy', 'admin-taxonomy', 'products', 'featured-products', 'admin-stats']);
     },
   });
 };
@@ -342,6 +364,7 @@ export const useAdminCreateCustomer = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      broadcastDataChange(['admin-customers', 'admin-stats']);
     },
   });
 };
@@ -356,6 +379,7 @@ export const useAdminUpdateCustomerStatus = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
       queryClient.invalidateQueries({ queryKey: ['admin-customer-details', variables.id] });
+      broadcastDataChange(['admin-customers', 'admin-stats']);
     },
   });
 };
@@ -371,6 +395,7 @@ export const useAdminUpdateCustomer = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
       queryClient.invalidateQueries({ queryKey: ['admin-customer-details', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      broadcastDataChange(['admin-customers', 'admin-stats']);
     },
   });
 };
@@ -385,6 +410,7 @@ export const useAdminDeleteCustomer = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      broadcastDataChange(['admin-customers', 'admin-stats']);
     },
   });
 };

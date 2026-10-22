@@ -32,6 +32,9 @@ export default function AdminLoginPage() {
 
   // If already authenticated as master admin, immediately redirect to dashboard
   React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('custom-cursor-active');
+    }
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('attar_token');
       const userStr = localStorage.getItem('attar_user');

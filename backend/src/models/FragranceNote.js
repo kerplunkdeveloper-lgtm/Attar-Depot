@@ -15,15 +15,6 @@ const fragranceNoteSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    family: {
-      type: String,
-      trim: true,
-      default: 'Woody', // e.g., Woody, Floral, Amber/Oriental, Fresh & Aquatic, Citrus, Spicy, Musk, Gourmand
-    },
-    description: {
-      type: String,
-      default: '',
-    },
     isActive: {
       type: Boolean,
       default: true,

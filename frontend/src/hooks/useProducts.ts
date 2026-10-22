@@ -52,7 +52,7 @@ export const useProducts = (params: ProductQueryParams = {}) => {
       return data;
     },
     placeholderData: keepPreviousData,
-    staleTime: 15 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: true,
   });
 };
@@ -67,7 +67,7 @@ export const useFeaturedProducts = () => {
         bestSellers: data.bestSellers || [],
       };
     },
-    staleTime: 20 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: true,
   });
 };
@@ -82,7 +82,7 @@ export const useProductDetails = (idOrSlug: string, initialProduct?: Product) =>
       return data;
     },
     enabled: !!idOrSlug,
-    staleTime: 20 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: true,
     placeholderData: (previousData) => {
       if (previousData) return previousData;

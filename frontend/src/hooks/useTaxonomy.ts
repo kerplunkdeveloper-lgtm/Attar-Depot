@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { TaxonomySummary, Collection, FragranceNote, Occasion, Category } from '@/types';
+import { broadcastDataChange } from '@/lib/dataSync';
 
 // Public query for storefront
 export const usePublicTaxonomy = () => {
@@ -15,7 +16,7 @@ export const usePublicTaxonomy = () => {
       const { data } = await api.get('/taxonomy');
       return data;
     },
-    staleTime: 20 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: true,
   });
 };
@@ -28,7 +29,7 @@ export const useAdminTaxonomy = () => {
       const { data } = await api.get('/taxonomy/all');
       return data;
     },
-    staleTime: 10 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: true,
   });
 };
@@ -48,6 +49,7 @@ export const useAdminCreateCollection = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -63,6 +65,7 @@ export const useAdminUpdateCollection = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -78,6 +81,7 @@ export const useAdminDeleteCollection = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -97,6 +101,7 @@ export const useAdminCreateNote = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -112,6 +117,7 @@ export const useAdminUpdateNote = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -127,6 +133,7 @@ export const useAdminDeleteNote = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -146,6 +153,7 @@ export const useAdminCreateOccasion = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -161,6 +169,7 @@ export const useAdminUpdateOccasion = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
@@ -176,6 +185,8 @@ export const useAdminDeleteOccasion = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['public-taxonomy'] });
       queryClient.invalidateQueries({ queryKey: ['product-filter-options'] });
+      broadcastDataChange(['admin-taxonomy', 'public-taxonomy', 'product-filter-options', 'products', 'categories']);
     },
   });
 };
+

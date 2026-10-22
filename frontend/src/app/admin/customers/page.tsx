@@ -1278,7 +1278,12 @@ export default function AdminCustomersPage() {
 
       {/* ─── 6. EDIT CUSTOMER MODAL ─── */}
       {editingCustomer && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div className="absolute inset-0 cursor-pointer" onClick={() => setEditingCustomer(null)} />
 
           <div className="relative w-full max-w-lg rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 flex flex-col my-auto overflow-hidden animate-in zoom-in-95 duration-200">
@@ -1447,7 +1452,12 @@ export default function AdminCustomersPage() {
 
       {/* ─── 7. DELETE CUSTOMER CONFIRMATION MODAL ─── */}
       {deletingCustomer && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+        >
           <div className="absolute inset-0 cursor-pointer" onClick={() => setDeletingCustomer(null)} />
 
           <div className="relative w-full max-w-md rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 p-6 flex flex-col space-y-4 animate-in zoom-in-95 duration-200">
@@ -1500,7 +1510,12 @@ export default function AdminCustomersPage() {
 
       {/* ─── 8. ADD NEW CUSTOMER MODAL ─── */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div className="absolute inset-0 cursor-pointer" onClick={() => setIsAddModalOpen(false)} />
 
           <div className="relative w-full max-w-lg rounded-3xl shadow-2xl z-10 border border-slate-200 bg-white text-slate-800 flex flex-col my-auto overflow-hidden animate-in zoom-in-95 duration-200">

@@ -12,7 +12,7 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 15 * 1000,      // 15 seconds cache freshness (fast navigation without stale lag)
+        staleTime: 4 * 1000,       // 4 seconds cache freshness (ultra-fast navigation with instant real-time sync)
         gcTime: 30 * 60 * 1000,    // Keep unused cache in memory for 30 minutes
         refetchOnWindowFocus: true, // Auto-refetch when user focuses or returns to tab
         refetchOnReconnect: true,   // Auto-refetch when network reconnects

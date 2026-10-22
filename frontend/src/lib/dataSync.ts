@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { API_BASE_URL } from '@/lib/api';
 
 const SYNC_CHANNEL_NAME = 'attar_data_sync_channel';
 const STORAGE_SYNC_KEY = 'attar_data_sync_timestamp';
@@ -19,7 +20,7 @@ export function broadcastDataChange(keys: string | string[]) {
     timestamp: Date.now(),
   };
 
-  // 1. Try BroadcastChannel API (Modern & Ultra-fast)
+  // 1. Try BroadcastChannel API (Modern & Ultra-fast sub-millisecond)
   if ('BroadcastChannel' in window) {
     try {
       const channel = new BroadcastChannel(SYNC_CHANNEL_NAME);
@@ -51,30 +52,40 @@ export function broadcastDataChange(keys: string | string[]) {
 
 /**
  * React hook that connects the component to global real-time synchronization.
- * Handles cross-tab updates, window focus revalidation, and visibility restoration.
+ * Handles cross-tab updates, instant refetches, window focus revalidation, and in-memory server heartbeat.
  */
 export function useGlobalDataSync() {
   const queryClient = useQueryClient();
   const lastSyncTimeRef = useRef<number>(Date.now());
+  const lastGlobalVersionRef = useRef<number>(0);
+  const knownScopesRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Trigger immediate invalidation AND active refetch so UI updates with zero delay
     const handleInvalidation = (keys: string[]) => {
       if (!keys || keys.length === 0) {
         queryClient.invalidateQueries();
+        queryClient.refetchQueries({ type: 'active' });
         return;
       }
 
       keys.forEach((key) => {
         queryClient.invalidateQueries({
           queryKey: [key],
-          refetchType: 'active',
         });
+        queryClient.refetchQueries(
+          {
+            queryKey: [key],
+            type: 'active',
+          },
+          { cancelRefetch: false }
+        );
       });
     };
 
-    // 1. BroadcastChannel Listener
+    // 1. BroadcastChannel Listener (Instant same-browser cross-tab sync)
     let channel: BroadcastChannel | null = null;
     if ('BroadcastChannel' in window) {
       try {
@@ -84,7 +95,7 @@ export function useGlobalDataSync() {
             handleInvalidation(event.data.keys);
           }
         };
-      } catch (e) {
+      } catch {
         // BroadcastChannel unavailable
       }
     }
@@ -114,13 +125,103 @@ export function useGlobalDataSync() {
     };
     window.addEventListener('attar:data-changed', handleCustom);
 
-    // 4. Tab Visibility & Focus Revalidation
+    // 4. Ultra-lightweight Server Sync Heartbeat (<0.1ms memory check, zero DB load)
+    const checkServerSync = async () => {
+      if (document.visibilityState !== 'visible') return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/sync/version`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store' },
+        });
+
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data || !data.globalVersion) return;
+
+        if (lastGlobalVersionRef.current === 0) {
+          // Initial baseline
+          lastGlobalVersionRef.current = data.globalVersion;
+          knownScopesRef.current = data.scopes || {};
+          return;
+        }
+
+        if (data.globalVersion > lastGlobalVersionRef.current) {
+          const keysToInvalidate = new Set<string>();
+          const currentScopes: Record<string, number> = data.scopes || {};
+          const prevScopes = knownScopesRef.current;
+
+          if ((currentScopes.products || 0) > (prevScopes.products || 0)) {
+            keysToInvalidate.add('products');
+            keysToInvalidate.add('featured-products');
+            keysToInvalidate.add('product-filter-options');
+            keysToInvalidate.add('product');
+            keysToInvalidate.add('admin-stats');
+            keysToInvalidate.add('categories');
+          }
+
+          if ((currentScopes.categories || 0) > (prevScopes.categories || 0)) {
+            keysToInvalidate.add('categories');
+            keysToInvalidate.add('admin-categories');
+            keysToInvalidate.add('product-filter-options');
+            keysToInvalidate.add('public-taxonomy');
+            keysToInvalidate.add('products');
+            keysToInvalidate.add('featured-products');
+          }
+
+          if ((currentScopes.taxonomy || 0) > (prevScopes.taxonomy || 0)) {
+            keysToInvalidate.add('public-taxonomy');
+            keysToInvalidate.add('admin-taxonomy');
+            keysToInvalidate.add('product-filter-options');
+            keysToInvalidate.add('categories');
+          }
+
+          if ((currentScopes.banners || 0) > (prevScopes.banners || 0)) {
+            keysToInvalidate.add('public-banners');
+            keysToInvalidate.add('admin-banners');
+          }
+
+          if ((currentScopes.coupons || 0) > (prevScopes.coupons || 0)) {
+            keysToInvalidate.add('public-coupons');
+            keysToInvalidate.add('banner-coupons');
+            keysToInvalidate.add('admin-coupons');
+          }
+
+          if ((currentScopes.orders || 0) > (prevScopes.orders || 0)) {
+            keysToInvalidate.add('admin-orders');
+            keysToInvalidate.add('admin-stats');
+            keysToInvalidate.add('orders');
+            keysToInvalidate.add('my-orders');
+          }
+
+          if (keysToInvalidate.size === 0) {
+            keysToInvalidate.add('products');
+            keysToInvalidate.add('categories');
+          }
+
+          lastGlobalVersionRef.current = data.globalVersion;
+          knownScopesRef.current = currentScopes;
+
+          handleInvalidation(Array.from(keysToInvalidate));
+        }
+      } catch {
+        // Silently ignore network hiccup during heartbeat
+      }
+    };
+
+    // Initial check
+    checkServerSync();
+
+    // Check every 4.5 seconds when active
+    const syncInterval = setInterval(checkServerSync, 4500);
+
+    // 5. Tab Visibility & Focus Revalidation
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         const timeSinceLastSync = Date.now() - lastSyncTimeRef.current;
-        // If tab was idle for more than 4 seconds, revalidate active queries immediately
-        if (timeSinceLastSync > 4000) {
+        if (timeSinceLastSync > 2500) {
           lastSyncTimeRef.current = Date.now();
+          checkServerSync();
           queryClient.invalidateQueries({
             refetchType: 'active',
           });
@@ -129,10 +230,14 @@ export function useGlobalDataSync() {
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // 5. Online event (network reconnection)
+    // 6. Online event (network reconnection)
     const handleOnline = () => {
+      checkServerSync();
       queryClient.invalidateQueries({
         refetchType: 'active',
+      });
+      queryClient.refetchQueries({
+        type: 'active',
       });
     };
     window.addEventListener('online', handleOnline);
@@ -141,6 +246,7 @@ export function useGlobalDataSync() {
       if (channel) {
         channel.close();
       }
+      clearInterval(syncInterval);
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('attar:data-changed', handleCustom);
       document.removeEventListener('visibilitychange', handleVisibilityChange);

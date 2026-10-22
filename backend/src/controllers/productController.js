@@ -124,7 +124,9 @@ export const getProducts = async (req, res, next) => {
       Product.countDocuments(query),
     ]);
 
-    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.status(200).json({
       success: true,
       count: products.length,
@@ -190,7 +192,9 @@ export const getFilterOptions = async (req, res, next) => {
       new Set([...defaultGenders, ...dbGenders.filter(Boolean)])
     );
 
-    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.status(200).json({
       success: true,
       filterOptions: {
@@ -223,7 +227,9 @@ export const getFeaturedProducts = async (req, res, next) => {
         .lean(),
     ]);
 
-    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=180');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.status(200).json({
       success: true,
       featured,
@@ -265,7 +271,9 @@ export const getProductByIdOrSlug = async (req, res, next) => {
         .lean();
     }
 
-    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.status(200).json({
       success: true,
       product,

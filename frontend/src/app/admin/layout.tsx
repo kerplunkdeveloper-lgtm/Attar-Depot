@@ -133,6 +133,9 @@ function AdminLayoutInner({
 
   // Hydrate authentication from localStorage and enforce admin session route protection
   useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('custom-cursor-active');
+    }
     dispatch(hydrateAuth());
     if (typeof window !== 'undefined' && localStorage.getItem('attar_token')) {
       setHasAdminToken(true);
@@ -521,7 +524,8 @@ function AdminLayoutInner({
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-sm transition-opacity animate-in fade-in"
+          data-sidebar-overlay="true"
+          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-sm transition-opacity animate-in fade-in admin-sidebar-backdrop"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -534,38 +538,38 @@ function AdminLayoutInner({
           background: 'linear-gradient(180deg, #053b2f 0%, #042e25 50%, #021f19 100%)',
         }}
         className={`admin-sidebar fixed top-0 bottom-0 left-0 z-50 ${
-          isSidebarCollapsed ? 'lg:w-16' : 'lg:w-56'
-        } w-60 border-r border-emerald-800/80 text-white flex flex-col justify-between transition-all duration-300 shadow-[4px_0_30px_rgba(2,31,25,0.45)] ${
+          isSidebarCollapsed ? 'lg:w-14' : 'lg:w-48'
+        } w-48 border-r border-emerald-800/80 text-white flex flex-col justify-between transition-all duration-300 shadow-[4px_0_30px_rgba(2,31,25,0.45)] ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-3 space-y-4 overflow-y-auto scrollbar-none flex-1">
+        <div className="p-2 space-y-2.5 overflow-y-auto scrollbar-none flex-1">
           {/* Logo & Brand Identity */}
-          <div className="relative flex items-center justify-between pb-3 border-b border-emerald-800/60">
+          <div className="relative flex items-center justify-between pb-2 border-b border-emerald-800/60">
             <Link
               href="/admin/dashboard"
               className="group flex items-center justify-center flex-1 min-w-0 transition-transform duration-200"
             >
               {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-center w-full py-2.5 px-1 min-h-[96px]">
+                <div className="flex items-center justify-center w-full py-1.5 px-1 min-h-[56px]">
                   <Image
                     src="/images/logonew.png"
                     alt="The Attar Depot"
-                    width={280}
-                    height={130}
+                    width={180}
+                    height={80}
                     priority
-                    className="h-24 sm:h-28 max-h-32 w-auto object-contain brightness-105 contrast-105 drop-shadow-[0_2px_16px_rgba(245,180,24,0.4)] group-hover:scale-105 transition-all duration-300"
+                    className="h-14 sm:h-16 max-h-16 w-auto max-w-[150px] object-contain brightness-105 contrast-105 drop-shadow-[0_2px_12px_rgba(245,180,24,0.35)] group-hover:scale-105 transition-all duration-300"
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-2.5">
+                <div className="flex items-center justify-center py-1.5">
                   <Image
                     src="/images/logonew.png"
                     alt="The Attar Depot"
-                    width={64}
-                    height={64}
+                    width={48}
+                    height={48}
                     priority
-                    className="h-12 sm:h-14 w-auto object-contain brightness-105 drop-shadow-[0_2px_10px_rgba(245,180,24,0.4)] group-hover:scale-110 transition-all duration-300"
+                    className="h-9 w-auto object-contain brightness-105 drop-shadow-[0_2px_8px_rgba(245,180,24,0.35)] group-hover:scale-110 transition-all duration-300"
                   />
                 </div>
               )}
@@ -582,7 +586,7 @@ function AdminLayoutInner({
           </div>
 
           {/* Navigation Links (Clean without group labels) */}
-          <nav className="space-y-1.5 text-xs font-medium">
+          <nav className="space-y-1 text-xs font-medium">
             {allNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -593,7 +597,7 @@ function AdminLayoutInner({
                   onClick={() => setIsSidebarOpen(false)}
                   title={isSidebarCollapsed ? item.name : undefined}
                   className={`group relative flex items-center ${
-                    isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
+                    isSidebarCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-1.5'
                   } rounded-xl transition-all duration-200 border ${
                     isActive
                       ? 'admin-nav-active border-emerald-400/50 translate-x-0.5'
@@ -602,10 +606,10 @@ function AdminLayoutInner({
                 >
                   {/* Active Left Indicator Bar */}
                   {isActive && !isSidebarCollapsed && (
-                    <span className="absolute -left-1 top-2 bottom-2 w-1.5 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_10px_#F59E0B]" />
+                    <span className="absolute -left-1 top-1.5 bottom-1.5 w-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_8px_#F59E0B]" />
                   )}
 
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Icon
                       className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${
                         isActive
@@ -615,7 +619,7 @@ function AdminLayoutInner({
                     />
                     {!isSidebarCollapsed && (
                       <span
-                        className={`truncate text-xs tracking-wide transition-colors ${
+                        className={`truncate text-xs tracking-tight transition-colors ${
                           isActive ? '!text-white font-bold drop-shadow-xs' : '!text-emerald-100 group-hover:!text-white'
                         }`}
                       >
@@ -625,10 +629,10 @@ function AdminLayoutInner({
                   </div>
 
                   {!isSidebarCollapsed && (
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
                       {item.badge && item.badge > 0 && (
                         <span
-                          className={`px-2 py-0.5 text-[9px] font-black rounded-full transition-all ${
+                          className={`px-1.5 py-0.2 text-[9px] font-black rounded-full transition-all ${
                             isActive
                               ? 'bg-amber-400 text-slate-950 shadow-[0_2px_8px_rgba(245,158,11,0.5)]'
                               : 'bg-emerald-800/90 text-emerald-100 border border-emerald-600/50'
@@ -650,15 +654,15 @@ function AdminLayoutInner({
 
         {/* Sidebar Footer & User Profile Row */}
         <div
-          className="relative p-2.5 border-t border-emerald-800/80 bg-[#021813]/90 space-y-1.5 shrink-0"
+          className="relative p-2 border-t border-emerald-800/80 bg-[#021813]/90 space-y-1.5 shrink-0"
         >
           {!isSidebarCollapsed ? (
             <>
               {/* User Profile Mini Row */}
-              <div className="flex items-center justify-between px-1 py-1">
-                <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center justify-between px-0.5 py-0.5">
+                <div className="flex items-center gap-2 min-w-0">
                   <div className="relative group/sideavatar shrink-0">
-                    <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center">
                       {user?.avatar ? (
                         <img
                           src={user.avatar}
@@ -677,12 +681,12 @@ function AdminLayoutInner({
                       onClick={() => sidebarFileInputRef.current?.click()}
                       disabled={uploadAvatarMutation.isPending}
                       title="Upload/Change Photo"
-                      className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center shadow-xs ring-1 ring-[#021813] transition-transform hover:scale-110 cursor-pointer"
+                      className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center shadow-xs ring-1 ring-[#021813] transition-transform hover:scale-110 cursor-pointer"
                     >
                       {uploadAvatarMutation.isPending ? (
-                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        <Loader2 className="w-2 h-2 animate-spin" />
                       ) : (
-                        <Camera className="w-2.5 h-2.5" />
+                        <Camera className="w-2 h-2" />
                       )}
                     </button>
                   </div>
@@ -695,9 +699,9 @@ function AdminLayoutInner({
                     <p className="text-xs font-bold !text-white truncate leading-tight group-hover/namelink:underline">
                       {user?.name || 'Administrator'}
                     </p>
-                    <p className="text-[10px] !text-emerald-300 font-medium flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 !text-emerald-400 shrink-0" />
-                      <span>Master Admin</span>
+                    <p className="text-[9px] !text-emerald-300 font-medium flex items-center gap-0.5">
+                      <ShieldCheck className="w-2.5 h-2.5 !text-emerald-400 shrink-0" />
+                      <span>Admin</span>
                     </p>
                   </Link>
                 </div>
@@ -706,30 +710,30 @@ function AdminLayoutInner({
                 <button
                   onClick={() => setIsSidebarCollapsed(true)}
                   title="Collapse Sidebar"
-                  className="hidden lg:flex p-1 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors"
+                  className="hidden lg:flex p-1 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <PanelLeftClose className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Quick Actions Row */}
-              <div className="pt-1 flex items-center gap-1.5">
+              <div className="pt-0.5 flex items-center gap-1.5">
                 <Link
                   href="/"
                   target="_blank"
                   title="Open live storefront"
-                  className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold !text-emerald-100 hover:!text-white bg-emerald-900/60 hover:bg-emerald-600 border border-emerald-600/50 shadow-xs transition-all duration-200"
+                  className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold !text-emerald-100 hover:!text-white bg-emerald-900/60 hover:bg-emerald-600 border border-emerald-600/50 shadow-xs transition-all duration-200"
                 >
-                  <ExternalLink className="w-3.5 h-3.5 !text-emerald-300" />
+                  <ExternalLink className="w-3 h-3 !text-emerald-300" />
                   <span>Store</span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
                   title="Exit Admin Portal"
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold !text-rose-100 hover:!text-white bg-rose-950/60 hover:bg-rose-600 border border-rose-600/50 shadow-xs transition-all duration-200 cursor-pointer"
+                  className="flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold !text-rose-100 hover:!text-white bg-rose-950/60 hover:bg-rose-600 border border-rose-600/50 shadow-xs transition-all duration-200 cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5 !text-rose-300" />
+                  <LogOut className="w-3 h-3 !text-rose-300" />
                   <span>Exit</span>
                 </button>
               </div>
@@ -739,7 +743,7 @@ function AdminLayoutInner({
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
                 title="Expand Sidebar"
-                className="p-1.5 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors"
+                className="p-1 rounded-lg !text-emerald-300/70 hover:!text-white hover:bg-white/10 transition-colors cursor-pointer"
               >
                 <PanelLeft className="w-4 h-4" />
               </button>
@@ -747,7 +751,7 @@ function AdminLayoutInner({
               <div className="relative group/colavatar">
                 <div
                   title={user?.name || 'Administrator'}
-                  className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center"
+                  className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-amber-400/50 shadow-md bg-emerald-950 flex items-center justify-center"
                 >
                   {user?.avatar ? (
                     <img
@@ -765,16 +769,16 @@ function AdminLayoutInner({
                   type="button"
                   onClick={() => sidebarFileInputRef.current?.click()}
                   title="Upload/Change Photo"
-                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs cursor-pointer hover:bg-amber-300"
+                  className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs cursor-pointer hover:bg-amber-300"
                 >
-                  <Camera className="w-2.5 h-2.5" />
+                  <Camera className="w-2 h-2" />
                 </button>
               </div>
 
               <button
                 onClick={handleLogout}
                 title="Exit Admin Portal"
-                className="p-1.5 rounded-lg !text-rose-300 hover:!text-rose-100 hover:bg-rose-900/50 transition-colors"
+                className="p-1 rounded-lg !text-rose-300 hover:!text-rose-100 hover:bg-rose-900/50 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -788,7 +792,7 @@ function AdminLayoutInner({
       {/* ========================================================================= */}
       <div
         className={`flex-1 ${
-          isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-56'
+          isSidebarCollapsed ? 'lg:pl-14' : 'lg:pl-48'
         } flex flex-col min-h-screen transition-all duration-300`}
       >
         {/* Top Navbar */}
@@ -796,7 +800,7 @@ function AdminLayoutInner({
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.88)',
           }}
-          className="h-16 border-b border-slate-200/80 shadow-xs backdrop-blur-xl px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors text-slate-800"
+          className="admin-header h-16 border-b border-slate-200/80 shadow-xs backdrop-blur-xl px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-all duration-300 text-slate-800"
         >
           {/* Left: Mobile Trigger + Breadcrumb + Status Badge */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -1347,7 +1351,7 @@ function AdminLayoutInner({
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8 bg-white page-transition-wrapper gpu-accelerated">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-8xl w-full mx-auto pb-24 lg:pb-8 bg-slate-50/70">
           {children}
         </main>
 
@@ -1356,7 +1360,7 @@ function AdminLayoutInner({
           style={{
             background: 'linear-gradient(180deg, #053b2f 0%, #03271f 100%)',
           }}
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-800/80 shadow-[0_-4px_24px_rgba(2,31,25,0.4)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-800/80 shadow-[0_-4px_24px_rgba(2,31,25,0.4)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around transition-all duration-300"
           aria-label="Mobile Navigation"
         >
           {allNavItems.map((item) => {

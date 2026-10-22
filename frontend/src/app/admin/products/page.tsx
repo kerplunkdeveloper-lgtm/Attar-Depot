@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -26,6 +26,8 @@ import {
   PlusCircle,
   MinusCircle,
   Boxes,
+  ChevronDown,
+  Filter,
 } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
@@ -153,6 +155,26 @@ export default function AdminProductsPage() {
   const [selectedGenderFilter, setSelectedGenderFilter] = useState('All');
   const [statusMessage, setStatusMessage] = useState('');
 
+  // Category dropdown filter state
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close category dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target as Node)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    if (isCategoryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCategoryDropdownOpen]);
+
   // Modals state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -173,6 +195,25 @@ export default function AdminProductsPage() {
   const products = productsData?.products || [];
   const { data: categories = [] } = useCategories();
   const { data: taxonomy } = usePublicTaxonomy();
+
+  const activeCategoryObj = useMemo(() => {
+    if (selectedCategoryFilter === 'All') return null;
+    return categories.find((c) => c._id === selectedCategoryFilter || c.name === selectedCategoryFilter);
+  }, [categories, selectedCategoryFilter]);
+
+  const visibleCategories = useMemo(() => {
+    if (!categorySearchQuery.trim()) return categories;
+    const q = categorySearchQuery.toLowerCase();
+    return categories.filter((c) => c.name?.toLowerCase().includes(q));
+  }, [categories, categorySearchQuery]);
+
+  const getCategoryProductCount = (catId: string) => {
+    return products.filter((p) => {
+      const pCatId = typeof p.category === 'object' ? p.category?._id : p.category;
+      const pCatName = typeof p.category === 'object' ? p.category?.name : '';
+      return pCatId === catId || pCatName === catId;
+    }).length;
+  };
 
   const dynamicCollections = useMemo(() => {
     const list = taxonomy?.collections?.filter((c) => c.isActive !== false).map((c) => c.name) || [];
@@ -507,7 +548,13 @@ export default function AdminProductsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[13px] text-slate-500 font-medium">
-              No. of Products: {products.length}
+              No. of Products:{' '}
+              <span className="font-bold text-slate-800">{filteredProducts.length}</span>
+              {filteredProducts.length !== products.length && (
+                <span className="text-slate-400 text-xs ml-1 font-normal">
+                  (filtered from {products.length})
+                </span>
+              )}
             </span>
           </div>
         </div>
@@ -535,46 +582,237 @@ export default function AdminProductsPage() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-20">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             placeholder="Search by name, notes, or collection..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 placeholder-slate-400 font-poppins"
+            className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 placeholder-slate-400 font-poppins"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-md cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        {/* Category Filter Dropdown with Superior UI/UX */}
+        <div ref={categoryDropdownRef} className="relative self-start sm:self-auto">
           <button
-            key="All"
-            onClick={() => setSelectedCategoryFilter('All')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              selectedCategoryFilter === 'All'
-                ? 'admin-btn-primary shadow-xs'
-                : 'admin-btn-neutral'
+            type="button"
+            onClick={() => setIsCategoryDropdownOpen((prev) => !prev)}
+            className={`inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer border ${
+              selectedCategoryFilter !== 'All'
+                ? 'bg-emerald-50 text-emerald-950 border-emerald-300 ring-2 ring-emerald-500/20'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900'
             }`}
+            aria-expanded={isCategoryDropdownOpen}
           >
-            All
-          </button>
-          {categories.map((cat) => {
-            const isSelected = selectedCategoryFilter === cat._id;
-            return (
-              <button
-                key={cat._id}
-                onClick={() => setSelectedCategoryFilter(cat._id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  isSelected
-                    ? 'admin-btn-primary shadow-xs'
-                    : 'admin-btn-neutral'
-                }`}
+            <Filter
+              className={`w-3.5 h-3.5 flex-shrink-0 ${
+                selectedCategoryFilter !== 'All' ? 'text-emerald-700' : 'text-slate-500'
+              }`}
+            />
+            <span className="text-slate-500 font-medium hidden xs:inline">Category:</span>
+            <span className="max-w-[130px] sm:max-w-[200px] truncate text-slate-900 font-bold">
+              {activeCategoryObj?.name || 'All Categories'}
+            </span>
+
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                selectedCategoryFilter !== 'All'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              {selectedCategoryFilter === 'All' ? products.length : filteredProducts.length}
+            </span>
+
+            {selectedCategoryFilter !== 'All' ? (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedCategoryFilter('All');
+                }}
+                title="Reset to All Categories"
+                className="p-0.5 hover:bg-emerald-200/80 rounded-md text-emerald-800 transition-colors cursor-pointer"
               >
-                {cat.name}
-              </button>
-            );
-          })}
+                <X className="w-3.5 h-3.5" />
+              </span>
+            ) : (
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                  isCategoryDropdownOpen ? 'rotate-180 text-emerald-600' : ''
+                }`}
+              />
+            )}
+          </button>
+
+          {/* Floating Dropdown Menu */}
+          {isCategoryDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl shadow-slate-900/10 p-2.5 z-40 ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-150">
+              {/* Header */}
+              <div className="px-2 py-1.5 flex items-center justify-between border-b border-slate-100 mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-emerald-700" />
+                  <span className="text-xs font-bold text-slate-800">Filter by Category</span>
+                </div>
+                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {categories.length} Categories
+                </span>
+              </div>
+
+              {/* Quick Search inside Categories (if more than 3 categories exist) */}
+              {categories.length > 3 && (
+                <div className="relative mb-2 px-1">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search category name..."
+                    value={categorySearchQuery}
+                    onChange={(e) => setCategorySearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 placeholder-slate-400"
+                    autoFocus
+                  />
+                  {categorySearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setCategorySearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Options List */}
+              <div className="max-h-64 overflow-y-auto space-y-1 pr-0.5 scrollbar-thin">
+                {/* All Categories Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategoryFilter('All');
+                    setIsCategoryDropdownOpen(false);
+                    setCategorySearchQuery('');
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-left ${
+                    selectedCategoryFilter === 'All'
+                      ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200/90 shadow-2xs'
+                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        selectedCategoryFilter === 'All'
+                          ? 'bg-emerald-600 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                          : 'bg-slate-300'
+                      }`}
+                    />
+                    <span>All Categories</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        selectedCategoryFilter === 'All'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {products.length}
+                    </span>
+                    {selectedCategoryFilter === 'All' && (
+                      <Check className="w-3.5 h-3.5 text-emerald-700 ml-1" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Filtered categories list */}
+                {visibleCategories.length === 0 ? (
+                  <div className="py-4 text-center text-xs text-slate-400 font-medium">
+                    No categories found
+                  </div>
+                ) : (
+                  visibleCategories.map((cat) => {
+                    const isSelected = selectedCategoryFilter === cat._id;
+                    const count = getCategoryProductCount(cat._id);
+                    return (
+                      <button
+                        key={cat._id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategoryFilter(cat._id);
+                          setIsCategoryDropdownOpen(false);
+                          setCategorySearchQuery('');
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-left ${
+                          isSelected
+                            ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200/90 shadow-2xs'
+                            : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <span
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              isSelected
+                                ? 'bg-emerald-600 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                                : 'bg-slate-300'
+                            }`}
+                          />
+                          <span className="truncate">{cat.name}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              isSelected
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-slate-100 text-slate-500'
+                            }`}
+                          >
+                            {count}
+                          </span>
+                          {isSelected && (
+                            <Check className="w-3.5 h-3.5 text-emerald-700 ml-1" />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Footer action */}
+              {selectedCategoryFilter !== 'All' && (
+                <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs px-2">
+                  <span className="text-slate-500 text-[11px] truncate max-w-[170px]">
+                    Filtered: {activeCategoryObj?.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryFilter('All');
+                      setIsCategoryDropdownOpen(false);
+                      setCategorySearchQuery('');
+                    }}
+                    className="text-rose-600 hover:text-rose-700 font-bold hover:underline cursor-pointer text-[11px]"
+                  >
+                    Reset Filter
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -789,7 +1027,12 @@ export default function AdminProductsPage() {
 
       {/* ─── QUICK VIEW MODAL ─── */}
       {viewingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200"
+        >
           <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-2xl w-full p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-2xl relative text-white max-h-[90vh] overflow-y-auto my-auto">
             <div className="flex items-center justify-between border-b border-[#1E332B] pb-4">
               <div className="flex items-center gap-2">
@@ -942,7 +1185,12 @@ export default function AdminProductsPage() {
 
       {/* ─── CREATE & EDIT MODAL ─── */}
       {isFormModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200"
+        >
           <div className="bg-[#0A1210] border border-[#1E332B] rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl relative my-auto text-white overflow-hidden">
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-[#1E332B] px-5 sm:px-6 py-4 flex-shrink-0">
@@ -1604,7 +1852,12 @@ export default function AdminProductsPage() {
       )}
       {/* ─── LUXURY DELETE CONFIRMATION MODAL ─── */}
       {productToDelete && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs p-4 flex items-center justify-center animate-in fade-in duration-200"
+        >
           <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-5 relative my-auto animate-in zoom-in-95 duration-150">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0 shadow-xs">

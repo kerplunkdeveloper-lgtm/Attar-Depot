@@ -26,20 +26,20 @@ export const DEFAULT_COLLECTIONS = [
 ];
 
 export const DEFAULT_NOTES = [
-  { name: 'Amber', family: 'Amber / Oriental', description: 'Warm, golden, sweet resinous note' },
-  { name: 'Citrus', family: 'Citrus & Fresh', description: 'Sparkling Calabrian bergamot, lime and zest' },
-  { name: 'Floral', family: 'Floral', description: 'Damask rose, jasmine sambac, and white tuberose' },
-  { name: 'Fresh & Aquatic', family: 'Fresh & Marine', description: 'Breezy coastal mist and crystalline rain' },
-  { name: 'Fruity', family: 'Fruity', description: 'Honeyed apricot, crisp apple, and dark berries' },
-  { name: 'Musk', family: 'Musk', description: 'Soft, velvety animalic white and black musk' },
-  { name: 'Oudh/Agarwood', family: 'Woody / Oriental', description: 'Precious resinous Aquilaria heartwood' },
-  { name: 'Patchouli', family: 'Woody & Earthy', description: 'Rich, dark, damp earth and Indonesian leaf' },
-  { name: 'Rose', family: 'Floral', description: 'Centifolia and Rosa Damascena hydro-distillate' },
-  { name: 'Sandalwood', family: 'Woody', description: 'Creamy vintage Mysore Santalum Album wood' },
-  { name: 'Spicy', family: 'Warm & Spicy', description: 'Cardamom pods, black pepper, and dry clove' },
-  { name: 'Sweet', family: 'Gourmand', description: 'Pure caramel, honeycomb, and spun vanilla' },
-  { name: 'Vanilla', family: 'Gourmand', description: 'Madagascar bourbon vanilla beans' },
-  { name: 'Woody', family: 'Woody', description: 'Cedarwood, vetiver roots, and ancient bark' },
+  { name: 'Amber' },
+  { name: 'Citrus' },
+  { name: 'Floral' },
+  { name: 'Fresh & Aquatic' },
+  { name: 'Fruity' },
+  { name: 'Musk' },
+  { name: 'Oudh/Agarwood' },
+  { name: 'Patchouli' },
+  { name: 'Rose' },
+  { name: 'Sandalwood' },
+  { name: 'Spicy' },
+  { name: 'Sweet' },
+  { name: 'Vanilla' },
+  { name: 'Woody' },
 ];
 
 export const DEFAULT_OCCASIONS = [
@@ -310,28 +310,41 @@ export const deleteCollection = async (req, res, next) => {
 // @access  Private/Admin
 export const createNote = async (req, res, next) => {
   try {
-    const { name, family, description, isActive } = req.body;
+    const { name, isActive } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Note name is required' });
     }
 
     const trimmedName = name.trim();
     const slug = slugify(trimmedName);
-    const existing = await FragranceNote.findOne({ slug });
+    const escapedName = trimmedName.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const existing = await FragranceNote.findOne({
+      $or: [
+        { slug },
+        { name: { $regex: new RegExp(`^${escapedName}$`, 'i') } },
+      ],
+    });
     if (existing) {
-      return res.status(400).json({ success: false, message: `Fragrance note "${trimmedName}" already exists` });
+      return res.status(400).json({
+        success: false,
+        message: `Already name available! Fragrance note "${trimmedName}" already exists in database.`,
+      });
     }
 
     const note = await FragranceNote.create({
       name: trimmedName,
       slug,
-      family: family || 'Woody',
-      description: description || '',
       isActive: isActive !== undefined ? Boolean(isActive) : true,
     });
 
     res.status(201).json({ success: true, note });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Already name available! A fragrance note with this name already exists in database.',
+      });
+    }
     next(error);
   }
 };
@@ -349,20 +362,34 @@ export const updateNote = async (req, res, next) => {
     if (req.body.name && req.body.name.trim()) {
       const trimmedName = req.body.name.trim();
       const newSlug = slugify(trimmedName);
-      const duplicate = await FragranceNote.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
+      const escapedName = trimmedName.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      const duplicate = await FragranceNote.findOne({
+        _id: { $ne: req.params.id },
+        $or: [
+          { slug: newSlug },
+          { name: { $regex: new RegExp(`^${escapedName}$`, 'i') } },
+        ],
+      });
       if (duplicate) {
-        return res.status(400).json({ success: false, message: `A fragrance note named "${trimmedName}" already exists` });
+        return res.status(400).json({
+          success: false,
+          message: `Already name available! Fragrance note "${trimmedName}" already exists in database.`,
+        });
       }
       note.name = trimmedName;
       note.slug = newSlug;
     }
-    if (req.body.family !== undefined) note.family = req.body.family;
-    if (req.body.description !== undefined) note.description = req.body.description;
     if (req.body.isActive !== undefined) note.isActive = Boolean(req.body.isActive);
 
     await note.save();
     res.status(200).json({ success: true, note });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Already name available! A fragrance note with this name already exists in database.',
+      });
+    }
     next(error);
   }
 };

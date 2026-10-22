@@ -68,8 +68,6 @@ export interface FragranceNote {
   _id: string;
   name: string;
   slug: string;
-  family?: string;
-  description?: string;
   isActive?: boolean;
   sortOrder?: number;
   createdAt?: string;

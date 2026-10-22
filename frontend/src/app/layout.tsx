@@ -226,7 +226,9 @@ export default function RootLayout({
             <ToastContainer />
             <FloatingActionHub />
             <AiChatDrawer />
-            <CustomCursor />
+            <Suspense fallback={null}>
+              <CustomCursor />
+            </Suspense>
           </div>
         </Providers>
       </body>

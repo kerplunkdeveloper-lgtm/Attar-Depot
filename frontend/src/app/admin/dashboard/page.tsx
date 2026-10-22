@@ -221,6 +221,10 @@ export default function AdminDashboardPage() {
       ? Math.round(stats.totalRevenue / stats.totalOrders)
       : 2499;
 
+  // Dashboard Centered Modals State (Order Inspect & Customer Dossier)
+  const [selectedInspectOrder, setSelectedInspectOrder] = useState<any | null>(null);
+  const [selectedCustomerDossier, setSelectedCustomerDossier] = useState<any | null>(null);
+
   // Customer details pagination state (Exactly 4 items per page as requested)
   const [customerPage, setCustomerPage] = useState(1);
   const customerPageSize = 4;
@@ -383,7 +387,7 @@ export default function AdminDashboardPage() {
   }, [customers, stats, customerMonthFilter]);
 
   return (
-    <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 pb-10 bg-white">
+    <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 pb-10">
       {/* ========================================================================= */}
       {/* 1. EXECUTIVE DATE FILTER TOOLBAR (Matches Reference Image)                */}
       {/* ========================================================================= */}
@@ -421,7 +425,7 @@ export default function AdminDashboardPage() {
             onClick={() => handleDateFilterChange('all')}
             className={`px-4 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilterMode === 'all'
-                ? 'bg-emerald-50 text-emerald-950 font-black shadow-xs ring-1 ring-emerald-300'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs border border-emerald-600/30'
                 : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
             }`}
           >
@@ -434,7 +438,7 @@ export default function AdminDashboardPage() {
             onClick={() => handleDateFilterChange('today')}
             className={`px-4 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilterMode === 'today'
-                ? 'bg-emerald-50 text-emerald-950 font-black shadow-xs ring-1 ring-emerald-300'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs border border-emerald-600/30'
                 : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
             }`}
           >
@@ -448,17 +452,17 @@ export default function AdminDashboardPage() {
               onClick={handleOpenDatePicker}
               className={`px-3.5 py-2 rounded-2xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 dateFilterMode === 'custom'
-                  ? 'bg-emerald-50 text-emerald-950 font-black shadow-xs ring-1 ring-emerald-300'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs border border-emerald-600/30'
                   : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
               }`}
             >
-              <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+              <Calendar className={`w-4 h-4 shrink-0 ${dateFilterMode === 'custom' ? 'text-white' : 'text-emerald-600'}`} />
               <span>
                 {dateFilterMode === 'custom' && selectedDate
                   ? formatDisplayDate(selectedDate)
                   : 'Select Date'}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 ${dateFilterMode === 'custom' ? 'text-white/80' : 'text-slate-400'}`} />
             </button>
             <input
               ref={dateInputRef}
@@ -498,100 +502,100 @@ export default function AdminDashboardPage() {
       {/* 2. REFINED KPI METRIC CARDS (Light Luxury Palette & Better View Typography) */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {/* Gross Revenue - Refined Light Luxury Amber Palette */}
+        {/* Gross Revenue - Amber Luxury Card */}
         <div
-          className="p-5 sm:p-6 rounded-3xl bg-white border border-amber-200/90 shadow-sm transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md hover:border-amber-300"
+          className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#FFFDF0] via-[#FEF3C7] to-[#FDE68A]/60 border-2 border-amber-300 shadow-sm transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-amber-400"
         >
           {/* Subtle top amber highlight */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-200" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-amber-800">
+            <span className="uppercase tracking-widest text-[11px] font-black text-amber-950">
               Gross Revenue
             </span>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-amber-50 border border-amber-200/80 text-amber-700 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-amber-500 text-white font-black text-base shadow-xs group-hover:scale-105 group-hover:bg-amber-600 transition-all">
              ₹
             </div>
           </div>
           <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <p className="font-poppins text-2xl sm:text-3xl font-black tracking-tight text-amber-950">
               {isLoading ? '...' : formatPrice(displayedMetrics.revenue)}
             </p>
           </div>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 shadow-2xs">
-              <TrendingUp className="w-3 h-3 text-amber-600" /> {displayedMetrics.badgeRevenue}
+            <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-white/95 text-amber-950 border border-amber-300 shadow-2xs">
+              <TrendingUp className="w-3 h-3 text-amber-700" /> {displayedMetrics.badgeRevenue}
             </span>
-            <span className="text-[12px] font-medium text-slate-600">
+            <span className="text-[12px] font-bold text-amber-900">
               {displayedMetrics.subtextRevenue}
             </span>
           </div>
         </div>
 
-        {/* Total Orders - Refined Light Luxury Emerald Palette */}
+        {/* Total Orders - Emerald Luxury Card */}
         <div
-          className="p-5 sm:p-6 rounded-3xl bg-white border border-emerald-200/90 shadow-sm transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md hover:border-emerald-300"
+          className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#F0FDF4] via-[#DCFCE7] to-[#BBF7D0]/60 border-2 border-emerald-300 shadow-sm transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-emerald-400"
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-200" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 via-teal-400 to-emerald-300" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-emerald-800">
+            <span className="uppercase tracking-widest text-[11px] font-black text-emerald-950">
               Total Orders
             </span>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-50 border border-emerald-200/80 text-emerald-700 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-600 text-white shadow-xs group-hover:scale-105 group-hover:bg-emerald-700 transition-all">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <p className="font-poppins text-2xl sm:text-3xl font-black tracking-tight text-emerald-950">
               {isLoading ? '...' : displayedMetrics.ordersCount}
             </p>
           </div>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
             {displayedMetrics.pendingCount > 0 ? (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-white/95 text-amber-950 border border-amber-300 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                 {displayedMetrics.pendingCount} pending dispatch
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200/90 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-white/95 text-emerald-950 border border-emerald-300 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-600" />
                 All fulfilled
               </span>
             )}
-            <span className="text-[12px] font-medium text-slate-600">
+            <span className="text-[12px] font-bold text-emerald-900">
               {displayedMetrics.subtextOrders}
             </span>
           </div>
         </div>
 
-        {/* Registered Customers - Refined Light Luxury Rose Palette */}
+        {/* Registered Customers - Rose Luxury Card */}
         <Link
           href="/admin/customers"
-          className="p-5 sm:p-6 rounded-3xl bg-white border border-rose-200/90 shadow-sm transition-all duration-300 relative overflow-hidden group block hover:-translate-y-1 hover:shadow-md hover:border-rose-300"
+          className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#FFF1F2] via-[#FFE4E6] to-[#FECDD3]/60 border-2 border-rose-300 shadow-sm transition-all duration-300 relative overflow-hidden group block hover:-translate-y-1 hover:shadow-lg hover:border-rose-400"
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-pink-400 to-rose-200" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-600 via-pink-400 to-rose-300" />
           <div className="flex items-center justify-between">
-            <span className="uppercase tracking-widest text-[11px] font-bold text-rose-800">
+            <span className="uppercase tracking-widest text-[11px] font-black text-rose-950">
               Registered Customers
             </span>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-rose-50 border border-rose-200/80 text-rose-700 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-rose-600 text-white shadow-xs group-hover:scale-105 group-hover:bg-rose-700 transition-all">
               <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-poppins text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <p className="font-poppins text-2xl sm:text-3xl font-black tracking-tight text-rose-950">
               {isCustomersLoading ? '...' : displayedMetrics.customersCount}
             </p>
-            <span className="text-xs font-semibold text-slate-500">
+            <span className="text-xs font-bold text-rose-900/80">
               {dateFilterMode === 'all' ? 'customers' : 'new customers'}
             </span>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
-            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-900 border border-rose-200/90 shadow-2xs">
+            <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-white/95 text-rose-950 border border-rose-300 shadow-2xs">
               {customers.filter((c) => (c.ordersCount || 0) > 0).length} Repeat Buyers
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-800 font-extrabold text-[11px] shadow-2xs group-hover:bg-rose-100 group-hover:text-rose-900 group-hover:scale-105 transition-all">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-[11px] shadow-xs group-hover:from-emerald-700 group-hover:to-teal-700 group-hover:scale-105 transition-all border border-emerald-600/30">
               <span>View Directory</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-3 h-3 text-white" />
             </span>
           </div>
         </Link>
@@ -604,22 +608,22 @@ export default function AdminDashboardPage() {
         {/* Panel 1: Product Catalog */}
         <Link
           href="/admin/products"
-          className="p-4.5 rounded-3xl bg-white border border-slate-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-emerald-500 hover:shadow-lg flex items-center justify-between shadow-xs"
+          className="p-4.5 rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50/50 to-white border-2 border-emerald-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-emerald-500 hover:shadow-lg flex items-center justify-between shadow-xs"
         >
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 shadow-2xs">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-emerald-600 text-white shadow-xs">
               <Droplets className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
+              <p className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
                 Product Catalog
               </p>
-              <p className="text-[11px] mt-0.5 text-slate-600 font-medium">
+              <p className="text-[11px] mt-0.5 text-emerald-950 font-bold">
                 {stats?.totalProducts || 0} active flacons
               </p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-emerald-600 text-slate-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs group-hover:shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 flex items-center justify-center transition-all shadow-2xs">
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </div>
         </Link>
@@ -627,22 +631,22 @@ export default function AdminDashboardPage() {
         {/* Panel 2: Categories & Taxonomy Hub */}
         <Link
           href="/admin/categories"
-          className="p-4.5 rounded-3xl bg-white border border-slate-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-amber-500 hover:shadow-lg flex items-center justify-between shadow-xs"
+          className="p-4.5 rounded-3xl bg-gradient-to-br from-amber-50 via-yellow-50/50 to-white border-2 border-amber-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-amber-500 hover:shadow-lg flex items-center justify-between shadow-xs"
         >
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-amber-50 border border-amber-200 text-amber-700 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 shadow-2xs">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-amber-600 text-white shadow-xs">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
+              <p className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-amber-700 transition-colors">
                 Taxonomy & Notes
               </p>
-              <p className="text-[11px] mt-0.5 text-slate-600 font-medium">
+              <p className="text-[11px] mt-0.5 text-amber-950 font-bold">
                 All-in-one catalog hub
               </p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-amber-600 text-slate-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs group-hover:shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-amber-100 border border-amber-300 text-amber-800 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 flex items-center justify-center transition-all shadow-2xs">
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </div>
         </Link>
@@ -650,22 +654,22 @@ export default function AdminDashboardPage() {
         {/* Panel 3: Orders Queue */}
         <Link
           href="/admin/orders"
-          className="p-4.5 rounded-3xl bg-white border border-slate-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-indigo-500 hover:shadow-lg flex items-center justify-between shadow-xs"
+          className="p-4.5 rounded-3xl bg-gradient-to-br from-indigo-50 via-blue-50/50 to-white border-2 border-indigo-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-indigo-500 hover:shadow-lg flex items-center justify-between shadow-xs"
         >
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-indigo-50 border border-indigo-200 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 shadow-2xs">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-indigo-600 text-white shadow-xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-700 transition-colors">
+              <p className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-indigo-700 transition-colors">
                 Total Orders
               </p>
-              <p className="text-[11px] mt-0.5 text-slate-600 font-medium">
+              <p className="text-[11px] mt-0.5 text-indigo-950 font-bold">
                 {stats?.totalOrders || 0} total consignments
               </p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-indigo-600 text-slate-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs group-hover:shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-indigo-100 border border-indigo-300 text-indigo-800 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 flex items-center justify-center transition-all shadow-2xs">
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </div>
         </Link>
@@ -673,22 +677,22 @@ export default function AdminDashboardPage() {
         {/* Panel 4: Customer Directory */}
         <Link
           href="/admin/customers"
-          className="p-4.5 rounded-3xl bg-white border border-slate-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-rose-500 hover:shadow-lg flex items-center justify-between shadow-xs"
+          className="p-4.5 rounded-3xl bg-gradient-to-br from-rose-50 via-pink-50/50 to-white border-2 border-rose-200/90 transition-all duration-300 group hover:-translate-y-1 hover:border-rose-500 hover:shadow-lg flex items-center justify-between shadow-xs"
         >
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-rose-50 border border-rose-200 text-rose-700 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 shadow-2xs">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 bg-rose-600 text-white shadow-xs">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-rose-700 transition-colors">
+              <p className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-rose-700 transition-colors">
                 Customer Directory
               </p>
-              <p className="text-[11px] mt-0.5 text-slate-600 font-medium">
+              <p className="text-[11px] mt-0.5 text-rose-950 font-bold">
                 {customers.length} registered Customers
               </p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-rose-600 text-slate-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs group-hover:shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-rose-100 border border-rose-300 text-rose-800 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 flex items-center justify-center transition-all shadow-2xs">
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </div>
         </Link>
@@ -703,24 +707,24 @@ export default function AdminDashboardPage() {
         {/* ===================================================================== */}
         {/* LEFT CARD: Reference Image - Order Collection & Status Telemetry      */}
         {/* ===================================================================== */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 overflow-hidden shadow-sm transition-all space-y-6 p-5 sm:p-6 flex flex-col justify-between">
+        <div className="rounded-3xl bg-gradient-to-b from-[#F2FBF7] via-white to-[#F0FAF5] border-2 border-emerald-200/90 overflow-hidden shadow-sm hover:border-emerald-300 transition-all space-y-6 p-5 sm:p-6 flex flex-col justify-between">
         {/* Header: Simple Title + Better Alignment + Simple Filter */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
               <BarChart3 className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight font-poppins">
+                <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight font-poppins">
                   Order Collections
                 </h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-950 border border-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                   Live
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-[11px] text-emerald-950 font-bold">
                 6-Month revenue & consignment pipeline
               </p>
             </div>
@@ -733,7 +737,7 @@ export default function AdminDashboardPage() {
               onClick={() => setOrderChartMode('collection')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 orderChartMode === 'collection'
-                  ? 'admin-btn-primary shadow-xs'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white'
               }`}
             >
@@ -745,7 +749,7 @@ export default function AdminDashboardPage() {
               onClick={() => setOrderChartMode('volume')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 orderChartMode === 'volume'
-                  ? 'admin-btn-primary shadow-xs'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white'
               }`}
             >
@@ -757,7 +761,7 @@ export default function AdminDashboardPage() {
               onClick={() => setOrderChartMode('status')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 orderChartMode === 'status'
-                  ? 'admin-btn-primary shadow-xs'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white'
               }`}
             >
@@ -782,12 +786,12 @@ export default function AdminDashboardPage() {
                     : orderTelemetry.monthsData.length - 1;
                 const pt = orderTelemetry.monthsData[targetPointIndex] || orderTelemetry.currentMonthData;
                 return (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs shadow-2xs self-start sm:self-auto">
-                    <span className="font-bold text-emerald-800">{pt?.month}:</span>
-                    <span className="font-extrabold text-slate-900 font-mono">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white border-2 border-emerald-300 text-xs shadow-xs self-start sm:self-auto">
+                    <span className="font-black text-emerald-950">{pt?.month}:</span>
+                    <span className="font-black text-slate-900 font-mono">
                       {formatPrice(pt?.revenue || 0)}
                     </span>
-                    <span className="text-[11px] text-slate-600">
+                    <span className="text-[11px] font-bold text-emerald-900">
                       • {pt?.orders || 0} orders (AOV: {formatPrice(pt?.aov || 0)})
                     </span>
                   </div>
@@ -1081,24 +1085,24 @@ export default function AdminDashboardPage() {
         {/* ===================================================================== */}
         {/* RIGHT CARD: Customer Acquisition with Month Filter & Animated Bar     */}
         {/* ===================================================================== */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 overflow-hidden shadow-sm transition-all space-y-5 p-5 sm:p-6 flex flex-col justify-between">
+        <div className="rounded-3xl bg-gradient-to-b from-[#F4F6FF] via-white to-[#F2F4FE] border-2 border-indigo-200/90 overflow-hidden shadow-sm hover:border-indigo-300 transition-all space-y-5 p-5 sm:p-6 flex flex-col justify-between">
           {/* Header: Simple Title + Better Alignment + Simple Filter */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-100 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Users className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight font-poppins">
+                  <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight font-poppins">
                     Customer Growth
                   </h2>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-950 border border-indigo-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
                     Live
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 font-medium">
+                <p className="text-[11px] text-indigo-950 font-bold">
                   Monthly new registrations & retention
                 </p>
               </div>
@@ -1112,7 +1116,7 @@ export default function AdminDashboardPage() {
                   onClick={() => setCustomerMonthFilter('all')}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     customerMonthFilter === 'all'
-                      ? 'admin-btn-primary shadow-xs'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white'
                   }`}
                 >
@@ -1123,7 +1127,7 @@ export default function AdminDashboardPage() {
                   onClick={() => setCustomerMonthFilter('last3')}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     customerMonthFilter === 'last3'
-                      ? 'admin-btn-primary shadow-xs'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white'
                   }`}
                 >
@@ -1164,12 +1168,12 @@ export default function AdminDashboardPage() {
                     : customerTelemetry.monthlyData.length - 1;
                 const item = customerTelemetry.monthlyData[targetIndex] || customerTelemetry.currentMonthData;
                 return (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-200 text-xs shadow-2xs self-start sm:self-auto">
-                    <span className="font-bold text-indigo-800">{item.month}:</span>
-                    <span className="font-extrabold text-slate-900 font-mono">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white border-2 border-indigo-300 text-xs shadow-xs self-start sm:self-auto">
+                    <span className="font-black text-indigo-950">{item.month}:</span>
+                    <span className="font-black text-slate-900 font-mono">
                       {item.customers} Customers
                     </span>
-                    <span className="text-[11px] text-slate-600">
+                    <span className="text-[11px] font-bold text-indigo-900">
                       • {item.vips} VIPs ({item.growthRate} MoM)
                     </span>
                   </div>
@@ -1343,16 +1347,16 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* 5. CUSTOMER DIRECTORY & TELEMETRY (4 ITEMS PER PAGE WITH NUMBERED PAGINATION) */}
       {/* ========================================================================= */}
-      <div className="rounded-3xl bg-white border border-slate-200/90 overflow-hidden shadow-sm transition-all">
+      <div className="rounded-3xl bg-white border-2 border-emerald-200/90 overflow-hidden shadow-sm transition-all">
         {/* Table Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-slate-50/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
+        <div className="p-5 sm:p-6 border-b border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-teal-50/40 to-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
           <div>
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-emerald-600" />
-              <h2 className="font-poppins text-base sm:text-lg font-bold tracking-tight text-slate-900">
+              <h2 className="font-poppins text-base sm:text-lg font-black tracking-tight text-slate-900">
                 Customer Details
               </h2>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200">
+              <span className="text-xs font-black px-2.5 py-0.5 rounded-full border bg-white text-emerald-950 border-emerald-300 shadow-2xs">
                 {customers.length} Registered
               </span>
             </div>
@@ -1360,10 +1364,10 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/customers"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-400 active:scale-95 transition-all self-start sm:self-auto shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xs active:scale-95 transition-all self-start sm:self-auto border border-emerald-600/30"
           >
             <span>Open Customer Console</span>
-            <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />
+            <ChevronRight className="w-3.5 h-3.5 text-white" />
           </Link>
         </div>
 
@@ -1386,7 +1390,7 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={`mcust-${cust._id}`}
-                  className="p-4 rounded-2xl border border-slate-200/90 bg-white shadow-xs space-y-3"
+                  className="p-4 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/30 via-white to-slate-50/60 shadow-xs space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -1410,13 +1414,14 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    <Link
-                      href="/admin/customers"
-                      className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-xs inline-flex items-center gap-1 active:scale-95"
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCustomerDossier(cust)}
+                      className="text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white transition-all shadow-xs inline-flex items-center gap-1 active:scale-95 cursor-pointer border border-emerald-600/30"
                     >
                       <span>View</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </Link>
+                      <ChevronRight className="w-3 h-3 text-white" />
+                    </button>
                   </div>
 
                   {/* Customer Address Details */}
@@ -1456,7 +1461,7 @@ export default function AdminDashboardPage() {
         <div className="hidden md:block overflow-x-auto scrollbar-thin">
           <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
-              <tr className="border-b border-slate-200/80 bg-slate-50/90 text-[10px] uppercase tracking-wider font-bold text-slate-600">
+              <tr className="border-b border-emerald-200/80 bg-emerald-50/60 text-[10px] uppercase tracking-wider font-extrabold text-emerald-950">
                 <th className="py-3 px-4 sm:px-6">Customer</th>
                 <th className="py-3 px-4">Contact Channels</th>
                 <th className="py-3 px-4 min-w-[220px]">Address</th>
@@ -1588,13 +1593,14 @@ export default function AdminDashboardPage() {
                       </td>
 
                       <td className="py-3.5 px-4 sm:px-6 text-right">
-                        <Link
-                          href="/admin/customers"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-emerald-300/80 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 shadow-xs hover:shadow-sm active:scale-95 cursor-pointer"
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCustomerDossier(cust)}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xs hover:shadow-sm active:scale-95 cursor-pointer border border-emerald-600/30"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-3.5 h-3.5 text-white" />
                           <span>View</span>
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   );
@@ -1638,7 +1644,7 @@ export default function AdminDashboardPage() {
                   onClick={() => setCustomerPage(pageNum)}
                   className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer transition-all ${
                     customerPage === pageNum
-                      ? 'bg-emerald-600 text-white shadow-xs'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs border border-emerald-600/30'
                       : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                   }`}
                 >
@@ -1684,16 +1690,16 @@ export default function AdminDashboardPage() {
       {/* 6. RECENT CONSIGNMENTS LIVE ACTIVITY TABLE CONSOLE                        */}
       {/* ========================================================================= */}
       <div
-        className="overflow-hidden bg-white rounded-3xl border border-slate-200/90 shadow-sm transition-all"
+        className="overflow-hidden bg-white rounded-3xl border-2 border-emerald-200/90 shadow-sm transition-all"
       >
         {/* Table Header & Interactive Filter Controls */}
         <div
-          className="p-5 sm:p-6 border-b border-slate-200/80 bg-slate-50/80 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors"
+          className="p-5 sm:p-6 border-b border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-teal-50/40 to-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors"
         >
           <div>
-            <h2 className="font-poppins text-base font-bold tracking-tight flex items-center gap-2 text-slate-900">
+            <h2 className="font-poppins text-base font-black tracking-tight flex items-center gap-2 text-slate-900">
               <span>Recent Orders</span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200">
+              <span className="text-xs font-black px-2.5 py-0.5 rounded-full border bg-white text-emerald-950 border-emerald-300 shadow-2xs">
                 {recentOrders.length} latest orders
               </span>
             </h2>
@@ -1708,7 +1714,7 @@ export default function AdminDashboardPage() {
                 placeholder="Search orders or Customers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-8 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-600 w-full sm:w-60 font-poppins transition-all bg-white border border-slate-300 text-slate-900 placeholder-slate-400 font-medium shadow-xs"
+                className="pl-9 pr-8 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-600 w-full sm:w-60 font-poppins transition-all bg-white border border-slate-300 text-slate-900 placeholder-slate-400 font-semibold shadow-xs"
               />
               {searchTerm && (
                 <button
@@ -1721,15 +1727,15 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Status Filter */}
-            <div className="flex gap-1 p-1 rounded-xl text-xs font-medium border border-slate-200 bg-slate-50 overflow-x-auto shadow-xs">
+            <div className="flex gap-1 p-1 rounded-xl text-xs font-medium border border-slate-200 bg-white/90 overflow-x-auto shadow-xs">
               {['All', 'Pending', 'Processing', 'Delivered'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap text-xs ${
                     statusFilter === st
-                      ? 'bg-emerald-600 text-white font-extrabold shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 font-bold hover:bg-white'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs border border-emerald-600/30'
+                      : 'text-slate-700 hover:text-slate-900 font-bold hover:bg-slate-100'
                   }`}
                 >
                   {st}
@@ -1739,10 +1745,10 @@ export default function AdminDashboardPage() {
 
             <Link
               href="/admin/orders"
-              className="text-xs font-bold flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-all shadow-xs border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-400 active:scale-95 whitespace-nowrap"
+              className="text-xs font-bold flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-all shadow-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white active:scale-95 whitespace-nowrap border border-emerald-600/30"
             >
               <span>Manage All</span>
-              <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
+              <ArrowRight className="w-3.5 h-3.5 text-white" />
             </Link>
           </div>
         </div>
@@ -1764,7 +1770,7 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={`m-${ord._id}`}
-                  className="p-4 rounded-2xl border border-slate-200/90 bg-white shadow-xs space-y-3"
+                  className="p-4 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/30 via-white to-slate-50/60 shadow-xs space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -1818,13 +1824,14 @@ export default function AdminDashboardPage() {
                       <p className="font-poppins font-bold text-sm text-emerald-700">
                         {formatPrice(ord.totalPrice)}
                       </p>
-                      <Link
-                        href="/admin/orders"
-                        className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-300/80 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-xs mt-1 active:scale-95"
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInspectOrder(ord)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white transition-all shadow-xs mt-1 active:scale-95 cursor-pointer border border-emerald-600/30"
                       >
-                        <Eye className="w-3.5 h-3.5" />
+                        <Eye className="w-3.5 h-3.5 text-white" />
                         <span>Inspect</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1837,7 +1844,7 @@ export default function AdminDashboardPage() {
         <div className="hidden md:block overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs min-w-[950px]">
             <thead
-              className="uppercase tracking-wider font-bold border-b border-slate-200/80 bg-slate-50/90 text-[11px] text-slate-600"
+              className="uppercase tracking-wider font-extrabold border-b border-emerald-200/80 bg-emerald-50/60 text-[11px] text-emerald-950"
             >
               <tr>
                 <th className="p-4 pl-6">Order ID & Date</th>
@@ -2064,13 +2071,14 @@ export default function AdminDashboardPage() {
                       </td>
 
                       <td className="p-4 pr-6 text-right">
-                        <Link
-                          href="/admin/orders"
-                          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all shadow-xs border border-emerald-300/80 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 hover:shadow-sm active:scale-95"
+                        <button
+                          type="button"
+                          onClick={() => setSelectedInspectOrder(ord)}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all shadow-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white hover:shadow-sm active:scale-95 cursor-pointer border border-emerald-600/30"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-3.5 h-3.5 text-white" />
                           <span>Inspect</span>
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   );
@@ -2081,7 +2089,268 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-    
+      {/* ─── 7. DASHBOARD ORDER QUICK INSPECT MODAL (Dead-Centered on Viewport) ─── */}
+      {selectedInspectOrder && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+        >
+          {/* Backdrop Click Outside */}
+          <div
+            className="fixed inset-0"
+            onClick={() => setSelectedInspectOrder(null)}
+          />
+
+          <div
+            className="relative w-full max-w-2xl rounded-3xl bg-white border-2 border-emerald-300 shadow-2xl p-5 sm:p-7 text-slate-800 space-y-5 my-auto z-10 animate-in zoom-in-95 duration-200 overflow-hidden"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 font-poppins">
+                    Consignment #{selectedInspectOrder.orderNumber}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Placed on {formatDateTime(selectedInspectOrder.createdAt).full}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedInspectOrder(null)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Badges & Key Metadata */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Status</span>
+                <span className="font-bold text-xs text-emerald-800">{selectedInspectOrder.orderStatus}</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Payment</span>
+                <span className="font-bold text-xs text-slate-800">{selectedInspectOrder.paymentStatus || 'Paid'}</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Method</span>
+                <span className="font-bold text-xs text-slate-800">{selectedInspectOrder.paymentMethod || 'Prepaid'}</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
+                <span className="text-[10px] font-bold text-emerald-700 block uppercase">Total</span>
+                <span className="font-black text-sm text-emerald-950 font-poppins">{formatPrice(selectedInspectOrder.totalPrice)}</span>
+              </div>
+            </div>
+
+            {/* Customer & Shipping info */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-emerald-600" />
+                  <span>{selectedInspectOrder.shippingAddress?.fullName || selectedInspectOrder.user?.name || 'Customer'}</span>
+                </span>
+                {selectedInspectOrder.shippingAddress?.phone && (
+                  <span className="font-mono text-slate-600">Ph: +91 {selectedInspectOrder.shippingAddress.phone}</span>
+                )}
+              </div>
+              {selectedInspectOrder.shippingAddress && (
+                <div className="pt-2 border-t border-slate-200/80 flex items-start gap-1.5 text-slate-600">
+                  <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>
+                    {selectedInspectOrder.shippingAddress.address ? `${selectedInspectOrder.shippingAddress.address}, ` : ''}
+                    {selectedInspectOrder.shippingAddress.city}, {selectedInspectOrder.shippingAddress.state} - {selectedInspectOrder.shippingAddress.postalCode}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Ordered Flacons Items */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Consignment Flacons ({selectedInspectOrder.orderItems?.length || 0})
+              </h4>
+              <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
+                {selectedInspectOrder.orderItems?.map((item: any, idx: number) => (
+                  <div
+                    key={`item-${idx}`}
+                    className="p-3 rounded-xl border border-slate-200/80 bg-white flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Droplets className="w-5 h-5 text-emerald-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900">{item.name}</p>
+                        <p className="text-[11px] text-slate-500">
+                          Qty: {item.quantity || 1} {item.size ? `• ${item.size}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-bold text-emerald-700 font-mono">
+                      {formatPrice((item.price || 0) * (item.quantity || 1))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setSelectedInspectOrder(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-300 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+              <Link
+                href="/admin/orders"
+                onClick={() => setSelectedInspectOrder(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 transition-all shadow-xs flex items-center gap-1.5 border border-emerald-600/30"
+              >
+                <span>Manage in Orders Console</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 8. DASHBOARD CUSTOMER DOSSIER MODAL (Dead-Centered on Viewport) ─── */}
+      {selectedCustomerDossier && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+        >
+          {/* Backdrop Click Outside */}
+          <div
+            className="fixed inset-0"
+            onClick={() => setSelectedCustomerDossier(null)}
+          />
+
+          <div
+            className="relative w-full max-w-xl rounded-3xl bg-white border-2 border-emerald-300 shadow-2xl p-5 sm:p-7 text-slate-800 space-y-5 my-auto z-10 animate-in zoom-in-95 duration-200 overflow-hidden"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full border-2 border-emerald-300 bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-sm uppercase overflow-hidden shrink-0 shadow-xs">
+                  {selectedCustomerDossier.avatar && !selectedCustomerDossier.avatar.includes('unsplash') ? (
+                    <img src={selectedCustomerDossier.avatar} alt={selectedCustomerDossier.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{selectedCustomerDossier.name?.slice(0, 2).toUpperCase() || 'PT'}</span>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 font-poppins">
+                      {selectedCustomerDossier.title ? `${selectedCustomerDossier.title}. ` : ''}
+                      {selectedCustomerDossier.name || 'Registered Customer'}
+                    </h3>
+                    {(selectedCustomerDossier.totalSpent >= 5000 || selectedCustomerDossier.ordersCount >= 5) && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-amber-50 text-amber-800 border-amber-300">
+                        VIP
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono">
+                    ID: #{selectedCustomerDossier._id?.slice(-8).toUpperCase()}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedCustomerDossier(null)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Metrics Row */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Orders</span>
+                <span className="text-base font-black text-slate-900">{selectedCustomerDossier.ordersCount || 0}</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                <span className="text-[10px] font-bold text-emerald-700 uppercase block">Total Spent</span>
+                <span className="text-base font-black text-emerald-950 font-poppins">{formatPrice(selectedCustomerDossier.totalSpent || 0)}</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block">Registered</span>
+                <span className="text-xs font-bold text-slate-700">{formatDate(selectedCustomerDossier.createdAt)}</span>
+              </div>
+            </div>
+
+            {/* Contact Dossier */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+              <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider">Contact Channels</span>
+              <div className="flex items-center gap-2 text-slate-700">
+                <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>{selectedCustomerDossier.email || 'No email provided'}</span>
+              </div>
+              {selectedCustomerDossier.phone && (
+                <div className="flex items-center gap-2 text-slate-700">
+                  <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>+91 {selectedCustomerDossier.phone}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Address */}
+            {(() => {
+              const addr = selectedCustomerDossier.latestShippingAddress || (selectedCustomerDossier.addresses && selectedCustomerDossier.addresses[0]);
+              if (!addr) return null;
+              return (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1 text-xs">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider">Shipping Address</span>
+                  <div className="flex items-start gap-2 text-slate-700">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>
+                      {addr.street || addr.address ? `${addr.street || addr.address}, ` : ''}
+                      {addr.city}{addr.state ? `, ${addr.state}` : ''}{addr.postalCode ? ` - ${addr.postalCode}` : ''}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Modal Actions Footer */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setSelectedCustomerDossier(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-300 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+              <Link
+                href="/admin/customers"
+                onClick={() => setSelectedCustomerDossier(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 transition-all shadow-xs flex items-center gap-1.5 border border-emerald-600/30"
+              >
+                <span>View Full History</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

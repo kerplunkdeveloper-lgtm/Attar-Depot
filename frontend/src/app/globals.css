@@ -658,10 +658,10 @@ aside.admin-sidebar .admin-nav-inactive:hover {
 /* Unified Admin Common Buttons & System Styles */
 .admin-light-mode .admin-btn-primary,
 .admin-btn-primary {
-  background-color: #059669 !important;
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
   color: #FFFFFF !important;
   border: 1px solid rgba(5, 150, 105, 0.4) !important;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 4px 0 rgba(5, 150, 105, 0.15) !important;
   font-weight: 700 !important;
   border-radius: 0.75rem !important;
   transition: all 0.2s ease !important;
@@ -669,8 +669,9 @@ aside.admin-sidebar .admin-nav-inactive:hover {
 
 .admin-light-mode .admin-btn-primary:hover,
 .admin-btn-primary:hover {
-  background-color: #047857 !important;
+  background: linear-gradient(135deg, #047857 0%, #0f766e 100%) !important;
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+  color: #FFFFFF !important;
 }
 
 .admin-light-mode .admin-btn-secondary,
@@ -968,3 +969,25 @@ nav button:active {
   }
 }
 
+/* ========================================================================= */
+/* ADMIN MODAL FULL-VIEWPORT CENTERING & HEADER AUTO-HIDE                   */
+/* ========================================================================= */
+body:has([data-admin-modal="true"]) header.admin-header,
+body:has([role="dialog"]) header.admin-header {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-100%) !important;
+  margin-bottom: -4rem !important;
+  border-bottom: none !important;
+  visibility: hidden !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body:has([data-admin-modal="true"]) nav[aria-label="Mobile Navigation"],
+body:has([role="dialog"]) nav[aria-label="Mobile Navigation"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(100%) !important;
+  visibility: hidden !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}

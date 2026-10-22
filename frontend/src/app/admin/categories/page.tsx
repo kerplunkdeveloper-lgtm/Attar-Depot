@@ -16,8 +16,6 @@ import {
   ChevronRight,
   Calendar,
   ExternalLink,
-  LayoutGrid,
-  List,
   ArrowUpDown,
   AlertTriangle,
   RotateCcw,
@@ -58,7 +56,6 @@ import { useAdminTheme } from '@/context/AdminThemeContext';
 type TabType = 'categories' | 'collections' | 'notes' | 'occasions' | 'preview';
 type StatusFilter = 'all' | 'featured';
 type SortOption = 'name-asc' | 'name-desc' | 'most-products' | 'newest' | 'oldest';
-type ViewMode = 'grid' | 'table';
 
 // Auto-slugify helper
 const slugify = (text: string) =>
@@ -77,9 +74,7 @@ export default function AdminCatalogTaxonomyPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedNoteFamily, setSelectedNoteFamily] = useState('All');
 
   // Modals state
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -117,15 +112,6 @@ export default function AdminCatalogTaxonomyPage() {
   const collections = taxonomyData?.collections || [];
   const notes = taxonomyData?.notes || [];
   const occasions = taxonomyData?.occasions || [];
-
-  // Note Families extracted dynamically from database notes
-  const dynamicNoteFamilies = useMemo(() => {
-    const familiesSet = new Set<string>();
-    notes.forEach((n) => {
-      if (n.family && n.family.trim()) familiesSet.add(n.family.trim());
-    });
-    return ['All', ...Array.from(familiesSet)];
-  }, [notes]);
 
   // Mutations: Categories
   const createCatMutation = useAdminCreateCategory();
@@ -168,8 +154,6 @@ export default function AdminCatalogTaxonomyPage() {
 
   const [noteForm, setNoteForm] = useState({
     name: '',
-    family: 'Woody',
-    description: '',
     isActive: true,
   });
 
@@ -407,8 +391,6 @@ export default function AdminCatalogTaxonomyPage() {
     setEditingNote(null);
     setNoteForm({
       name: '',
-      family: selectedNoteFamily !== 'All' ? selectedNoteFamily : 'Woody',
-      description: '',
       isActive: true,
     });
     setIsNoteModalOpen(true);
@@ -418,17 +400,31 @@ export default function AdminCatalogTaxonomyPage() {
     setEditingNote(note);
     setNoteForm({
       name: note.name || '',
-      family: note.family || 'Woody',
-      description: note.description || '',
       isActive: note.isActive !== false,
     });
     setIsNoteModalOpen(true);
   };
 
+  // Check if note name already exists in database
+  const isDuplicateNoteName = useMemo(() => {
+    const trimmed = noteForm.name.trim().toLowerCase();
+    if (!trimmed) return false;
+    return (taxonomyData?.notes || []).some((n) => {
+      if (editingNote && n._id === editingNote._id) return false;
+      return n.name.trim().toLowerCase() === trimmed;
+    });
+  }, [noteForm.name, taxonomyData?.notes, editingNote]);
+
   const handleSaveNote = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!noteForm.name.trim()) {
+    const trimmed = noteForm.name.trim();
+    if (!trimmed) {
       toast.error('Note name is required');
+      return;
+    }
+
+    if (isDuplicateNoteName) {
+      toast.error(`Already name available! Fragrance note "${trimmed}" already exists in database.`);
       return;
     }
 
@@ -436,12 +432,12 @@ export default function AdminCatalogTaxonomyPage() {
       if (editingNote) {
         await updateNoteMutation.mutateAsync({
           id: editingNote._id,
-          data: noteForm,
+          data: { ...noteForm, name: trimmed },
         });
-        toast.success(`Fragrance note "${noteForm.name}" updated!`);
+        toast.success(`Fragrance note "${trimmed}" updated!`);
       } else {
-        await createNoteMutation.mutateAsync(noteForm);
-        toast.success(`Fragrance note "${noteForm.name}" created!`);
+        await createNoteMutation.mutateAsync({ ...noteForm, name: trimmed });
+        toast.success(`Fragrance note "${trimmed}" created!`);
       }
       setIsNoteModalOpen(false);
       setEditingNote(null);
@@ -531,16 +527,10 @@ export default function AdminCatalogTaxonomyPage() {
   }, [collections, searchTerm]);
 
   const filteredNotes = useMemo(() => {
-    return notes.filter((n) => {
-      const matchesSearch =
-        n.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (n.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (n.family || '').toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFamily =
-        selectedNoteFamily === 'All' || n.family === selectedNoteFamily;
-      return matchesSearch && matchesFamily;
-    });
-  }, [notes, searchTerm, selectedNoteFamily]);
+    return notes.filter((n) =>
+      n.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [notes, searchTerm]);
 
   const filteredOccasions = useMemo(() => {
     return occasions.filter(
@@ -893,63 +883,10 @@ export default function AdminCatalogTaxonomyPage() {
                     <option value="oldest">Oldest First</option>
                   </select>
                 </div>
-
-                {/* Grid / Table View Mode Switcher */}
-                <div
-                  className={`flex items-center p-1 rounded-xl border ${
-                    isLight ? 'bg-white border-slate-200' : 'bg-[#0E1715] border-[#1E332B]'
-                  }`}
-                >
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                      viewMode === 'grid'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : isLight
-                        ? 'text-slate-400 hover:text-slate-800'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
-                    title="Grid Card View"
-                  >
-                    <LayoutGrid className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('table')}
-                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                      viewMode === 'table'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : isLight
-                        ? 'text-slate-400 hover:text-slate-800'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
-                    title="Table List View"
-                  >
-                    <List className="w-3.5 h-3.5" />
-                  </button>
-                </div>
               </div>
             )}
 
-            {/* If on Notes Tab: Dynamic Family Filter Pills */}
-            {activeTab === 'notes' && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-                {dynamicNoteFamilies.map((fam) => (
-                  <button
-                    key={fam}
-                    onClick={() => setSelectedNoteFamily(fam)}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      selectedNoteFamily === fam
-                        ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold shadow-sm shadow-emerald-700/25 ring-1 ring-emerald-500/40'
-                        : isLight
-                        ? 'bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 hover:text-slate-950 font-bold shadow-xs'
-                        : 'bg-[#0D1815] border border-[#1E332B] text-neutral-300 hover:text-white'
-                    }`}
-                  >
-                    {fam}
-                  </button>
-                ))}
-              </div>
-            )}
+
           </div>
 
           {/* Bulk Actions Floating Bar for Categories */}
@@ -1060,134 +997,6 @@ export default function AdminCatalogTaxonomyPage() {
                   </button>
                 )}
               </div>
-            </div>
-          ) : viewMode === 'grid' ? (
-            /* ── GRID CARD VIEW ── */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredCategories.map((cat) => {
-                const isSelected = selectedCategoryIds.includes(cat._id);
-                return (
-                  <div
-                    key={cat._id}
-                    className={`rounded-2xl overflow-hidden border relative flex flex-col justify-between min-h-[380px] shadow-2xl transition-all duration-300 group ${
-                      isSelected
-                        ? 'ring-2 ring-emerald-500 border-emerald-500'
-                        : isLight
-                        ? 'border-slate-300/80 hover:border-emerald-500/60 shadow-slate-200/60'
-                        : 'border-[#1E332B] hover:border-emerald-500/50'
-                    }`}
-                  >
-                    {/* Full Card Background Image */}
-                    {cat.image ? (
-                      <Image
-                        src={cat.image}
-                        alt={cat.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0B1A16] via-[#04332A] to-[#0A1210] text-neutral-400">
-                        <Layers className="w-16 h-16 text-emerald-400/30 mb-2" />
-                        <span className="text-xs uppercase font-mono tracking-wider text-emerald-300/60">
-                          No Image Set
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Gradient Overlay for Legibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/30 pointer-events-none transition-opacity duration-300 group-hover:opacity-90" />
-
-                    {/* Top Row: Checkbox, Slug & Featured Badge */}
-                    <div className="relative z-10 p-3.5 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {/* Checkbox */}
-                        <button
-                          onClick={() => handleToggleSelectCategory(cat._id)}
-                          className="p-1.5 rounded-xl bg-black/80 backdrop-blur-md text-slate-50 hover:bg-black transition-all cursor-pointer border border-white/25 shadow-md"
-                          title={isSelected ? 'Deselect' : 'Select'}
-                        >
-                          {isSelected ? (
-                            <CheckSquare className="w-4 h-4 text-emerald-400" />
-                          ) : (
-                            <Square className="w-4 h-4 text-white" />
-                          )}
-                        </button>
-
-                        {/* Slug badge */}
-                        <span className="text-[11px] font-mono bg-black/80 border border-white/25 px-2.5 py-1 rounded-full text-emerald-300 font-bold backdrop-blur-md shadow-md">
-                          /{cat.slug}
-                        </span>
-                      </div>
-
-                      {/* Quick Featured Toggle Button */}
-                      <button
-                        onClick={() => handleToggleFeatured(cat)}
-                        className={`text-[11px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg transition-all cursor-pointer backdrop-blur-md border ${
-                          cat.featured
-                            ? 'bg-amber-400 text-neutral-950 border-amber-300 ring-2 ring-amber-400/40'
-                            : 'bg-black/80 text-neutral-200 border-white/25 hover:text-amber-300 hover:border-amber-300/50'
-                        }`}
-                        title="Click to toggle featured"
-                      >
-                        <Star className={`w-3.5 h-3.5 ${cat.featured ? 'fill-neutral-950 text-neutral-950' : 'text-neutral-300'}`} />
-                        <span>{cat.featured ? 'Featured' : 'Standard'}</span>
-                      </button>
-                    </div>
-
-                    {/* Bottom Content & Controls (Overlaid) */}
-                    <div className="relative z-10 p-4 space-y-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-14">
-                      <div>
-                        <div className="flex items-center justify-between gap-2">
-                          <h3
-                            className="category-card-title font-serif text-xl sm:text-xl font-black !text-yellow-400 text-yellow-400 tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,1)]"
-                            style={{ color: '#FACC15' }}
-                          >
-                            {cat.name}
-                          </h3>
-
-                          {/* Dynamic Products Count Badge */}
-                          <Link
-                            href={`/admin/products?category=${cat.slug}`}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 shadow-md backdrop-blur-md hover:bg-emerald-900 transition-colors flex-shrink-0"
-                            title="View products in this category"
-                          >
-                            <Package className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>{cat.productCount || 0} Products</span>
-                          </Link>
-                        </div>
-
-                        {/* Description */}
-                        {cat.description && (
-                          <p className="text-xs text-neutral-200 mt-1.5 line-clamp-2 leading-relaxed drop-shadow-sm font-medium">
-                            {cat.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Card Footer: Actions */}
-                      <div className="pt-3 border-t border-white/20 flex justify-end items-center text-xs">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleOpenEditCategory(cat)}
-                            className="p-2 rounded-xl bg-white text-slate-900 hover:bg-emerald-500 hover:text-white transition-all shadow-md cursor-pointer flex items-center justify-center border border-white"
-                            title="Edit category"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleInitiateDeleteCategory(cat)}
-                            className="p-2 rounded-xl bg-rose-600 text-white hover:bg-rose-500 transition-all shadow-md cursor-pointer flex items-center justify-center border border-rose-500"
-                            title="Delete category"
-                          >
-                            <Trash2 className="w-4 h-4 text-white" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           ) : (
             /* ── HIGH-DENSITY TABLE VIEW ── */
@@ -1556,13 +1365,14 @@ export default function AdminCatalogTaxonomyPage() {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      {note.family || 'Fragrance Note'}
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      Fragrance Note
                     </span>
                     <span
                       className={`w-2 h-2 rounded-full ${
                         note.isActive !== false ? 'bg-emerald-400' : 'bg-neutral-600'
                       }`}
+                      title={note.isActive !== false ? 'Active' : 'Inactive'}
                     />
                   </div>
                   <h4
@@ -1572,17 +1382,6 @@ export default function AdminCatalogTaxonomyPage() {
                   >
                     {note.name}
                   </h4>
-                  <p
-                    className={`text-xs mt-1 line-clamp-2 ${
-                      note.description
-                        ? isLight
-                          ? 'text-slate-500'
-                          : 'text-neutral-400'
-                        : 'text-neutral-500 italic'
-                    }`}
-                  >
-                    {note.description || 'No description provided.'}
-                  </p>
                 </div>
 
                 <div
@@ -1827,7 +1626,6 @@ export default function AdminCatalogTaxonomyPage() {
                       className="text-xs text-neutral-600 font-medium leading-relaxed flex items-center justify-between"
                     >
                       <span>{note.name}</span>
-                      <span className="text-[9px] text-neutral-400">{note.family}</span>
                     </div>
                   ))
                 )}
@@ -1871,7 +1669,12 @@ export default function AdminCatalogTaxonomyPage() {
       {/* 10. MODAL: CREATE / EDIT CATEGORY                             */}
       {/* ───────────────────────────────────────────────────────────── */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div
             className={`border rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden my-auto ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#0A1210] border-[#1E332B] text-white'
@@ -2035,7 +1838,12 @@ export default function AdminCatalogTaxonomyPage() {
       {/* SAFE DELETE CONFIRMATION MODAL                                */}
       {/* ───────────────────────────────────────────────────────────── */}
       {isDeleteModalOpen && categoryToDelete && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-4 flex items-center justify-center animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-4 flex items-center justify-center animate-in fade-in duration-200"
+        >
           <div
             className={`border rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#0A1210] border-[#1E332B] text-white'
@@ -2106,7 +1914,12 @@ export default function AdminCatalogTaxonomyPage() {
       {/* MODAL: CREATE / EDIT COLLECTION                               */}
       {/* ───────────────────────────────────────────────────────────── */}
       {isCollectionModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div
             className={`border rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden my-auto ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#0A1210] border-[#1E332B] text-white'
@@ -2243,7 +2056,12 @@ export default function AdminCatalogTaxonomyPage() {
       {/* MODAL: CREATE / EDIT FRAGRANCE NOTE                           */}
       {/* ───────────────────────────────────────────────────────────── */}
       {isNoteModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div
             className={`border rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden my-auto ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#0A1210] border-[#1E332B] text-white'
@@ -2256,7 +2074,7 @@ export default function AdminCatalogTaxonomyPage() {
             >
               <h2 className="font-serif text-sm font-bold uppercase tracking-wider flex items-center gap-2">
                 <Droplets className="w-4 h-4 text-teal-400" />
-                <span>{editingNote ? 'Edit Fragrance Note' : 'New Olfactory Note'}</span>
+                <span>{editingNote ? 'Edit Notes' : 'New  Notes'}</span>
               </h2>
               <button
                 onClick={() => setIsNoteModalOpen(false)}
@@ -2270,50 +2088,37 @@ export default function AdminCatalogTaxonomyPage() {
 
             <form onSubmit={handleSaveNote} className="flex flex-col flex-1 overflow-hidden">
               <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs flex-1">
-                <div className="space-y-1">
-                  <label className="block font-bold uppercase tracking-wider text-[10px]">
-                    Note Name <span className="text-rose-400">*</span>
-                  </label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold uppercase tracking-wider text-[10px]">
+                      Note Name <span className="text-rose-400">*</span>
+                    </label>
+                    {isDuplicateNoteName && (
+                      <span className="text-[11px] font-semibold text-rose-500 flex items-center gap-1 animate-pulse">
+                        <AlertTriangle className="w-3.5 h-3.5" /> Already name available
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     required
                     value={noteForm.name}
                     onChange={(e) => setNoteForm({ ...noteForm, name: e.target.value })}
                     placeholder="e.g. Taif Rose, Mysore Sandalwood, Agarwood"
-                    className={`w-full border rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 font-medium ${
-                      isLight ? 'bg-slate-50 border-slate-200 text-slate-900' : 'bg-[#070D0B] border-[#1E332B] text-white'
+                    className={`w-full border rounded-xl px-3.5 py-2.5 focus:outline-none font-medium transition-all ${
+                      isDuplicateNoteName
+                        ? 'border-rose-500/80 bg-rose-500/5 focus:border-rose-500 ring-2 ring-rose-500/20 text-rose-200'
+                        : isLight
+                        ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-500'
+                        : 'bg-[#070D0B] border-[#1E332B] text-white focus:border-emerald-500'
                     }`}
                   />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-bold uppercase tracking-wider text-[10px]">
-                    Olfactory Family
-                  </label>
-                  <input
-                    type="text"
-                    value={noteForm.family}
-                    onChange={(e) => setNoteForm({ ...noteForm, family: e.target.value })}
-                    placeholder="e.g. Woody, Floral, Amber / Oriental"
-                    className={`w-full border rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 font-medium ${
-                      isLight ? 'bg-slate-50 border-slate-200 text-slate-900' : 'bg-[#070D0B] border-[#1E332B] text-white'
-                    }`}
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-bold uppercase tracking-wider text-[10px]">
-                    Description / Profile
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={noteForm.description}
-                    onChange={(e) => setNoteForm({ ...noteForm, description: e.target.value })}
-                    placeholder="Sensory facets, distillation origin, or projection impact..."
-                    className={`w-full border rounded-xl p-3 focus:outline-none focus:border-emerald-500 font-medium leading-relaxed ${
-                      isLight ? 'bg-slate-50 border-slate-200 text-slate-900' : 'bg-[#070D0B] border-[#1E332B] text-white'
-                    }`}
-                  />
+                  {isDuplicateNoteName && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold animate-in fade-in slide-in-from-top-1">
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-500" />
+                      <span>Already name available! A fragrance note with this name already exists in database.</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">
@@ -2346,11 +2151,13 @@ export default function AdminCatalogTaxonomyPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={createNoteMutation.isPending || updateNoteMutation.isPending}
-                  className="btn-emerald px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs text-white disabled:opacity-50 cursor-pointer"
+                  disabled={createNoteMutation.isPending || updateNoteMutation.isPending || isDuplicateNoteName}
+                  className="btn-emerald px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {createNoteMutation.isPending || updateNoteMutation.isPending
                     ? 'Saving...'
+                    : isDuplicateNoteName
+                    ? 'Already Name Available'
                     : editingNote
                     ? 'Update Note'
                     : 'Add Note'}
@@ -2365,7 +2172,12 @@ export default function AdminCatalogTaxonomyPage() {
       {/* MODAL: CREATE / EDIT OCCASION                                 */}
       {/* ───────────────────────────────────────────────────────────── */}
       {isOccasionModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-admin-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center animate-in fade-in duration-200 overflow-y-auto"
+        >
           <div
             className={`border rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden my-auto ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#0A1210] border-[#1E332B] text-white'

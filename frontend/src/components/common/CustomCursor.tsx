@@ -1,8 +1,12 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function CustomCursor() {
+  const pathname = usePathname();
+  const isAdminRoute = Boolean(pathname?.startsWith('/admin'));
+
   const [mounted, setMounted] = useState(false);
   const [isPointerFine, setIsPointerFine] = useState(false);
   const [cursorState, setCursorState] = useState<'default' | 'hover' | 'text' | 'click'>('default');
@@ -19,6 +23,12 @@ export default function CustomCursor() {
   useEffect(() => {
     setMounted(true);
 
+    // If on admin routes (admin login, admin dashboard, etc.), completely disable custom cursor
+    if (isAdminRoute) {
+      document.documentElement.classList.remove('custom-cursor-active');
+      return;
+    }
+
     // Only enable custom cursor on devices with fine pointer (mouse/trackpad), NEVER on touchscreens
     const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     setIsPointerFine(hasFinePointer);
@@ -30,7 +40,7 @@ export default function CustomCursor() {
 
     const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
 
       // Instantly position the inner point for zero latency
       if (dotRef.current) {
@@ -97,11 +107,14 @@ export default function CustomCursor() {
       window.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
-      if (rafId.current) cancelAnimationFrame(rafId.current);
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
     };
-  }, [isVisible]);
+  }, [isAdminRoute]);
 
-  if (!mounted || !isPointerFine) {
+  if (!mounted || !isPointerFine || isAdminRoute) {
     return null;
   }
 
