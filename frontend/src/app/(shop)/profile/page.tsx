@@ -115,8 +115,8 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const { user: authUser, isAuthenticated } = useAppSelector((state) => state.auth);
 
-  // Active view tab: on desktop, left is profile, right toggles addresses / orders. On mobile, all 3 tabs are selectable.
-  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'orders'>('addresses');
+  // Active view tab: on desktop, left is profile, right toggles addresses / orders. On mobile, default to 'profile' tab.
+  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'orders'>('profile');
 
   // React Query Hooks
   const { data: profileUser, isLoading: isProfileLoading } = useProfile(isAuthenticated);

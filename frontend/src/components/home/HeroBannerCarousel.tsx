@@ -89,8 +89,8 @@ export default function HeroBannerCarousel() {
     ? currentIndex === 0
       ? realCount - 1
       : currentIndex === realCount + 1
-      ? 0
-      : currentIndex - 1
+        ? 0
+        : currentIndex - 1
     : 0;
 
   // Move to next slide

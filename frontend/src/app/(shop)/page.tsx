@@ -462,14 +462,14 @@ export default function HomePage() {
 
       {/* 4. Gifting Collection Banner */}
       <motion.section 
-        className="w-full relative px-2 sm:px-4 lg:px-6 max-w-8xl mx-auto"
+        className="w-full relative"
         initial={{ opacity: 0, y: 30, scale: 0.985 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.8, ease: luxuryEase }}
       >
         <Link href="/gifting" className="block w-full cursor-pointer group">
-          <div className="w-full relative bg-[#0A1917] overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg group-hover:shadow-[0_16px_45px_rgba(1,37,32,0.25)] border border-amber-900/25 group-hover:border-[#F5B418]/50 transition-all duration-700">
+          <div className="w-full relative bg-[#0A1917] overflow-hidden shadow-lg group-hover:shadow-[0_16px_45px_rgba(1,37,32,0.25)] border-y border-amber-900/25 group-hover:border-[#F5B418]/50 transition-all duration-700">
             <Image 
               src="/images/gifthomenew.png" 
               alt="Attar Gifting Collection" 

@@ -133,7 +133,9 @@ export default function Preloader() {
       ? 28 - ((progress - 65) / 20) * 14 // 28% -> 14%
       : Math.max(3, 14 - ((progress - 85) / 10) * 11); // 14% -> 3% (tapers to apex point)
 
-  const meniscusLeftPercent = 50 - meniscusWidthPercent / 2;
+  // In the 1690x931 brand master asset, the flame icon is centered at x=760px (44.97% from left).
+  // Centering the dynamic meniscus wave precisely over the flame silhouette:
+  const meniscusLeftPercent = 44.97 - meniscusWidthPercent / 2;
 
   // Gracefully dissolve the meniscus beam as it reaches the apex so no horizontal line or box lid appears at the end
   const meniscusOpacity =
@@ -183,14 +185,14 @@ export default function Preloader() {
               className="absolute inset-0"
               style={{
                 background:
-                  'radial-gradient(ellipse at 50% 48%, rgba(1, 26, 19, 0.40) 0%, rgba(0, 15, 11, 0.60) 60%, rgba(0, 8, 6, 0.85) 100%)',
+                  'radial-gradient(ellipse at 50% 50%, rgba(1, 26, 19, 0.35) 0%, rgba(0, 15, 11, 0.55) 60%, rgba(0, 8, 6, 0.85) 100%)',
               }}
             />
           </div>
 
-          {/* Central Backlight Golden Corona behind the Logo */}
+          {/* Central Backlight Golden Corona behind the Flame Emblem */}
           <div
-            className="absolute top-[48%] left-1/2 w-[300px] h-[260px] sm:w-[420px] sm:h-[320px] md:w-[500px] md:h-[380px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,180,24,0.22)_0%,rgba(4,106,90,0.12)_50%,transparent_72%)] blur-3xl pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] h-[200px] sm:w-[320px] sm:h-[260px] md:w-[400px] md:h-[320px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,180,24,0.25)_0%,rgba(4,106,90,0.14)_50%,transparent_72%)] blur-3xl pointer-events-none"
             style={{
               animation: prefersReducedMotion ? 'none' : 'auraBreathe 3.2s ease-in-out infinite',
               willChange: 'transform, opacity',
@@ -201,8 +203,16 @@ export default function Preloader() {
           {/* 2. LOGO: STATIC GOLD BRAND TEXT + SPECIFIC ICON LIQUID FILL   */}
           {/* ============================================================== */}
           <div className="relative z-10 flex flex-col items-center justify-center px-4 sm:px-6 w-full">
-            {/* Logo Container with exact aspect ratio of the brand master logo (1690 x 931) */}
-            <div className="relative w-[280px] min-[400px]:w-[330px] sm:w-[390px] md:w-[450px] lg:w-[490px] max-w-[92vw] aspect-[1690/931] flex items-center justify-center">
+            {/* Logo Container calibrated for all devices:
+                In the master 1690x931 canvas, the flame is at x=760px (44.97% of width).
+                Translating by +5.03% places the flame emblem at EXACT 50.0vw (dead center)
+                on all screens, aligning directly with the arch apex and "Loading..." text,
+                while the responsive width guarantees it fits comfortably within the arch
+                with ample breathing room from the gold filigree pillars on all devices. */}
+            <div
+              className="relative w-[220px] min-[400px]:w-[250px] sm:w-[280px] md:w-[320px] lg:w-[350px] max-w-[85vw] aspect-[1690/931] flex items-center justify-center"
+              style={{ transform: 'translateX(5.03%)' }}
+            >
               
               {/* ------------------------------------------------------------ */}
               {/* STATIC GOLD BRAND TEXT: "THE" (Left) and "ATTAR DEPOT" (Right) */}
@@ -290,23 +300,18 @@ export default function Preloader() {
             {/* ============================================================== */}
             {/* 3. LUXURY "LOADING..." & PROGRESS BAR UX (MATCHING REF IMAGE)  */}
             {/* ============================================================== */}
-            <div className="mt-8 sm:mt-10 flex flex-col items-center justify-center space-y-3">
+            <div className="mt-6 sm:mt-8 flex flex-col items-center justify-center space-y-3">
               {/* Elegant Serif "Loading..." with Smooth Staggered Trailing Dots */}
-              <div className="flex items-baseline space-x-1 font-serif text-base sm:text-lg tracking-[0.25em] text-[#FAF8F2]">
+              <div className="flex items-baseline space-x-1 font-serif text-sm sm:text-base md:text-lg tracking-[0.25em] text-[#FAF8F2]">
                 <span className="font-semibold tracking-[0.22em] uppercase bg-gradient-to-r from-[#FFF8D1] via-[#F5B418] to-[#D4AF37] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(245,180,24,0.3)]">
                   Loading
                 </span>
-                <span className="inline-flex tracking-[0.1em] text-[#F5B418] font-bold text-lg select-none">
+                <span className="inline-flex tracking-[0.1em] text-[#F5B418] font-bold text-base sm:text-lg select-none">
                   <span className="animate-dot-1">.</span>
                   <span className="animate-dot-2">.</span>
                   <span className="animate-dot-3">.</span>
                 </span>
               </div>
-
-
-
-
-
             </div>
           </div>
         </motion.div>

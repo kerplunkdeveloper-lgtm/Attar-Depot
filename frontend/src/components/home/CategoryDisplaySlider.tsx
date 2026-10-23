@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ArrowRight,
   Sparkles,
-  Droplets,
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 
@@ -23,10 +22,10 @@ function CategoryCardItem({ cat, priority = false }: { cat: any; priority?: bool
   );
 
   return (
-    <div className="w-[310px] xs:w-[350px] sm:w-[420px] md:w-[460px] lg:w-[500px] xl:w-[540px] flex-shrink-0 snap-start flex flex-col group/card select-none">
+    <div className="w-full min-w-full sm:min-w-0 sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] flex-shrink-0 snap-center sm:snap-start flex flex-col group/card select-none">
       <Link
         href={`/shop?category=${cat.slug || cat._id}`}
-        className="block relative w-full h-[370px] xs:h-[390px] sm:h-[420px] md:h-[440px] lg:h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 hover:border-[#F5B418] shadow-md hover:shadow-[0_20px_40px_rgba(1,37,32,0.25)] transition-all duration-500 bg-[#0A1917]"
+        className="block relative w-full h-[400px] min-[400px]:h-[430px] sm:h-[430px] lg:h-[460px] xl:h-[480px] rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 hover:border-[#F5B418] shadow-md hover:shadow-[0_16px_36px_rgba(1,37,32,0.2)] transition-all duration-300 bg-[#0A1917]"
       >
         {/* Crystal Clear Category Background Image */}
         {hasValidImage ? (
@@ -37,26 +36,23 @@ function CategoryCardItem({ cat, priority = false }: { cat: any; priority?: bool
             unoptimized
             priority={priority}
             onError={() => setImgError(true)}
-            sizes="(max-width: 640px) 360px, (max-width: 1024px) 500px, 600px"
-            className="object-cover object-center contrast-[1.03] brightness-[1.02] group-hover/card:scale-105 transition-transform duration-700 ease-out"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover object-center group-hover/card:scale-105 transition-transform duration-700 ease-out"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#012520] via-[#08302A] to-[#0A1917] flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#F5B418]/15 border border-[#F5B418]/30 flex items-center justify-center mb-3 group-hover/card:scale-110 transition-transform duration-500">
-              <Droplets className="w-8 h-8 text-[#F5B418]" />
-            </div>
+          <div className="absolute inset-0 bg-[#0A1917] flex flex-col items-center justify-center p-6 text-center">
             <span className="font-serif text-3xl font-light tracking-widest text-[#F5B418]/60 uppercase select-none">
               {cat.name.charAt(0)}
             </span>
           </div>
         )}
 
-        {/* Minimal Bottom Gradient - Leaves 75% of the image bright and clear */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 via-28% to-transparent pointer-events-none" />
+        {/* Minimal Bottom Gradient - Leaves 70% of the image bright and clear */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 via-32% to-transparent pointer-events-none" />
 
         {/* Top Badge (if featured) */}
         {cat.featured && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute top-3.5 left-3.5 z-10">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-[#F5B418]/50 text-[10px] font-bold uppercase tracking-widest text-[#F5B418] shadow-sm">
               <Sparkles className="w-2.5 h-2.5 text-[#F5B418]" />
               <span>Featured</span>
@@ -66,7 +62,7 @@ function CategoryCardItem({ cat, priority = false }: { cat: any; priority?: bool
 
         {/* Bottom Content Area - Crisp typography with high contrast */}
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end z-10 text-white space-y-1.5">
-          <h3 className="font-serif text-xl sm:text-2xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <h3 className="font-serif text-lg sm:text-xl lg:text-2xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             {cat.name}
           </h3>
 
@@ -143,7 +139,7 @@ export default function CategoryDisplaySlider() {
     const el = sliderRef.current;
     const { scrollLeft, scrollWidth, clientWidth } = el;
     const card = el.querySelector('.group\\/card') as HTMLElement | null;
-    const scrollAmount = card ? card.offsetWidth + 24 : clientWidth * 0.75;
+    const scrollAmount = card ? card.offsetWidth + 24 : clientWidth;
 
     if (direction === 'right') {
       if (scrollLeft >= scrollWidth - clientWidth - 25) {
@@ -160,7 +156,7 @@ export default function CategoryDisplaySlider() {
     }
   };
 
-  // Subtle luxury Auto-Scroll Loop (every 4s, pauses on hover or touch)
+  // Subtle luxury Auto-Scroll Loop (every 4.2s, pauses on hover or touch)
   useEffect(() => {
     if (isPaused || categories.length <= 1) return;
 
@@ -170,7 +166,7 @@ export default function CategoryDisplaySlider() {
       if (!el) return;
 
       const card = el.querySelector('.group\\/card') as HTMLElement | null;
-      const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.75;
+      const step = card ? card.offsetWidth + 24 : el.clientWidth;
 
       if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 25) {
         el.scrollTo({ left: 0, behavior: 'smooth' });
@@ -199,15 +195,6 @@ export default function CategoryDisplaySlider() {
 
         {/* Right Side Header Controls */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          {/* Quick "View All" Pill */}
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-emerald-950 hover:text-emerald-700 uppercase tracking-wider py-1.5 sm:py-2 px-3 sm:px-4 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all shadow-xs"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#C9A227]" />
-          </Link>
-
           {/* Slider Arrow Controls in Header */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
@@ -241,45 +228,43 @@ export default function CategoryDisplaySlider() {
       </div>
 
       {/* ========================================================================= */}
-      {/* HIGH-END LUXURY CATEGORY SLIDER WITH RIGHT-SIDE ARROW ICON                */}
+      {/* HIGH-END LUXURY CATEGORY SLIDER: 3 ON DESKTOP, 1 ON MOBILE                */}
       {/* ========================================================================= */}
       <div
-        className="relative group/carousel -mx-4 sm:mx-0"
+        className="relative group/carousel"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => pauseTemporarily(5000)}
         onTouchEnd={() => pauseTemporarily(3000)}
       >
-        {/* Soft Edge Fade Gradient Masks */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-white via-white/70 to-transparent z-20" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-white via-white/70 to-transparent z-20" />
-
-        {/* Left Slider Floating Arrow Icon (Shown when scrolled) */}
+        {/* Left Slider Floating Arrow (Desktop only - sleek outer placement) */}
         {canScrollLeft && (
           <button
             type="button"
             onClick={() => handleScroll('left')}
-            className="absolute left-2 sm:left-4 lg:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 hover:bg-[#012520] text-stone-800 hover:text-[#F5B418] border border-stone-200 hover:border-[#012520] shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer backdrop-blur-md group"
+            className="hidden sm:flex absolute -left-3 sm:-left-4 lg:-left-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#012520] hover:bg-[#023a32] text-[#F5B418] border border-[#F5B418]/50 shadow-[0_4px_20px_rgba(1,37,32,0.4)] items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             aria-label="Previous categories"
           >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-stone-800 group-hover:text-[#F5B418] transition-colors" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
           </button>
         )}
 
-        {/* Right Slider Floating Arrow Icon (Prominent on the Right Side) */}
-        <button
-          type="button"
-          onClick={() => handleScroll('right')}
-          className="absolute right-2 sm:right-4 lg:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/95 hover:bg-[#012520] text-stone-800 hover:text-[#F5B418] border border-stone-200 hover:border-[#012520] shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer backdrop-blur-md group"
-          aria-label="Next categories"
-        >
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-stone-800 group-hover:text-[#F5B418] transition-colors" />
-        </button>
+        {/* Right Slider Floating Arrow (Desktop only - sleek outer placement) */}
+        {canScrollRight && (
+          <button
+            type="button"
+            onClick={() => handleScroll('right')}
+            className="hidden sm:flex absolute -right-3 sm:-right-4 lg:-right-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#012520] hover:bg-[#023a32] text-[#F5B418] border border-[#F5B418]/50 shadow-[0_4px_20px_rgba(1,37,32,0.4)] items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+            aria-label="Next categories"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+          </button>
+        )}
 
-        {/* Smooth Horizontal Carousel Track */}
+        {/* Smooth Horizontal Carousel Track: 3 cards on desktop, 1 card on mobile */}
         <div
           ref={sliderRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-2 pb-5 px-4 sm:px-2 no-scrollbar overscroll-x-contain"
+          className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pt-2 pb-5 px-0 no-scrollbar overscroll-x-contain"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -287,7 +272,7 @@ export default function CategoryDisplaySlider() {
           }}
         >
           {categories.map((cat, idx) => (
-            <CategoryCardItem key={`cat-${cat._id || idx}`} cat={cat} priority={idx < 4} />
+            <CategoryCardItem key={`cat-${cat._id || idx}`} cat={cat} priority={idx < 3} />
           ))}
         </div>
       </div>
