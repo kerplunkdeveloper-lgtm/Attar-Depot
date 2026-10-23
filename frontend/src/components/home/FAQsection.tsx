@@ -181,7 +181,7 @@ export default function FAQsection() {
                   >
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
                       <span
-                        className={`font-mono text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded transition-colors shrink-0 ${
+                        className={`font-mono text-xs font-bold px-2 py-0.5 rounded transition-colors shrink-0 ${
                           isOpen
                             ? 'bg-[#012520] text-[#F5B418]'
                             : 'bg-[#FAF3E8] text-[#8C7A5B] group-hover:bg-[#F3ECE0]'
@@ -190,10 +190,10 @@ export default function FAQsection() {
                         {item.number}
                       </span>
                       <span
-                        className={`text-[13px] sm:text-[15px] font-semibold tracking-wide transition-colors leading-snug ${
+                        className={`text-[14px] sm:text-[15px] font-semibold tracking-wide transition-colors leading-snug ${
                           isOpen
                             ? 'text-[#012520]'
-                            : 'text-neutral-900 group-hover:text-[#012520]'
+                            : 'text-neutral-950 group-hover:text-[#012520]'
                         }`}
                       >
                         {item.question}
@@ -221,8 +221,8 @@ export default function FAQsection() {
                         exit="collapsed"
                         className="overflow-hidden"
                       >
-                        <div className="px-5 sm:px-6 pb-5 pt-1 border-t border-[#F5EFE6]">
-                          <p className="font-sans text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-3xl">
+                        <div className="px-5 sm:px-6 pb-5 pt-2 border-t border-[#F5EFE6]">
+                          <p className="font-sans text-[13px] sm:text-sm text-neutral-700 leading-relaxed max-w-3xl">
                             {item.answer}
                           </p>
 

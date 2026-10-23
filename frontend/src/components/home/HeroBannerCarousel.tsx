@@ -329,17 +329,7 @@ export default function HeroBannerCarousel() {
           </button>
         )}
 
-        {/* Slide Counter Badge (Top Right) */}
-        {isMultiple && (
-          <div className="absolute top-2 sm:top-5 right-2 sm:right-6 z-20 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#011C16]/85 backdrop-blur-md text-white border border-[#F5B418]/40 text-[10px] sm:text-xs font-mono font-medium shadow-lg select-none">
-            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#F5B418]" />
-            <span className="text-[#F5B418] font-bold">
-              0{activeRealIndex + 1}
-            </span>
-            <span className="text-white/30">/</span>
-            <span className="text-white/70">0{realCount}</span>
-          </div>
-        )}
+        
 
         {/* Bottom Controls: Animated Story Progress Pills */}
         {isMultiple && (

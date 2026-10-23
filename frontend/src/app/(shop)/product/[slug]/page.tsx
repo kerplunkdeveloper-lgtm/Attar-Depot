@@ -485,13 +485,13 @@ export default function ProductDetailPage({
             </div>
 
             {/* Product Title */}
-            <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 uppercase tracking-tight mt-2.5 leading-tight">
+            <h1 className="font-serif text-2xl min-[400px]:text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-950 uppercase tracking-tight mt-2.5 leading-tight">
               {product.name}
             </h1>
 
             {/* Tagline */}
             {product.tagline && (
-              <p className="font-serif text-sm sm:text-base font-medium italic text-emerald-800/90 mt-1">
+              <p className="font-serif text-sm sm:text-base font-medium italic text-emerald-900 mt-1">
                 "{product.tagline}"
               </p>
             )}
@@ -501,7 +501,7 @@ export default function ProductDetailPage({
               href="#reviews"
               className="inline-flex items-center gap-2 mt-3 text-xs group cursor-pointer"
             >
-              <div className="flex text-amber-400">
+              <div className="flex text-amber-500">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -513,10 +513,10 @@ export default function ProductDetailPage({
                   />
                 ))}
               </div>
-              <span className="font-bold text-neutral-800">
+              <span className="font-bold text-neutral-900">
                 {product.ratings?.average || 4.9}
               </span>
-              <span className="text-neutral-500 group-hover:text-emerald-700 transition-colors underline decoration-dotted">
+              <span className="text-stone-600 group-hover:text-emerald-800 transition-colors underline decoration-dotted font-medium">
                 ({product.ratings?.count || 12} Connoisseur Reviews)
               </span>
             </a>
@@ -525,23 +525,23 @@ export default function ProductDetailPage({
           {/* Pricing Box */}
           <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-emerald-100/90 shadow-emerald-sm">
             <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
-              <span className="font-sans text-2xl sm:text-3xl font-black text-emerald-800">
+              <span className="font-sans text-2xl min-[400px]:text-3xl font-black text-emerald-950">
                 {formatPrice(currentPrice)}
               </span>
               {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                <span className="text-sm sm:text-base text-neutral-400 line-through">
+                <span className="text-sm sm:text-base text-stone-500 line-through">
                   {formatPrice(currentOriginalPrice)}
                 </span>
               )}
               {discountPercent && discountPercent > 0 && (
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
                   Save {discountPercent}%
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-emerald-50 text-[11px] text-emerald-700 font-medium">
+            <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-emerald-50 text-[11.5px] text-emerald-900 font-semibold">
               <span>✓ All Duties & Taxes Included</span>
-              <span className="text-neutral-500">Free Express Delivery Across India</span>
+              <span className="text-stone-600">Free Express Delivery Across India</span>
             </div>
           </div>
 
@@ -610,7 +610,7 @@ export default function ProductDetailPage({
           )}
 
           {/* Description */}
-          <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-sans">
+          <p className="text-[13.5px] sm:text-sm text-neutral-700 leading-relaxed font-sans">
             {product.description}
           </p>
 
@@ -618,10 +618,10 @@ export default function ProductDetailPage({
           {product.sizes && product.sizes.length > 0 && (
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-800">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-900">
                   Select Flacon Volume & Tola
                 </label>
-                <span className="text-[11px] text-emerald-800 font-medium bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
+                <span className="text-[11px] text-emerald-900 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/50">
                   1 Tola ≈ 11.66g
                 </span>
               </div>
@@ -641,8 +641,8 @@ export default function ProductDetailPage({
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </span>
                     )}
-                    <p className="text-xs font-bold text-neutral-900">{s.size}</p>
-                    <p className="text-xs text-emerald-700 font-semibold mt-0.5">{formatPrice(s.price)}</p>
+                    <p className="text-[13px] font-bold text-neutral-900">{s.size}</p>
+                    <p className="text-xs text-emerald-800 font-bold mt-0.5">{formatPrice(s.price)}</p>
                   </button>
                 ))}
               </div>
@@ -665,41 +665,41 @@ export default function ProductDetailPage({
               </button>
             ) : (
               <>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3">
                   {/* Quantity Stepper */}
-                  <div className="flex items-center border border-emerald-200 rounded-2xl bg-white shadow-2xs h-12 flex-shrink-0">
+                  <div className="flex items-center border border-emerald-200 rounded-2xl bg-white shadow-2xs h-12 min-[400px]:h-13 flex-shrink-0">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
+                      className="w-10 h-full flex items-center justify-center text-neutral-600 hover:text-neutral-950 active:scale-95 transition-all cursor-pointer"
                       aria-label="Decrease quantity"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                     </button>
-                    <span className="w-8 text-center text-xs font-bold text-neutral-900">
+                    <span className="w-8 text-center text-sm font-bold text-neutral-950">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 active:scale-95 transition-all"
+                      className="w-10 h-full flex items-center justify-center text-neutral-600 hover:text-neutral-950 active:scale-95 transition-all cursor-pointer"
                       aria-label="Increase quantity"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     </button>
                   </div>
 
                   {/* Add to Cart CTA */}
                   <button
                     onClick={() => handleAddToCart(true)}
-                    className="flex-1 btn-emerald h-12 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-emerald-sm text-white active:scale-98 transition-transform"
+                    className="flex-1 btn-emerald h-12 min-[400px]:h-13 px-4 rounded-2xl text-xs min-[400px]:text-[13px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-emerald-sm text-white active:scale-98 transition-transform cursor-pointer"
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Fragrance Vault</span>
+                    <ShoppingBag className="w-4 h-4 shrink-0" />
+                    <span>Add to Vault</span>
                   </button>
 
                   {/* Desktop Wishlist Button */}
                   <button
                     onClick={handleWishlistToggle}
-                    className={`hidden sm:flex w-12 h-12 rounded-2xl border items-center justify-center transition-all flex-shrink-0 active:scale-95 ${
+                    className={`hidden sm:flex w-12 h-12 min-[400px]:h-13 rounded-2xl border items-center justify-center transition-all flex-shrink-0 active:scale-95 cursor-pointer ${
                       isWishlisted
                         ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-sm'
                         : 'bg-white hover:bg-neutral-50 text-neutral-600 hover:text-rose-600 border-emerald-200 shadow-2xs'
@@ -714,9 +714,9 @@ export default function ProductDetailPage({
                 {/* Instant Express Checkout Button */}
                 <button
                   onClick={handleBuyNow}
-                  className="w-full h-12 px-6 rounded-2xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:brightness-105 active:scale-98 transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full h-12 min-[400px]:h-13 px-6 rounded-2xl text-xs min-[400px]:text-[13px] font-bold uppercase tracking-wider text-white bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:brightness-105 active:scale-98 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 shrink-0" />
                   <span>Instant Express Checkout</span>
                 </button>
               </>

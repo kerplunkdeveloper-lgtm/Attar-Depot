@@ -103,32 +103,17 @@ export default function Footer() {
                     height={110}
                     priority
                     quality={95}
-                    className="h-[90px] min-[380px]:h-[100px] sm:h-[110px] lg:h-[120px] w-auto max-w-[230px] min-[380px]:max-w-[260px] sm:max-w-[290px] lg:max-w-[400px] object-contain drop-shadow-[0_4px_22px_rgba(245,180,24,0.45)]"
+                    className="h-[130px] min-[380px]:h-[130px] sm:h-[160px] lg:h-[180px] w-auto max-w-[230px] min-[380px]:max-w-[260px] sm:max-w-[290px] lg:max-w-[400px] object-contain drop-shadow-[0_4px_22px_rgba(245,180,24,0.45)]"
                   />
                 </div>
               </Link>
 
-              {/* Regal Heritage Tag */}
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-[#F5B418]/30 backdrop-blur-xs">
-                  <Crown className="w-3 h-3 text-[#F5B418]" />
-                  <span className="text-[10px] sm:text-[10.5px] font-serif uppercase tracking-[0.18em] text-[#F5B418] font-bold">
-                    Kannauj Heritage • Deg-Bhapka Distillations
-                  </span>
-                </div>
-              </div>
+
             </div>
 
-            <p className="text-xs sm:text-[12.5px] text-[#FAF8F2]/75 leading-relaxed font-sans pr-2">
-              Preserving the sacred centuries-old art of Deg &amp; Bhapka hydro-distillation from Kannauj. Every crystal flacon contains the hydro-distilled essence of pure botanicals, 100% free from alcohol and synthetic enhancers.
-            </p>
+           
 
-            <div className="p-3.5 rounded-xl bg-white/[0.04] border border-[#F5B418]/25 backdrop-blur-sm shadow-inner">
-              <p className="font-serif text-xs text-[#F5B418] italic flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#F5B418] shrink-0" />
-                <span>&ldquo;The scent of paradise distilled into every precious drop.&rdquo;</span>
-              </p>
-            </div>
+           
 
             {/* Social Media Section */}
             <div className="space-y-2.5 pt-1">
@@ -136,13 +121,7 @@ export default function Footer() {
                 <span className="font-serif text-[11px] font-bold uppercase tracking-widest text-[#F5B418]">
                   Follow Our Journey
                 </span>
-                <Link
-                  href="/social"
-                  className="text-[10.5px] font-bold text-[#F5B418] hover:text-white flex items-center gap-1 transition-colors underline underline-offset-2"
-                >
-                  <span>All Channels</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </Link>
+               
               </div>
               <div className="flex items-center gap-2.5">
                 {/* Instagram */}
@@ -336,61 +315,61 @@ export default function Footer() {
 
             <div className="space-y-3 text-xs text-[#FAF8F2]/85">
               {/* Flagship Boutique & Maps */}
-              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/40 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F5B418]/25 to-transparent border border-[#F5B418]/30 flex items-center justify-center text-[#F5B418] shrink-0 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5" />
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.04] border border-[#F5B418]/25 hover:border-[#F5B418]/50 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F5B418]/25 to-transparent border border-[#F5B418]/30 flex items-center justify-center text-[#F5B418] shrink-0 mt-0.5">
+                  <MapPin className="w-4 h-4" />
                 </div>
                 <div className="space-y-0.5 min-w-0 flex-1">
-                  <p className="font-semibold text-xs text-[#F5B418]">{SITE_CONTACT.address.puducherry.name}</p>
-                  <p className="text-[11px] text-[#FAF8F2]/70 leading-relaxed truncate sm:text-wrap">
+                  <p className="font-bold text-xs sm:text-sm text-[#F5B418]">{SITE_CONTACT.address.puducherry.name}</p>
+                  <p className="text-xs text-[#FAF8F2]/80 leading-relaxed truncate sm:text-wrap">
                     {SITE_CONTACT.address.puducherry.fullAddress}
                   </p>
                   <a
                     href={SITE_CONTACT.maps.queryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[10.5px] text-[#F5B418] hover:text-[#FDE047] font-semibold underline underline-offset-2 pt-0.5"
+                    className="inline-flex items-center gap-1 text-[11px] text-[#F5B418] hover:text-[#FDE047] font-semibold underline underline-offset-2 pt-0.5"
                   >
                     <span>{SITE_CONTACT.maps.label}</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               </div>
 
               {/* Direct Phone Concierge */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/40 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F5B418]/25 to-transparent border border-[#F5B418]/30 flex items-center justify-center text-[#F5B418] shrink-0">
-                  <Phone className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.04] border border-[#F5B418]/25 hover:border-[#F5B418]/50 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F5B418]/25 to-transparent border border-[#F5B418]/30 flex items-center justify-center text-[#F5B418] shrink-0">
+                  <Phone className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-[#FAF8F2]/60 uppercase tracking-wider">Master Perfumer Desk</p>
+                    <p className="text-[10.5px] text-[#FAF8F2]/70 uppercase tracking-wider font-semibold">Master Perfumer Desk</p>
                     <a
                       href={SITE_CONTACT.phone.telUrl}
-                      className="text-xs font-bold text-[#FAF8F2] hover:text-[#F5B418] transition-colors"
+                      className="text-[13px] font-bold text-[#FAF8F2] hover:text-[#F5B418] transition-colors"
                     >
                       {SITE_CONTACT.phone.display}
                     </a>
                   </div>
-                  <span className="text-[9.5px] font-bold text-[#F5B418] bg-[#F5B418]/15 px-2 py-0.5 rounded-full border border-[#F5B418]/30">
+                  <span className="text-[10px] font-bold text-[#F5B418] bg-[#F5B418]/15 px-2.5 py-0.5 rounded-full border border-[#F5B418]/30">
                     Call Direct
                   </span>
                 </div>
               </div>
 
               {/* Direct WhatsApp Concierge */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-[#F5B418]/20 hover:border-[#F5B418]/40 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center text-[#25D366] shrink-0">
-                  <MessageCircle className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.04] border border-[#F5B418]/25 hover:border-[#F5B418]/50 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center text-[#25D366] shrink-0">
+                  <MessageCircle className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-[#FAF8F2]/60 uppercase tracking-wider">WhatsApp Specialist</p>
+                    <p className="text-[10.5px] text-[#FAF8F2]/70 uppercase tracking-wider font-semibold">WhatsApp Specialist</p>
                     <a
                       href={SITE_CONTACT.whatsapp.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-[#25D366] hover:underline"
+                      className="text-[13px] font-bold text-[#25D366] hover:underline"
                     >
                       Chat With Master Attarwala
                     </a>

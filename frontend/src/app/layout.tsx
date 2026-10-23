@@ -26,6 +26,22 @@ try {
     if (!fs.existsSync(woodTarget2)) fs.copyFileSync(woodSource, woodTarget2);
   }
 
+  const botanicalSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\8c074262-1f9d-45e9-82e5-e744a73288e7\\botanical_perfume_bg_1792736240537.jpg';
+  const botanicalTarget1 = path.join(process.cwd(), 'public', 'images', 'botanical-perfume-bg.jpg');
+  const botanicalTarget2 = path.join(process.cwd(), 'public', 'botanical-perfume-bg.jpg');
+  if (fs.existsSync(botanicalSrc)) {
+    fs.copyFileSync(botanicalSrc, botanicalTarget1);
+    fs.copyFileSync(botanicalSrc, botanicalTarget2);
+  }
+
+  const marqueeSrc = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\8c074262-1f9d-45e9-82e5-e744a73288e7\\hero_marquee_bg_1792736615385.jpg';
+  const marqueeTarget1 = path.join(process.cwd(), 'public', 'images', 'hero-marquee-bg.jpg');
+  const marqueeTarget2 = path.join(process.cwd(), 'public', 'hero-marquee-bg.jpg');
+  if (fs.existsSync(marqueeSrc)) {
+    fs.copyFileSync(marqueeSrc, marqueeTarget1);
+    fs.copyFileSync(marqueeSrc, marqueeTarget2);
+  }
+
   const aboutSource = 'C:\\Users\\Admin\\.gemini\\antigravity-ide\\brain\\8c0aa016-3e23-4537-bdb1-75cf85217467\\.user_uploaded\\media_1791018383377.png';
   const aboutTarget = path.join(process.cwd(), 'public', 'images', 'aboutbanner-new.png');
   if (fs.existsSync(aboutSource)) {

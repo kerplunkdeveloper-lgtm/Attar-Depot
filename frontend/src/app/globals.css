@@ -8,7 +8,10 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-family: 'Neue Haas Grotesk Display Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Lenis Smooth Scroll System */
@@ -990,4 +993,116 @@ body:has([role="dialog"]) nav[aria-label="Mobile Navigation"] {
   transform: translateY(100%) !important;
   visibility: hidden !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ========================================================================= */
+/* DUAL RANGE SLIDER (REFERENCE FILTER DESIGN)                               */
+/* ========================================================================= */
+.range-thumb-slider {
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 28px;
+}
+
+.range-thumb-slider::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background-color: #000000;
+  border: 1px solid #000000;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease;
+}
+
+.range-thumb-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range-thumb-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.range-thumb-slider::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background-color: #000000;
+  border: 1px solid #000000;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease;
+}
+
+.range-thumb-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range-thumb-slider::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* ========================================================================= */
+/* MOBILE READABILITY & TOUCH UX OPTIMIZATIONS                               */
+/* ========================================================================= */
+@media (max-width: 640px) {
+  /* Prevent eye strain and awkward line wraps on small mobile screens */
+  body {
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+  }
+
+  /* Optimize tap responsiveness and eliminate 300ms tap delay */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Fluid headings on mobile screens */
+  h1 {
+    line-height: 1.18;
+  }
+
+  h2 {
+    line-height: 1.25;
+  }
+
+  h3 {
+    line-height: 1.3;
+  }
+
+  /* Improve contrast of subtle body texts on ivory/sand texture */
+  .text-stone-500 {
+    color: #57534e !important; /* stone-600 for sharp mobile contrast */
+  }
+}
+
+/* Scrollbar utilities for shop filter carousel and menus */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(1, 37, 32, 0.25);
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(1, 37, 32, 0.5);
 }

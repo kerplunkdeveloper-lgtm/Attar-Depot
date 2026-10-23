@@ -32,9 +32,26 @@ export const getProducts = async (req, res, next) => {
 
     // Filter by Category slug or ID
     if (category) {
-      const cat = await Category.findOne({
+      let cat = await Category.findOne({
         $or: [{ slug: category }, { _id: category.match(/^[0-9a-fA-F]{24}$/) ? category : null }],
       });
+
+      if (!cat) {
+        // Resilient matching for olfactory families & descriptors
+        const catSlug = category.toLowerCase();
+        if (catSlug.includes('oud') || catSlug.includes('woody') || catSlug.includes('leather')) {
+          cat = await Category.findOne({ slug: /oud/i });
+        } else if (catSlug.includes('musk') || catSlug.includes('clean')) {
+          cat = await Category.findOne({ slug: /musk/i });
+        } else if (catSlug.includes('floral') || catSlug.includes('rose')) {
+          cat = await Category.findOne({ slug: /floral|rose|gulab/i });
+        } else if (catSlug.includes('amber') || catSlug.includes('green') || catSlug.includes('earthy')) {
+          cat = await Category.findOne({ slug: /amber/i });
+        } else if (catSlug.includes('oriental') || catSlug.includes('french') || catSlug.includes('gourmand') || catSlug.includes('sweet') || catSlug.includes('aquatic') || catSlug.includes('fresh')) {
+          cat = await Category.findOne({ slug: /oriental|french/i });
+        }
+      }
+
       if (cat) {
         query.category = cat._id;
       }

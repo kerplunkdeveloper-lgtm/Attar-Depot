@@ -7,7 +7,7 @@ import { toggleAiChat } from '@/store/uiSlice';
 import { useAiChat } from '@/hooks/useAiChat';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import AiProductCard from './AiProductCard';
-import AttarDepotLogo from '@/components/common/AttarDepotLogo';
+import Image from 'next/image';
 import {
   Sparkles,
   X,
@@ -145,8 +145,14 @@ export default function AiChatDrawer() {
               <span className="absolute -inset-1 rounded-full bg-[#F5B418]/25 blur-md group-hover:opacity-100 opacity-60 transition-opacity" />
 
               {/* Logo inside */}
-              <div className="text-[#F5B418] drop-shadow-[0_0_8px_rgba(245,180,24,0.6)] group-hover:scale-110 transition-transform duration-300 relative z-10">
-                <AttarDepotLogo variant="icon" className="w-8 h-8 sm:w-10 sm:h-10" />
+              <div className="relative w-11 h-7 sm:w-13 sm:h-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 z-10">
+                <Image
+                  src="/images/logonew.png"
+                  alt="Attar Depot AI"
+                  width={80}
+                  height={36}
+                  className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(245,180,24,0.6)]"
+                />
               </div>
 
               {/* Online indicator dot on bottom right */}
@@ -195,9 +201,15 @@ export default function AiChatDrawer() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {/* Glowing Logo Icon Badge */}
-                    <div className="relative w-10 h-10 rounded-2xl bg-[#011C16] border border-[#F5B418]/50 flex items-center justify-center backdrop-blur-md shrink-0 shadow-[0_0_12px_rgba(245,180,24,0.25)] p-1.5">
-                      <AttarDepotLogo variant="icon" className="w-full h-full text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.6)]" />
-                      <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#012520] shadow-[0_0_6px_#34D399]" />
+                    <div className="relative w-12 sm:w-14 h-9 sm:h-10 rounded-xl bg-[#011C16] border border-[#F5B418]/50 flex items-center justify-center backdrop-blur-md shrink-0 shadow-[0_0_12px_rgba(245,180,24,0.25)] p-1 overflow-hidden">
+                      <Image
+                        src="/images/logonew.png"
+                        alt="Attar Depot Logo"
+                        width={70}
+                        height={35}
+                        className="w-full h-full object-contain drop-shadow-[0_0_6px_rgba(245,180,24,0.6)]"
+                      />
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#012520] shadow-[0_0_6px_#34D399]" />
                     </div>
 
                     <div>
@@ -247,12 +259,15 @@ export default function AiChatDrawer() {
                   <div className="bg-white rounded-2xl p-4 border border-[#F5B418]/30 shadow-[0_4px_20px_rgba(1,37,32,0.06)] space-y-4">
                     {/* Brand Banner */}
                     <div className="flex flex-col items-center text-center pb-3 border-b border-[#F5B418]/20">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#012520] to-[#023830] border border-[#F5B418]/40 flex items-center justify-center shadow-md mb-2">
-                        <AttarDepotLogo variant="icon" className="w-6 h-6 text-[#F5B418] drop-shadow-[0_0_6px_rgba(245,180,24,0.6)]" />
+                      <div className="relative h-12 w-44 flex items-center justify-center mb-1">
+                        <Image
+                          src="/images/logonew.png"
+                          alt="The Attar Depot"
+                          fill
+                          className="object-contain drop-shadow-[0_2px_8px_rgba(245,180,24,0.35)]"
+                          sizes="180px"
+                        />
                       </div>
-                      <h4 className="font-serif text-base font-bold text-neutral-900 tracking-wider">
-                        THE ATTAR DEPOT
-                      </h4>
                       <p className="text-[10.5px] text-[#046A5A] font-semibold tracking-wide mt-0.5">
                         Royal Fragrance Concierge • 100% Pure & Alcohol-Free
                       </p>
@@ -323,8 +338,14 @@ export default function AiChatDrawer() {
                     <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 font-medium px-1">
                       {msg.sender === 'ai' ? (
                         <>
-                          <div className="w-4 h-4 rounded-full bg-[#012520] border border-[#F5B418]/50 flex items-center justify-center p-0.5">
-                            <AttarDepotLogo variant="icon" className="w-full h-full text-[#F5B418]" />
+                          <div className="w-5 h-3.5 rounded bg-[#012520] border border-[#F5B418]/50 flex items-center justify-center p-0.5 overflow-hidden">
+                            <Image
+                              src="/images/logonew.png"
+                              alt="Attar Depot AI"
+                              width={28}
+                              height={14}
+                              className="w-full h-full object-contain"
+                            />
                           </div>
                           <span className="font-bold text-[#012520]">Attar Depot AI</span>
                         </>

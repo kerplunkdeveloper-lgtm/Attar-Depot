@@ -19,6 +19,7 @@ import { useCategories } from '@/hooks/useCategories';
 import ProductCard from '@/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
 import HeroBannerCarousel from '@/components/home/HeroBannerCarousel';
+import HeroRibbonMarquee from '@/components/home/HeroRibbonMarquee';
 import MobileBestsellerSlider from '@/components/home/MobileBestsellerSlider';
 import CategoryDisplaySlider from '@/components/home/CategoryDisplaySlider';
 import TestimonialCarousel from '@/components/home/TestimonialCarousel';
@@ -255,6 +256,16 @@ export default function HomePage() {
         <HeroBannerCarousel />
       </motion.section>
 
+      {/* 1.1 Hero Ribbon Marquee (Brand Philosophy Strip) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: luxuryEase, delay: 0.15 }}
+        className="w-full -mt-4 sm:-mt-6 lg:-mt-8 mb-2 sm:mb-4"
+      >
+        <HeroRibbonMarquee />
+      </motion.div>
+
       {/* 2. Featured Sovereign Attars with Category Tabs & Smooth Scroll Carousel */}
       <motion.section
         initial={{ opacity: 0, y: 28 }}
@@ -335,10 +346,10 @@ export default function HomePage() {
                     key={tab.id}
                     type="button"
                     onClick={() => setSelectedCategory(tab.id)}
-                    className={`relative px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[10.5px] sm:text-[11px] whitespace-nowrap transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
+                    className={`relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold uppercase tracking-wider text-[11.5px] min-[360px]:text-xs sm:text-[11px] whitespace-nowrap transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
                       isSelected
                         ? 'text-[#F5B418]'
-                        : 'bg-white/90 text-stone-700 hover:text-stone-900 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
+                        : 'bg-white/90 text-stone-800 hover:text-stone-950 border border-stone-200/90 hover:border-stone-400 shadow-2xs hover:bg-white'
                     }`}
                   >
                     {isSelected && (
@@ -568,10 +579,10 @@ export default function HomePage() {
                     <h3 className="text-base sm:text-xl font-serif font-bold uppercase tracking-tight group-hover:text-[#F5B418] transition-colors line-clamp-1">
                       {occasion.title}
                     </h3>
-                    <p className="hidden xs:block text-[11px] sm:text-xs text-stone-300 font-sans italic opacity-90 line-clamp-1">
+                    <p className="text-[11px] min-[360px]:text-[12px] sm:text-xs text-stone-200 font-sans italic opacity-95 line-clamp-2 leading-tight">
                       {occasion.desc}
                     </p>
-                    <div className="pt-1 flex items-center gap-1.5 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover:translate-x-1 transition-transform">
+                    <div className="pt-1 flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover:translate-x-1 transition-transform">
                       <span>Explore</span>
                       <ArrowRight className="w-3 h-3" />
                     </div>
@@ -585,27 +596,27 @@ export default function HomePage() {
 
       {/* 6. Brand Values / Legacy Section */}
       <motion.section 
-        className="max-w-8xl mx-auto py-10 sm:py-16 my-4 sm:my-8 border-y border-amber-900/20 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] shadow-[0_10px_35px_rgba(1,37,32,0.2)] rounded-none sm:rounded-3xl"
+        className="max-w-8xl mx-auto py-8 sm:py-16 my-4 sm:my-8 border-y border-amber-900/20 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] shadow-[0_10px_35px_rgba(1,37,32,0.2)] rounded-none sm:rounded-3xl"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.75, ease: luxuryEase }}
       >
-        <div className="grid grid-cols-3 gap-2 sm:gap-8 divide-x divide-emerald-800/40">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-8 divide-x divide-emerald-800/40">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1, ease: luxuryEase }}
-            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+            className="flex flex-col items-center text-center px-1.5 sm:px-6 group"
           >
-            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
-              <Clock className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
+            <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Clock className="w-5 h-5 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               75 Years Legacy
             </h3>
-            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
+            <p className="text-[10px] min-[360px]:text-[11px] sm:text-xs text-stone-200/90 font-sans italic max-w-xs leading-tight text-center px-0.5 line-clamp-2">
               Generational hydro-distillation in authentic copper degs
             </p>
           </motion.div>
@@ -615,16 +626,16 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+            className="flex flex-col items-center text-center px-1.5 sm:px-6 group"
           >
-            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
-              <Droplet className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
+            <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Droplet className="w-5 h-5 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               Farm To Fragrance
             </h3>
-            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
-              100% alcohol-free pure oils hydro-distilled from harvest blooms
+            <p className="text-[10px] min-[360px]:text-[11px] sm:text-xs text-stone-200/90 font-sans italic max-w-xs leading-tight text-center px-0.5 line-clamp-2">
+              100% alcohol-free pure oils hydro-distilled from blooms
             </p>
           </motion.div>
 
@@ -633,15 +644,15 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3, ease: luxuryEase }}
-            className="flex flex-col items-center text-center px-2 sm:px-6 group"
+            className="flex flex-col items-center text-center px-1.5 sm:px-6 group"
           >
-            <div className="w-13 h-13 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2.5 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
-              <Globe className="w-6 h-6 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
+            <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full border border-amber-400/50 flex items-center justify-center mb-2 sm:mb-4 bg-[#FAF8F2] shadow-md group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(245,180,24,0.4)] transition-all duration-300">
+              <Globe className="w-5 h-5 sm:w-9 sm:h-9 text-[#012520] group-hover:text-[#C9A227] transition-colors" strokeWidth={1.5} />
             </div>
             <h3 className="text-[11px] sm:text-sm font-bold tracking-wider sm:tracking-widest text-[#F5B418] uppercase font-sans mb-1">
               Loved Worldwide
             </h3>
-            <p className="hidden md:block text-xs text-stone-300/90 font-sans italic max-w-xs">
+            <p className="text-[10px] min-[360px]:text-[11px] sm:text-xs text-stone-200/90 font-sans italic max-w-xs leading-tight text-center px-0.5 line-clamp-2">
               Delivered directly to luxury perfume connoisseurs worldwide
             </p>
           </motion.div>

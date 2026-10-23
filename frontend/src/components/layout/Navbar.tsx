@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
@@ -229,6 +229,95 @@ export default function Navbar() {
     { label: '₹4000 – ₹4999', value: '4000-4999', min: 4000, max: 4999 },
     { label: '₹5000 – ₹5999', value: '5000-5999', min: 5000, max: 5999 },
   ];
+
+  // Resolve direct category link matching database categories
+  const resolveCategoryHref = useCallback(
+    (item: { title: string; desc: string }) => {
+      const cleanTitle = item.title.toLowerCase().replace(/&/g, '').trim();
+      const cleanDesc = item.desc.replace(/[()]/g, '').toLowerCase().trim();
+
+      // 1. Direct name or slug match in live categories
+      const matched = categories.find((c) => {
+        if (!c) return false;
+        const cName = (c.name || '').toLowerCase();
+        const cSlug = (c.slug || '').toLowerCase();
+
+        return (
+          cName.includes(cleanTitle) ||
+          cleanTitle.includes(cName) ||
+          cSlug === cleanTitle.replace(/\s+/g, '-') ||
+          (cleanDesc && (cName.includes(cleanDesc) || cSlug.includes(cleanDesc)))
+        );
+      });
+      if (matched) {
+        return `/shop?category=${encodeURIComponent(matched.slug || matched._id)}`;
+      }
+
+      // 2. Olfactory Family / Descriptor fallback mapping to live categories
+      const findCatByKeyword = (kw: string) => {
+        return categories.find((c) => {
+          const s = (c.slug || '').toLowerCase();
+          const n = (c.name || '').toLowerCase();
+          return s.includes(kw) || n.includes(kw);
+        });
+      };
+
+      if (cleanTitle.includes('oud') || cleanTitle.includes('woody') || cleanDesc.includes('oud')) {
+        const cat = findCatByKeyword('oud');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=dehn-al-oudh';
+      }
+
+      if (cleanTitle.includes('musk') || cleanDesc.includes('skin') || cleanDesc.includes('clean')) {
+        const cat = findCatByKeyword('musk');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=royal-musk';
+      }
+
+      if (cleanTitle.includes('floral') || cleanTitle.includes('rose') || cleanDesc.includes('feminine')) {
+        const cat = findCatByKeyword('floral') || findCatByKeyword('rose') || findCatByKeyword('gulab');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=floral-gulab-attar';
+      }
+
+      if (cleanTitle.includes('amber') || cleanTitle.includes('oriental') || cleanDesc.includes('arabic')) {
+        const cat = findCatByKeyword('amber') || findCatByKeyword('oriental');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=amber-woods';
+      }
+
+      if (cleanTitle.includes('sweet') || cleanTitle.includes('gourmand') || cleanDesc.includes('delicious')) {
+        const cat = findCatByKeyword('oriental') || findCatByKeyword('french');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=french-oriental-blends';
+      }
+
+      if (cleanTitle.includes('fresh') || cleanTitle.includes('aquatic') || cleanDesc.includes('blue')) {
+        const cat = findCatByKeyword('french') || findCatByKeyword('fresh');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=french-oriental-blends';
+      }
+
+      if (cleanTitle.includes('leather') || cleanDesc.includes('dark') || cleanDesc.includes('bold')) {
+        const cat = findCatByKeyword('oud');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=dehn-al-oudh';
+      }
+
+      if (cleanTitle.includes('green') || cleanTitle.includes('earthy') || cleanDesc.includes('herbal')) {
+        const cat = findCatByKeyword('amber') || findCatByKeyword('woods');
+        if (cat) return `/shop?category=${encodeURIComponent(cat.slug || cat._id)}`;
+        return '/shop?category=amber-woods';
+      }
+
+      if (categories.length > 0 && categories[0]) {
+        return `/shop?category=${encodeURIComponent(categories[0].slug || categories[0]._id)}`;
+      }
+
+      return '/shop';
+    },
+    [categories]
+  );
 
   const openShopDropdown = () => {
     if (shopTimeoutRef.current) {
@@ -525,7 +614,7 @@ export default function Navbar() {
               : 'max-h-0 opacity-0 -translate-y-full border-b-0 pointer-events-none'
           }`}
         >
-          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 min-h-[26px] sm:h-9 py-0.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
+          <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 xl:px-10 min-h-[26px] sm:h-9 py-0.5 sm:py-0 flex items-center justify-center text-center overflow-hidden">
             {currentBannerCoupon ? (
               <div className="flex items-center justify-center w-full text-[9px] xs:text-[10px] sm:text-[12.5px] font-medium text-neutral-800 tracking-tight sm:tracking-wide gap-1 sm:gap-2 whitespace-nowrap overflow-hidden">
                 <span className="font-semibold text-neutral-900 truncate flex-shrink">
@@ -605,8 +694,8 @@ export default function Navbar() {
             <div className="absolute inset-x-0 bottom-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#F5B418]/60 to-transparent" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
-            <div className="relative flex items-center justify-between h-[84px] min-[360px]:h-[90px] xs:h-[94px] sm:h-[96px] lg:h-[76px] xl:h-[80px] gap-1.5 min-[360px]:gap-2 sm:gap-4">
+          <div className="max-w-8xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 relative z-10">
+            <div className="relative flex items-center justify-between h-[86px] min-[360px]:h-[92px] xs:h-[96px] sm:h-[98px] lg:h-[84px] xl:h-[88px] gap-1.5 min-[360px]:gap-2 sm:gap-4">
               
               {/* ================================================================= */}
               {/* 1. LEFT SECTION: Brand Logo (Desktop & Mobile) + Mobile Hamburger  */}
@@ -628,20 +717,20 @@ export default function Navbar() {
                   )}
                 </button>
 
-                {/* Brand Official Logo (Left-aligned & Highly Visible) */}
+                {/* Brand Official Logo (Left-aligned, Crisp, Perfectly Proportioned) */}
                 <Link
                   href="/"
-                  className="relative flex items-center py-0.5 select-none"
+                  className="relative flex items-center py-1 select-none"
                   aria-label="Attar Depot Home"
                 >
                   <Image
                     src="/images/logonew.png"
                     alt="Attar Depot - Pure Essence of Royalty"
-                    width={360}
-                    height={110}
+                    width={420}
+                    height={130}
                     priority
-                    quality={95}
-                    className="h-[78px] min-[360px]:h-[86px] xs:h-[90px] sm:h-[94px] md:h-[96px] lg:h-[98px] w-auto max-w-[190px] min-[360px]:max-w-[220px] min-[390px]:max-w-[245px] xs:max-w-[280px] sm:max-w-none object-contain scale-[1.14] min-[360px]:scale-[1.2] xs:scale-[1.12] sm:scale-100 origin-left drop-shadow-[0_2px_14px_rgba(245,180,24,0.35)] relative z-10"
+                    quality={100}
+                    className="h-[52px] min-[360px]:h-[58px] xs:h-[64px] sm:h-[70px] md:h-[74px] lg:h-[74px] xl:h-[78px] w-auto max-w-[200px] min-[360px]:max-w-[230px] xs:max-w-[260px] sm:max-w-[290px] md:max-w-[320px] lg:max-w-[340px] xl:max-w-[380px] object-contain drop-shadow-[0_2px_14px_rgba(245,180,24,0.35)] relative z-10 hover:opacity-95 transition-all duration-300"
                   />
                 </Link>
               </div>
@@ -1002,17 +1091,32 @@ export default function Navbar() {
 
             {/* Edge-to-Edge Mega Menu Panel */}
             <div
-              className={`w-full bg-[#fbf4e3] border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.35)] overflow-y-auto transition-all duration-300 ${
+              className={`relative w-full border-b border-[#C9A227]/30 shadow-[0_35px_80px_-15px_rgba(1,37,32,0.4)] overflow-y-auto transition-all duration-300 ${
                 isAtTop
                   ? 'max-h-[calc(100vh-86px)] sm:max-h-[calc(100vh-92px)] lg:max-h-[calc(100vh-96px)] xl:max-h-[calc(100vh-102px)]'
                   : 'max-h-[calc(100vh-60px)] sm:max-h-[calc(100vh-64px)] lg:max-h-[calc(100vh-68px)] xl:max-h-[calc(100vh-74px)]'
               }`}
             >
+              {/* Artisanal Botanical Perfumery Artwork Background (Roses, Jasmine, Bergamot, Oranges, Vanilla Orchid & Amber Drops) */}
+              <div className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10">
+                <Image
+                  src="/images/botanical-perfume-bg.jpg"
+                  alt="Artisanal Perfumery Botanical Flowers & Fruits"
+                  fill
+                  priority
+                  quality={95}
+                  className="object-cover object-center"
+                  sizes="100vw"
+                />
+                {/* Luminous Warm Ivory Veil for High-End Readability & Soft Luxury */}
+                <div className="absolute inset-0 bg-[#FAF7EE]/60 backdrop-blur-[0.5px]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7EE]/70 via-[#FAF7EE]/30 to-[#FAF7EE]/70" />
+              </div>
+
               {/* Top Vault Bar */}
-              <div className="w-full border-b border-[#C9A227]/25 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+              <div className="w-full border-b border-[#C9A227]/25 bg-gradient-to-r from-[#012520] via-[#023830] to-[#012520] relative z-10">
+                <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                   
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#FAF8F2]">
                       Artisanal Fragrance Vault & Distillations
                     </span>
@@ -1034,174 +1138,175 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* 5-Column Responsive Full-Width Content Grid */}
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-7">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 xl:gap-8 divide-y lg:divide-y-0 lg:divide-x divide-emerald-100/80">
-                  {/* Col 1 & 2: Fragrance Notes (Wider 2-Column Vault with All Notes) */}
-                  <div className="lg:col-span-2 lg:pr-6 space-y-2.5">
-                    <div className="flex items-center justify-between pb-2 border-b border-emerald-100 mb-2.5">
-                      <div className="flex items-center gap-1.5">
-
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-950">
-                          Discover Fragrance Notes
-                        </p>
-                      </div>
-                      <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                        {megaNotes.length} Fragrance Notes
+              {/* Content Grid (Matching User Reference Image) */}
+              <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-7 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                  {/* Left Section: DISCOVER FRAGRANCE NOTES (7 cols, 2 columns of 32 notes) */}
+                  <div className="lg:col-span-7 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#C9A227]/20">
+                      <h3 className="font-sans text-xs sm:text-[13px] font-black uppercase tracking-wider text-neutral-900">
+                        Discover Fragrance Notes
+                      </h3>
+                      <span className="text-[10px] font-bold text-[#0A5C4E] bg-[#E6F4F1] px-2.5 py-0.5 rounded-full border border-[#BCE4DC]">
+                        32 Fragrance Notes
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-x-2.5 gap-y-1">
-                      {megaNotes.map((note) => (
-                        <Link
-                          key={note}
-                          href={`/shop?notes=${encodeURIComponent(note)}`}
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] group-hover:bg-emerald-700 group-hover:scale-125 transition-all shrink-0" />
-                            <span className="truncate">{note}</span>
-                          </div>
-                          <ChevronRight className="w-3 h-3 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Col 3: Categories */}
-                  <div className="lg:col-span-1 lg:px-5 pt-4 lg:pt-0 space-y-2.5">
-                    <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2.5">
-                      <ShoppingBag className="w-3.5 h-3.5 text-emerald-700" />
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-950">
-                        Categories
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      {categories.slice(0, 10).map((cat) => (
-                        <Link
-                          key={cat._id}
-                          href={`/shop?category=${cat.slug}`}
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          <span>{cat.name}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                        </Link>
-                      ))}
-                      {categories.length === 0 && (
-                        <p className="text-[11px] text-neutral-400 italic px-2">Pure Attars</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Col 4: Occasions */}
-                  <div className="lg:col-span-1 lg:px-5 pt-4 lg:pt-0 space-y-2.5">
-                    <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2.5">
-                      <Gift className="w-3.5 h-3.5 text-emerald-700" />
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-950">
-                        Occasions
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      {megaOccasions.slice(0, 10).map((occ) => (
-                        <Link
-                          key={occ}
-                          href={`/shop?occasion=${encodeURIComponent(occ)}`}
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          <span>{occ}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Col 5: Collections & Price */}
-                  <div className="lg:col-span-1 lg:pl-5 pt-4 lg:pt-0 space-y-2.5">
-                    <div className="flex items-center gap-1.5 pb-2 border-b border-emerald-100 mb-2.5">
-                      <Crown className="w-3.5 h-3.5 text-emerald-700" />
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-950">
-                        Royal Collections
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      {megaCollections.slice(0, 5).map((col) => (
-                        <Link
-                          key={col}
-                          href={`/shop?collection=${encodeURIComponent(col)}`}
-                          onClick={() => {
-                            if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                            setIsShopOpen(false);
-                          }}
-                          className="group flex items-center justify-between text-xs text-neutral-700 hover:text-emerald-950 py-1.5 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
-                        >
-                          <span>{col}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#046A5A] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                        </Link>
-                      ))}
-                    </div>
-
-                    <div className="pt-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-950 pb-1 border-b border-emerald-100 mb-1.5">
-                        Price Range
-                      </p>
-                      <div className="space-y-1">
-                        {megaPriceRanges.slice(0, 5).map(({ label, value }) => (
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                      {/* Column 1 (16 notes) */}
+                      <div className="space-y-2">
+                        {[
+                          'amber',
+                          'Ambroxan',
+                          'Aquatic notes',
+                          'bergamot',
+                          'cardamom',
+                          'cinnamon',
+                          'driftwood',
+                          'geranium',
+                          'lavender',
+                          'mugwort',
+                          'orange blossom',
+                          'patchouli',
+                          'pink pepper',
+                          'Rose',
+                          'Sichuan pepper',
+                          'Vanilla',
+                        ].map((note) => (
                           <Link
-                            key={value}
-                            href={`/shop?priceRange=${value}`}
+                            key={note}
+                            href={`/shop?notes=${encodeURIComponent(note)}`}
                             onClick={() => {
                               if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
                               setIsShopOpen(false);
                             }}
-                            className="block text-xs text-neutral-700 hover:text-emerald-950 py-1 px-2.5 rounded-xl hover:bg-emerald-50 transition-all font-medium"
+                            className="group flex items-center gap-2.5 text-xs text-neutral-800 hover:text-black py-0.5 transition-all font-medium"
                           >
-                            {label}
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] group-hover:bg-[#012520] group-hover:scale-125 transition-all shrink-0" />
+                            <span className="group-hover:translate-x-0.5 transition-transform">{note}</span>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* Column 2 (16 notes) */}
+                      <div className="space-y-2">
+                        {[
+                          'Ambergris',
+                          'Apple',
+                          'artemisia',
+                          'Calabrian bergamot',
+                          'cedarwood',
+                          'Cumin',
+                          'elemi',
+                          'labdanum',
+                          'lemon',
+                          'musk',
+                          'orris',
+                          'pepper',
+                          'plum',
+                          'sandalwood',
+                          'tonka bean',
+                          'vetiver',
+                        ].map((note) => (
+                          <Link
+                            key={note}
+                            href={`/shop?notes=${encodeURIComponent(note)}`}
+                            onClick={() => {
+                              if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                              setIsShopOpen(false);
+                            }}
+                            className="group flex items-center gap-2.5 text-xs text-neutral-800 hover:text-black py-0.5 transition-all font-medium"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] group-hover:bg-[#012520] group-hover:scale-125 transition-all shrink-0" />
+                            <span className="group-hover:translate-x-0.5 transition-transform">{note}</span>
                           </Link>
                         ))}
                       </div>
                     </div>
                   </div>
+
+                  {/* Right Section: CATEGORIES (5 cols) with vertical dividing line */}
+                  <div className="lg:col-span-5 lg:pl-8 lg:border-l lg:border-[#C9A227]/25 space-y-4 pt-4 lg:pt-0">
+                    <div className="flex items-center gap-2 pb-3 border-b border-[#C9A227]/20">
+                      <ShoppingBag className="w-4 h-4 text-emerald-800" />
+                      <h3 className="font-sans text-xs sm:text-[13px] font-black uppercase tracking-wider text-neutral-900">
+                        Categories
+                      </h3>
+                    </div>
+
+                    <div className="space-y-1">
+                      {[
+                        { title: 'AMBER & ORIENTAL', desc: '(Rich/Arabic)' },
+                        { title: 'FLORAL & ROSE', desc: '(Floral/Feminine)' },
+                        { title: 'FRESH & AQUATIC', desc: '(Fresh/Blue)' },
+                        { title: 'GREEN & EARTHY', desc: '(Natural/Herbal)' },
+                        { title: 'LEATHER & DARK', desc: '(Dark/Bold)' },
+                        { title: 'MUSK & CLEAN', desc: '(Clean/Skin)' },
+                        { title: 'OUD & WOODY', desc: '(Oud/Traditional)' },
+                        { title: 'SWEET & GOURMAND', desc: '(Sweet/Delicious)' },
+                      ].map((cat) => {
+                        const targetHref = resolveCategoryHref(cat);
+                        return (
+                          <Link
+                            key={cat.title}
+                            href={targetHref}
+                            onClick={() => {
+                              if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                              setIsShopOpen(false);
+                            }}
+                            className="group flex items-baseline justify-between py-1.5 px-2.5 rounded-xl hover:bg-white/85 hover:shadow-2xs transition-all cursor-pointer"
+                          >
+                            <div className="flex items-baseline gap-1.5 min-w-0">
+                              <span className="font-sans text-xs font-bold text-neutral-800 tracking-wide group-hover:text-emerald-950 transition-colors uppercase">
+                                {cat.title}
+                              </span>
+                              <span className="text-[11px] font-normal text-neutral-500 font-sans">
+                                {cat.desc}
+                              </span>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-emerald-900 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1 opacity-0 group-hover:opacity-100" />
+                          </Link>
+                        );
+                      })}
+                    </div>
+
+                    {/* Our Fragrance Categories (Live Database Collections & Flacon Types) */}
+                    {categories.length > 0 && (
+                      <div className="pt-3 border-t border-[#C9A227]/20">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                          Our Fragrance Categories
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {categories.map((c) => (
+                            <Link
+                              key={c._id}
+                              href={`/shop?category=${encodeURIComponent(c.slug || c._id)}`}
+                              onClick={() => {
+                                if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
+                                setIsShopOpen(false);
+                              }}
+                              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/85 border border-[#C9A227]/30 text-neutral-800 hover:bg-[#012520] hover:text-[#F5B418] hover:border-[#012520] transition-all shadow-2xs cursor-pointer"
+                            >
+                              {c.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Guarantee Bar */}
-              <div className="w-full border-t border-emerald-100/70 bg-neutral-50/90">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-5 text-xs text-neutral-600">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <ShieldCheck className="w-4 h-4 text-emerald-700" /> 100% Certified Alcohol-Free
-                    </span>
-                    <span className="hidden md:inline-block text-emerald-300">•</span>
-                   
-                    <span className="hidden lg:inline-block text-emerald-300">•</span>
-                    <span className="hidden lg:flex items-center gap-1.5 font-medium">
-                      <Sparkles className="w-4 h-4 text-emerald-700" /> Hand-poured Crystal Flacons
-                    </span>
-                  </div>
-
-                  <Link
-                    href="/shop"
-                    onClick={() => {
-                      if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current);
-                      setIsShopOpen(false);
-                    }}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-4 py-1.5 rounded-xl transition-all shadow-xs hover:shadow-md uppercase tracking-wider"
-                  >
-                    <span>Explore All Fragrances</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+              {/* Bottom Guarantee Bar (Matching Reference Image) */}
+              <div className="w-full border-t border-[#C9A227]/25 bg-[#FAF7EE]/85 backdrop-blur-xs py-3.5 relative z-10">
+                <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-center gap-4 text-xs font-medium text-neutral-800 select-none">
+                  <span className="flex items-center gap-1.5 font-semibold text-emerald-900">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700" /> 100% Certified Alcohol-Free
+                  </span>
+                  <span className="text-emerald-400 font-bold">•</span>
+                  <span className="flex items-center gap-1.5 font-semibold text-emerald-900">
+                    <Sparkles className="w-4 h-4 text-emerald-700" /> Hand-poured Crystal Flacons
+                  </span>
                 </div>
               </div>
             </div>
@@ -1349,7 +1454,16 @@ export default function Navbar() {
 
                   {/* Expandable Tabs & Content */}
                   {isMobileShopExpanded && (
-                    <div className="p-3 space-y-3 bg-[#FCFBF7]/50">
+                    <div className="p-3 space-y-3 bg-[#FCFBF7]/80 relative overflow-hidden">
+                      {/* Subtle Botanical Perfumery Background */}
+                      <div className="absolute inset-0 pointer-events-none select-none opacity-25 -z-10 overflow-hidden">
+                        <Image
+                          src="/images/botanical-perfume-bg.jpg"
+                          alt="Botanical Ingredients"
+                          fill
+                          className="object-cover object-center"
+                        />
+                      </div>
                       {/* Segmented Pill Tabs */}
                       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                         {[
@@ -1386,7 +1500,7 @@ export default function Navbar() {
                                 key={cat._id}
                                 href={`/shop?category=${cat.slug}`}
                                 onClick={() => setIsMobileNavOpen(false)}
-                                className="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-xs font-semibold text-neutral-800 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
+                                className="flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-[12.5px] font-semibold text-neutral-900 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
                               >
                                 <span className="truncate">{cat.name}</span>
                                 <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#C9A227] group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
@@ -1394,7 +1508,7 @@ export default function Navbar() {
                             ))}
                           </div>
                           {categories.length === 0 && (
-                            <p className="text-[11px] text-neutral-400 italic py-2 text-center">Pure Attars & Distillations</p>
+                            <p className="text-xs text-neutral-500 italic py-2 text-center">Pure Attars & Distillations</p>
                           )}
                         </div>
                       )}
@@ -1408,7 +1522,7 @@ export default function Navbar() {
                                 key={note}
                                 href={`/shop?notes=${encodeURIComponent(note)}`}
                                 onClick={() => setIsMobileNavOpen(false)}
-                                className="px-3 py-1.5 rounded-full bg-white hover:bg-[#012520] border border-[#EAE3D2] text-[11px] font-medium text-neutral-700 hover:text-[#F5B418] transition-all flex items-center gap-1.5 active:scale-95 shadow-2xs group"
+                                className="px-3 py-1.5 rounded-full bg-white hover:bg-[#012520] border border-[#EAE3D2] text-xs font-semibold text-neutral-800 hover:text-[#F5B418] transition-all flex items-center gap-1.5 active:scale-95 shadow-2xs group"
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] group-hover:bg-[#F5B418] transition-colors" />
                                 <span>{note}</span>
@@ -1416,7 +1530,7 @@ export default function Navbar() {
                             ))}
                           </div>
                           {megaNotes.length === 0 && (
-                            <p className="text-[11px] text-neutral-400 italic py-2 text-center">Loading fragrance notes...</p>
+                            <p className="text-xs text-neutral-500 italic py-2 text-center">Loading fragrance notes...</p>
                           )}
                         </div>
                       )}
@@ -1441,7 +1555,7 @@ export default function Navbar() {
                               key={occ}
                               href={`/shop?occasion=${encodeURIComponent(occ)}`}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-xs font-semibold text-neutral-800 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
+                              className="flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-[12.5px] font-semibold text-neutral-900 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
                             >
                               <span className="truncate">{occ}</span>
                               <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#C9A227] group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
@@ -1461,10 +1575,10 @@ export default function Navbar() {
                               key={col}
                               href={`/shop?collection=${encodeURIComponent(col)}`}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-xs font-semibold text-neutral-800 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
+                              className="flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-[12.5px] font-semibold text-neutral-900 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
                             >
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <Crown className="w-3 h-3 text-[#C9A227] shrink-0" />
+                                <Crown className="w-3.5 h-3.5 text-[#C9A227] shrink-0" />
                                 <span className="truncate">{col}</span>
                               </div>
                               <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#C9A227] group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
@@ -1481,7 +1595,7 @@ export default function Navbar() {
                               key={value}
                               href={`/shop?priceRange=${value}`}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="flex items-center justify-between p-2 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-xs font-semibold text-neutral-800 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
+                              className="flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#EAE3D2] text-[12.5px] font-semibold text-neutral-900 hover:text-[#012520] transition-all group active:scale-[0.98] shadow-2xs"
                             >
                               <span className="truncate">{label}</span>
                               <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#C9A227] group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />

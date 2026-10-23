@@ -260,14 +260,14 @@ function ProductCardComponent({ product }: ProductCardProps) {
         </Link>
 
         {/* ── Product Information & Centered Details ── */}
-        <div className="px-2.5 sm:px-5 pt-1 sm:pt-2 pb-3.5 sm:pb-5 flex-1 flex flex-col justify-between text-center space-y-2 sm:space-y-3.5">
+        <div className="px-3 sm:px-5 pt-1.5 sm:pt-2 pb-3.5 sm:pb-5 flex-1 flex flex-col justify-between text-center space-y-2 sm:space-y-3.5">
           <div className="space-y-1 sm:space-y-1.5">
-            {/* 1. Fragrance Notes / Accord */}
-            <p className="font-sans text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-stone-600/90 truncate max-w-full mx-auto px-0.5">
+            {/* 1. Fragrance Notes / Accord (High contrast & readable on mobile) */}
+            <p className="font-sans text-[10px] min-[360px]:text-[11px] font-bold uppercase tracking-[0.10em] sm:tracking-[0.14em] text-stone-700 truncate max-w-full mx-auto px-0.5">
               {notesHeader}
             </p>
 
-            {/* 2. Product Name */}
+            {/* 2. Product Name (Readable 2-line clamp on mobile so titles don't cut off) */}
             <Link
               href={`/product/${product.slug}`}
               prefetch={true}
@@ -275,23 +275,23 @@ function ProductCardComponent({ product }: ProductCardProps) {
               onFocus={handlePrefetch}
               className="block group/title"
             >
-              <h3 className="font-serif text-sm sm:text-[20px] font-medium sm:font-normal text-stone-900 group-hover/title:text-[#9A7B2C] transition-colors line-clamp-1 leading-snug">
+              <h3 className="font-serif text-[14.5px] min-[360px]:text-[15.5px] sm:text-[20px] font-semibold sm:font-normal text-stone-950 group-hover/title:text-[#9A7B2C] transition-colors line-clamp-2 leading-snug min-h-[2.35rem] sm:min-h-0 flex items-center justify-center">
                 {product.name}
               </h3>
             </Link>
               
             {/* 3. Subtitle / Target Audience */}
-            <p className="font-serif italic font-light text-[11px] sm:text-[13px] text-stone-500 line-clamp-1 leading-tight tracking-wide">
+            <p className="font-serif italic font-normal text-[12px] sm:text-[13px] text-stone-600 line-clamp-1 leading-tight tracking-wide">
               {targetAudience}
             </p>
 
             {/* 4. Star Ratings + Review Count */}
-            <div className="flex items-center justify-center gap-1 sm:gap-1.5 pt-0.5 sm:pt-1 font-sans">
+            <div className="flex items-center justify-center gap-1.5 pt-0.5 sm:pt-1 font-sans">
               <div className="flex items-center gap-0.5 text-amber-500">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ${
+                    className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${
                       i < Math.round(averageRating)
                         ? 'fill-[#E5A118] text-[#E5A118]'
                         : 'fill-transparent text-stone-300'
@@ -299,40 +299,40 @@ function ProductCardComponent({ product }: ProductCardProps) {
                   />
                 ))}
               </div>
-              <span className="text-stone-600 text-[10px] sm:text-xs font-normal">
+              <span className="text-stone-700 text-[11px] sm:text-xs font-medium">
                 {reviewCount > 0 ? `${reviewCount} reviews` : 'No reviews'}
               </span>
             </div>
 
-            {/* 5. Pricing Row */}
-            <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2 pt-0.5 sm:pt-1 font-sans">
-              <span className="text-sm sm:text-lg font-extrabold text-stone-900">
+            {/* 5. Pricing Row (Bold & high contrast on mobile) */}
+            <div className="flex flex-wrap items-baseline justify-center gap-1.5 sm:gap-2 pt-0.5 sm:pt-1 font-sans">
+              <span className="text-[15px] min-[360px]:text-base sm:text-lg font-black text-stone-950">
                 {formatPrice(itemPrice)}
               </span>
               {originalPrice && originalPrice > itemPrice && (
-                <span className="text-[10px] sm:text-sm text-stone-400 line-through">
+                <span className="text-xs sm:text-sm text-stone-500 line-through">
                   {formatPrice(originalPrice)}
                 </span>
               )}
               {isOutOfStock ? (
-                <span className="text-[10px] sm:text-xs font-bold text-rose-600">
+                <span className="text-xs sm:text-xs font-bold text-rose-600">
                   • Sold Out
                 </span>
               ) : discountPercent && discountPercent > 0 ? (
-                <span className="text-[10px] sm:text-sm font-bold text-[#16A34A]">
+                <span className="text-[11px] sm:text-sm font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded-md">
                   {discountPercent}% Off
                 </span>
               ) : null}
             </div>
           </div>
 
-          {/* 6. Action Button: ADD TO CART (Emerald Blinking Glow) OR OUT OF STOCK (Red Blinking Glow) */}
-          <div className="pt-1 sm:pt-2">
+          {/* 6. Action Button: ADD TO CART (Mobile optimized 42px touch height & legible typography) */}
+          <div className="pt-1.5 sm:pt-2">
             {isOutOfStock ? (
               <button
                 type="button"
                 disabled
-                className="w-full min-h-[40px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95"
+                className="w-full min-h-[42px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border border-transparent text-white bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-[0.10em] sm:tracking-[0.16em] flex items-center justify-center gap-2 cursor-not-allowed shadow-[0_4px_15px_rgba(225,29,72,0.35)] select-none transition-all opacity-95"
               >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
@@ -348,7 +348,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className={`group/btn cart-btn-blink w-full min-h-[40px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border text-[10px] sm:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`group/btn cart-btn-blink w-full min-h-[42px] sm:min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-4 border text-[11px] min-[360px]:text-xs font-bold uppercase tracking-[0.10em] sm:tracking-[0.16em] rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isAdding
                     ? 'bg-[#046A5A] text-white border-[#046A5A] shadow-emerald-sm !animate-none'
                     : 'bg-gradient-to-r from-[#046A5A] via-[#035346] to-[#023F36] text-white border-transparent shadow-2xs hover:shadow-emerald-sm hover:brightness-110'
@@ -364,7 +364,7 @@ function ProductCardComponent({ product }: ProductCardProps) {
                       transition={{ duration: 0.2 }}
                       className="inline-flex items-center gap-1.5"
                     >
-                      <Check className="w-3.5 h-3.5 text-emerald-300 shrink-0 stroke-[3]" />
+                      <Check className="w-4 h-4 text-emerald-300 shrink-0 stroke-[3]" />
                       <span className="sm:hidden">Added</span>
                       <span className="hidden sm:inline">Added To Cart</span>
                     </motion.span>

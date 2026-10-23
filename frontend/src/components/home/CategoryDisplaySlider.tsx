@@ -62,24 +62,24 @@ function CategoryCardItem({ cat, priority = false }: { cat: any; priority?: bool
 
         {/* Bottom Content Area - Crisp typography with high contrast */}
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end z-10 text-white space-y-1.5">
-          <h3 className="font-serif text-lg sm:text-xl lg:text-2xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <h3 className="font-serif text-xl sm:text-2xl font-bold uppercase tracking-tight text-white group-hover/card:text-[#F5B418] transition-colors duration-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
             {cat.name}
           </h3>
 
           {cat.description && (
-            <p className="font-sans text-[11.5px] sm:text-xs text-stone-200 line-clamp-2 leading-relaxed opacity-95 group-hover/card:opacity-100 transition-opacity drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            <p className="font-sans text-[12px] sm:text-xs text-stone-100 line-clamp-2 leading-relaxed opacity-95 group-hover/card:opacity-100 transition-opacity drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
               {cat.description}
             </p>
           )}
 
           <div className="pt-2 flex items-center justify-between border-t border-white/20 group-hover/card:border-[#F5B418]/40 transition-colors">
-            <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover/card:translate-x-1 transition-transform duration-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#F5B418] group-hover/card:translate-x-1 transition-transform duration-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
               <span>Explore Collection</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </span>
 
             {typeof cat.productCount === 'number' && cat.productCount > 0 && (
-              <span className="text-[10px] font-sans font-medium text-stone-200 group-hover/card:text-white transition-colors bg-black/40 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-xs">
+              <span className="text-[11px] font-sans font-medium text-stone-200 group-hover/card:text-white transition-colors bg-black/50 px-2.5 py-0.5 rounded-full border border-white/15 backdrop-blur-xs">
                 {cat.productCount} {cat.productCount === 1 ? 'Flacon' : 'Flacons'}
               </span>
             )}
